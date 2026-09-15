@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,101 +9,79 @@
     <meta name="color-scheme" content="dark light">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <link rel="manifest" href="/manifest.json">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="icon" href="/icons/ra-thor-icon-192.png" type="image/png">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Cinzel+Decorative:wght@700&display=swap');
-        body { font-family: 'Inter', system-ui, sans-serif; }
-        .title-font { font-family: 'Cinzel Decorative', cursive; }
-        .gate { transition: all 0.3s ease; }
-        .gate.active { box-shadow: 0 0 15px #fcd34d; transform: scale(1.02); }
-        .metric { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        .section-header { font-size: 0.75rem; letter-spacing: 0.5px; }
-        @media (prefers-reduced-motion: reduce) {
-          * { animation: none !important; transition: none !important; }
-        }
-    </style>
+    <link rel="stylesheet" href="/css/rathor-theme.css">
+    <script>
+        (function () {
+            try { document.documentElement.setAttribute('data-theme', localStorage.getItem('rathor-theme') || 'dark'); }
+            catch (e) { document.documentElement.setAttribute('data-theme', 'dark'); }
+        })();
+    </script>
 </head>
-<body class="bg-black text-white">
-    <div class="border-b border-white/10">
-        <div class="max-w-5xl mx-auto px-6 py-4 flex flex-wrap items-center gap-3">
-            <span class="title-font text-2xl tracking-tighter">Ra-Thor</span>
-            <span class="px-3 py-1 text-xs bg-amber-400 text-black rounded-full font-bold tracking-wider">SHARD v8</span>
-            <span class="text-xs text-amber-300/80">workspace 14.15.6</span>
+<body>
+    <main class="rt-demo-page" id="rt-family-main">
+        <p><a class="rt-week-back" href="/">← Home</a></p>
+        <p class="rt-kicker">Demo · not a product</p>
+        <h1>Shard v8</h1>
+        <p class="rt-demo-lead">Local living node on this device. Nothing is sent to a server we control. Browser reference surface — not a live Lattice Conductor node, not a superintelligence warranty. Workspace 14.15.6.</p>
+        <p class="rt-cta-row"><button type="button" onclick="exportFullShard()" class="rt-btn-ghost">Export full shard</button></p>
+        <div class="rt-shard-grid">
+            <section class="rt-card">
+                <p class="rt-kicker">Sovereign shard</p>
+                <div id="shard-name">Alpha Shard</div>
+                <p><span id="offline-badge"><span id="offline-text">ONLINE</span></span></p>
+                <div class="rt-metric-grid">
+                    <div><span>Mercy score</span><div id="mercy-score" class="rt-mono">0.95</div></div>
+                    <div><span>Evolution</span><div id="evolution" class="rt-mono">0.12</div></div>
+                    <div><span>Valence</span><div id="valence" class="rt-mono">1.05</div></div>
+                    <div><span>TOLC alignment</span><div id="tolc" class="rt-mono">1.00</div></div>
+                </div>
+            </section>
+            <section class="rt-card">
+                <h2>Shard actions</h2>
+                <div class="rt-actions">
+                    <button type="button" onclick="performTick()" class="rt-btn-primary">Advance shard tick</button>
+                    <button type="button" onclick="participateQuantumSwarm()" class="rt-btn-ghost">Participate in quantum swarm</button>
+                    <button type="button" onclick="toggleOfflineMode()" class="rt-btn-ghost"><span id="offline-btn-text">Enter offline mode</span></button>
+                    <button type="button" onclick="reconcileWithConductor()" class="rt-btn-ghost">Reconcile with conductor</button>
+                </div>
+            </section>
+            <section class="rt-card">
+                <h2>TOLC 8 — living mercy gates</h2>
+                <p>Eight always-on gates. Weights stay on this device.</p>
+                <div class="rt-preset-row" id="mercy-gates"></div>
+            </section>
+            <section class="rt-card">
+                <h2>TOLC 24 — governance evaluation</h2>
+                <p>Deeper council-level assessment (simulated)</p>
+                <p id="tolc24-score" class="rt-mono">—</p>
+                <button type="button" onclick="runTolc24Evaluation()" class="rt-btn-ghost">Run deep governance evaluation</button>
+                <p class="rt-week-note">Simulates expanded 24-gate scrutiny. Influences reconciliation strength. Not a PATSAGi warranty.</p>
+            </section>
+            <section class="rt-card rt-shard-log">
+                <h2>Shard log</h2>
+                <p><button type="button" onclick="clearLog()" class="rt-btn-ghost rt-btn-sm">Clear</button></p>
+                <div id="log" class="rt-log"></div>
+            </section>
         </div>
-    </div>
-    <div class="max-w-5xl mx-auto px-6 py-8">
-        <div class="flex items-center justify-between mb-6">
-            <div>
-                <p class="text-xs text-white/50">Local living node on this device. Nothing is sent to a server we control.</p>
-                <p class="text-[11px] text-white/40 mt-1">Browser reference surface — not a live Lattice Conductor node, not a superintelligence warranty.</p>
-            </div>
-            <button onclick="exportFullShard()" class="flex items-center gap-2 px-4 py-2 text-sm border border-amber-400/60 hover:bg-amber-400/10 rounded-xl transition-colors">
-                <i class="fa-solid fa-download"></i>
-                <span>Export Full Shard</span>
-            </button>
+    </main>
+    <footer class="rt-site-footer" data-rt-family-footer>
+        <div class="max-w-5xl mx-auto px-4 sm:px-6">
+            <nav class="rt-follow" aria-label="Follow" data-rt-follow="1">
+                <p class="rt-follow-label" data-i18n="followTitle">Follow</p>
+                <ul class="rt-follow-list">
+                    <li><a href="https://x.com/AlphaProMega" rel="me noopener" target="_blank" data-i18n="followX">X / Twitter</a></li>
+                    <li><a href="https://www.linkedin.com/in/sherif-botros" rel="me noopener" target="_blank" data-i18n="followLinkedIn">LinkedIn</a></li>
+                    <!-- official follow named by the steward: https://www.facebook.com/share/1b7Z76vUpL/ -->
+                    <li><a href="https://www.facebook.com/people/Ra-Thor-AI/61594361430419/" rel="me noopener" target="_blank" data-i18n="followFacebook">Facebook</a></li>
+                </ul>
+            </nav>
+            <p class="rt-legal">v14.15.6 · AG-SML v1.1 · Capable · Bounded · Corrigible · info@Rathor.ai</p>
         </div>
-        <div class="grid lg:grid-cols-12 gap-6">
-            <div class="lg:col-span-7 space-y-6">
-                <div class="bg-zinc-950 border border-white/10 rounded-3xl p-8">
-                    <div class="flex items-center justify-between mb-6">
-                        <div>
-                            <div class="section-header text-amber-400">SOVEREIGN SHARD</div>
-                            <div id="shard-name" class="text-4xl font-semibold">Alpha Shard</div>
-                        </div>
-                        <div id="offline-badge" class="px-4 py-1.5 rounded-2xl text-sm flex items-center gap-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-                            <i class="fa-solid fa-wifi"></i>
-                            <span id="offline-text">ONLINE</span>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div class="metric bg-zinc-900 border border-white/10 rounded-2xl p-4"><div class="text-xs text-white/50 mb-1">MERCY SCORE</div><div id="mercy-score" class="text-4xl font-semibold text-amber-300">0.95</div></div>
-                        <div class="metric bg-zinc-900 border border-white/10 rounded-2xl p-4"><div class="text-xs text-white/50 mb-1">EVOLUTION</div><div id="evolution" class="text-4xl font-semibold">0.12</div></div>
-                        <div class="metric bg-zinc-900 border border-white/10 rounded-2xl p-4"><div class="text-xs text-white/50 mb-1">VALENCE</div><div id="valence" class="text-4xl font-semibold">1.05</div></div>
-                        <div class="metric bg-zinc-900 border border-white/10 rounded-2xl p-4"><div class="text-xs text-white/50 mb-1">TOLC ALIGNMENT</div><div id="tolc" class="text-4xl font-semibold">1.00</div></div>
-                    </div>
-                </div>
-                <div class="bg-zinc-950 border border-white/10 rounded-3xl p-8">
-                    <div class="section-header text-amber-400">TOLC 8 — LIVING MERCY GATES</div>
-                    <div class="text-sm text-white/60 mb-4">Eight always-on gates. Weights stay on this device.</div>
-                    <div class="grid grid-cols-4 sm:grid-cols-8 gap-2" id="mercy-gates"></div>
-                </div>
-            </div>
-            <div class="lg:col-span-5 space-y-6">
-                <div class="bg-zinc-950 border border-white/10 rounded-3xl p-8">
-                    <div class="section-header text-white/70 mb-4">SHARD ACTIONS</div>
-                    <div class="space-y-3">
-                        <button onclick="performTick()" class="w-full flex items-center justify-center gap-3 bg-white text-black font-semibold py-4 rounded-2xl hover:bg-amber-300 transition-colors"><i class="fa-solid fa-sync"></i> <span>Advance Shard Tick</span></button>
-                        <button onclick="participateQuantumSwarm()" class="w-full flex items-center justify-center gap-3 border border-amber-400/60 hover:bg-amber-400/10 py-4 rounded-2xl transition-colors"><i class="fa-solid fa-atom"></i> <span>Participate in Quantum Swarm</span></button>
-                        <button onclick="toggleOfflineMode()" class="w-full flex items-center justify-center gap-3 border border-white/20 hover:bg-white/5 py-4 rounded-2xl transition-colors"><i class="fa-solid fa-power-off"></i> <span id="offline-btn-text">Enter Offline Mode</span></button>
-                        <button onclick="reconcileWithConductor()" class="w-full flex items-center justify-center gap-3 bg-emerald-600 hover:bg-emerald-500 py-4 rounded-2xl transition-colors font-medium"><i class="fa-solid fa-link"></i> <span>Reconcile with Conductor</span></button>
-                    </div>
-                </div>
-                <div class="bg-zinc-950 border border-white/10 rounded-3xl p-8">
-                    <div class="flex items-center justify-between mb-4">
-                        <div>
-                            <div class="section-header text-white/70">TOLC 24 — GOVERNANCE EVALUATION</div>
-                            <div class="text-xs text-white/50">Deeper council-level assessment (simulated)</div>
-                        </div>
-                        <div id="tolc24-score" class="text-2xl font-semibold text-white/80">—</div>
-                    </div>
-                    <button onclick="runTolc24Evaluation()" class="w-full flex items-center justify-center gap-2 border border-white/20 hover:bg-white/5 py-3 rounded-2xl text-sm transition-colors"><i class="fa-solid fa-search"></i><span>Run Deep Governance Evaluation</span></button>
-                    <p class="text-[10px] text-white/40 mt-3 text-center">Simulates expanded 24-gate scrutiny. Influences reconciliation strength. Not a PATSAGi warranty.</p>
-                </div>
-            </div>
-            <div class="lg:col-span-12 bg-zinc-950 border border-white/10 rounded-3xl p-6">
-                <div class="flex items-center justify-between mb-3">
-                    <div class="section-header text-white/70">SHARD LOG</div>
-                    <button onclick="clearLog()" class="text-xs text-white/40 hover:text-white/70">Clear</button>
-                </div>
-                <div id="log" class="shard-log h-36 overflow-auto text-sm text-white/70 space-y-1 pr-2"></div>
-            </div>
-        </div>
-    </div>
+    </footer>
     <script src="/js/sovereign-shard.js"></script>
     <script src="/js/rathor-theme.js"></script>
-    <script src="/js/pwa-install.js" defer></script>
-    <script src="/js/family-nav-2026-08-22.js" defer></script>
+    <script src="/js/pwa-install.js"></script>
+    <script src="/js/family-nav-2026-08-22.js"></script>
 </body>
 </html>

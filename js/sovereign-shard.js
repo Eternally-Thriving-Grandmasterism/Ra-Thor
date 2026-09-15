@@ -56,11 +56,11 @@
     const text = document.getElementById('offline-text');
     const btnText = document.getElementById('offline-btn-text');
     if (shard.offline_mode) {
-      badge.className = "px-4 py-1.5 rounded-2xl text-sm flex items-center gap-2 bg-orange-500/10 text-orange-400 border border-orange-500/30";
+      badge.className = "rt-kicker";
       text.textContent = "OFFLINE";
       btnText.textContent = "Exit Offline Mode";
     } else {
-      badge.className = "px-4 py-1.5 rounded-2xl text-sm flex items-center gap-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30";
+      badge.className = "rt-kicker";
       text.textContent = "ONLINE";
       btnText.textContent = "Enter Offline Mode";
     }
@@ -73,7 +73,7 @@
     container.innerHTML = '';
     gates.forEach(gate => {
       const div = document.createElement('div');
-      div.className = `gate text-center p-2 rounded-xl border text-xs ${gate.active ? 'border-amber-400 bg-amber-400/10 active' : 'border-white/10 bg-zinc-900'}`;
+      div.className = gate.active ? 'preset-btn active' : 'preset-btn';
       div.innerHTML = `<div class="font-medium text-[10px]">${gate.name}</div>`;
       container.appendChild(div);
       if (gate.active) setTimeout(() => { gate.active = false; renderGates(); }, 1500);
@@ -87,7 +87,7 @@
     const logEl = document.getElementById('log');
     if (!logEl) return;
     const entry = document.createElement('div');
-    entry.className = `text-xs ${type === 'success' ? 'text-emerald-400' : type === 'warning' ? 'text-orange-400' : 'text-white/60'}`;
+    entry.className = type === 'success' ? 'rt-mono' : '';
     entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
     logEl.appendChild(entry);
     logEl.scrollTop = logEl.scrollHeight;

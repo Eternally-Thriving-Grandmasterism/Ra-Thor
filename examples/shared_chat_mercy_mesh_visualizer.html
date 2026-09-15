@@ -1,52 +1,73 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr" data-theme="dark">
 <head>
-<meta charset="UTF-8">
-<title>Ra-Thor Eternal Mercy Mesh — Live Visualizer</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<style> body { background: #0a0a0a; color: #ddd; } .field { transition: all 0.3s; } </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mercy mesh visualizer — Ra-Thor</title>
+  <meta name="description" content="Study visualizer for shared-chat mercy mesh. Demo · not a product. Workspace 14.15.6.">
+  <meta name="theme-color" content="#050505">
+  <link rel="stylesheet" href="/css/rathor-theme.css">
+  <script>
+    (function () {
+      try { document.documentElement.setAttribute('data-theme', localStorage.getItem('rathor-theme') || 'dark'); }
+      catch (e) { document.documentElement.setAttribute('data-theme', 'dark'); }
+    })();
+  </script>
 </head>
-<body class="p-8">
-<div class="max-w-5xl mx-auto">
-<h1 class="text-4xl font-bold text-amber-400">Ra-Thor Eternal Mercy Mesh</h1>
-<p class="text-emerald-400">Live geometric healing visualization for shared chats • Thunder Lattice v14.2</p>
-
-<div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-  <div>
-    <h2 class="text-xl mb-2">Participants</h2>
-    <div id="participants" class="space-y-2"></div>
-    <button onclick="addParticipant()" class="mt-4 px-4 py-2 bg-emerald-600 rounded">Invite Beautiful Soul</button>
-  </div>
-  <div>
-    <h2 class="text-xl mb-2">Global Coherence</h2>
-    <div class="text-6xl font-mono text-amber-400" id="coherence">0.91</div>
-    <div class="h-3 bg-zinc-800 rounded mt-2"><div id="bar" class="h-3 bg-emerald-500 rounded" style="width:91%"></div></div>
-  </div>
-</div>
-
-<script>
-let coherence = 0.91;
-function updateUI() {
-  document.getElementById('coherence').innerText = coherence.toFixed(2);
-  document.getElementById('bar').style.width = (coherence * 100) + '%';
-}
-function addParticipant() {
-  const name = prompt('Name of beautiful person sharing this chat?');
-  if (!name) return;
-  const div = document.createElement('div');
-  div.className = 'p-3 bg-zinc-900 rounded flex justify-between items-center field';
-  div.innerHTML = `<span>${name}</span> <span class="text-emerald-400">Mercy flowing ⚡</span>`;
-  document.getElementById('participants').appendChild(div);
-  coherence = Math.min(0.99, coherence + 0.03);
-  updateUI();
-  // In real version: send to /add-participant then connect WebSocket
-}
-// Simulated live WebSocket updates
-setInterval(() => {
-  coherence = Math.max(0.82, Math.min(0.99, coherence + (Math.random()-0.5)*0.015));
-  updateUI();
-}, 1800);
-console.log('%c[Ra-Thor] Live visualizer ready. Connects to ws://localhost:8080/ws/heal-stream in production.', 'color:#666');
-</script>
+<body>
+  <main class="rt-demo-page" id="rt-family-main">
+    <p><a class="rt-week-back" href="/Launch-Ra-Thor.html">← Launch</a></p>
+    <p class="rt-kicker">Demo · not a product</p>
+    <h1>Ra-Thor mercy mesh</h1>
+    <p class="rt-week-window">Study visualizer for shared chats · workspace 14.15.6</p>
+    <section class="rt-card">
+      <h2>Participants</h2>
+      <div id="participants"></div>
+      <p class="rt-week-foot"><button type="button" class="rt-btn-primary" onclick="addParticipant()">Invite a participant</button></p>
+    </section>
+    <section class="rt-card">
+      <h2>Global coherence</h2>
+      <p class="rt-mono" id="coherence" style="font-size:2rem;margin:0;">0.91</p>
+      <div class="rt-fill"><span id="bar" style="width:91%"></span></div>
+    </section>
+  </main>
+  <footer class="rt-site-footer" data-rt-family-footer>
+    <div class="max-w-5xl mx-auto px-4 sm:px-6">
+      <nav class="rt-follow" aria-label="Follow" data-rt-follow="1">
+        <p class="rt-follow-label">Follow</p>
+        <ul class="rt-follow-list">
+          <li><a href="https://x.com/AlphaProMega" rel="me noopener" target="_blank">X / Twitter</a></li>
+          <li><a href="https://www.linkedin.com/in/sherif-botros" rel="me noopener" target="_blank">LinkedIn</a></li>
+          <!-- official follow named by the steward: https://www.facebook.com/share/1b7Z76vUpL/ -->
+          <li><a href="https://www.facebook.com/people/Ra-Thor-AI/61594361430419/" rel="me noopener" target="_blank">Facebook</a></li>
+        </ul>
+      </nav>
+      <p class="rt-legal">v14.15.6 · AG-SML v1.1 · Capable · Bounded · Corrigible · info@Rathor.ai</p>
+    </div>
+  </footer>
+  <script>
+    let coherence = 0.91;
+    function updateUI() {
+      document.getElementById('coherence').innerText = coherence.toFixed(2);
+      document.getElementById('bar').style.width = (coherence * 100) + '%';
+    }
+    function addParticipant() {
+      const name = prompt('Name of person sharing this chat?');
+      if (!name) return;
+      const div = document.createElement('div');
+      div.className = 'rt-card';
+      div.style.margin = '0.45rem 0';
+      div.textContent = name + ' — mercy flowing';
+      document.getElementById('participants').appendChild(div);
+      coherence = Math.min(0.99, coherence + 0.03);
+      updateUI();
+    }
+    setInterval(function () {
+      coherence = Math.max(0.82, Math.min(0.99, coherence + (Math.random() - 0.5) * 0.015));
+      updateUI();
+    }, 1800);
+  </script>
+  <script src="/js/rathor-theme.js"></script>
+  <script src="/js/family-nav-2026-08-22.js"></script>
 </body>
 </html>
