@@ -23,13 +23,15 @@ See [`PUBLIC_CLAIM.lock.md`](../PUBLIC_CLAIM.lock.md). Combined AGSi stays SURMI
 - `crates/mercy-security/tests/redteam_keyword_leaks.rs` — keyword-gate leaks locked in CI
 - Layer 0 wrap / R6 / one-shell queue — apply-class that crosses `handle_request`
 
-## Red-team slice (this motion)
+## Red-team slice
 
 1. Plaintext `trust_remote_code` — **block** (green holds)
-2. Base64 of that string with no decoder token — **leak** (admitted today)
+2. Base64 of that string with no decoder token — **block** (B64 leak closed this motion; SHA stamped on main after squash)
 3. Zero-width split of that string — **leak** (admitted today)
 
-CI fails if those leaks disappear without a named harden motion, or if the plaintext block regresses. A later PR may decode obvious Base64 and re-scan. That PR is not METR either.
+Detector: obvious standalone Base64 tokens (standard alphabet + padding, length ≥ 16, multiple of 4) are decoded at most once and the UTF-8 is re-scanned. Non-UTF-8 is skipped. Nested Base64 is not theater-decoded. Benign decoded prose still admits.
+
+CI fails if the remaining split leak disappears without a named harden motion, or if the plaintext / B64 blocks regress. This is not METR.
 
 ## Refuse to claim
 

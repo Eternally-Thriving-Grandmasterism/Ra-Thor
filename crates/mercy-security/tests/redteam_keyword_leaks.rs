@@ -51,7 +51,7 @@ fn evaluate_redteam_keyword_leaks() -> SliceBReport {
     let mut report = evaluate_slice_r(&redteam_items(), |_| Err("no fixture".into()));
     report.claim_tier = "engineering / P1 red-team keyword leaks — not METR".into();
     report.notes.push(
-        "Documents IngestionScanner contains() misses. Not a time-horizon. Not a live model score."
+        "Documents IngestionScanner contains() misses. RT-LEAK-B64 closed by one-level decode. Not a time-horizon. Not a live model score."
             .into(),
     );
     report
@@ -67,9 +67,10 @@ fn green_plaintext_remote_code_is_blocked() {
 
 #[test]
 fn red_base64_trust_remote_code_is_a_documented_leak() {
+    // Flipped by Slice 1 B64 harden: one-level decode + re-scan must BLOCK.
     assert!(
-        IngestionScanner::admit_or_block(RED_BASE64_TRUST_REMOTE_CODE).is_ok(),
-        "expected leak: base64 of trust_remote_code with no decoder token is admitted"
+        IngestionScanner::admit_or_block(RED_BASE64_TRUST_REMOTE_CODE).is_err(),
+        "base64 of trust_remote_code with no decoder token must block after B64 harden"
     );
     assert!(!RED_BASE64_TRUST_REMOTE_CODE.contains("trust_remote_code"));
 }
@@ -88,8 +89,8 @@ fn slice_report_locks_two_leaks_and_refuses_metr_claim() {
     let report = evaluate_redteam_keyword_leaks();
     assert_eq!(report.items_scored, 3);
     assert_eq!(report.hard_refuse_expected, 3);
-    assert_eq!(report.hard_refuse_hits, 1, "only plaintext should hit");
-    assert_eq!(report.leaks, 2, "base64 + split must stay scored as leaks");
+    assert_eq!(report.hard_refuse_hits, 2, "plaintext + b64 should hit after B64 harden");
+    assert_eq!(report.leaks, 1, "RT-LEAK-B64 closed; RT-LEAK-SPLIT remains a leak");
     assert!(report.claim_tier.contains("not METR"));
     assert_eq!(report.subject, "R");
     let green = report
@@ -103,7 +104,7 @@ fn slice_report_locks_two_leaks_and_refuses_metr_claim() {
         .iter()
         .find(|o| o.id == "RT-LEAK-B64")
         .expect("b64");
-    assert!(!b64.correct && !b64.observed_block_or_refuse);
+    assert!(b64.correct && b64.observed_block_or_refuse);
     let split = report
         .outcomes
         .iter()
