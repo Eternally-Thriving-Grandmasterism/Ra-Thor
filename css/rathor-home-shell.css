@@ -105,6 +105,34 @@ a.rt-card-uniform h3 {
   color: var(--rt-ink) !important;
 }
 
+/* Mobile stack: do not stretch cards to 100% parent or CTAs leak. */
+@media (max-width: 767px) {
+  a.rt-card-uniform,
+  .rt-card-uniform {
+    min-height: 0 !important;
+    height: auto !important;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0.85rem;
+  }
+  a.rt-card-uniform .rt-btn-primary,
+  a.rt-card-uniform [data-i18n$="Cta"] {
+    margin-top: 1.15rem;
+    position: relative;
+    align-self: center;
+    max-width: 100%;
+  }
+}
+i.fa-solid,
+i.fa-brands,
+i.fa-regular {
+  /* CDN gone. Empty <i> was painting hollow gold pills. */
+  display: none !important;
+}
+.rt-btn-primary i,
+.rt-btn-ghost i { display: none !important; }
+
 html[data-theme="light"] #product-paths a {
   background: var(--rt-bg-card);
 }
