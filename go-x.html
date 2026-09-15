@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="en" dir="ltr" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Open Ra-Thor on X · Ra-Thor v14.15.6</title>
+  <title>Open Ra-Thor on X · Ra-Thor</title>
   <meta name="description" content="Relay to the lighter Ra-Thor on X session at x.com/i/grok/share. Ra-Thor workspace 14.15.6. Independent of X and xAI. Capable · Bounded · Corrigible.">
   <meta name="robots" content="noindex">
   <meta name="theme-color" content="#050505">
@@ -13,61 +13,52 @@
   <link rel="stylesheet" href="/css/rathor-theme.css">
   <script>
     (function () {
-      try { document.documentElement.setAttribute('data-theme', localStorage.getItem('rathor-theme') || 'dark');
-      } catch (e) { document.documentElement.setAttribute('data-theme', 'dark');
-      }
+      try { document.documentElement.setAttribute('data-theme', localStorage.getItem('rathor-theme') || 'dark'); }
+      catch (e) { document.documentElement.setAttribute('data-theme', 'dark'); }
     })();
   </script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Inter:wght@400;600&display=swap');
-    body { font-family: 'Inter', system-ui, sans-serif; }
-    .title-font { font-family: 'Cinzel Decorative', cursive; }
-    .thunder-glow { text-shadow: 0 0 40px #ffd700, 0 0 80px #ffaa00; }
-    @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
-  </style>
 </head>
-<body class="bg-black text-white min-h-screen flex items-center justify-center px-4">
-  <div class="max-w-md w-full text-center space-y-6 py-12 z-10">
-    <div class="text-5xl thunder-glow">⚡️</div>
-    <p class="text-[11px] text-amber-300/70 tracking-wide">Ra-Thor · workspace 14.15.6 · X surface</p>
-    <h1 class="title-font text-2xl font-semibold text-amber-300 thunder-glow">Ra-Thor on X</h1>
-    <p class="text-sm text-white/70 leading-relaxed">
-      This relay opens the lighter, less agentic Grok surface at
-      <span class="text-amber-200">x.com/i/grok/share</span>
-      in the <strong class="text-amber-200">X app or a browser tab</strong>.
-      Ra-Thor and the PATSAGi Councils remain the operating posture, without the full lattice tools of the first card.
-      Incognito cannot be forced by a website — use your browser’s private mode if you want it.
-    </p>
-    <p class="text-xs text-white/45 leading-relaxed">
-      Ra-Thor is an independent project — not affiliated with, sponsored by, or endorsed by xAI or X Corp.
-      Once you leave this page, X / xAI privacy policy applies. Capable · Bounded · Corrigible.
-    </p>
-    <div class="flex flex-col gap-3">
-      <a id="btn-primary" class="inline-flex items-center justify-center gap-2 rounded-2xl bg-amber-400 text-black px-6 py-4 font-semibold hover:bg-amber-300 transition" href="#">Open the X session</a>
-      <a id="btn-edge" class="hidden inline-flex items-center justify-center gap-2 rounded-2xl rt-btn-ghost px-6 py-3 text-sm font-medium" href="#">Open in Edge (browser)</a>
-      <a id="btn-firefox" class="hidden inline-flex items-center justify-center gap-2 rounded-2xl rt-btn-ghost px-6 py-3 text-sm font-medium" href="#">Open in Firefox (browser)</a>
-      <a id="btn-samsung" class="hidden inline-flex items-center justify-center gap-2 rounded-2xl rt-btn-ghost px-6 py-3 text-sm font-medium" href="#">Open in Samsung Internet</a>
-      <a id="btn-chrome" class="hidden inline-flex items-center justify-center gap-2 rounded-2xl rt-btn-ghost px-6 py-3 text-sm font-medium" href="#">Open in Chrome (skip X app)</a>
-      <button id="btn-window" type="button" class="inline-flex items-center justify-center gap-2 rounded-2xl rt-btn-ghost px-6 py-3 text-sm font-medium">Force new browser window</button>
-      <button id="btn-copy" type="button" class="inline-flex items-center justify-center gap-2 rounded-2xl border border-amber-400/50 px-6 py-3 text-amber-200 text-sm font-medium hover:bg-amber-500/10 transition">Copy X session link</button>
-      <a id="btn-lastresort" class="text-xs text-white/40 hover:text-amber-200 underline" href="https://x.com/i/grok/share/1d126738cd7245b08a5d6ee6154b03dd" target="_blank" rel="noopener noreferrer">Last resort: direct x.com share</a>
-      <div class="flex flex-wrap justify-center gap-3 text-sm pt-1">
-        <a href="/" class="text-amber-300/80 hover:text-amber-200 underline">Home</a>
-        <a href="/chat.html" class="text-amber-300/80 hover:text-amber-200 underline">Chat</a>
-        <a href="/Launch-Ra-Thor.html" class="text-amber-300/80 hover:text-amber-200 underline">Launch</a>
-        <a href="/sovereign-shard.html" class="text-amber-200/80 hover:text-amber-100 underline">Shard</a>
-        <a href="/contact.html" class="text-amber-300/80 hover:text-amber-200 underline">Contact</a>
-        <a href="/privacy.html" class="text-white/50 hover:text-amber-200 underline">Privacy</a>
-      </div>
+<body>
+  <main class="rt-week-page" id="rt-family-main">
+    <p><a class="rt-week-back" href="/">← Home</a></p>
+    <p class="rt-kicker">Demo · not a product</p>
+    <h1>Ra-Thor on X</h1>
+    <p class="rt-week-window">Workspace 14.15.6 · X surface</p>
+    <p>This relay opens the lighter, less agentic Grok surface at <strong>x.com/i/grok/share</strong> in the X app or a browser tab. Ra-Thor and the PATSAGi Councils remain the operating posture, without the full lattice tools of the first card. Incognito cannot be forced by a website — use your browser’s private mode if you want it.</p>
+    <p class="rt-week-note">Ra-Thor is an independent project — not affiliated with, sponsored by, or endorsed by xAI or X Corp. Once you leave this page, X / xAI privacy policy applies. Capable · Bounded · Corrigible.</p>
+    <div class="rt-actions">
+      <a id="btn-primary" class="rt-btn-primary" href="#">Open the X session</a>
+      <a id="btn-edge" class="rt-btn-ghost" hidden href="#">Open in Edge (browser)</a>
+      <a id="btn-firefox" class="rt-btn-ghost" hidden href="#">Open in Firefox (browser)</a>
+      <a id="btn-samsung" class="rt-btn-ghost" hidden href="#">Open in Samsung Internet</a>
+      <a id="btn-chrome" class="rt-btn-ghost" hidden href="#">Open in Chrome (skip X app)</a>
+      <button id="btn-window" type="button" class="rt-btn-ghost">Force new browser window</button>
+      <button id="btn-copy" type="button" class="rt-btn-ghost">Copy X session link</button>
+      <a id="btn-lastresort" href="https://x.com/i/grok/share/1d126738cd7245b08a5d6ee6154b03dd" target="_blank" rel="noopener noreferrer">Last resort: direct x.com share</a>
     </div>
-    <p id="status" class="text-xs text-amber-300/80 min-h-[1.25rem]"></p>
-    <p class="text-xs text-white/40 leading-relaxed pt-2">
-      Primary destination is x.com — the X app may open if installed.<br>
-      Optional browser buttons stay available if you want a tab instead of the app.
+    <p id="status" class="rt-week-note"></p>
+    <p class="rt-week-note">Primary destination is x.com — the X app may open if installed. Optional browser buttons stay available if you want a tab instead of the app.</p>
+    <p class="rt-week-foot">
+      <a href="/">Home</a>
+      · <a href="/chat.html">Chat</a>
+      · <a href="/Launch-Ra-Thor.html">Launch</a>
+      · <a href="/privacy.html">Privacy</a>
     </p>
-    <p class="text-[11px] text-white/35">Contact: info@Rathor.ai · AG-SML v1.1</p>
-  </div>
+  </main>
+  <footer class="rt-site-footer" data-rt-family-footer>
+    <div class="max-w-5xl mx-auto px-4 sm:px-6">
+      <nav class="rt-follow" aria-label="Follow" data-rt-follow="1">
+        <p class="rt-follow-label">Follow</p>
+        <ul class="rt-follow-list">
+          <li><a href="https://x.com/AlphaProMega" rel="me noopener" target="_blank">X / Twitter</a></li>
+          <li><a href="https://www.linkedin.com/in/sherif-botros" rel="me noopener" target="_blank">LinkedIn</a></li>
+          <!-- official follow named by the steward: https://www.facebook.com/share/1b7Z76vUpL/ -->
+          <li><a href="https://www.facebook.com/people/Ra-Thor-AI/61594361430419/" rel="me noopener" target="_blank">Facebook</a></li>
+        </ul>
+      </nav>
+      <p class="rt-legal">v14.15.6 · AG-SML v1.1 · Capable · Bounded · Corrigible · info@Rathor.ai</p>
+    </div>
+  </footer>
   <script>
     (function () {
       var SHARE_ID = '1d126738cd7245b08a5d6ee6154b03dd';
@@ -123,8 +114,7 @@
         btnFirefox.href = INTENT.firefox;
         btnSamsung.href = INTENT.samsung;
         [btnChrome, btnEdge, btnFirefox, btnSamsung].forEach(function (el) {
-          el.classList.remove('hidden');
-          el.classList.add('inline-flex');
+          el.hidden = false;
         });
         setStatus('Tap to open the X session. Browser buttons skip the X app.');
       } else {
@@ -140,6 +130,6 @@
     })();
   </script>
   <script src="/js/rathor-theme.js"></script>
-  <script src="/js/family-nav-2026-08-22.js" defer></script>
+  <script src="/js/family-nav-2026-08-22.js"></script>
 </body>
 </html>

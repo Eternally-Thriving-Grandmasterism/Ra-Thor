@@ -6,14 +6,14 @@
   <title>Ra-Thor · Micro-Moment Recovery Demo (v2.1 Capacity)</title>
   <style>
     :root {
-      --bg: #0b0f14;
-      --panel: #121820;
-      --border: #1e2a38;
-      --text: #e6edf5;
-      --muted: #8b9bb0;
-      --accent: #3dd6c6;
-      --warn: #f5a623;
-      --good: #4ade80;
+      --bg: #050505;
+      --panel: #0d0b08;
+      --border: rgba(240, 211, 106, 0.34);
+      --text: #f6f1e4;
+      --muted: rgba(246, 241, 228, 0.68);
+      --accent: #f0d36a;
+      --warn: #d47818;
+      --good: #f0d36a;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -159,10 +159,20 @@
     }
     footer a { color: var(--accent); text-decoration: none; }
   </style>
+  <link rel="stylesheet" href="/css/rathor-theme.css">
+  <script>
+    (function () {
+      try { document.documentElement.setAttribute('data-theme', localStorage.getItem('rathor-theme') || 'dark'); }
+      catch (e) { document.documentElement.setAttribute('data-theme', 'dark'); }
+    })();
+  </script>
 </head>
 <body>
   <header>
-    <h1>Ra-Thor · Micro-Moment Recovery Demo</h1>
+    <div>
+      <p class="rt-kicker">Demo · not a product</p>
+      <h1>Ra-Thor · Micro-Moment Recovery Demo</h1>
+    </div>
     <span class="badge">MercyMotionVisionEngine v2.1 · Capacity</span>
   </header>
 
@@ -174,8 +184,8 @@
           Choose short video
           <input type="file" id="videoInput" accept="video/*" />
         </label>
-        <button id="btnSynthetic" class="primary">Run synthetic motion frames</button>
-        <button id="btnClear" disabled>Clear</button>
+        <button id="btnSynthetic" class="rt-btn-primary">Run synthetic motion frames</button>
+        <button id="btnClear" class="rt-btn-ghost" disabled>Clear</button>
       </div>
       <p class="status" id="status">Ready. Select a short video or run synthetic frames to exercise the dense optical-flow path.</p>
       <div style="margin-top: 0.9rem;">
@@ -191,9 +201,19 @@
     </section>
   </main>
 
-  <footer>
-    TOLC 8 · Permanent PATSAGi Councils · ONE Organism<br />
-    <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor">Ra-Thor monorepo</a> · info@Rathor.ai · yoi ⚡
+  <footer class="rt-site-footer" data-rt-family-footer>
+    <div class="max-w-5xl mx-auto px-4 sm:px-6">
+      <nav class="rt-follow" aria-label="Follow" data-rt-follow="1">
+        <p class="rt-follow-label">Follow</p>
+        <ul class="rt-follow-list">
+          <li><a href="https://x.com/AlphaProMega" rel="me noopener" target="_blank">X / Twitter</a></li>
+          <li><a href="https://www.linkedin.com/in/sherif-botros" rel="me noopener" target="_blank">LinkedIn</a></li>
+          <!-- official follow named by the steward: https://www.facebook.com/share/1b7Z76vUpL/ -->
+          <li><a href="https://www.facebook.com/people/Ra-Thor-AI/61594361430419/" rel="me noopener" target="_blank">Facebook</a></li>
+        </ul>
+      </nav>
+      <p class="rt-legal">v14.15.6 · AG-SML v1.1 · Capable · Bounded · Corrigible · info@Rathor.ai</p>
+    </div>
   </footer>
 
   <script type="module">
@@ -568,5 +588,7 @@
       if (file) runFromVideo(file);
     });
   </script>
+  <script src="/js/rathor-theme.js"></script>
+  <script src="/js/family-nav-2026-08-22.js"></script>
 </body>
 </html>
