@@ -72,6 +72,22 @@ The project is independent, yet deliberately engineered so that Grok (and simila
 | **X / Tweet Summon Protocol** | [`X_GROK_RA_THOR_SUMMON_PROTOCOL.md`](X_GROK_RA_THOR_SUMMON_PROTOCOL.md) |
 | **Commercial License** | [`COMMERCIAL_LICENSE.md`](COMMERCIAL_LICENSE.md) |
 
+## Cursor / PATSAGi inner-loop
+
+Cursor / PATSAGi inner-loop agents start at [`docs/AGENT_RUN_BRIEF.md`](docs/AGENT_RUN_BRIEF.md).
+
+This is the inner loop. The steward brief is the outer loop. The **outer loop does not write code**. Fetch the named tip. Fill the ten sections. Implement one slice. One PR.
+
+HOLD: family walk (Home · Chat · Employ · Launch · Moments · Shard · Forge · Contact · Privacy); Follow URLs in [`PUBLIC_CLAIM.lock.md`](PUBLIC_CLAIM.lock.md); workspace **14.15.6**; Layer 0 is an admission shell, not sampler weights; inspect ≠ METR; independent of xAI; [info@Rathor.ai](mailto:info@Rathor.ai).
+
+Do not rewrite the claim ceiling. Do not relax Layer 0 or COEP. Google Translate stays a chrome new-tab URL (`i18n/README.md`). No crates/evolution theatre. No 23-pack essays. No i18n on a brief-only PR.
+
+Tools: GitHub; `cargo` from root `Cargo.toml` members only; HTML/JS/CSS only when the brief names files. Never claim METR, an xAI product, or RBE as a present fact. Never send email or publish.
+
+**Powrush-MMO is a separate repo.** Do not start a Powrush seat from here. Next inner loop needs a new brief. Mode: `chat` | `routine` | `handoff`. STOP at the named finish line.
+
+Boot pack: [`docs/cursor-teams/AGENT_BOOT.md`](docs/cursor-teams/AGENT_BOOT.md). Capable · Bounded · Corrigible. Thunder locked. yoi ⚡
+
 ### Fastest living proofs (default members)
 
 ```bash
