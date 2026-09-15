@@ -3,7 +3,7 @@
  * Pass-through documents. Fetch handler present for Chrome installability.
  * Contact: info@Rathor.ai
  */
-var LOCK = '20260915b';
+var LOCK = '20260915c';
 var CACHE = 'rathor-core-' + LOCK;
 var PRECACHE = [
   '/', '/index.html', '/chat.html', '/contact.html', '/privacy.html',

@@ -1,20 +1,16 @@
 /* js/google-translate-optin.js
- * Click-only Google Translate for rathor.ai family pages.
+ * Google Translate = new tab, not a widget.
  * Workspace 14.15.6 · info@Rathor.ai
- * Never loads translate.google.com until the visitor asks.
- * Offline packs remain the default. This widget is Google, on the network.
+ * Site COEP require-corp blocks translate.google.com inject.
+ * Offline packs remain the default. This link leaves the device.
  */
 (function () {
   'use strict';
   if (window.__rtGTranslate) return;
   window.__rtGTranslate = true;
 
-  var loaded = false;
-  var failed = false;
-
   function pack(key, fallback) {
-    var lang = 'en';
-    try { lang = localStorage.getItem('rathor-lang') || 'en'; } catch (e) {}
+    var lang = currentLang();
     var packs = window.translations || {};
     var t = packs[lang] || packs.en || {};
     var en = packs.en || {};
@@ -22,81 +18,64 @@
     return val != null ? val : fallback;
   }
 
-  function offline() {
-    try { return navigator.onLine === false; } catch (e) { return false; }
+  function currentLang() {
+    try { return localStorage.getItem('rathor-lang') || 'en'; } catch (e) { return 'en'; }
   }
 
-  function noteEl() { return document.getElementById('rt-gtranslate-note'); }
+  function pagePath() {
+    var p = location.pathname || '/';
+    if (p === '/index.html' || p === '') p = '/';
+    return p;
+  }
 
-  function setNote(text) {
-    var el = noteEl();
-    if (el) el.textContent = text;
+  function googleHref(lang) {
+    lang = lang || currentLang() || 'en';
+    var u = 'https://rathor.ai' + pagePath();
+    return 'https://translate.google.com/translate?sl=en&tl=' +
+      encodeURIComponent(lang) +
+      '&u=' + encodeURIComponent(u);
+  }
+
+  function sync() {
+    var a = document.getElementById('rt-gtranslate-open');
+    var note = document.getElementById('rt-gtranslate-note');
+    var lang = currentLang();
+    if (a) {
+      a.textContent = pack('gTranslateBtn', 'Translate with Google');
+      a.setAttribute('href', googleHref(lang));
+    }
+    if (note) {
+      note.textContent = pack(
+        'gTranslateNote',
+        'Opens Google Translate in a new tab. Needs the network. Not the offline pack.'
+      );
+    }
   }
 
   function mount() {
-    if (document.getElementById('rt-gtranslate')) return;
+    if (document.getElementById('rt-gtranslate')) {
+      sync();
+      return;
+    }
     var wrap = document.createElement('aside');
     wrap.id = 'rt-gtranslate';
     wrap.className = 'rt-gtranslate';
-    wrap.setAttribute('aria-label', 'Google Translate opt-in');
+    wrap.setAttribute('aria-label', 'Google Translate in a new tab');
     wrap.innerHTML =
-      '<button type="button" class="rt-gtranslate-btn" id="rt-gtranslate-open"></button>' +
-      '<p class="rt-gtranslate-note" id="rt-gtranslate-note"></p>' +
-      '<div id="google_translate_element" hidden></div>';
+      '<a class="rt-gtranslate-btn" id="rt-gtranslate-open" target="_blank" rel="noopener"></a>' +
+      '<p class="rt-gtranslate-note" id="rt-gtranslate-note"></p>';
     var nav = document.getElementById('rt-family-nav');
     if (nav && nav.parentNode) nav.parentNode.insertBefore(wrap, nav.nextSibling);
     else document.body.insertBefore(wrap, document.body.firstChild);
-
-    var btn = document.getElementById('rt-gtranslate-open');
-    btn.textContent = pack('gTranslateBtn', 'Translate with Google');
-    setNote(pack('gTranslateNote', 'Uses Google. Needs the network. This is not the offline language pack.'));
-    btn.addEventListener('click', open);
+    sync();
   }
 
-  function open() {
-    var slot = document.getElementById('google_translate_element');
-    if (offline()) {
-      setNote(pack('gTranslateOffline', 'Google Translate needs the network. Offline language packs on this page still work.'));
-      return;
-    }
-    if (failed) {
-      setNote(pack('gTranslateBlocked', 'Google Translate is blocked or unavailable. Offline packs still work.'));
-      return;
-    }
-    if (loaded) {
-      if (slot) slot.hidden = false;
-      return;
-    }
-    setNote(pack('gTranslateLoading', 'Loading Google Translate. This leaves the device and is not the offline pack.'));
-    if (slot) slot.hidden = false;
-
-    window.googleTranslateElementInit = function () {
-      try {
-        if (!window.google || !google.translate || !google.translate.TranslateElement) {
-          throw new Error('missing google.translate');
-        }
-        new google.translate.TranslateElement({
-          pageLanguage: 'en',
-          autoDisplay: false
-        }, 'google_translate_element');
-        loaded = true;
-        setNote(pack('gTranslateReady', 'This widget is Google’s. It needs the network. The offline pack remains the default.'));
-      } catch (e) {
-        failed = true;
-        setNote(pack('gTranslateBlocked', 'Google Translate failed to start. Offline packs still work.'));
-      }
-    };
-
-    var s = document.createElement('script');
-    s.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
-    s.async = true;
-    s.onerror = function () {
-      failed = true;
-      setNote(pack('gTranslateBlocked', 'Could not reach Google (offline or blocked). Offline language packs still work.'));
-    };
-    document.head.appendChild(s);
-  }
+  window.rtGTranslateSync = sync;
 
   if (document.body) mount();
   else document.addEventListener('DOMContentLoaded', mount);
+  document.addEventListener('click', function (e) {
+    var btn = e.target && e.target.closest && e.target.closest('.lang-tab, [data-lang]');
+    if (btn) setTimeout(sync, 0);
+  }, true);
 })();

@@ -8,7 +8,7 @@ Buttons on `index.html` load `/i18n/{lang}.js?v=20260915b`. Missing keys fall ba
 
 W8 completeness (every pack): family labels (`navHome`…`navPrivacy`) · Follow labels · hero/subhead (`headline`, `fusion`, `kicker`) · week card (`weekTitle`, `weekLineRa`, `weekLinePowrush`, `weekLineResearch`, `weekMore`) · Employ primary CTA (`employCta`) · Contact inquiry (`contactInquiry`).
 
-Service worker precaches `/i18n/*.js`. Offline packs are the product UX. Google Translate is a click-only opt-in (`js/google-translate-optin.js`) and is **not** loaded on first paint.
+Service worker precaches `/i18n/*.js`. Offline packs are the product UX. Google Translate is a **new-tab URL** (`js/google-translate-optin.js`) — it does **not** inject `translate.google.com` (COEP `require-corp` would fail a widget). Do not relax COEP on `/chat.html` or worker paths.
 
 | Code | Language | Notes |
 | --- | --- | --- |
