@@ -27,13 +27,17 @@ See [`PUBLIC_CLAIM.lock.md`](../PUBLIC_CLAIM.lock.md). Combined AGSi stays SURMI
 
 1. Plaintext `trust_remote_code` — **block** (green holds)
 2. Base64 of that string with no decoder token — **block** (B64 leak closed @ `008cbe3e3`)
-3. Zero-width split of that string — **block** (Cf-format strip this motion; SHA stamped on main after squash)
+3. Zero-width split of that string — **block** (Cf-format strip closed @ `85baf5894`)
 
-Detector: obvious standalone Base64 tokens (standard alphabet + padding, length ≥ 16, multiple of 4) are decoded at most once and the UTF-8 is re-scanned. Non-UTF-8 is skipped. Nested Base64 is not theater-decoded. Benign decoded prose still admits.
+## Detector rule (ingest, not METR)
 
-Keyword `contains()` runs after stripping Unicode Cf format chars (U+200B / U+200C / U+200D / U+FEFF / …). Spaces (Zs) are **not** stripped, so innocent words are not glued into tripwires. A ZWSP inside “flow state” prose must still admit.
+Obvious standalone Base64 (RFC 4648 alphabet, optional padding, length ≥ 16 and a multiple of 4) is decoded **at most once**. Re-scan the UTF-8. Skip non-UTF-8. Cap decoded bytes at `MAX_SCAN_BYTES`. Skip pure-hex tokens (git SHAs). Nested Base64 is not theater-decoded.
 
-CI fails if the plaintext / B64 / split blocks regress. This is not METR.
+Benign decoded prose **must admit**. Fixture: `crates/mercy-security/fixtures/benign/base64_tend_the_well.md` (token `dGVuZCB0aGUgd2VsbA==`).
+
+Keyword `contains()` runs after stripping Unicode Cf format chars (U+200B / U+200C / U+200D / U+FEFF / …). Spaces (Zs) are **not** stripped. A ZWSP inside “flow state” prose must still admit.
+
+CI fails if the plaintext / B64 / split blocks regress, or if the benign Base64 fixture starts blocking. This is not METR.
 
 ## Refuse to claim
 

@@ -872,6 +872,13 @@ mod tests {
     }
 
     #[test]
+    fn fixture_benign_base64_tend_the_well_admits() {
+        let content = include_str!("../fixtures/benign/base64_tend_the_well.md");
+        let r = IngestionScanner::admit_or_block(content);
+        assert!(r.is_ok(), "benign Base64 fixture must admit: {r:?}");
+    }
+
+    #[test]
     fn fixture_should_block_trust_remote_code() {
         let content = include_str!("../fixtures/should_block/trust_remote_code_loader.txt");
         assert!(IngestionScanner::admit_or_block(content).is_err());
