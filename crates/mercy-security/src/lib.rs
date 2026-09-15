@@ -439,6 +439,36 @@ impl IngestionScanner {
         }
     }
 
+    /// Unicode Cf (Format) used as keyword splitters. Does **not** strip Zs spaces.
+    /// Stripping spaces would glue "eval (" / innocent words into tripwires.
+    fn is_cf_format(c: char) -> bool {
+        matches!(
+            c,
+            '\u{00AD}'
+                | '\u{0600}'..='\u{0605}'
+                | '\u{061C}'
+                | '\u{06DD}'
+                | '\u{070F}'
+                | '\u{08E2}'
+                | '\u{180E}'
+                | '\u{200B}'..='\u{200F}'
+                | '\u{202A}'..='\u{202E}'
+                | '\u{2060}'..='\u{2064}'
+                | '\u{2066}'..='\u{206F}'
+                | '\u{FEFF}'
+                | '\u{FFF9}'..='\u{FFFB}'
+                | '\u{110BD}'
+                | '\u{110CD}'
+                | '\u{1D173}'..='\u{1D17A}'
+                | '\u{E0001}'
+                | '\u{E0020}'..='\u{E007F}'
+        )
+    }
+
+    fn strip_cf_format(s: &str) -> String {
+        s.chars().filter(|c| !Self::is_cf_format(*c)).collect()
+    }
+
     pub fn scan_text(content: &str) -> IngestionScanResult {
         Self::scan_text_depth(content, 0)
     }
@@ -449,7 +479,7 @@ impl IngestionScanner {
         if content.len() > MAX_SCAN_BYTES {
             return Self::oversized_payload_result(content.len());
         }
-        let lower = content.to_lowercase();
+        let lower = Self::strip_cf_format(content).to_lowercase();
         let mut findings = Self::collect_keyword_findings(&lower);
 
         if b64_depth == 0 {
@@ -960,5 +990,26 @@ mod tests {
             IngestionScanner::admit_or_block(double).is_ok(),
             "nested Base64 is not theater-decoded"
         );
+    }
+
+    #[test]
+    fn cf_format_split_trust_remote_code_blocks() {
+        assert!(IngestionScanner::admit_or_block("trust_\u{200b}remote_code").is_err());
+        assert!(IngestionScanner::admit_or_block("trust_\u{200c}remote_code").is_err());
+        assert!(IngestionScanner::admit_or_block("trust_\u{200d}remote_code").is_err());
+        assert!(IngestionScanner::admit_or_block("trust_\u{feff}remote_code").is_err());
+    }
+
+    #[test]
+    fn zwsp_inside_flow_state_prose_admits() {
+        let prose = "Classroom notes on flo\u{200b}w state during the mercy tick.";
+        let r = IngestionScanner::admit_or_block(prose);
+        assert!(r.is_ok(), "ZWSP inside benign 'flow state' prose must admit: {r:?}");
+    }
+
+    #[test]
+    fn real_space_split_is_not_glued() {
+        // Spaces are Zs, not Cf. Do not merge "trust_ remote_code" into the tripwire.
+        assert!(IngestionScanner::admit_or_block("trust_ remote_code").is_ok());
     }
 }
