@@ -7,6 +7,8 @@
 
 How a stranger wraps Grok, Claude, ChatGPT, Gemini, Ollama, or any OpenAI-compatible host under Ra-Thor. Outputs remain **drafts**. inspect ≠ METR. Independent of xAI.
 
+Public briefing (same doors, visitor voice): [`/briefing.html`](https://rathor.ai/briefing.html) · [`PUBLIC_EMPLOY_BRIEFING.md`](PUBLIC_EMPLOY_BRIEFING.md).
+
 ## Four doors (pick one)
 
 | Door | Who | What |
@@ -63,7 +65,6 @@ from openai import OpenAI
 
 client = OpenAI(base_url="http://127.0.0.1:8787/v1", api_key="operator-held")
 
-# stream false
 print(
     client.chat.completions.create(
         model="rathor-wrap",
@@ -74,7 +75,6 @@ print(
     .message.content
 )
 
-# stream true
 for chunk in client.chat.completions.create(
     model="rathor-wrap",
     messages=[{"role": "user", "content": "hello"}],
