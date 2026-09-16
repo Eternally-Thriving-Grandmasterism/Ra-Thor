@@ -21,4 +21,9 @@ assert(employHtml.indexOf('article') !== -1 && /<article\b[^>]*\brt-prose\b/.tes
   'employ.html must keep article.rt-prose');
 assert(employHtml.indexOf('mailto:info@Rathor.ai') !== -1, 'employ.html must keep mailto:info@Rathor.ai');
 
+assert(employMd.indexOf('## The loop') !== -1, 'docs/EMPLOY.md must restore The loop');
+assert(employMd.indexOf('Intend') !== -1, 'docs/EMPLOY.md loop must name Intend');
+assert(employHtml.indexOf('Pass the gates') !== -1, 'employ.html must restore Pass the gates');
+assert(employHtml.indexOf('14.18') === -1, 'employ.html must not sell 14.18');
+
 console.log('EMPLOY-1 employ-spine-lock checks passed');
