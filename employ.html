@@ -125,6 +125,17 @@ body { font-family: 'Inter', system-ui, sans-serif; }
         <p class="text-white/60 text-sm mt-4">Optional-model contract: <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/OPTIONAL_MODEL.md" class="text-amber-300 underline">docs/OPTIONAL_MODEL.md</a>. Skill pack: <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/skills/ra-thor-employ/SKILL.md" class="text-amber-300 underline">skills/ra-thor-employ</a>. Not a certified AgentOS or Hermes integration.</p>
       </div>
       <div class="card-hover bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8">
+        <h2 class="text-xl font-semibold text-amber-300 mb-4">Wrap a model</h2>
+        <p class="text-white/80 leading-relaxed mb-4">Four doors from <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/ADOPT.md" class="text-amber-300 underline">docs/ADOPT.md</a>. Pick one. Outputs remain drafts.</p>
+        <ol class="space-y-2 text-white/80 text-sm sm:text-base mb-4">
+          <li class="flex gap-2"><span class="text-amber-400 shrink-0">1.</span> <span><strong class="text-amber-300">Copy context</strong> — Lattice Chat <a href="/chat.html" class="text-amber-300 underline">Copy Context</a>, or paste <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/wrappers/system-prompt.txt" target="_blank" rel="noopener" class="text-amber-300 underline">wrappers/system-prompt.txt</a> into the model’s custom instructions.</span></li>
+          <li class="flex gap-2"><span class="text-amber-400 shrink-0">2.</span> <span><strong class="text-amber-300">Skill</strong> — Load <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/skills/ra-thor-employ/SKILL.md" target="_blank" rel="noopener" class="text-amber-300 underline">skills/ra-thor-employ/SKILL.md</a>.</span></li>
+          <li class="flex gap-2"><span class="text-amber-400 shrink-0">3.</span> <span><strong class="text-amber-300">Local HTTP wrap</strong> — Run <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/wrappers/local-shim/rathor_wrap.py" target="_blank" rel="noopener" class="text-amber-300 underline">wrappers/local-shim/rathor_wrap.py</a> against <em>your</em> upstream. You hold the key.</span></li>
+          <li class="flex gap-2"><span class="text-amber-400 shrink-0">4.</span> <span><strong class="text-amber-300">Lattice Chat local backend</strong> — <a href="/chat.html" class="text-amber-300 underline">/chat.html</a> → Local Server → <code class="text-amber-200">http://localhost:11434/v1</code> (already ships).</span></li>
+        </ol>
+        <p class="text-white/60 text-sm mt-4">There is no public rathor.ai key proxy.</p>
+      </div>
+      <div class="card-hover bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8">
         <h2 class="text-xl font-semibold text-amber-300 mb-4">D. Launch from root Cargo.toml</h2>
         <p class="text-white/80 leading-relaxed mb-4">Default members only. Quoted from current <code class="text-amber-200">[workspace]</code> <code class="text-amber-200">members</code>:</p>
         <pre class="text-sm text-amber-100/90 overflow-x-auto bg-black/40 rounded-2xl p-4 mb-4"><code>members = [

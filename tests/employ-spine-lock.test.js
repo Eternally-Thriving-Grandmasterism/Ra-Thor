@@ -47,6 +47,10 @@ assert(wrapPy.indexOf('RATHOR_UPSTREAM') !== -1, 'shim must use operator upstrea
 assert(sysPrompt.indexOf('14.15.6') !== -1, 'system-prompt must name workspace');
 assert(sysPrompt.indexOf('info@Rathor.ai') !== -1, 'system-prompt must name contact');
 assert(employMd.indexOf('ADOPT.md') !== -1, 'EMPLOY.md must point at ADOPT.md');
+assert(employHtml.indexOf('Local HTTP wrap') !== -1, 'employ.html wrap card must name Local HTTP wrap');
+assert(employHtml.indexOf('docs/ADOPT.md') !== -1, 'employ.html wrap card must point at docs/ADOPT.md');
+assert(employHtml.indexOf('rathor_wrap.py') !== -1, 'employ.html wrap card must link rathor_wrap.py');
+assert(employHtml.indexOf('There is no public rathor.ai key proxy') !== -1, 'employ.html wrap card must refuse public key proxy');
 
 var chatJs = fs.readFileSync(path.join(root, 'js/chat.js'), 'utf8');
 assert(chatJs.indexOf('14.15.6') !== -1, 'js/chat.js SYSTEM_PROMPT must name workspace 14.15.6');
