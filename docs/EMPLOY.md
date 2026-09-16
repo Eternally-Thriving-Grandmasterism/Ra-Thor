@@ -85,6 +85,8 @@ Every honest use looks like this. Same loop for a student at midnight and a risk
 
 Optional-model contract: [`docs/OPTIONAL_MODEL.md`](OPTIONAL_MODEL.md). Hermes / AgentOS-class hosts may load [`skills/ra-thor-employ/SKILL.md`](../skills/ra-thor-employ/SKILL.md). Neither is a certified integration.
 
+Wrap kit: [`docs/ADOPT.md`](ADOPT.md) — copy-context, skill, local HTTP wrap, Lattice Chat local backend. No public key proxy.
+
 ---
 
 ## D. Launch from root Cargo.toml
