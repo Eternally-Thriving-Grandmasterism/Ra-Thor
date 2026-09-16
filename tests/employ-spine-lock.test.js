@@ -52,6 +52,17 @@ assert(employHtml.indexOf('docs/ADOPT.md') !== -1, 'employ.html wrap card must p
 assert(employHtml.indexOf('rathor_wrap.py') !== -1, 'employ.html wrap card must link rathor_wrap.py');
 assert(employHtml.indexOf('There is no public rathor.ai key proxy') !== -1, 'employ.html wrap card must refuse public key proxy');
 
+assert(wrapPy.indexOf('stream=false only') === -1, 'shim must no longer refuse stream');
+assert(wrapPy.indexOf('text/event-stream') !== -1, 'shim must byte-forward SSE as text/event-stream');
+assert(wrapPy.indexOf('/v1/models') !== -1, 'shim must expose GET /v1/models');
+['gemini.md', 'cursor.md'].forEach(function (name) {
+  var snippetPath = path.join(root, 'wrappers/custom-instructions', name);
+  assert(fs.existsSync(snippetPath), name + ' must exist');
+  var snippet = fs.readFileSync(snippetPath, 'utf8');
+  assert(snippet.indexOf('14.15.6') !== -1, name + ' must name workspace 14.15.6');
+  assert(snippet.indexOf('info@Rathor.ai') !== -1, name + ' must name contact info@Rathor.ai');
+});
+
 var chatJs = fs.readFileSync(path.join(root, 'js/chat.js'), 'utf8');
 assert(chatJs.indexOf('14.15.6') !== -1, 'js/chat.js SYSTEM_PROMPT must name workspace 14.15.6');
 assert(chatJs.indexOf('inspect') !== -1, 'js/chat.js must contain inspect');
