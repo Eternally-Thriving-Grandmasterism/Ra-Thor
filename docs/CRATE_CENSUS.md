@@ -9,6 +9,8 @@
 
 This document records an on-disk crate inventory and a PATSAGi decision about `crates/self-evolution`. It does **not** pin versions, add workspace members, or ship a self-evolution product.
 
+**Forest triage (2026-09-16):** [`FOREST_TRIAGE.md`](FOREST_TRIAGE.md) — on-disk `crates/` dirs vs the living 12-member set. This census is not rewritten.
+
 ---
 
 ## Method
