@@ -21,20 +21,18 @@
   <script>
     (function () {
       try { document.documentElement.setAttribute('data-theme', localStorage.getItem('rathor-theme') || 'dark');
-      } catch (e) { document.documentElement.setAttribute('data-theme', 'dark'); }
+      } catch (e) { document.documentElement.setAttribute('data-theme', 'dark');
+      }
     })();
   </script>
 <style>
 body { font-family: 'Inter', system-ui, sans-serif; }
     .title-font { font-family: Inter, system-ui, sans-serif; }
 .thunder-glow { text-shadow: 0 0 40px #ffd700, 0 0 80px #ffaa00; }
-    .golden-star { position: absolute; color: #ffd700; opacity: 0.6; pointer-events: none; animation: float 60s infinite linear, pulse 12s infinite ease-in-out; z-index: 1; font-size: 42px; }
-    @keyframes float { 0%{transform:translateY(0) rotate(0deg);} 100%{transform:translateY(-120vh) rotate(360deg);} }
-    @keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.15);} }
     .card-hover { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
     .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -12px rgb(234 179 8 / 0.25); }
     @media (prefers-reduced-motion: reduce) {
-      .golden-star, .card-hover { animation: none !important; transition: none !important; }
+      .card-hover { animation: none !important; transition: none !important; }
     }
   </style>
 </head>
@@ -113,6 +111,19 @@ body { font-family: 'Inter', system-ui, sans-serif; }
         </div>
       </div>
       <div class="card-hover bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8">
+        <h2 class="text-xl font-semibold text-amber-300 mb-4">The loop</h2>
+        <p class="text-amber-200 mb-4">Every honest use looks like this.</p>
+        <p class="text-white/80 leading-relaxed mb-4">You already have power — a local responder, Ollama, LM Studio, Grok, Claude, Gemini, or ChatGPT. What this page teaches is the constitution around that power.</p>
+        <ol class="space-y-2 text-white/80 text-sm sm:text-base mb-4">
+          <li class="flex gap-2"><span class="text-amber-400 shrink-0">1.</span> <span><strong class="text-amber-300">Intend</strong> — ask for a draft, a plan, a review, or a refusal.</span></li>
+          <li class="flex gap-2"><span class="text-amber-400 shrink-0">2.</span> <span><strong class="text-amber-300">Pass the gates</strong> — TOLC 8 is the standing test. PATSAGi Councils are the deliberation that stays on. The Lattice Conductor is meant to coordinate and record.</span></li>
+          <li class="flex gap-2"><span class="text-amber-400 shrink-0">3.</span> <span><strong class="text-amber-300">Optional model</strong> — stay on-device, or copy context into a model you choose. An optional Grok session is not an xAI product.</span></li>
+          <li class="flex gap-2"><span class="text-amber-400 shrink-0">4.</span> <span><strong class="text-amber-300">Review</strong> — read the draft. Keep or refuse.</span></li>
+          <li class="flex gap-2"><span class="text-amber-400 shrink-0">5.</span> <span><strong class="text-amber-300">Act</strong> — you own the action.</span></li>
+        </ol>
+        <p class="text-amber-200">Same loop for a student at midnight and a risk committee on Tuesday. Only the rights change.</p>
+      </div>
+      <div class="card-hover bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8">
         <h2 class="text-xl font-semibold text-amber-300 mb-4">D. Launch from root Cargo.toml</h2>
         <p class="text-white/80 leading-relaxed mb-4">Default members only. Quoted from current <code class="text-amber-200">[workspace]</code> <code class="text-amber-200">members</code>:</p>
         <pre class="text-sm text-amber-100/90 overflow-x-auto bg-black/40 rounded-2xl p-4 mb-4"><code>members = [
@@ -184,7 +195,6 @@ cargo test -p mercy-security</code></pre>
         <ul class="rt-follow-list">
           <li><a href="https://x.com/AlphaProMega" rel="me noopener" target="_blank">X / Twitter</a></li>
           <li><a href="https://www.linkedin.com/in/sherif-botros" rel="me noopener" target="_blank">LinkedIn</a></li>
-          <!-- official follow named by the steward: https://www.facebook.com/share/1b7Z76vUpL/ -->
           <li><a href="https://www.facebook.com/people/Ra-Thor-AI/61594361430419/" rel="me noopener" target="_blank">Facebook</a></li>
         </ul>
       </nav>
