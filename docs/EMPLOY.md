@@ -1,5 +1,7 @@
 # Employ Ra-Thor
 
+Public voice lives on employ.html. This file is the operator spine; do not paste HOLD lines onto the site.
+
 **Workspace:** 14.15.6  
 **Contact:** info@Rathor.ai  
 **Site:** [https://rathor.ai/employ.html](https://rathor.ai/employ.html)  
