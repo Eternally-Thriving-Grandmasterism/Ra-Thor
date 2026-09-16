@@ -59,10 +59,77 @@
 #rt-family-footer.rt-family-pills { display: none; }
 
 /* Family layout subset — same tokens. No Tailwind CDN. */
+/* FONT-1: self-hosted OFL Cinzel. No remote webfont hosts. */
+@font-face {
+  font-family: "Cinzel";
+  src: url("/fonts/cinzel/Cinzel-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Cinzel";
+  src: url("/fonts/cinzel/Cinzel-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
 .title-font {
+  font-family: "Cinzel", "Cinzel Decorative", Palatino, "Palatino Linotype", "Times New Roman", serif;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+/* Inscribed display face is the home hero only. Keep Inter on Employ, Privacy, other titles. */
+.title-font:not(#hero-headline) {
   font-family: Inter, system-ui, sans-serif !important;
   font-weight: 650;
   letter-spacing: -0.02em;
+  text-transform: none;
+}
+#hero-headline.title-font {
+  font-family: "Cinzel", "Cinzel Decorative", Palatino, "Palatino Linotype", "Times New Roman", serif !important;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.18;
+  max-width: min(22.75rem, 100%);
+  margin: 0.15rem auto 0;
+  font-size: clamp(1.38rem, 6.9vw, 1.85rem);
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+  padding-top: 0.2rem;
+}
+@media (min-width: 640px) {
+  #hero-headline.title-font {
+    max-width: min(28rem, 100%);
+    font-size: clamp(1.7rem, 4.2vw, 2.35rem);
+  }
+}
+@media (min-width: 768px) {
+  #hero-headline.title-font {
+    max-width: 34rem;
+    font-size: clamp(2rem, 4vw, 3.05rem);
+  }
+}
+@media (min-width: 1024px) {
+  #hero-headline.title-font {
+    max-width: 44rem;
+    font-size: clamp(2.45rem, 3.6vw, 3.6rem);
+  }
+}
+.hero-display {
+  margin: 0 auto 1.25rem;
+  max-width: 100%;
+  padding-top: 0.45rem;
+}
+.hero-bolt {
+  display: block;
+  font-size: 1.25rem;
+  line-height: 1;
+  margin-top: 0.2rem;
+  color: var(--rt-gold);
+  pointer-events: none;
 }
 .hidden { display: none !important; }
 .block { display: block; }
