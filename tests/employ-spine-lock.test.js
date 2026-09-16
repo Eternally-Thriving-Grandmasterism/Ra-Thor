@@ -102,4 +102,16 @@ assert(briefingHtml.indexOf('Do not change the walk') === -1, 'briefing.html mus
 assert(employHtml.indexOf('/briefing.html') !== -1, 'employ.html must link the public briefing');
 assert(employMd.indexOf('PUBLIC_EMPLOY_BRIEFING.md') !== -1, 'docs/EMPLOY.md must point at the public briefing file');
 
+var sisterMd = fs.readFileSync(path.join(root, 'docs/SISTER_ADOPTION.md'), 'utf8');
+assert(sisterMd.indexOf('## LINK') !== -1, 'SISTER_ADOPTION.md must keep LINK');
+assert(sisterMd.indexOf('## EXTRACT later') !== -1, 'SISTER_ADOPTION.md must keep EXTRACT later');
+assert(sisterMd.indexOf('## LEAVE') !== -1, 'SISTER_ADOPTION.md must keep LEAVE');
+assert(sisterMd.indexOf('members =') === -1, 'SISTER_ADOPTION.md must not add Cargo members');
+assert(sisterMd.indexOf('Ra-Thor ships fusion') !== -1, 'SISTER_ADOPTION.md must refuse fusion SKU');
+assert(sisterMd.indexOf('AG-SML v1.1') !== -1, 'SISTER_ADOPTION.md must name living grant v1.1');
+assert(sisterMd.indexOf('info@Rathor.ai') !== -1, 'SISTER_ADOPTION.md must name info@Rathor.ai');
+assert(employHtml.indexOf('SISTER_ADOPTION.md') !== -1, 'employ.html must point at SISTER_ADOPTION.md');
+assert(employMd.indexOf('SISTER_ADOPTION.md') !== -1, 'docs/EMPLOY.md must point at SISTER_ADOPTION.md');
+assert(employHtml.indexOf('Do not add sister') === -1, 'employ.html must not print operator sister HOLD');
+
 console.log('EMPLOY-1 employ-spine-lock checks passed');

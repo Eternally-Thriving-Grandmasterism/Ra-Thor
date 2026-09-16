@@ -93,6 +93,8 @@ Optional-model contract: [`docs/OPTIONAL_MODEL.md`](OPTIONAL_MODEL.md). Hermes /
 
 Wrap kit: [`docs/ADOPT.md`](ADOPT.md) — copy-context, skill, local HTTP wrap, Lattice Chat local backend. No public key proxy.
 
+Sister map (docs, not Cargo): [`docs/SISTER_ADOPTION.md`](SISTER_ADOPTION.md). Link or extract later from Employ / Launch use cases. Do not add sister trees as default members.
+
 ---
 
 ## D. Launch from root Cargo.toml
