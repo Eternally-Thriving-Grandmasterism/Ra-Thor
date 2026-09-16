@@ -92,17 +92,18 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   line-height: 1.18;
-  max-width: 13.6rem;
+  max-width: min(22.75rem, 100%);
   margin: 0.15rem auto 0;
-  font-size: clamp(1.22rem, 5.8vw, 1.58rem);
-  overflow-wrap: break-word;
+  font-size: clamp(1.38rem, 6.9vw, 1.85rem);
+  overflow-wrap: normal;
+  word-break: normal;
   hyphens: none;
   padding-top: 0.2rem;
 }
 @media (min-width: 640px) {
   #hero-headline.title-font {
-    max-width: 22rem;
-    font-size: clamp(1.65rem, 4.4vw, 2.35rem);
+    max-width: min(28rem, 100%);
+    font-size: clamp(1.7rem, 4.2vw, 2.35rem);
   }
 }
 @media (min-width: 768px) {
