@@ -29,7 +29,7 @@ assert(employHtml.indexOf('14.18') === -1, 'employ.html must not sell 14.18');
 var optionalMd = fs.readFileSync(path.join(root, 'docs/OPTIONAL_MODEL.md'), 'utf8');
 var skillMd = fs.readFileSync(path.join(root, 'skills/ra-thor-employ/SKILL.md'), 'utf8');
 assert(optionalMd.indexOf('inspect') !== -1 && optionalMd.indexOf('METR') !== -1, 'OPTIONAL_MODEL.md must contain inspect \u2260 METR');
-assert(optionalMd.indexOf('not an xAI product') !== -1, 'OPTIONAL_MODEL.md must keep Grok optional');
+assert(optionalMd.replace(/\*/g, '').indexOf('not an xAI product') !== -1, 'OPTIONAL_MODEL.md must keep Grok optional');
 assert(optionalMd.indexOf('/v1/chat/completions') !== -1, 'OPTIONAL_MODEL.md must name the OpenAI-compatible door');
 assert(optionalMd.indexOf('AgentOS-certified') !== -1, 'OPTIONAL_MODEL.md must refuse AgentOS-certified claim');
 assert(skillMd.indexOf('name: ra-thor-employ') !== -1, 'SKILL.md must use agentskills name');
@@ -47,5 +47,15 @@ assert(wrapPy.indexOf('RATHOR_UPSTREAM') !== -1, 'shim must use operator upstrea
 assert(sysPrompt.indexOf('14.15.6') !== -1, 'system-prompt must name workspace');
 assert(sysPrompt.indexOf('info@Rathor.ai') !== -1, 'system-prompt must name contact');
 assert(employMd.indexOf('ADOPT.md') !== -1, 'EMPLOY.md must point at ADOPT.md');
+
+var chatJs = fs.readFileSync(path.join(root, 'js/chat.js'), 'utf8');
+assert(chatJs.indexOf('14.15.6') !== -1, 'js/chat.js SYSTEM_PROMPT must name workspace 14.15.6');
+assert(chatJs.indexOf('inspect') !== -1, 'js/chat.js must contain inspect');
+assert(chatJs.indexOf('AGSi demonstration') === -1, 'js/chat.js must not sell AGSi demonstration');
+assert(chatJs.indexOf('symbolic AGI lattice') === -1, 'js/chat.js live prompt must not sell symbolic AGI lattice');
+assert(chatJs.indexOf('AG-SML v1.0') === -1, 'js/chat.js live prompt must not sell AG-SML v1.0');
+assert(chatJs.indexOf('Outputs are drafts') !== -1, 'js/chat.js Copy Context / SYSTEM_PROMPT must quote drafts');
+assert(chatJs.indexOf('Independent of xAI') !== -1, 'js/chat.js Copy Context / SYSTEM_PROMPT must quote independent of xAI');
+assert(chatJs.indexOf('SYSTEM_PROMPT.trim()') !== -1, 'Copy Context must quote SYSTEM_PROMPT (same sentences)');
 
 console.log('EMPLOY-1 employ-spine-lock checks passed');
