@@ -101,7 +101,9 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         try:
             while True:
-                chunk = resp.read(1024)
+                # read1: at most one underlying call so we do not wait to fill a
+                # buffer (resp.read(n) would hold the whole SSE until EOF).
+                chunk = resp.read1(1024) if hasattr(resp, "read1") else resp.read(1)
                 if not chunk:
                     break
                 self.wfile.write(chunk)
