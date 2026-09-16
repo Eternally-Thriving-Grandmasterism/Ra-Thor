@@ -83,6 +83,8 @@ Every honest use looks like this. Same loop for a student at midnight and a risk
 4. **Review** — read the draft. Keep or refuse. Outputs are drafts until a human accepts them.
 5. **Act** — you own the action.
 
+Optional-model contract: [`docs/OPTIONAL_MODEL.md`](OPTIONAL_MODEL.md). Hermes / AgentOS-class hosts may load [`skills/ra-thor-employ/SKILL.md`](../skills/ra-thor-employ/SKILL.md). Neither is a certified integration.
+
 ---
 
 ## D. Launch from root Cargo.toml
