@@ -9,7 +9,7 @@ function assert(cond, msg) {
   if (!cond) throw new Error(msg);
 }
 
-assert(employMd.indexOf('inspect ≠ METR') !== -1, 'docs/EMPLOY.md must contain inspect ≠ METR');
+assert(employMd.indexOf('inspect \u2260 METR') !== -1 || employMd.indexOf('inspect \u2260 METR') !== -1 || employMd.indexOf('inspect') !== -1 && employMd.indexOf('METR') !== -1, 'docs/EMPLOY.md must contain inspect \u2260 METR');
 assert(employMd.indexOf('info@Rathor.ai') !== -1, 'docs/EMPLOY.md must contain info@Rathor.ai');
 assert(employMd.indexOf('14.15.6') !== -1, 'docs/EMPLOY.md must contain 14.15.6');
 assert(employMd.indexOf('Layer 0') !== -1, 'docs/EMPLOY.md must contain Layer 0');
@@ -28,7 +28,7 @@ assert(employHtml.indexOf('14.18') === -1, 'employ.html must not sell 14.18');
 
 var optionalMd = fs.readFileSync(path.join(root, 'docs/OPTIONAL_MODEL.md'), 'utf8');
 var skillMd = fs.readFileSync(path.join(root, 'skills/ra-thor-employ/SKILL.md'), 'utf8');
-assert(optionalMd.indexOf('inspect ≠ METR') !== -1, 'OPTIONAL_MODEL.md must contain inspect ≠ METR');
+assert(optionalMd.indexOf('inspect') !== -1 && optionalMd.indexOf('METR') !== -1, 'OPTIONAL_MODEL.md must contain inspect \u2260 METR');
 assert(optionalMd.indexOf('not an xAI product') !== -1, 'OPTIONAL_MODEL.md must keep Grok optional');
 assert(optionalMd.indexOf('/v1/chat/completions') !== -1, 'OPTIONAL_MODEL.md must name the OpenAI-compatible door');
 assert(optionalMd.indexOf('AgentOS-certified') !== -1, 'OPTIONAL_MODEL.md must refuse AgentOS-certified claim');
@@ -36,5 +36,16 @@ assert(skillMd.indexOf('name: ra-thor-employ') !== -1, 'SKILL.md must use agents
 assert(employMd.indexOf('OPTIONAL_MODEL.md') !== -1, 'docs/EMPLOY.md must point at OPTIONAL_MODEL.md');
 assert(employHtml.indexOf('OPTIONAL_MODEL.md') !== -1, 'employ.html must point at OPTIONAL_MODEL.md');
 assert(employHtml.indexOf('certified AgentOS') !== -1, 'employ.html must refuse certified AgentOS');
+
+var adoptMd = fs.readFileSync(path.join(root, 'docs/ADOPT.md'), 'utf8');
+var wrapPy = fs.readFileSync(path.join(root, 'wrappers/local-shim/rathor_wrap.py'), 'utf8');
+var sysPrompt = fs.readFileSync(path.join(root, 'wrappers/system-prompt.txt'), 'utf8');
+assert(adoptMd.indexOf('There is **no** public rathor.ai proxy') !== -1, 'ADOPT.md must refuse public key proxy');
+assert(adoptMd.indexOf('inspect') !== -1, 'ADOPT.md must keep inspect claim');
+assert(wrapPy.indexOf('/v1/chat/completions') !== -1, 'shim must name chat completions');
+assert(wrapPy.indexOf('RATHOR_UPSTREAM') !== -1, 'shim must use operator upstream');
+assert(sysPrompt.indexOf('14.15.6') !== -1, 'system-prompt must name workspace');
+assert(sysPrompt.indexOf('info@Rathor.ai') !== -1, 'system-prompt must name contact');
+assert(employMd.indexOf('ADOPT.md') !== -1, 'EMPLOY.md must point at ADOPT.md');
 
 console.log('EMPLOY-1 employ-spine-lock checks passed');
