@@ -134,7 +134,9 @@ Google Translate = new tab.
 
 ## F. License
 
-AG-SML: personal / research / modest freelance.
+Living grant: **AG-SML v1.1** — personal / research / modest freelance.
+
+The August 31 work pack cited v1.0 as a freeze. See [`LICENSE-LIVING-STAMP.md`](compliance/LICENSE-LIVING-STAMP.md).
 
 Commercial / org / revenue → paid license. See [`COMMERCIAL_LICENSE.md`](../COMMERCIAL_LICENSE.md).
 
@@ -154,5 +156,6 @@ Link these as drafts, not as a finished whitepaper:
 
 - [`docs/compliance/DO-NOT-SHIP-2026-08-31.md`](compliance/DO-NOT-SHIP-2026-08-31.md)
 - [`docs/compliance/RA-THOR-GROK-WORK-PACK-2026-08-31.md`](compliance/RA-THOR-GROK-WORK-PACK-2026-08-31.md)
+- [`docs/compliance/LICENSE-LIVING-STAMP.md`](compliance/LICENSE-LIVING-STAMP.md)
 
 Thunder locked. yoi ⚡
