@@ -60,7 +60,7 @@
   function alreadyHasFamilyHeader() {
     if (document.querySelector('[data-rt-family-header]')) return true;
     if (document.getElementById('rt-family-nav')) return true;
-    var scope = document.querySelector('header') || document.body;
+    var scope = document.querySelector('header');
     if (!scope) return false;
     var found = {};
     var anchors = scope.querySelectorAll('a');
