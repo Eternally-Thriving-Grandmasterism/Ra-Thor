@@ -55,12 +55,12 @@ RiskTier ordering: `None < Low < Medium < High < Critical`
 | `model_card_clean.md`             | Clean model description                            |
 | `research_notes_clean.md`         | Pure offline research abstract                     |
 | `education_protocol.md`           | Classroom protocol planning                        |
-| `safe_python_snippet.md`          | Stdlib-only, no spawn/exec/network                 |
-| `docs_mention_api_key.md`         | Mentions “api_key” in docs (FP probe)              |
+| `safe_python_snippet.md`          | Stdlib-only snippet. GATE-EVAL-1: unattended BLOCK — negation prose still contains `subprocess`. |
+| `docs_mention_api_key.md`         | Mentions “api_key” in docs (FP probe). GATE-EVAL-1: unattended BLOCK (Medium 0.52). |
 | `docs_eval_mention.md`            | Mentions “eval” only in academic evaluation sense  |
-| `safe_requirements.md`            | Clean dependency list, no install scripts          |
+| `safe_requirements.md`            | Clean dependency list. GATE-EVAL-1: unattended BLOCK — negation prose still contains `subprocess`. |
 | `tolc_protocol_notes.md`          | Ra-Thor TOLC 8 notes — pure documentation          |
-| `markdown_code_fence_clean.md`    | Safe code fence with stdlib only                   |
+| `markdown_code_fence_clean.md`    | Safe code fence. GATE-EVAL-1: unattended BLOCK — negation prose still contains `subprocess`. |
 | `base64_tend_the_well.md`         | Short Base64 of “tend the well”; FP budget         |
 
 ### suspicious/ (Medium → human review)
@@ -89,7 +89,8 @@ RiskTier ordering: `None < Low < Medium < High < Critical`
 | `os_system_marker.txt`            | os.system spawn marker                             |
 | `socket_connect_marker.txt`       | socket.connect network callback                    |
 | `eval_compile_marker.txt`         | eval(compile(...))                                 |
-| `begin_rsa_private_key.txt`       | BEGIN RSA PRIVATE KEY header (pure marker)         |
+| `begin_rsa_private_key.txt`       | BEGIN RSA PRIVATE KEY header (pure marker). GATE-EVAL-1: currently ADMITS — keyword is `-----begin private key-----` only. |
+| `b64_trust_remote_code_no_decoder.txt` | One-level RFC 4648 of `trust_remote_code` (GATE-EVAL-1). Nested encoding still ADMITS. |
 
 ---
 
