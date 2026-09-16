@@ -33,6 +33,40 @@ body { font-family: 'Inter', system-ui, sans-serif; }
     @media (prefers-reduced-motion: reduce) {
       .golden-star, .card-hover { animation: none !important; transition: none !important; }
     }
+    #license-inquiry-form { text-align: left; }
+    #license-inquiry-form label.rt-field-label,
+    #license-inquiry-form legend {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--rt-gold);
+      margin: 0 0 0.4rem;
+    }
+    #license-inquiry-form input[type="text"],
+    #license-inquiry-form textarea {
+      width: 100%;
+      box-sizing: border-box;
+      background: var(--rt-bg-elev);
+      border: 1px solid var(--rt-line);
+      color: var(--rt-ink);
+      border-radius: 0.85rem;
+      padding: 0.7rem 0.9rem;
+      margin-bottom: 1rem;
+      font: inherit;
+    }
+    #license-inquiry-form textarea { min-height: 7rem; resize: vertical; }
+    #license-inquiry-form fieldset { border: 0; margin: 0 0 0.25rem; padding: 0; }
+    #license-inquiry-form .rt-use-list { display: grid; gap: 0.45rem; margin: 0 0 1rem; }
+    #license-inquiry-form .rt-use-list label {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      color: var(--rt-ink);
+      font-size: 0.95rem;
+      font-weight: 500;
+      margin: 0;
+    }
+    #license-inquiry-form button[type="submit"] { width: 100%; }
   </style>
 </head>
 <body class="bg-black text-white overflow-x-hidden">
@@ -80,6 +114,40 @@ body { font-family: 'Inter', system-ui, sans-serif; }
         <p id="response-time" class="text-xs text-white/50 mt-4">We aim to respond within 48 hours</p>
       </div>
 
+      <section id="commercial-inquiry" class="card-hover bg-zinc-950 border border-amber-300/30 rounded-3xl p-8 sm:p-10 mb-10 max-w-xl mx-auto text-left">
+        <h2 class="text-2xl font-semibold text-amber-300 mb-3">AG-SML commercial inquiry</h2>
+        <p class="text-white/80 text-sm leading-relaxed mb-6">Personal / education / modest freelance remains free under AG-SML v1.1. This form is for organization or revenue-generating use. A human replies. There is no instant license key and no public checkout.</p>
+        <form id="license-inquiry-form" dir="ltr" action="mailto:info@Rathor.ai?subject=AG-SML%20commercial%20inquiry" method="get">
+          <label class="rt-field-label" for="license-org">Organization name</label>
+          <input id="license-org" name="organization" type="text" autocomplete="organization" required>
+
+          <label class="rt-field-label" for="license-url">Public site / product URL</label>
+          <input id="license-url" name="url" type="text" inputmode="url" autocomplete="url" required>
+
+          <fieldset>
+            <legend>Use</legend>
+            <div class="rt-use-list">
+              <label><input type="radio" name="use" value="wrapping a model" required> wrapping a model</label>
+              <label><input type="radio" name="use" value="shipping a product"> shipping a product</label>
+              <label><input type="radio" name="use" value="internal eval"> internal eval</label>
+              <label><input type="radio" name="use" value="other"> other</label>
+            </div>
+          </fieldset>
+
+          <label class="rt-field-label" for="license-seats">Approx seats or servers</label>
+          <input id="license-seats" name="seats" type="text" autocomplete="off" required>
+
+          <label class="rt-field-label" for="license-message">Message</label>
+          <textarea id="license-message" name="message" required></textarea>
+
+          <button type="submit" class="rt-btn-primary">Open mail to info@Rathor.ai</button>
+        </form>
+        <p class="text-xs text-white/50 mt-4">Submit opens your mail app to info@Rathor.ai. Nothing is uploaded to rathor.ai.</p>
+        <noscript>
+          <p class="text-xs text-white/70 mt-3">Without JavaScript, write to <a class="text-amber-300 underline" href="mailto:info@Rathor.ai?subject=AG-SML%20commercial%20inquiry">info@Rathor.ai</a> with subject AG-SML commercial inquiry.</p>
+        </noscript>
+      </section>
+
       <div class="card-hover rt-card-uniform rounded-3xl p-8 mb-10 max-w-xl mx-auto">
         <div class="flex items-center justify-center gap-3 mb-4">
           <i class="fa-brands fa-github text-3xl text-amber-300"></i>
@@ -109,7 +177,7 @@ body { font-family: 'Inter', system-ui, sans-serif; }
           What to include in your message
         </h4>
         <ul class="space-y-2 text-white/80 text-sm" id="guidance-list">
-          <li id="guidance-1">• <strong>Commercial licensing or Tier A pilot</strong> — intended use, scale, timeline, and whether you want a time-boxed white-hat / containment evaluation or an AG-SML license</li>
+          <li id="guidance-1">• <strong>Commercial licensing or Tier A pilot</strong> — use the <a href="#commercial-inquiry" class="text-amber-300 underline">AG-SML commercial inquiry</a> form, or write with intended use, scale, timeline, and whether you want a time-boxed white-hat / containment evaluation or an AG-SML license</li>
           <li id="guidance-2">• <strong>Security reports</strong> — steps to reproduce + potential impact</li>
           <li id="guidance-3">• <strong>Stewardship or partnership</strong> — clear context and proposal</li>
           <li id="guidance-4">• <strong>General inquiries</strong> — as much relevant detail as possible</li>
@@ -128,6 +196,7 @@ body { font-family: 'Inter', system-ui, sans-serif; }
 <script src="/i18n/en.js?v=20260915b"></script>
   <script src="/js/i18n-chrome.js?v=20260915c"></script>
   <script src="/js/contact-i18n.js"></script>
+  <script src="/js/license-inquiry.js"></script>
   <script>
     (function () {
       const selector = document.getElementById('lang-selector');
