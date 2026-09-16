@@ -26,4 +26,15 @@ assert(employMd.indexOf('Intend') !== -1, 'docs/EMPLOY.md loop must name Intend'
 assert(employHtml.indexOf('Pass the gates') !== -1, 'employ.html must restore Pass the gates');
 assert(employHtml.indexOf('14.18') === -1, 'employ.html must not sell 14.18');
 
+var optionalMd = fs.readFileSync(path.join(root, 'docs/OPTIONAL_MODEL.md'), 'utf8');
+var skillMd = fs.readFileSync(path.join(root, 'skills/ra-thor-employ/SKILL.md'), 'utf8');
+assert(optionalMd.indexOf('inspect ≠ METR') !== -1, 'OPTIONAL_MODEL.md must contain inspect ≠ METR');
+assert(optionalMd.indexOf('not an xAI product') !== -1, 'OPTIONAL_MODEL.md must keep Grok optional');
+assert(optionalMd.indexOf('/v1/chat/completions') !== -1, 'OPTIONAL_MODEL.md must name the OpenAI-compatible door');
+assert(optionalMd.indexOf('AgentOS-certified') !== -1, 'OPTIONAL_MODEL.md must refuse AgentOS-certified claim');
+assert(skillMd.indexOf('name: ra-thor-employ') !== -1, 'SKILL.md must use agentskills name');
+assert(employMd.indexOf('OPTIONAL_MODEL.md') !== -1, 'docs/EMPLOY.md must point at OPTIONAL_MODEL.md');
+assert(employHtml.indexOf('OPTIONAL_MODEL.md') !== -1, 'employ.html must point at OPTIONAL_MODEL.md');
+assert(employHtml.indexOf('certified AgentOS') !== -1, 'employ.html must refuse certified AgentOS');
+
 console.log('EMPLOY-1 employ-spine-lock checks passed');
