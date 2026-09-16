@@ -116,9 +116,32 @@ assert(employHtml.indexOf('Do not add sister') === -1, 'employ.html must not pri
 
 var indexHtml = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 assert(indexHtml.indexOf('Eternal Mercy Thunder') !== -1, 'index.html must restore Eternal Mercy Thunder');
+assert(indexHtml.indexOf('fonts.googleapis.com') === -1, 'index.html must not load fonts.googleapis.com');
+assert(indexHtml.indexOf('ceo@acitygames.com') === -1, 'index.html must not contain ceo@acitygames.com');
+assert(indexHtml.indexOf('id="hero-headline"') !== -1 && indexHtml.indexOf('title-font') !== -1 && indexHtml.indexOf('thunder-glow') !== -1, 'hero must keep title-font + thunder-glow');
+assert(indexHtml.indexOf('Delivered software') === -1, 'index.html must not restore Delivered software');
 assert(indexHtml.indexOf('WHITEPAPER_v4.2') !== -1, 'index.html must point at living cover v4.2');
 assert(indexHtml.indexOf('WHITEPAPER_v4.1') === -1, 'index.html must not present v4.1 as the living cover');
 assert(indexHtml.indexOf('Whitepaper v4.1') === -1, 'index.html must not advertise v4.1 as the living cover');
+
+var restB = fs.readFileSync(path.join(root, 'css/rathor-theme-rest-b.css'), 'utf8');
+assert(restB.indexOf('https://fonts.googleapis.com') === -1, 'theme CSS must not load fonts.googleapis.com');
+assert(restB.indexOf('"Cinzel", "Cinzel Decorative", Palatino, "Palatino Linotype", "Times New Roman", serif') !== -1, 'theme .title-font must use the Cinzel stack');
+assert(restB.indexOf('url("/fonts/cinzel/Cinzel-Regular.woff2")') !== -1, 'theme must self-host Cinzel Regular');
+assert(restB.indexOf('url("/fonts/cinzel/Cinzel-Bold.woff2")') !== -1, 'theme must self-host Cinzel Bold');
+assert(fs.existsSync(path.join(root, 'fonts/cinzel/Cinzel-Regular.woff2')), 'Cinzel Regular woff2 must exist');
+assert(fs.existsSync(path.join(root, 'fonts/cinzel/Cinzel-Bold.woff2')), 'Cinzel Bold woff2 must exist');
+assert(fs.existsSync(path.join(root, 'fonts/cinzel/OFL.txt')), 'Cinzel OFL.txt must exist');
+assert(fs.readFileSync(path.join(root, 'fonts/cinzel/OFL.txt'), 'utf8').indexOf('SIL Open Font License') !== -1, 'OFL.txt must be the SIL OFL');
+
+var employTitle = employHtml.match(/<h1[^>]*data-i18n="employTitle"[^>]*>/);
+assert(employTitle, 'employ.html must keep employTitle h1');
+assert(employHtml.indexOf('Cinzel') === -1, 'employ.html must not name Cinzel');
+var privacyHtmlForFont = fs.readFileSync(path.join(root, 'privacy.html'), 'utf8');
+assert(privacyHtmlForFont.indexOf('Cinzel') === -1, 'privacy.html must not name Cinzel');
+var familyNav = fs.readFileSync(path.join(root, 'js/family-nav-2026-08-22.js'), 'utf8');
+assert(familyNav.indexOf("{ href: '/employ.html', label: 'Employ' }") !== -1, 'family bar must keep Employ');
+assert(familyNav.indexOf('Cinzel') === -1, 'family pills must not switch to Cinzel');
 
 var privacyHtml = fs.readFileSync(path.join(root, 'privacy.html'), 'utf8');
 assert(employHtml.indexOf('family-nav-2026-08-22.js') !== -1, 'employ.html must load family-nav-2026-08-22.js');

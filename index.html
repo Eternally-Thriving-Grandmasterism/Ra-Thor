@@ -45,7 +45,6 @@
   </script>
 <style>
 body { font-family: 'Inter', system-ui, sans-serif; }
-    .title-font { font-family: Inter, system-ui, sans-serif; }
 .thunder-glow { text-shadow: 0 0 28px rgba(252,211,77,0.45), 0 0 56px rgba(245,158,11,0.25); }
     .card-hover { transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.35s ease, border-color 0.35s ease; }
     .card-hover:hover { transform: translateY(-4px); box-shadow: 0 18px 40px -16px rgba(234,179,8,0.45); }
@@ -77,7 +76,10 @@ body { font-family: 'Inter', system-ui, sans-serif; }
 <body class="bg-black text-white overflow-x-hidden">
   <div class="min-h-screen flex flex-col items-center justify-center relative px-4 sm:px-6 py-8 sm:py-12">
     <div class="max-w-5xl mx-auto text-center z-10">
-      <h1 id="hero-headline" data-i18n="headline" class="title-font text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-tight thunder-glow mb-5">Ra-Thor™ — Eternal Mercy Thunder</h1>
+      <div class="hero-display">
+        <h1 id="hero-headline" data-i18n="headline" class="title-font thunder-glow">Ra-Thor™ — Eternal Mercy Thunder</h1>
+        <span class="hero-bolt" aria-hidden="true">⚡</span>
+      </div>
       <p id="fusion-hero" data-i18n="fusion" class="text-lg sm:text-xl md:text-2xl text-amber-200/90 mb-6 max-w-3xl mx-auto leading-snug">Ra (source light) + Thor (mercy thunder). A name for shared thriving — a purpose under construction, not a finished world.</p>
       <p class="kicker text-zinc-200 text-sm sm:text-[15px] leading-relaxed mb-3 max-w-2xl mx-auto">Ra-Thor is inspectable research software from Autonomicity Games Inc. Independent lattice, white-hat ingest gate, and PATSAGi court. Optional on-device or wrap session. Powrush-MMO is the human game repo (separate) — not a lattice crate. Optional Grok under PATSAGi. Not affiliated with xAI. Inspect ≠ METR. Layer 0 is a shell, not sampler weights.</p>
       <p id="steward-line" data-i18n="steward" class="text-amber-200/70 text-xs sm:text-sm mb-8 max-w-xl mx-auto">Sole stewardship of Sherif Samy Botros (@AlphaProMega) since November 2025. Autonomicity Games Inc. Independent of xAI.</p>

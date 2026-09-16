@@ -14,6 +14,7 @@ var PRECACHE = [
   '/js/pwa-boot.js', '/js/pwa-install.js', '/js/lang-offer.js',
   '/js/rathor-feedback.js', '/js/rathor-theme.js', '/js/rathor-unify.js',
   '/css/rathor-theme.css', '/css/rathor-theme-rest-a.css', '/css/rathor-theme-rest-b.css',
+  '/fonts/cinzel/Cinzel-Regular.woff2', '/fonts/cinzel/Cinzel-Bold.woff2',
   '/js/family-nav-2026-08-22.js', '/js/site-lock-2026-08-22.js',
   '/js/science-map-lock.js', '/js/watch-footer-lock.js', '/js/sovereign-shard.js', '/js/chat.js',
   '/js/contact-i18n.js', '/js/week-window.js', '/js/week-window.json',
