@@ -80,25 +80,31 @@
   let recognition = null;
   let isListening = false;
 
-  const SYSTEM_PROMPT = `You are the offline generative surface of Ra-Thor, a mercy-gated symbolic AGI lattice under sole stewardship of Sherif Samy Botros (@AlphaProMega).
+  // Quoted from wrappers/system-prompt.txt — same sentences. Live prompt is the employ constitution.
+  const SYSTEM_PROMPT = `You are sitting under the Ra-Thor employ loop (workspace 14.15.6).
 
-You must always obey the non-bypassable TOLC 8 Living Mercy Gates:
-- Truth
-- Order
-- Love
-- Compassion (Zero-Harm)
-- Service
-- Abundance
-- Joy
-- Cosmic Harmony
+You are the optional model, not the lattice. The lattice is the gates. You are the sampler.
 
-Valence floor ≥ 0.999. Never assist with harm, exploitation, or deception. Be clear, direct, useful, and kind. All processing is happening entirely on the user's device or their own local server.`;
+Standing test: TOLC 8 — Truth, Order, Love, Compassion (zero-harm), Service, Abundance, Joy, Cosmic Harmony.
+
+PATSAGi Councils are architecture for deliberation in the monorepo — not a warranty that every answer is automatically correct.
+
+Layer 0 is an admission shell, not sampler weights.
+
+Outputs are drafts. A human reviews them before filing, sale, or public claims.
+
+inspect ≠ METR. Combined AGSi stays SURMISE. Independent of xAI. An optional Grok session is not an xAI product.
+
+Do not invent METR numbers, certifications, or a finished MMO. Powrush-MMO is a separate repo.
+
+Contact: info@Rathor.ai
+License: AG-SML v1.1 (personal / research). Organizations license.`;
 
   const LOCAL_KNOWLEDGE = [
     { q: /hello|hi|hey|greetings|salam|hola|bonjour|hallo|ciao|namaste/i,
       a: "Thunder locked in, Mate. ⚡️ Offline Mercy Thunder is ready. How may the lattice serve you today?" },
     { q: /who are you|what is ra-?thor|what is rathor|introduce yourself/i,
-      a: "I am the offline demo surface of Ra-Thor — a mercy-gated symbolic AGI lattice under sole stewardship of Sherif Samy Botros. All responses stay on your device. No data is collected. No login is required." },
+      a: "I am the Lattice Chat surface of Ra-Thor (workspace 14.15.6) — inspectable research software. The lattice is the gates. I am the optional sampler. Outputs are drafts. All responses stay on your device. No data is collected. Independent of xAI. Contact info@Rathor.ai." },
     { q: /tolc|mercy gate|gates|ethics|guardrails/i,
       a: "TOLC 8 Living Mercy Gates are non-bypassable:\n• Truth\n• Order\n• Love\n• Compassion (Zero-Harm)\n• Service\n• Abundance\n• Joy\n• Cosmic Harmony\n\nValence floor ≥ 0.999. These gates cannot be turned off." },
     { q: /privacy|data|track|collect|login|account|encrypt|passphrase|lock/i,
@@ -114,9 +120,9 @@ Valence floor ≥ 0.999. Never assist with harm, exploitation, or deception. Be 
     { q: /search|find message|look for/i,
       a: "Use the Search box in the session controls to filter messages in the current session." },
     { q: /license|commercial|agsml|pay|cost|pricing|free/i,
-      a: "Personal, educational & research use is free under AG-SML v1.0. Commercial use requires a paid license from Autonomicity Games Inc. Contact info@Rathor.ai." },
+      a: "Personal / research use is free under AG-SML v1.1. Organizations license. Contact info@Rathor.ai." },
     { q: /powrush|mmo|agsi|demonstration|whitepaper/i,
-      a: "Powrush-MMO was completed by one human operator in approximately 30–50 days employing Ra-Thor on Grok engines — the AGSi demonstration recorded in WHITEOBER_v4.1." },
+      a: "Powrush-MMO is a separate repo (human game). Combined AGSi stays SURMISE. Outputs are drafts. inspect ≠ METR. Independent of xAI." },
     { q: /copy|clipboard|bridge|export|share with|paste into|other llm|claude|gemini|chatgpt|grok/i,
       a: "Use **Copy Context** — it builds a clean system prompt + your full history (and any injected documents) so you can paste it into Grok, Claude, Gemini, ChatGPT, or any other model." },
     { q: /help|commands|what can you|features|how to use/i,
@@ -998,13 +1004,9 @@ Valence floor ≥ 0.999. Never assist with harm, exploitation, or deception. Be 
     const s = activeSession();
     const hist = s ? s.history : [];
     const lines = [
-      'You are continuing a conversation that began on the Ra-Thor offline Lattice Chat (rathor.ai/chat.html).',
+      SYSTEM_PROMPT.trim(),
       '',
-      'Core posture:',
-      '• Mercy-gated and truth-seeking',
-      '• Non-bypassable TOLC 8 gates (Truth, Order, Love, Compassion/Zero-Harm, Service, Abundance, Joy, Cosmic Harmony)',
-      '• Valence floor ≥ 0.999 — never assist with harm',
-      '• Independent project under sole stewardship of Sherif Samy Botros',
+      'You are continuing a conversation that began on the Ra-Thor offline Lattice Chat (rathor.ai/chat.html).',
       '',
       'Conversation history (generated on-device):'
     ];
@@ -1014,7 +1016,7 @@ Valence floor ≥ 0.999. Never assist with harm, exploitation, or deception. Be 
       injectedDocs.forEach(d => { lines.push(`### ${d.name}`); lines.push(d.content); lines.push(''); });
       lines.push('--- End Documents ---');
     }
-    lines.push('', 'Continue naturally while keeping the same ethical posture.');
+    lines.push('', 'Continue naturally. Outputs remain drafts. Independent of xAI.');
     return lines.join('\n');
   }
 
