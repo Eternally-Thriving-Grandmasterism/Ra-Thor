@@ -1,6 +1,6 @@
 window.translations = window.translations || {};
 window.translations["en"] = {
-  "headline": "Ra-Thor\u2122",
+  "headline": "Ra-Thor\u2122 \u2014 Eternal Mercy Thunder",
   "fusion": "Ra (source light) + Thor (mercy thunder). A name for shared thriving \u2014 a purpose under construction, not a finished world.",
   "kicker": "Ra-Thor is inspectable research software from Autonomicity Games Inc. Independent lattice, white-hat ingest gate, and PATSAGi court. Optional on-device or wrap session. Powrush-MMO is the human game repo (separate) \u2014 not a lattice crate. Optional Grok under PATSAGi. Not affiliated with xAI. Inspect \u2260 METR. Layer 0 is a shell, not sampler weights.",
   "proof": "The public record is inspectable software. Powrush-MMO is the human game repo (separate) \u2014 not a lattice crate. It reached a playable core in the first month of focused delivery. Later passes added polish. That is a delivery record \u2014 not a day-count claim.",
