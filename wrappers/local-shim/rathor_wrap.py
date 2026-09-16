@@ -5,8 +5,13 @@ Injects wrappers/system-prompt.txt into POST /v1/chat/completions and
 forwards to the operator's upstream. No keys in this repo.
 
   export RATHOR_UPSTREAM=http://localhost:11434/v1
-  export RATHOR_UPSTREAM_KEY=   # optional Bearer
+  export RATHOR_UPSTREAM_KEY=   # optional Bearer; operator-held
   python3 wrappers/local-shim/rathor_wrap.py
+  # POST http://127.0.0.1:8787/v1/chat/completions  (stream true or false)
+  # GET  http://127.0.0.1:8787/v1/models
+
+stream=false: JSON forward. stream=true: byte-forward SSE (text/event-stream).
+GET /v1/models: proxy upstream /models when present, else a one-item stub.
 
 Not a public rathor.ai product. Drafts only. Workspace 14.15.6.
 """
@@ -43,6 +48,10 @@ def load_constitution() -> str:
 
 
 CONSTITUTION = load_constitution()
+MODELS_STUB = {
+    "object": "list",
+    "data": [{"id": "rathor-wrap", "owned_by": "operator"}],
+}
 
 
 def inject(messages):
@@ -59,21 +68,66 @@ def inject(messages):
     return [{"role": "system", "content": CONSTITUTION}] + messages
 
 
+def _upstream_headers(content_type: str | None = None) -> dict:
+    headers = {}
+    if content_type:
+        headers["Content-Type"] = content_type
+    if UPSTREAM_KEY:
+        headers["Authorization"] = "Bearer " + UPSTREAM_KEY
+    return headers
+
+
 class Handler(BaseHTTPRequestHandler):
     def log_message(self, fmt, *args):
         sys.stderr.write("rathor-wrap: " + (fmt % args) + "\n")
+
+    def _stamp(self):
+        self.send_header("X-Ra-Thor-Draft", "true")
+        self.send_header("X-Ra-Thor-Workspace", "14.15.6")
 
     def _send(self, code: int, body: bytes, content_type: str = "application/json"):
         self.send_response(code)
         self.send_header("Content-Type", content_type)
         self.send_header("Content-Length", str(len(body)))
-        self.send_header("X-Ra-Thor-Draft", "true")
-        self.send_header("X-Ra-Thor-Workspace", "14.15.6")
+        self._stamp()
         self.end_headers()
         self.wfile.write(body)
 
+    def _forward_sse(self, resp):
+        self.send_response(200)
+        self.send_header("Content-Type", "text/event-stream")
+        self.send_header("Cache-Control", "no-cache")
+        self._stamp()
+        self.end_headers()
+        try:
+            while True:
+                chunk = resp.read(1024)
+                if not chunk:
+                    break
+                self.wfile.write(chunk)
+                self.wfile.flush()
+        except (BrokenPipeError, ConnectionResetError):
+            pass
+
+    def _proxy_models(self):
+        url = UPSTREAM + "/models"
+        req = Request(url, headers=_upstream_headers(), method="GET")
+        try:
+            with urlopen(req, timeout=30) as resp:
+                data = resp.read()
+            self._send(200, data)
+        except HTTPError as err:
+            try:
+                err.read()
+            except Exception:
+                pass
+            self._send(200, json.dumps(MODELS_STUB).encode("utf-8"))
+        except (URLError, TimeoutError, OSError):
+            self._send(200, json.dumps(MODELS_STUB).encode("utf-8"))
+
     def do_GET(self):
-        if self.path.rstrip("/") in ("", "/health", "/v1/health"):
+        path = self.path.split("?", 1)[0].rstrip("/")
+        if path in ("", "/health", "/v1/health"):
             payload = {
                 "ok": True,
                 "service": "rathor-wrap",
@@ -83,6 +137,9 @@ class Handler(BaseHTTPRequestHandler):
                 "claim": "inspect != METR; independent of xAI",
             }
             self._send(200, json.dumps(payload).encode("utf-8"))
+            return
+        if path in ("/v1/models", "/models"):
+            self._proxy_models()
             return
         self._send(404, b'{"error":"not found"}')
 
@@ -94,7 +151,7 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_POST(self):
-        if not self.path.rstrip("/").endswith("/chat/completions"):
+        if not self.path.split("?", 1)[0].rstrip("/").endswith("/chat/completions"):
             self._send(404, b'{"error":"use POST /v1/chat/completions"}')
             return
         length = int(self.headers.get("Content-Length") or "0")
@@ -106,31 +163,30 @@ class Handler(BaseHTTPRequestHandler):
             return
         body["messages"] = inject(body.get("messages") or [])
         body.setdefault("stream", False)
-        if body.get("stream"):
-            self._send(
-                400,
-                json.dumps(
-                    {
-                        "error": "stream=false only in this shim",
-                        "hint": "Point Lattice Chat at a streaming upstream directly if you need SSE.",
-                    }
-                ).encode("utf-8"),
-            )
-            return
+        stream = bool(body.get("stream"))
         url = UPSTREAM + "/chat/completions"
-        headers = {"Content-Type": "application/json"}
-        if UPSTREAM_KEY:
-            headers["Authorization"] = "Bearer " + UPSTREAM_KEY
-        req = Request(url, data=json.dumps(body).encode("utf-8"), headers=headers, method="POST")
+        req = Request(
+            url,
+            data=json.dumps(body).encode("utf-8"),
+            headers=_upstream_headers("application/json"),
+            method="POST",
+        )
         try:
-            with urlopen(req, timeout=120) as resp:
-                data = resp.read()
-            self._send(200, data)
+            resp = urlopen(req, timeout=120)
         except HTTPError as err:
             self._send(err.code, err.read() or b'{"error":"upstream"}')
+            return
         except URLError as err:
             payload = {"error": "upstream unreachable", "detail": str(err.reason), "url": url}
             self._send(502, json.dumps(payload).encode("utf-8"))
+            return
+        try:
+            if stream:
+                self._forward_sse(resp)
+            else:
+                self._send(200, resp.read())
+        finally:
+            resp.close()
 
 
 def main() -> None:
