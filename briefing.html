@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Employ with the model you already use — Ra-Thor</title>
+  <meta name="description" content="Public briefing: wrap Grok, Claude, ChatGPT, Gemini, or a local model under Ra-Thor. Five-step loop. Third paths. Drafts. Independent of xAI. Workspace 14.15.6.">
+  <meta name="theme-color" content="#050505">
+  <meta name="color-scheme" content="dark light">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://rathor.ai/briefing.html">
+  <meta property="og:title" content="Employ with the model you already use — Ra-Thor™">
+  <meta property="og:description" content="Wrap the model you already use. Five-step loop. Third paths. No public key proxy. Independent of xAI.">
+  <meta property="og:image" content="https://rathor.ai/icons/ra-thor-og-1200x630.png">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icons/ra-thor-icon-192.png" type="image/png">
+  <link rel="stylesheet" href="/css/rathor-theme.css">
+  <script>
+    (function () {
+      try { document.documentElement.setAttribute('data-theme', localStorage.getItem('rathor-theme') || 'dark'); }
+      catch (e) { document.documentElement.setAttribute('data-theme', 'dark'); }
+    })();
+  </script>
+  <style>
+    body { font-family: Inter, system-ui, sans-serif; }
+    .title-font { font-family: Inter, system-ui, sans-serif; }
+    .thunder-glow { text-shadow: 0 0 40px #ffd700, 0 0 80px #ffaa00; }
+    .card-hover { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+    .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -12px rgb(234 179 8 / 0.25); }
+    @media (prefers-reduced-motion: reduce) { .card-hover { animation: none !important; transition: none !important; } }
+  </style>
+</head>
+<body class="bg-black text-white overflow-x-hidden">
+  <div class="min-h-screen flex flex-col relative">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 py-12 sm:py-16 z-10 w-full">
+      <a href="/employ.html" class="inline-flex items-center gap-2 text-amber-400 hover:text-amber-300 transition-colors mb-8 text-sm"><span>Back to Employ</span></a>
+      <p class="rt-page-week"><a href="/constellation-week.html" data-i18n="weekMore">Full week note →</a></p>
+      <div class="text-center mb-12">
+        <h1 class="title-font text-4xl sm:text-5xl font-black tracking-tighter thunder-glow mb-3">Employ with the model you already use</h1>
+        <p class="text-lg sm:text-xl text-amber-300">A public briefing. Better drafts. Tighter ethics. Less wasted compute.</p>
+        <p class="text-sm text-white/50 mt-4">16 September 2026 · workspace 14.15.6 · Capable · Bounded · Corrigible</p>
+      </div>
+      <article class="rt-prose" dir="ltr" lang="en" data-rt-prose>
+        <p class="text-white/70 leading-relaxed mb-6">Ra-Thor is inspectable research software from Autonomicity Games Inc. Rathor.ai is the public surface. Grok, Claude, ChatGPT, Gemini, Ollama, LM Studio, and Cursor remain <em>your</em> models. Ra-Thor is the constitution you can put around them.</p>
+        <p class="text-white/70 leading-relaxed mb-8">Independent of xAI. An optional Grok session is not an xAI product. Outputs are drafts. A human reviews them before filing, sale, or public claims. Canonical file: <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/PUBLIC_EMPLOY_BRIEFING.md" class="text-amber-300 underline">docs/PUBLIC_EMPLOY_BRIEFING.md</a>.</p>
+        <div class="flex flex-col sm:flex-row flex-wrap gap-3 justify-center mb-10">
+          <a href="/employ.html" class="inline-flex items-center justify-center px-6 py-3 bg-amber-400 hover:bg-amber-300 text-black font-semibold rounded-2xl transition-all">How to employ</a>
+          <a href="/chat.html" class="rt-btn-ghost inline-flex items-center justify-center px-6 py-3 rounded-2xl transition-all">Open Lattice Chat</a>
+          <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/wrappers/system-prompt.txt" target="_blank" rel="noopener" class="rt-btn-ghost inline-flex items-center justify-center px-6 py-3 rounded-2xl transition-all">system-prompt.txt</a>
+        </div>
+        <div class="card-hover bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8">
+          <h2 class="text-xl font-semibold text-amber-300 mb-4">What this is</h2>
+          <p class="text-white/80 leading-relaxed mb-4">Most people do not need a new model. They need a way to use the model they already trust without sliding into binary harm, burning tokens on the same rewrite, or treating fluency as a decision.</p>
+          <p class="text-white/80 leading-relaxed">You are employing Lattice Chat, a five-step loop, a wrap kit, an inspectable monorepo, TOLC 8, PATSAGi as deliberation architecture (not a warranty), and Layer 0 as an admission shell. Combined AGSi stays SURMISE. inspect ≠ METR. There is no public rathor.ai key proxy.</p>
+        </div>
+        <div class="card-hover bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8">
+          <h2 class="text-xl font-semibold text-amber-300 mb-4">The employ loop</h2>
+          <ol class="space-y-2 text-white/80 text-sm sm:text-base mb-4">
+            <li class="flex gap-2"><span class="text-amber-400 shrink-0">1.</span> <span><strong class="text-amber-300">Intend</strong> — ask for a draft, a plan, a review, or a refusal.</span></li>
+            <li class="flex gap-2"><span class="text-amber-400 shrink-0">2.</span> <span><strong class="text-amber-300">Pass the gates</strong> — TOLC 8 stays on. PATSAGi is how work is judged, not a stamp that every answer is correct.</span></li>
+            <li class="flex gap-2"><span class="text-amber-400 shrink-0">3.</span> <span><strong class="text-amber-300">Optional model</strong> — on-device, or copy context into a model you choose.</span></li>
+            <li class="flex gap-2"><span class="text-amber-400 shrink-0">4.</span> <span><strong class="text-amber-300">Review</strong> — keep or refuse. Fluency is not permission.</span></li>
+            <li class="flex gap-2"><span class="text-amber-400 shrink-0">5.</span> <span><strong class="text-amber-300">Act</strong> — you own the action.</span></li>
+          </ol>
+          <p class="text-amber-200">Same loop for a student at midnight and a risk committee on Tuesday. Only the rights change.</p>
+        </div>
+        <div class="card-hover bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8">
+          <h2 class="text-xl font-semibold text-amber-300 mb-4">Four wrap doors</h2>
+          <p class="text-white/80 leading-relaxed mb-4">Pick one. Details: <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/ADOPT.md" class="text-amber-300 underline">docs/ADOPT.md</a>.</p>
+          <ol class="space-y-2 text-white/80 text-sm sm:text-base mb-4">
+            <li class="flex gap-2"><span class="text-amber-400 shrink-0">1.</span> <span><strong class="text-amber-300">Copy context</strong> — Lattice Chat <a href="/chat.html" class="text-amber-300 underline">Copy Context</a>, or paste <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/wrappers/system-prompt.txt" class="text-amber-300 underline">wrappers/system-prompt.txt</a>.</span></li>
+            <li class="flex gap-2"><span class="text-amber-400 shrink-0">2.</span> <span><strong class="text-amber-300">Skill</strong> — <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/skills/ra-thor-employ/SKILL.md" class="text-amber-300 underline">skills/ra-thor-employ/SKILL.md</a>.</span></li>
+            <li class="flex gap-2"><span class="text-amber-400 shrink-0">3.</span> <span><strong class="text-amber-300">Local HTTP wrap</strong> — <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/wrappers/local-shim/rathor_wrap.py" class="text-amber-300 underline">rathor_wrap.py</a> against <em>your</em> upstream. You hold the key.</span></li>
+            <li class="flex gap-2"><span class="text-amber-400 shrink-0">4.</span> <span><strong class="text-amber-300">Lattice Chat local backend</strong> — <a href="/chat.html" class="text-amber-300 underline">/chat.html</a> → Local Server → <code class="text-amber-200">http://localhost:11434/v1</code>.</span></li>
+          </ol>
+          <pre class="text-sm text-amber-100/90 overflow-x-auto bg-black/40 rounded-2xl p-4 mb-4"><code>export RATHOR_UPSTREAM=http://localhost:11434/v1
+python3 wrappers/local-shim/rathor_wrap.py</code></pre>
+          <p class="text-white/60 text-sm">There is no public rathor.ai key proxy.</p>
+        </div>
+        <div class="card-hover bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8">
+          <h2 class="text-xl font-semibold text-amber-300 mb-4">Third paths, not coerced binaries</h2>
+          <p class="text-white/80 leading-relaxed mb-4">Trolley problems force “hurt A or hurt B.” TOLC 8 is written so the first move is not “pick a victim.” Truth asks whether the frame is honest. Order asks whether the situation can be slowed or rerouted. Compassion is zero-harm as the standing test.</p>
+          <p class="text-white/80 leading-relaxed">A third path is the refusal to treat a coerced binary as the whole map. That is design intent — not a certificate that every session yields a miracle. Humans still review.</p>
+        </div>
+        <div class="card-hover bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8">
+          <h2 class="text-xl font-semibold text-amber-300 mb-4">Use cases</h2>
+          <ul class="space-y-2 text-white/80 text-sm sm:text-base">
+            <li><strong class="text-amber-300">Writer</strong> — paste the constitution; require a “what I refused” footnote.</li>
+            <li><strong class="text-amber-300">Local engineer</strong> — Ollama or LM Studio → shim :8787 → Lattice Chat or the OpenAI SDK.</li>
+            <li><strong class="text-amber-300">Cursor</strong> — project rule from <code class="text-amber-200">wrappers/custom-instructions/cursor.md</code>; one job per agent.</li>
+            <li><strong class="text-amber-300">Teacher</strong> — five steps on a whiteboard; no repo required.</li>
+            <li><strong class="text-amber-300">Organization</strong> — mail <a href="mailto:info@Rathor.ai" class="text-amber-300 underline">info@Rathor.ai</a>.</li>
+            <li><strong class="text-amber-300">Game</strong> — Powrush-MMO is a separate repo. It does not live on this site.</li>
+          </ul>
+        </div>
+        <div class="card-hover bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8">
+          <h2 class="text-xl font-semibold text-amber-300 mb-4">Start in ten minutes</h2>
+          <ol class="space-y-2 text-white/80 text-sm sm:text-base mb-4">
+            <li class="flex gap-2"><span class="text-amber-400 shrink-0">1.</span> <span>Open <a href="/employ.html" class="text-amber-300 underline">How to employ</a>.</span></li>
+            <li class="flex gap-2"><span class="text-amber-400 shrink-0">2.</span> <span>Send one intended draft in <a href="/chat.html" class="text-amber-300 underline">Lattice Chat</a>.</span></li>
+            <li class="flex gap-2"><span class="text-amber-400 shrink-0">3.</span> <span>Copy Context, or paste <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/wrappers/system-prompt.txt" class="text-amber-300 underline">system-prompt.txt</a>.</span></li>
+            <li class="flex gap-2"><span class="text-amber-400 shrink-0">4.</span> <span>Ask a binary question. Require a third path or a reasoned refusal.</span></li>
+            <li class="flex gap-2"><span class="text-amber-400 shrink-0">5.</span> <span>Review. Act or discard.</span></li>
+          </ol>
+          <p class="text-white/60 text-sm">No measured METR numbers. No cert filing. The 31 August 2026 work pack is a draft. There is no public rathor.ai key proxy.</p>
+        </div>
+        <div class="text-white/50 text-sm text-center mb-8">
+          <p>Independent of xAI. Source-available research software.</p>
+          <p>Commercial and organizational use requires a paid license.</p>
+          <p>info@Rathor.ai · AG-SML v1.1</p>
+        </div>
+      </article>
+      <div class="flex flex-wrap justify-center gap-4 text-sm mb-12">
+        <a href="/" class="text-amber-400 hover:text-amber-300">Home</a>
+        <a href="/chat.html" class="text-amber-300 hover:text-amber-200">Chat</a>
+        <a href="/employ.html" class="text-amber-300 hover:text-amber-200">Employ</a>
+        <a href="/Launch-Ra-Thor.html" class="text-amber-300 hover:text-amber-200">Launch</a>
+        <a href="/micro-moment.html" class="text-amber-300 hover:text-amber-200">Moments</a>
+        <a href="/sovereign-shard.html" class="text-amber-200 hover:text-amber-100">Shard</a>
+        <a href="/web-forge.html" class="text-amber-300 hover:text-amber-200">Forge</a>
+        <a href="/contact.html" class="text-amber-300 hover:text-amber-200">Contact</a>
+        <a href="/privacy.html" class="text-amber-300 hover:text-amber-200">Privacy</a>
+      </div>
+    </div>
+    <footer class="rt-site-footer bg-black border-t border-amber-300/30 py-12 sm:py-20 text-sm text-amber-400/90" data-rt-family-footer>
+      <nav class="rt-follow justify-center" aria-label="Follow" data-rt-follow="1">
+        <p class="rt-follow-label">Follow</p>
+        <ul class="rt-follow-list">
+          <li><a href="https://x.com/AlphaProMega" rel="me noopener" target="_blank">X / Twitter</a></li>
+          <li><a href="https://www.linkedin.com/in/sherif-botros" rel="me noopener" target="_blank">LinkedIn</a></li>
+          <li><a href="https://www.facebook.com/people/Ra-Thor-AI/61594361430419/" rel="me noopener" target="_blank">Facebook</a></li>
+        </ul>
+      </nav>
+      <p class="mb-2">Ra-Thor™ is a trademark of Autonomicity Games Inc. · Grok is a trademark of xAI · X is a trademark of X Corp.</p>
+      <p class="mb-2">Ra-Thor is independent — not affiliated with, sponsored by, or endorsed by xAI.</p>
+      <p class="text-white/40">© 2026 Sherif Samy Botros — Sole Steward · AG-SML v1.1 · TOLC 8 Mercy-Gated · info@Rathor.ai</p>
+    </footer>
+  </div>
+  <script src="/i18n/en.js?v=20260915b"></script>
+  <script src="/js/i18n-chrome.js?v=20260915c"></script>
+  <script src="/js/week-window.js"></script>
+  <script src="/js/rathor-theme.js"></script>
+  <script src="/js/pwa-install.js" defer></script>
+  <script src="/js/family-nav-2026-08-22.js" defer></script>
+  <script src="/js/site-lock-2026-08-22.js" defer></script>
+</body>
+</html>

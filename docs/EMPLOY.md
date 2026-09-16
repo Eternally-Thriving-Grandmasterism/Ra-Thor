@@ -2,6 +2,8 @@
 
 Public voice lives on employ.html. This file is the operator spine; do not paste HOLD lines onto the site.
 
+Public long-form briefing (visitor voice): [`/briefing.html`](https://rathor.ai/briefing.html) · canonical markdown [`PUBLIC_EMPLOY_BRIEFING.md`](PUBLIC_EMPLOY_BRIEFING.md). Not a tenth family-walk tab.
+
 **Workspace:** 14.15.6  
 **Contact:** info@Rathor.ai  
 **Site:** [https://rathor.ai/employ.html](https://rathor.ai/employ.html)  
@@ -73,6 +75,8 @@ Do not invent pages. Map to live URLs.
 | Inspect the monorepo | [GitHub Ra-Thor](https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor) |
 | Organization pilot | [mailto:info@Rathor.ai](mailto:info@Rathor.ai) |
 
+Public briefing (not a product door): [https://rathor.ai/briefing.html](https://rathor.ai/briefing.html).
+
 ---
 
 ## The loop
@@ -135,6 +139,8 @@ Home · Chat · Employ · Launch · Moments · Shard · Forge · Contact · Priv
 Chrome-only i18n (`i18n/README.md`).
 
 Google Translate = new tab.
+
+`/briefing.html` is a document page off Employ. It is not a tenth walk tab.
 
 ---
 

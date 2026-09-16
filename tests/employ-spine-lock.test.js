@@ -9,7 +9,7 @@ function assert(cond, msg) {
   if (!cond) throw new Error(msg);
 }
 
-assert(employMd.indexOf('inspect \u2260 METR') !== -1 || employMd.indexOf('inspect \u2260 METR') !== -1 || employMd.indexOf('inspect') !== -1 && employMd.indexOf('METR') !== -1, 'docs/EMPLOY.md must contain inspect \u2260 METR');
+assert(employMd.indexOf('inspect') !== -1 && employMd.indexOf('METR') !== -1, 'docs/EMPLOY.md must contain inspect / METR');
 assert(employMd.indexOf('info@Rathor.ai') !== -1, 'docs/EMPLOY.md must contain info@Rathor.ai');
 assert(employMd.indexOf('14.15.6') !== -1, 'docs/EMPLOY.md must contain 14.15.6');
 assert(employMd.indexOf('Layer 0') !== -1, 'docs/EMPLOY.md must contain Layer 0');
@@ -28,7 +28,7 @@ assert(employHtml.indexOf('14.18') === -1, 'employ.html must not sell 14.18');
 
 var optionalMd = fs.readFileSync(path.join(root, 'docs/OPTIONAL_MODEL.md'), 'utf8');
 var skillMd = fs.readFileSync(path.join(root, 'skills/ra-thor-employ/SKILL.md'), 'utf8');
-assert(optionalMd.indexOf('inspect') !== -1 && optionalMd.indexOf('METR') !== -1, 'OPTIONAL_MODEL.md must contain inspect \u2260 METR');
+assert(optionalMd.indexOf('inspect') !== -1 && optionalMd.indexOf('METR') !== -1, 'OPTIONAL_MODEL.md must contain inspect / METR');
 assert(optionalMd.replace(/\*/g, '').indexOf('not an xAI product') !== -1, 'OPTIONAL_MODEL.md must keep Grok optional');
 assert(optionalMd.indexOf('/v1/chat/completions') !== -1, 'OPTIONAL_MODEL.md must name the OpenAI-compatible door');
 assert(optionalMd.indexOf('AgentOS-certified') !== -1, 'OPTIONAL_MODEL.md must refuse AgentOS-certified claim');
@@ -88,5 +88,18 @@ assert(chatJs.indexOf('AG-SML v1.0') === -1, 'js/chat.js live prompt must not se
 assert(chatJs.indexOf('Outputs are drafts') !== -1, 'js/chat.js Copy Context / SYSTEM_PROMPT must quote drafts');
 assert(chatJs.indexOf('Independent of xAI') !== -1, 'js/chat.js Copy Context / SYSTEM_PROMPT must quote independent of xAI');
 assert(chatJs.indexOf('SYSTEM_PROMPT.trim()') !== -1, 'Copy Context must quote SYSTEM_PROMPT (same sentences)');
+
+var briefingMd = fs.readFileSync(path.join(root, 'docs/PUBLIC_EMPLOY_BRIEFING.md'), 'utf8');
+var briefingHtml = fs.readFileSync(path.join(root, 'briefing.html'), 'utf8');
+assert(briefingMd.indexOf('14.15.6') !== -1, 'briefing markdown must name workspace');
+assert(briefingMd.indexOf('info@Rathor.ai') !== -1, 'briefing markdown must name contact');
+assert(briefingMd.indexOf('inspect') !== -1 && briefingMd.indexOf('METR') !== -1, 'briefing markdown must keep inspect / METR');
+assert(briefingMd.replace(/\*/g, '').indexOf('no public rathor.ai') !== -1, 'briefing markdown must refuse public key proxy');
+assert(briefingHtml.indexOf('14.15.6') !== -1, 'briefing.html must name workspace');
+assert(briefingHtml.indexOf('info@Rathor.ai') !== -1, 'briefing.html must name contact');
+assert(briefingHtml.indexOf('/employ.html') !== -1, 'briefing.html must point back at Employ');
+assert(briefingHtml.indexOf('Do not change the walk') === -1, 'briefing.html must not print operator HOLD');
+assert(employHtml.indexOf('/briefing.html') !== -1, 'employ.html must link the public briefing');
+assert(employMd.indexOf('PUBLIC_EMPLOY_BRIEFING.md') !== -1, 'docs/EMPLOY.md must point at the public briefing file');
 
 console.log('EMPLOY-1 employ-spine-lock checks passed');
