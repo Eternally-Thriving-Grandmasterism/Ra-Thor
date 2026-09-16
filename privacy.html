@@ -25,25 +25,30 @@
       catch (e) { document.documentElement.setAttribute('data-theme', 'dark'); }
     })();
   </script>
+  <style>
+    body { font-family: Inter, system-ui, sans-serif; }
+    .title-font { font-family: Inter, system-ui, sans-serif; }
+    .thunder-glow { text-shadow: 0 0 40px #ffd700, 0 0 80px #ffaa00; }
+  </style>
 </head>
-<body>
-  <main class="rt-week-page" id="rt-family-main" data-week-start="2026-09-08" data-week-end="2026-09-15" dir="ltr" lang="en" data-rt-prose>
-    <p><a class="rt-week-back" href="/">← Home</a></p>
-    <p class="rt-page-week"><a href="/constellation-week.html" data-i18n="weekMore">Full week note →</a></p>
-    <h1>Privacy</h1>
-    <p class="rt-week-window">Nothing we control leaves this device.</p>
-    <p class="rt-week-note">Last Updated: 2026-09-15 · Aligned with <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/Legal/privacy.md" target="_blank" rel="noopener">docs/Legal/privacy.md</a></p>
+<body class="bg-black text-white overflow-x-hidden">
+  <main class="max-w-3xl mx-auto px-4 sm:px-6 py-12 sm:py-16" id="rt-family-main" dir="ltr" lang="en" data-rt-prose>
+    <div class="text-center mb-12">
+      <h1 class="title-font text-5xl sm:text-6xl font-black tracking-tighter thunder-glow mb-3">Privacy</h1>
+      <p class="text-lg sm:text-xl text-amber-300">Nothing we control leaves this device.</p>
+      <p class="text-sm text-white/50 mt-4">Last Updated: 2026-09-15 · Aligned with <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/Legal/privacy.md" target="_blank" rel="noopener" class="text-amber-300 underline">docs/Legal/privacy.md</a></p>
+    </div>
 
-    <section class="rt-card">
-      <h2>Overview</h2>
-      <p>Ra-Thor (rathor.ai) is designed with a fundamental commitment to user sovereignty and privacy. This website and all associated sovereign shards operate under strict principles of minimal data collection and maximum user control.</p>
-      <p>Autonomicity Games Inc. respects your privacy and operates under the <strong>TOLC 8 Mercy Gates</strong>.</p>
+    <section class="rt-card-uniform bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8">
+      <h2 class="text-xl font-semibold text-amber-300 mb-4">Overview</h2>
+      <p class="text-white/80 leading-relaxed mb-4">Ra-Thor (rathor.ai) is designed with a fundamental commitment to user sovereignty and privacy. This website and all associated sovereign shards operate under strict principles of minimal data collection and maximum user control.</p>
+      <p class="text-white/80 leading-relaxed">Autonomicity Games Inc. respects your privacy and operates under the <strong class="text-amber-300">TOLC 8 Mercy Gates</strong>.</p>
     </section>
 
-    <section class="rt-card">
-      <h2>Data Collection</h2>
-      <p>This website collects no personal data whatsoever.</p>
-      <ul>
+    <section class="rt-card-uniform bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8">
+      <h2 class="text-xl font-semibold text-amber-300 mb-4">Data Collection</h2>
+      <p class="text-white/80 leading-relaxed mb-4">This website collects no personal data whatsoever.</p>
+      <ul class="space-y-2 text-white/80 text-sm sm:text-base">
         <li>No cookies are used.</li>
         <li>No tracking technologies or analytics are employed.</li>
         <li>No personal information is requested, stored, or transmitted.</li>
@@ -53,75 +58,54 @@
       </ul>
     </section>
 
-    <section class="rt-card">
-      <h2>How Ra-Thor Works</h2>
-      <p>Ra-Thor is a mercy-gated symbolic lattice. When you use the connected demos (Grok or X integrations), those interactions are governed by the respective platforms’ (xAI / X Corp) privacy policies.</p>
-      <p>When you use <strong>Sovereign Shard v8</strong> or <a href="/chat.html">Lattice Chat</a> (workspace 14.15.6), <strong>the session store stays on your device</strong>. Optional encryption never leaves the browser. Bridging to Grok / X / another cloud model is explicit and then follows that provider’s policy.</p>
+    <section class="rt-card-uniform bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8">
+      <h2 class="text-xl font-semibold text-amber-300 mb-4">How Ra-Thor Works</h2>
+      <p class="text-white/80 leading-relaxed mb-4">Ra-Thor is a mercy-gated symbolic lattice. When you use the connected demos (Grok or X integrations), those interactions are governed by the respective platforms’ (xAI / X Corp) privacy policies.</p>
+      <p class="text-white/80 leading-relaxed">When you use <strong class="text-amber-300">Sovereign Shard v8</strong> or <a href="/chat.html" class="text-amber-300 underline">Lattice Chat</a> (workspace 14.15.6), <strong class="text-amber-300">the session store stays on your device</strong>. Optional encryption never leaves the browser. Bridging to Grok / X / another cloud model is explicit and then follows that provider’s policy.</p>
     </section>
 
-    <section class="rt-card">
-      <h2>Your Rights</h2>
-      <p>Since no personal data is collected by this website, there is no personal data to access, correct, or delete on our servers. You retain full sovereignty over any local data:</p>
-      <ul>
-        <li><strong>Right of access</strong> — Inspect local chat/session data via Developer Tools → Application → IndexedDB / localStorage.</li>
-        <li><strong>Right to erasure</strong> — Clear site data or delete IndexedDB at any time. Nothing is retained off-device.</li>
-        <li><strong>Right to rectification</strong> — Edit or overwrite local session data in the chat interface or storage.</li>
-        <li><strong>Right to data portability</strong> — Export sessions as JSON from the chat UI where available.</li>
-        <li><strong>Right to object</strong> — Simply do not use optional chat features; the rest of the site requires zero data.</li>
+    <section class="rt-card-uniform bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8">
+      <h2 class="text-xl font-semibold text-amber-300 mb-4">Your Rights</h2>
+      <p class="text-white/80 leading-relaxed mb-4">Since no personal data is collected by this website, there is no personal data to access, correct, or delete on our servers. You retain full sovereignty over any local data:</p>
+      <ul class="space-y-2 text-white/80 text-sm sm:text-base">
+        <li><strong class="text-amber-300">Right of access</strong> — Inspect local chat/session data via Developer Tools → Application → IndexedDB / localStorage.</li>
+        <li><strong class="text-amber-300">Right to erasure</strong> — Clear site data or delete IndexedDB at any time. Nothing is retained off-device.</li>
+        <li><strong class="text-amber-300">Right to rectification</strong> — Edit or overwrite local session data in the chat interface or storage.</li>
+        <li><strong class="text-amber-300">Right to data portability</strong> — Export sessions as JSON from the chat UI where available.</li>
+        <li><strong class="text-amber-300">Right to object</strong> — Simply do not use optional chat features; the rest of the site requires zero data.</li>
       </ul>
     </section>
 
-    <section class="rt-card">
-      <h2>Compliance</h2>
-      <p>Ra-Thor is designed with privacy minimisation in mind. Names below are <strong>design-intent references</strong>, not ISO/IEC 42001 certification or EU AI Act conformity:</p>
-      <ul>
-        <li><strong>GDPR</strong></li>
-        <li><strong>CCPA</strong></li>
-        <li><strong>COPPA</strong></li>
-        <li><strong>EU AI Act</strong></li>
-        <li><strong>Canadian IPC-OHRC Principles</strong> / PIPEDA-aligned minimisation</li>
+    <section class="rt-card-uniform bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8">
+      <h2 class="text-xl font-semibold text-amber-300 mb-4">Compliance</h2>
+      <p class="text-white/80 leading-relaxed mb-4">Ra-Thor is designed with privacy minimisation in mind. Names below are <strong class="text-amber-300">design-intent references</strong>, not ISO/IEC 42001 certification or EU AI Act conformity:</p>
+      <ul class="space-y-2 text-white/80 text-sm sm:text-base mb-4">
+        <li><strong class="text-amber-300">GDPR</strong></li>
+        <li><strong class="text-amber-300">CCPA</strong></li>
+        <li><strong class="text-amber-300">COPPA</strong></li>
+        <li><strong class="text-amber-300">EU AI Act</strong></li>
+        <li><strong class="text-amber-300">Canadian IPC-OHRC Principles</strong> / PIPEDA-aligned minimisation</li>
       </ul>
-      <p>Because this website collects no personal data, many controller obligations are reduced in practice. That is not a certificate. Workspace identity is 14.15.6. See PUBLIC_CLAIM.lock.md.</p>
+      <p class="text-white/80 leading-relaxed">Because this website collects no personal data, many controller obligations are reduced in practice. That is not a certificate. Workspace identity is 14.15.6. See PUBLIC_CLAIM.lock.md.</p>
     </section>
 
-    <section class="rt-card">
-      <h2>Third-Party Services</h2>
-      <p>This page loads first-party CSS and JS from rathor.ai only (theme, family navigation, PWA install, week window). There is no Tailwind, Font Awesome, or Google Fonts CDN here. Click-only Google Translate is optional: it does not load until you ask, and then it uses Google on the network. Offline language packs on this site stay the default. We do not run analytics or tracking cookies.</p>
-      <p>Connected demos on grok.com or x.com are subject to the privacy policies of xAI and X Corp respectively. Email to info@Rathor.ai is optional and consent-based; correspondence is never sold or shared.</p>
+    <section class="rt-card-uniform bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8">
+      <h2 class="text-xl font-semibold text-amber-300 mb-4">Third-Party Services</h2>
+      <p class="text-white/80 leading-relaxed mb-4">This page loads first-party CSS and JS from rathor.ai only (theme, family navigation, PWA install, week window). There is no Tailwind, Font Awesome, or Google Fonts CDN here. Click-only Google Translate is optional: it does not load until you ask, and then it uses Google on the network. Offline language packs on this site stay the default. We do not run analytics or tracking cookies.</p>
+      <p class="text-white/80 leading-relaxed">Connected demos on grok.com or x.com are subject to the privacy policies of xAI and X Corp respectively. Email to info@Rathor.ai is optional and consent-based; correspondence is never sold or shared.</p>
     </section>
 
-    <section class="rt-card">
-      <h2>Contact</h2>
-      <p>For any privacy-related questions</p>
+    <section class="rt-card-uniform bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8">
+      <h2 class="text-xl font-semibold text-amber-300 mb-4">Contact</h2>
+      <p class="text-white/80 leading-relaxed mb-4">For any privacy-related questions</p>
       <div class="rt-cta-row">
         <a href="mailto:info@Rathor.ai" class="rt-btn-primary">info@Rathor.ai</a>
         <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues" class="rt-btn-ghost" target="_blank" rel="noopener">GitHub Issues</a>
       </div>
     </section>
 
-    <p class="rt-week-note">We may update this Privacy Policy from time to time. Changes will be posted on this page with an updated “Last Updated” date.</p>
-    <p class="rt-week-foot">
-      <a href="/">Home</a>
-      · <a href="/chat.html">Lattice Chat</a>
-      · <a href="/employ.html">Employ</a>
-      · <a href="/Launch-Ra-Thor.html">Launch</a>
-      · <a href="/contact.html">Contact</a>
-    </p>
+    <p class="text-white/50 text-sm text-center">We may update this Privacy Policy from time to time. Changes will be posted on this page with an updated “Last Updated” date.</p>
   </main>
-  <footer class="rt-site-footer" data-rt-family-footer>
-    <div class="max-w-5xl mx-auto px-4 sm:px-6">
-      <nav class="rt-follow" aria-label="Follow" data-rt-follow="1">
-        <p class="rt-follow-label" data-i18n="followTitle">Follow</p>
-        <ul class="rt-follow-list">
-          <li><a href="https://x.com/AlphaProMega" rel="me noopener" target="_blank" data-i18n="followX">X / Twitter</a></li>
-          <li><a href="https://www.linkedin.com/in/sherif-botros" rel="me noopener" target="_blank" data-i18n="followLinkedIn">LinkedIn</a></li>
-          <!-- official follow named by the steward: https://www.facebook.com/share/1b7Z76vUpL/ -->
-          <li><a href="https://www.facebook.com/people/Ra-Thor-AI/61594361430419/" rel="me noopener" target="_blank" data-i18n="followFacebook">Facebook</a></li>
-        </ul>
-      </nav>
-      <p class="rt-legal">v14.15.6 · AG-SML v1.1 · Capable · Bounded · Corrigible · info@Rathor.ai</p>
-    </div>
-  </footer>
   <script src="/i18n/en.js?v=20260915b"></script>
   <script src="/js/i18n-chrome.js?v=20260915c"></script>
   <script src="/js/week-window.js"></script>

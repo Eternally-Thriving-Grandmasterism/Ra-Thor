@@ -60,7 +60,7 @@
   function alreadyHasFamilyHeader() {
     if (document.querySelector('[data-rt-family-header]')) return true;
     if (document.getElementById('rt-family-nav')) return true;
-    var scope = document.querySelector('header') || document.body;
+    var scope = document.querySelector('header');
     if (!scope) return false;
     var found = {};
     var anchors = scope.querySelectorAll('a');
@@ -215,7 +215,7 @@
             '<p class="rt-legal">v14.15.6 · AG-SML v1.1 · TOLC 8 · Capable · Bounded · Corrigible</p>' +
           '</div>' +
           '<div class="md:col-span-3">' +
-            '<h4>Family</h4>' +
+            '<h4>Directory</h4>' +
             '<div class="flex flex-col gap-2 text-xs">' +
               '<a href="/">Home</a>' +
               '<a href="/chat.html">Lattice Chat</a>' +

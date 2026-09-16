@@ -114,4 +114,25 @@ assert(employHtml.indexOf('SISTER_ADOPTION.md') !== -1, 'employ.html must point 
 assert(employMd.indexOf('SISTER_ADOPTION.md') !== -1, 'docs/EMPLOY.md must point at SISTER_ADOPTION.md');
 assert(employHtml.indexOf('Do not add sister') === -1, 'employ.html must not print operator sister HOLD');
 
+var indexHtml = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+assert(indexHtml.indexOf('Eternal Mercy Thunder') !== -1, 'index.html must restore Eternal Mercy Thunder');
+assert(indexHtml.indexOf('WHITEPAPER_v4.2') !== -1, 'index.html must point at living cover v4.2');
+assert(indexHtml.indexOf('WHITEPAPER_v4.1') === -1, 'index.html must not present v4.1 as the living cover');
+assert(indexHtml.indexOf('Whitepaper v4.1') === -1, 'index.html must not advertise v4.1 as the living cover');
+
+var privacyHtml = fs.readFileSync(path.join(root, 'privacy.html'), 'utf8');
+assert(employHtml.indexOf('family-nav-2026-08-22.js') !== -1, 'employ.html must load family-nav-2026-08-22.js');
+assert(privacyHtml.indexOf('family-nav-2026-08-22.js') !== -1, 'privacy.html must load family-nav-2026-08-22.js');
+assert(employHtml.indexOf('Do not change the walk') === -1, 'employ.html must not contain Do not change the walk');
+
+var familyPages = [
+  'index.html', 'employ.html', 'privacy.html', 'chat.html', 'contact.html',
+  'Launch-Ra-Thor.html', 'micro-moment.html', 'sovereign-shard.html',
+  'web-forge.html', 'briefing.html', 'constellation-week.html', 'go-x.html'
+];
+familyPages.forEach(function (name) {
+  var html = fs.readFileSync(path.join(root, name), 'utf8');
+  assert(html.indexOf('ceo@acitygames.com') === -1, name + ' must not contain ceo@acitygames.com');
+});
+
 console.log('EMPLOY-1 employ-spine-lock checks passed');
