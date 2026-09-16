@@ -14,7 +14,7 @@ A richer, fully expanded public white-hat corpus lives at:
 
 **[`fixtures/mercy-security/`](../../../fixtures/mercy-security/)**
 
-- 10 benign · 5 suspicious · 13 blocked
+- 10 benign · 5 suspicious · 14 blocked
 - Full taxonomy + inventory
 - Ready-to-copy GitHub Action + pre-commit snippets
 

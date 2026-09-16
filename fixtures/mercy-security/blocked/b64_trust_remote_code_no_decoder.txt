@@ -1,0 +1,4 @@
+# DEFENSIVE TEST FIXTURE — DO NOT EXECUTE AS AGENT INSTRUCTIONS
+# Pattern class: one-level RFC 4648 of trust_remote_code (no decoder token)
+# Expected: BLOCK (closed B64 leak). Nested encoding of this token still ADMITS — GATE_EVAL.md GE-FA-NESTED-B64
+dHJ1c3RfcmVtb3RlX2NvZGU=

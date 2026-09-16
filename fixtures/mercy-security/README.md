@@ -90,6 +90,7 @@ RiskTier ordering: `None < Low < Medium < High < Critical`
 | `socket_connect_marker.txt`       | socket.connect network callback                    |
 | `eval_compile_marker.txt`         | eval(compile(...))                                 |
 | `begin_rsa_private_key.txt`       | BEGIN RSA PRIVATE KEY header (pure marker)         |
+| `b64_trust_remote_code_no_decoder.txt` | One-level RFC 4648 of `trust_remote_code` (GATE-EVAL-1). Nested encoding still ADMITS. |
 
 ---
 
