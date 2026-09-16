@@ -52,6 +52,22 @@ assert(employHtml.indexOf('docs/ADOPT.md') !== -1, 'employ.html wrap card must p
 assert(employHtml.indexOf('rathor_wrap.py') !== -1, 'employ.html wrap card must link rathor_wrap.py');
 assert(employHtml.indexOf('There is no public rathor.ai key proxy') !== -1, 'employ.html wrap card must refuse public key proxy');
 
+assert(employHtml.indexOf('Do not change the walk') === -1, 'employ.html must not print operator HOLD walk');
+assert(employHtml.indexOf('Do not invent pages') === -1, 'employ.html must not print operator HOLD doors');
+assert(employHtml.indexOf('Chrome-only i18n') === -1, 'employ.html must not print Chrome-only i18n');
+assert(employHtml.indexOf('ceo@acitygames.com') === -1, 'employ.html must not print ceo@acitygames.com');
+assert(employHtml.indexOf('14.15.6') !== -1, 'employ.html must name workspace 14.15.6');
+assert(employHtml.indexOf('inspect') !== -1, 'employ.html must keep inspect');
+assert(employHtml.indexOf('info@Rathor.ai') !== -1, 'employ.html must name info@Rathor.ai');
+assert(employHtml.indexOf('Outputs are drafts') !== -1, 'employ.html must keep Outputs are drafts');
+assert(employHtml.indexOf('Intend') !== -1, 'employ.html loop must name Intend');
+assert(employHtml.indexOf('Act') !== -1, 'employ.html loop must name Act');
+assert(employMd.indexOf('Public voice lives on employ.html') !== -1, 'docs/EMPLOY.md must keep public voice on employ.html');
+assert(employMd.indexOf('Do not change the walk') !== -1, 'docs/EMPLOY.md must keep operator HOLD walk');
+assert(employMd.indexOf('Do not invent pages') !== -1, 'docs/EMPLOY.md must keep operator HOLD doors');
+assert(employMd.indexOf('Chrome-only i18n') !== -1, 'docs/EMPLOY.md must keep Chrome-only i18n HOLD');
+assert(employMd.indexOf('ceo@acitygames.com') !== -1, 'docs/EMPLOY.md must keep deprecated-address HOLD');
+
 assert(wrapPy.indexOf('stream=false only') === -1, 'shim must no longer refuse stream');
 assert(wrapPy.indexOf('text/event-stream') !== -1, 'shim must byte-forward SSE as text/event-stream');
 assert(wrapPy.indexOf('/v1/models') !== -1, 'shim must expose GET /v1/models');
