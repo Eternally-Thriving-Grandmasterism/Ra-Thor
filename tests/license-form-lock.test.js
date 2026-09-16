@@ -21,6 +21,7 @@ assert(contactHtml.indexOf('wrapping a model') !== -1, 'form must offer wrapping
 assert(contactHtml.indexOf('shipping a product') !== -1, 'form must offer shipping a product');
 assert(contactHtml.indexOf('internal eval') !== -1, 'form must offer internal eval');
 assert(contactHtml.indexOf('name="use"') !== -1 && contactHtml.indexOf('value="other"') !== -1, 'form must offer other');
+assert((contactHtml.match(/name="use"[^>]*autocomplete="off"/g) || []).length >= 4, 'use radios must declare autocomplete');
 assert(contactHtml.indexOf('name="seats"') !== -1, 'form must include approx seats or servers');
 assert(contactHtml.indexOf('name="message"') !== -1, 'form must include message');
 assert(contactHtml.indexOf('name="email"') !== -1, 'form must include reply email');
