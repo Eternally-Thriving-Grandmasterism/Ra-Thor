@@ -42,7 +42,7 @@ These sentences stay design intent or research labels. They are not present-tens
 
 - **RBE as present** — a resource-based economy is the aspiration written into the research forest. People still pay rent in the currencies they already use. Software here does not allocate housing, food, or energy.
 - **UBI** — a universal cash floor is a public-policy question. Funding, eligibility, and inflation stay open. This lattice does not run a national stipend.
-- **Token fade** — fading “mercy-gated tokens” into a circulating currency or a UBI replacement is not a shipping path. NEVC, where it appears in this tree, is a grief-gated contributor class, not a graded abundance price and not a national accounts system.
+- **Token fade** — fading “mercy-gated tokens” into a circulating currency or a UBI replacement is not a shipping path. NEVC, where it appears in this tree, is a grief-gated contributor class, not a graded abundance price and not a national accounts system. Inspectable cut: [`docs/NEVC.md`](NEVC.md).
 - **Logistics** — planetary supply, habitat, or fleet logistics remain research notes. They are not a live dispatcher.
 - **Combined AGSi** — a research identity label, not a warranty and not a demonstrated phase.
 - **Binding after redesign** — a running system that rewrites its own gates stays OPEN. Recursive self-improvement is not a product path in this monorepo.

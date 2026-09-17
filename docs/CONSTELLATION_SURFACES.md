@@ -14,7 +14,7 @@ Do not fold the player loop into Ra-Thor. Do not run PATSAGi deliberation as the
 
 ## Shared (contracts only)
 
-- NEVC scores: Ra-Thor `crates/mercy_tolc_operator_algebra` (`NEVC_DUAL_REPO_INTERFACE_v1.0.md`). Powrush-MMO consumes via Mode A (path) or Mode B (local adapter). Same algorithm, two repos.
+- NEVC scores: Ra-Thor `crates/mercy_tolc_operator_algebra` ([`docs/NEVC.md`](NEVC.md)). Default Powrush path is Mode B (local adapter / offline). Mode A (`nevc_rathor`) is optional and is not forced. Same algorithm, two repos.
 - Telemetry: Ra-Thor `reality-thriving-transfer` (PowrushTelemetry). Soft feedback loop: Ra-Thor emits policy, Powrush receives. Game stays sovereign if Ra-Thor is offline (Mode B).
 - License / contact: AG-SML, info@Rathor.ai.
 

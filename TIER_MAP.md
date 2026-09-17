@@ -19,7 +19,7 @@
 | `quantum-swarm` | Protected evolution ticks |
 | `sovereign-recovery` | Heartbeats + TOLC8 anchors |
 | `monorepo-intelligence` | Protocol guardianship (`WalkDir` skips `target/` `.git/`, max_depth 10) |
-| `mercy_tolc_operator_algebra` | Formal mercy algebra (NEVC inclusive HIGH floor) |
+| `mercy_tolc_operator_algebra` | Formal mercy algebra (NEVC inclusive HIGH floor). Inspectable cut: [`docs/NEVC.md`](docs/NEVC.md) |
 | `fractal-mercy-ledger-adapter` | Substrate adapter (in Core Tier-1 job) |
 | `mercy-security` | Ingestion admit/block + containment (required by ONE Organism) |
 
@@ -54,7 +54,7 @@ Parked to `workflow_dispatch` (2026-09-02, #391): Docker/Trivy, container/K8s/He
 - Player loop: GitHub [Powrush-MMO](https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO).
 - Browser client: GitHub [Powrush-MMO-Simulator](https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO-Simulator) — not crate `powrush-mmo-simulator`.
 - Lattice sim: this repo (`reality-thriving-transfer` telemetry, `crates/powrush` policy hints, crate `powrush-mmo-simulator` mercy tick).
-- Shared only: NEVC + telemetry JSON + `ra_thor_policy_hint_v1`. Mode B stays offline-playable.
+- Shared only: NEVC + telemetry JSON + `ra_thor_policy_hint_v1`. Mode B stays offline-playable. Do not force `nevc_rathor`.
 - Do not grow unexported game files in `crates/powrush` (`player.rs`, `quests.rs`, joystick).
 
 See `docs/CONSTELLATION_SURFACES.md`.
