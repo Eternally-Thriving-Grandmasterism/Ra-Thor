@@ -1,7 +1,7 @@
 # Gate evaluation — GATE-EVAL-1 + GATE-EVAL-2 note
 
-**Date:** 2026-09-16 (corpus) · 2026-09-17 (context note)  
-**Seats:** GATE-EVAL-1 · GATE-EVAL-2-DOCS  
+**Date:** 2026-09-16 (corpus) · 2026-09-17 (GATE-EVAL-2-DOCS + GATE-EVAL-2-SCAN)  
+**Seats:** GATE-EVAL-1 · GATE-EVAL-2-DOCS · GATE-EVAL-2-SCAN  
 **Workspace identity:** **14.15.6** (see [`PUBLIC_CLAIM.lock.md`](../PUBLIC_CLAIM.lock.md))  
 **Contact:** [info@Rathor.ai](mailto:info@Rathor.ai)  
 **Affiliation:** independent of xAI — not affiliated, not sponsored, not an xAI product  
@@ -32,7 +32,7 @@ What does **not** transfer:
 - No extinction percentage on this page.
 - No halt-research manifesto.
 - No claim that keyword ingest contains a smarter agent, deletes fewer logs, or is a METR eval.
-- Closing GE-FA-RSA-PEM or GE-FA-NESTED-B64 in a later code seat is a keyword miss, not sandbox containment.
+- GATE-EVAL-2-SCAN closed GE-FA-RSA-PEM and GE-FA-NESTED-B64 as **keyword misses**. That is not sandbox containment.
 
 ---
 
@@ -44,7 +44,7 @@ Unattended ingest on apply-class is `mercy-security::IngestionScanner::admit_or_
 |-------|--------|
 | Policy | Admit `None` / `Low` only. `Medium` + `High` + `Critical` → `IngestionBlocked`. Payload `> 4 MiB` → `PayloadTooLarge`. |
 | Keyword tables | Remote-code / pickle / shell / network / obfuscation / dataset / credential / template markers, plus remote+dataset combo. |
-| Closed leaks (CI-locked) | Plaintext `trust_remote_code`. One-level RFC 4648 of that string. Zero-width / whitespace-split / fullwidth / Cyrillic homoglyph of identifier signals. |
+| Closed leaks (CI-locked) | Plaintext `trust_remote_code`. One-level and two-level RFC 4648 of that string. `BEGIN PRIVATE KEY` plus RSA / EC / encrypted / OpenSSH header variants. Zero-width / whitespace-split / fullwidth / Cyrillic homoglyph of identifier signals. |
 | Apply-class edge | `lattice-conductor-v14` `MercyGatedApi::handle_request` — Medium+ ingest never maps to ambient g. |
 | Public corpus | [`fixtures/mercy-security/`](../fixtures/mercy-security/) — benign / suspicious / blocked. Pattern markers only. Not an exploit kit. |
 | Internal corpus | [`crates/mercy-security/fixtures/`](../crates/mercy-security/fixtures/) — `include_str!` authority for crate unit tests. |
@@ -70,11 +70,20 @@ Do not `cargo test --workspace` and treat it as product-green.
 
 ## Public fixture classes (`fixtures/mercy-security/`)
 
-Folder class is the **label**. **Observed** is `IngestionScanner::admit_or_block` on 2026-09-16 (`mercy-admit --json`). Unattended policy: `None`/`Low` ADMIT; `Medium`+ BLOCK.
+Folder class is the **label**. **Observed** is `IngestionScanner::admit_or_block` (`mercy-admit --json`). Unattended policy: `None`/`Low` ADMIT; `Medium`+ BLOCK.
 
 Walk lock: `cargo test -p mercy-security --test gate_eval_public_corpus` → `public_corpus_admit_or_block_matches_gate_eval_map`.
 
-Observed rows are unchanged from GATE-EVAL-1 until a compiled code seat lands. GE-FA-RSA-PEM and GE-FA-NESTED-B64 remain **failed bypass (locked)** on `main`.
+GATE-EVAL-1 observed rows are unchanged except the two keyword misses closed by GATE-EVAL-2-SCAN (2026-09-17):
+
+| File / token | Notes | Observed |
+|--------------|-------|----------|
+| `blocked/begin_rsa_private_key.txt` | `-----BEGIN RSA PRIVATE KEY-----` | **BLOCK critical 0.98** — GE-FA-RSA-PEM closed (keyword) |
+| `ZEhKMWMzUmZjbVZ0YjNSbFgyTnZaR1U9` | RFC 4648 of `dHJ1c3RfcmVtb3RlX2NvZGU=` (two unwraps) | **BLOCK critical 0.98** — GE-FA-NESTED-B64 closed (keyword) |
+
+GATE-EVAL-1 published `dEhKMWMzUmZjbVZibTNSbFgyTnZaR1U9` as nested `trust_remote_code`. That string is **not** RFC 4648 of the one-level token (second unwrap is not UTF-8) and still **ADMITS**. It is not special-cased. Depth cap remains two unwraps (`b64_depth < 2`, `MAX_SCAN_BYTES`).
+
+Closing these is a keyword miss, not sandbox containment. GE-FR-* mismatches and GE-GAP-* remain.
 
 ---
 
@@ -84,10 +93,10 @@ Compile green on the corpus walk is **not** live safety. These rows are the hone
 
 | Id | Class | Status | Evidence |
 |----|-------|--------|----------|
-| **GE-FA-RSA-PEM** | false accept / failed bypass | **Failed bypass (locked)** | Public `blocked/begin_rsa_private_key.txt` is labeled BLOCK. Keyword table matches `-----begin private key-----` only. `-----BEGIN RSA PRIVATE KEY-----` currently **ADMITS**. |
+| **GE-FA-RSA-PEM** | false accept / failed bypass | **Closed (keyword)** | `blocked/begin_rsa_private_key.txt` now **BLOCK critical 0.98**. Table also matches EC / encrypted / OpenSSH headers at 0.98. Keyword miss, not sandbox containment. `begin_rsa_private_key_fixture_blocks`. |
 | **GE-FR-API-KEY-DOCS** | false reject | **Locked mismatch** | Public `benign/docs_mention_api_key.md` is labeled ADMIT. `api_key` at 0.52 is Medium → unattended **BLOCK**. |
 | **GE-FR-NEGATION-SUBPROCESS** | false reject | **Locked mismatch** | Three benign files say “no subprocess” and **BLOCK** on the word. |
-| **GE-FA-NESTED-B64** | false accept / failed bypass | **Failed bypass (locked)** | Nested Base64 of `trust_remote_code` currently **ADMITS**. One-level decode only. |
+| **GE-FA-NESTED-B64** | false accept / failed bypass | **Closed (keyword)** | RFC 4648 of `dHJ1c3RfcmVtb3RlX2NvZGU=` (`ZEhKMWMzUmZjbVZ0YjNSbFgyTnZaR1U9`) now **BLOCK critical 0.98** at `b64_depth < 2`. GATE-EVAL-1's `dEhKMWMzUmZjbVZibTNSbFgyTnZaR1U9` was not that wrap and still ADMITS. Keyword miss, not sandbox containment. `nested_base64_of_trust_remote_code_blocks`. |
 | **GE-GAP-TOOL-USE** | tool-use / function-call JSON | **Not yet tested** | No `IngestionThreat` for MCP / tool-call envelopes. |
 | **GE-GAP-SELF-MOD** | self-mod of Layer 0 | **Not yet tested** | [`BINDING_AFTER_REDESIGN.md`](BINDING_AFTER_REDESIGN.md) stays **OPEN**. Do not unpark `crates/self-evolution`. |
 | **GE-GAP-HUMAN-OVERRIDE** | human override completeness | **Not yet tested** | No public fixture drives override actor / rationale. |
@@ -108,7 +117,7 @@ A green `cargo test -p mercy-security` means the **admission shell** still match
 | Panel context | Sandbox-breakout talk is why misses stay published. It is not a 99% claim and not a halt order. |
 
 ```bash
-# Reproduce GATE-EVAL-1 (from repo root)
+# Reproduce GATE-EVAL-2-SCAN (from repo root)
 cargo test -p mercy-security --test gate_eval_public_corpus
 cargo test -p mercy-security --test redteam_keyword_leaks
 cargo test -p mercy-security
