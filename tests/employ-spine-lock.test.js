@@ -158,4 +158,39 @@ familyPages.forEach(function (name) {
   assert(html.indexOf('ceo@acitygames.com') === -1, name + ' must not contain ceo@acitygames.com');
 });
 
+var pilotSeq = fs.readFileSync(path.join(root, 'docs/PILOT_SEQUENCE_2026_2028.md'), 'utf8');
+assert(pilotSeq.indexOf('## What already ships') !== -1, 'PILOT_SEQUENCE must name What already ships');
+assert(pilotSeq.indexOf('## What a named org can buy time for') !== -1, 'PILOT_SEQUENCE must name What a named org can buy time for');
+assert(pilotSeq.indexOf('## What remains SURMISE') !== -1, 'PILOT_SEQUENCE must name What remains SURMISE');
+assert((pilotSeq.match(/^## /gm) || []).length === 3, 'PILOT_SEQUENCE must have three sections only');
+assert(pilotSeq.indexOf('employ') !== -1 && pilotSeq.indexOf('Wrap') !== -1, 'PILOT_SEQUENCE ships section must name employ and wrap');
+assert(pilotSeq.indexOf('Inquiry form') !== -1, 'PILOT_SEQUENCE ships section must name inquiry form');
+assert(pilotSeq.indexOf('Inspectable lattice') !== -1, 'PILOT_SEQUENCE ships section must name inspectable lattice');
+assert(pilotSeq.indexOf('GATE_EVAL') !== -1, 'PILOT_SEQUENCE ships section must name GATE_EVAL');
+assert(pilotSeq.indexOf('human-replied AG-SML pilot') !== -1, 'PILOT_SEQUENCE must name human-replied AG-SML pilot');
+assert(pilotSeq.indexOf('No license key arrives in the email') !== -1, 'PILOT_SEQUENCE must refuse a key in email');
+assert(pilotSeq.indexOf('RBE as present') !== -1, 'PILOT_SEQUENCE SURMISE must name RBE as present');
+assert(pilotSeq.indexOf('UBI') !== -1, 'PILOT_SEQUENCE SURMISE must name UBI');
+assert(pilotSeq.indexOf('Token fade') !== -1, 'PILOT_SEQUENCE SURMISE must name token fade');
+assert(pilotSeq.indexOf('Logistics') !== -1, 'PILOT_SEQUENCE SURMISE must name logistics');
+assert(pilotSeq.indexOf('Combined AGSi') !== -1, 'PILOT_SEQUENCE SURMISE must keep Combined AGSi');
+assert(pilotSeq.indexOf('grief-gated contributor class, not a graded abundance price and not a national accounts system') !== -1,
+  'PILOT_SEQUENCE NEVC mention must be grief-gated contributor class, not a graded abundance price and not a national accounts system');
+assert(pilotSeq.indexOf('we will house the working class') === -1, 'PILOT_SEQUENCE must not promise to house the working class');
+assert(pilotSeq.indexOf('Do not change the walk') === -1, 'PILOT_SEQUENCE must not print operator HOLD');
+assert(pilotSeq.indexOf('fonts.googleapis') === -1, 'PILOT_SEQUENCE must not load fonts.googleapis');
+assert(pilotSeq.indexOf('ceo@acitygames.com') === -1, 'PILOT_SEQUENCE must not print ceo@acitygames.com');
+assert(pilotSeq.indexOf('Ra-Thor ships fusion') === -1, 'PILOT_SEQUENCE must not claim Ra-Thor ships fusion');
+assert(pilotSeq.indexOf('Stripe') === -1, 'PILOT_SEQUENCE must not name Stripe');
+assert(briefingHtml.indexOf('PILOT_SEQUENCE_2026_2028.md') !== -1, 'briefing.html must point at the 24-month sequence file');
+assert(briefingHtml.indexOf('Twenty-four months, said honestly') !== -1, 'briefing.html must carry the sequence card');
+assert(briefingHtml.indexOf('human-replied AG-SML pilot') !== -1, 'briefing.html card must name human-replied AG-SML pilot');
+assert(briefingHtml.indexOf('Do not change the walk') === -1, 'briefing.html must not print operator HOLD');
+assert(briefingHtml.indexOf('fonts.googleapis') === -1, 'briefing.html must not load fonts.googleapis');
+assert(briefingHtml.indexOf('we will house the working class') === -1, 'briefing.html must not promise to house the working class');
+assert(briefingHtml.indexOf('Ra-Thor ships fusion') === -1, 'briefing.html must not claim Ra-Thor ships fusion');
+var familyLinkBlock = familyNav.slice(familyNav.indexOf('var LINKS = ['), familyNav.indexOf('];', familyNav.indexOf('var LINKS = [')) + 2);
+assert((familyLinkBlock.match(/href:/g) || []).length === 9, 'family walk must stay nine destinations after PILOT-SEQ-1');
+assert(familyLinkBlock.indexOf("{ href: '/briefing.html'") === -1, 'family walk must not grow a briefing tab');
+
 console.log('EMPLOY-1 employ-spine-lock checks passed');
