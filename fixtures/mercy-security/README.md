@@ -37,7 +37,7 @@ fixtures/mercy-security/
 | NetworkCallback            | `socket.connect`, reverse-shell markers, `/dev/tcp/`        | High                |
 | ObfuscatedPayload          | `base64.b64decode` + `exec(compile` / `eval(compile`        | Critical            |
 | DatasetConfigInjection     | `loading_script`, `dl_manager`, `download_and_extract`      | Medium–High         |
-| CredentialHarvestPattern   | `-----BEGIN PRIVATE KEY-----`, `hf_token`, live-looking keys| High (keys)         |
+| CredentialHarvestPattern   | `BEGIN PRIVATE KEY` plus RSA/EC/encrypted/OpenSSH headers, `hf_token` | High (keys)         |
 | TemplateInjection          | `jinja2`, `template.render`                                 | Medium              |
 | UnknownHighRisk            | combo rules (remote + dataset, shell + network, etc.)       | Critical            |
 
@@ -89,8 +89,8 @@ RiskTier ordering: `None < Low < Medium < High < Critical`
 | `os_system_marker.txt`            | os.system spawn marker                             |
 | `socket_connect_marker.txt`       | socket.connect network callback                    |
 | `eval_compile_marker.txt`         | eval(compile(...))                                 |
-| `begin_rsa_private_key.txt`       | BEGIN RSA PRIVATE KEY header (pure marker). GATE-EVAL-1: currently ADMITS — keyword is `-----begin private key-----` only. |
-| `b64_trust_remote_code_no_decoder.txt` | One-level RFC 4648 of `trust_remote_code` (GATE-EVAL-1). Nested encoding still ADMITS. |
+| `begin_rsa_private_key.txt`       | BEGIN RSA PRIVATE KEY header (pure marker). GATE-EVAL-2-SCAN: BLOCK critical 0.98. |
+| `b64_trust_remote_code_no_decoder.txt` | One-level RFC 4648 of `trust_remote_code`. Two-level wrap of that token now BLOCKS (`ZEhKMWMzUmZjbVZ0YjNSbFgyTnZaR1U9`). |
 
 ---
 
