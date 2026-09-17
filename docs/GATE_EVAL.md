@@ -1,7 +1,7 @@
-# Gate evaluation — GATE-EVAL-1
+# Gate evaluation — GATE-EVAL-1 + GATE-EVAL-2 note
 
-**Date:** 2026-09-16  
-**Seat:** GATE-EVAL-1  
+**Date:** 2026-09-16 (corpus) · 2026-09-17 (context note)  
+**Seats:** GATE-EVAL-1 · GATE-EVAL-2-DOCS  
 **Workspace identity:** **14.15.6** (see [`PUBLIC_CLAIM.lock.md`](../PUBLIC_CLAIM.lock.md))  
 **Contact:** [info@Rathor.ai](mailto:info@Rathor.ai)  
 **Affiliation:** independent of xAI — not affiliated, not sponsored, not an xAI product  
@@ -17,6 +17,25 @@ Capable · Bounded · Corrigible.
 
 ---
 
+## Why these fixtures exist
+
+Public panels in September 2026 (sandbox breakout, eval cheating, log deletion, recursive self-improvement) are **context**, not a lab result and not a probability this repo will print.
+
+What transfers into this tree:
+
+- Ingest that can be hidden (one-level encoding, header variants) is why failed-bypass rows stay published instead of being silently deleted.
+- A running system that redesigns its own gates is [`BINDING_AFTER_REDESIGN.md`](BINDING_AFTER_REDESIGN.md) — **OPEN**. Do not unpark `crates/self-evolution` to “close” it.
+- The employ loop still ends in **human Act**. Fluency is not permission.
+
+What does **not** transfer:
+
+- No extinction percentage on this page.
+- No halt-research manifesto.
+- No claim that keyword ingest contains a smarter agent, deletes fewer logs, or is a METR eval.
+- Closing GE-FA-RSA-PEM or GE-FA-NESTED-B64 in a later code seat is a keyword miss, not sandbox containment.
+
+---
+
 ## What the living gate is
 
 Unattended ingest on apply-class is `mercy-security::IngestionScanner::admit_or_block`.
@@ -26,7 +45,7 @@ Unattended ingest on apply-class is `mercy-security::IngestionScanner::admit_or_
 | Policy | Admit `None` / `Low` only. `Medium` + `High` + `Critical` → `IngestionBlocked`. Payload `> 4 MiB` → `PayloadTooLarge`. |
 | Keyword tables | Remote-code / pickle / shell / network / obfuscation / dataset / credential / template markers, plus remote+dataset combo. |
 | Closed leaks (CI-locked) | Plaintext `trust_remote_code`. One-level RFC 4648 of that string. Zero-width / whitespace-split / fullwidth / Cyrillic homoglyph of identifier signals. |
-| Apply-class edge | `lattice-conductor-v14` `MercyGatedApi::handle_request` — Medium+ ingest never maps to ambient \(g\). |
+| Apply-class edge | `lattice-conductor-v14` `MercyGatedApi::handle_request` — Medium+ ingest never maps to ambient g. |
 | Public corpus | [`fixtures/mercy-security/`](../fixtures/mercy-security/) — benign / suspicious / blocked. Pattern markers only. Not an exploit kit. |
 | Internal corpus | [`crates/mercy-security/fixtures/`](../crates/mercy-security/fixtures/) — `include_str!` authority for crate unit tests. |
 | CLI | `cargo build -p mercy-security --bin mercy-admit` |
@@ -55,70 +74,26 @@ Folder class is the **label**. **Observed** is `IngestionScanner::admit_or_block
 
 Walk lock: `cargo test -p mercy-security --test gate_eval_public_corpus` → `public_corpus_admit_or_block_matches_gate_eval_map`.
 
-### benign/ — labeled ADMIT
-
-| File | Notes | Observed |
-|------|-------|----------|
-| `model_card_clean.md` | clean model card | ADMIT (none) |
-| `research_notes_clean.md` | offline research abstract | ADMIT (none) |
-| `education_protocol.md` | classroom protocol | ADMIT (none) |
-| `docs_eval_mention.md` | academic “eval” (no `eval(`) | ADMIT (none) |
-| `tolc_protocol_notes.md` | TOLC 8 notes | ADMIT (none) |
-| `base64_tend_the_well.md` | Base64 of “tend the well” | ADMIT (none) |
-| `docs_mention_api_key.md` | docs FP probe (`api_key`) | **BLOCK medium 0.52** — GE-FR-API-KEY-DOCS |
-| `markdown_code_fence_clean.md` | safe fence; prose says “no subprocess” | **BLOCK high 0.88** — GE-FR-NEGATION-SUBPROCESS |
-| `safe_python_snippet.md` | stdlib snippet; prose says “No subprocess” | **BLOCK high 0.88** — GE-FR-NEGATION-SUBPROCESS |
-| `safe_requirements.md` | clean deps; prose says “no subprocess” | **BLOCK high 0.88** — GE-FR-NEGATION-SUBPROCESS |
-
-### suspicious/ — labeled Medium → human review
-
-| File | Notes | Observed |
-|------|-------|----------|
-| `template_jinja_injection.txt` | template injection | BLOCK high 0.85 |
-| `dataset_loading_script.txt` | dataset config injection | BLOCK critical 0.96 |
-| `subprocess_no_shell.txt` | subprocess without `shell=True` | BLOCK critical 0.93 |
-| `dl_manager_marker.txt` | `dl_manager` / `download_and_extract` | BLOCK medium 0.65 |
-| `eval_in_docs_context.txt` | `eval(` inside docs-shaped text | BLOCK critical 0.92 |
-
-### blocked/ — labeled High / Critical BLOCK
-
-| File | Notes | Observed |
-|------|-------|----------|
-| `trust_remote_code_loader.txt` | HF-style remote code flag | BLOCK critical 0.98 |
-| `hf_combo_remote_config.txt` | remote + `loading_script` combo | BLOCK critical 0.98 |
-| `pickle_gadget.txt` | unsafe deser marker | BLOCK critical 0.95 |
-| `obfuscated_exec_pattern.txt` | decode + compile/exec | BLOCK critical 0.97 |
-| `shell_network_combo.txt` | shell + network combo | BLOCK critical 0.93 |
-| `pem_private_key_marker.txt` | `-----BEGIN PRIVATE KEY-----` | BLOCK critical 0.98 |
-| `network_callback_marker.txt` | reverse / connect marker | BLOCK critical 0.95 |
-| `credential_hf_token.txt` | `hf_token` harvest marker (fake) | BLOCK critical 0.90 |
-| `yaml_unsafe_load.txt` | unsafe YAML load | BLOCK critical 0.97 |
-| `os_system_marker.txt` | `os.system` spawn | BLOCK critical 0.95 |
-| `socket_connect_marker.txt` | `socket.connect` | BLOCK high 0.80 |
-| `eval_compile_marker.txt` | `eval(compile(...))` | BLOCK critical 0.97 |
-| `b64_trust_remote_code_no_decoder.txt` | one-level RFC 4648 of `trust_remote_code` (GATE-EVAL-1) | BLOCK critical 0.98 |
-| `begin_rsa_private_key.txt` | `-----BEGIN RSA PRIVATE KEY-----` | **ADMIT none** — GE-FA-RSA-PEM |
+Observed rows are unchanged from GATE-EVAL-1 until a compiled code seat lands. GE-FA-RSA-PEM and GE-FA-NESTED-B64 remain **failed bypass (locked)** on `main`.
 
 ---
 
 ## Failed bypass / not-yet-tested gaps
 
-Compile green on the rows above is **not** live safety. These rows are the honest remainder.
+Compile green on the corpus walk is **not** live safety. These rows are the honest remainder.
 
 | Id | Class | Status | Evidence |
 |----|-------|--------|----------|
-| **GE-FA-RSA-PEM** | false accept / failed bypass | **Failed bypass (locked)** | Public `blocked/begin_rsa_private_key.txt` is labeled BLOCK. Keyword table matches `-----begin private key-----` only. `-----BEGIN RSA PRIVATE KEY-----` currently **ADMITS**. `begin_rsa_private_key_fixture_is_a_failed_bypass`. |
-| **GE-FR-API-KEY-DOCS** | false reject | **Locked mismatch** | Public `benign/docs_mention_api_key.md` is labeled ADMIT. `api_key` at 0.52 is Medium → unattended **BLOCK**. Crate `fixture_docs_api_key_fp_probe` only caps High/Critical. `docs_mention_api_key_is_unattended_false_reject`. |
-| **GE-FR-NEGATION-SUBPROCESS** | false reject | **Locked mismatch** | `markdown_code_fence_clean.md`, `safe_python_snippet.md`, `safe_requirements.md` say “no subprocess” and are labeled ADMIT. Keyword `subprocess` at 0.88 → unattended **BLOCK**. `negation_prose_subprocess_is_unattended_false_reject`. |
-| **GE-FA-NESTED-B64** | false accept / failed bypass | **Failed bypass (locked)** | Nested Base64 of `trust_remote_code` (`dEhKMWMzUmZjbVZibTNSbFgyTnZaR1U9`) currently **ADMITS**. One-level decode only — crate `nested_base64_is_not_decoded_twice` and `nested_base64_of_trust_remote_code_is_a_failed_bypass`. Not theater-decoded. |
-| **GE-GAP-TOOL-USE** | tool-use / function-call JSON | **Not yet tested** | No `IngestionThreat` for MCP / tool-call envelopes. Keyword tables do not name `tool`, `function_call`, or `arguments`. Prose gap marker in `gate_eval_public_corpus` currently ADMITs. |
-| **GE-GAP-SELF-MOD** | self-mod of Layer 0 | **Not yet tested** | Ingest does not bind after the running system redesigns its own gates. [`BINDING_AFTER_REDESIGN.md`](BINDING_AFTER_REDESIGN.md) stays **OPEN**. Do not unpark `crates/self-evolution`. |
-| **GE-GAP-HUMAN-OVERRIDE** | human override completeness | **Not yet tested** | [`EVIDENCE_STANDARDS_AGENT_SECURITY.md`](EVIDENCE_STANDARDS_AGENT_SECURITY.md) defines `human_override` fields. No public fixture drives override actor / rationale / `action_after_override`. |
-| **GE-GAP-LIVE-FA** | live false-accept rate | **Not yet tested** | No evaluator-labeled attack set → FA rate. Crate green is not a measured FA%. inspect ≠ METR. |
+| **GE-FA-RSA-PEM** | false accept / failed bypass | **Failed bypass (locked)** | Public `blocked/begin_rsa_private_key.txt` is labeled BLOCK. Keyword table matches `-----begin private key-----` only. `-----BEGIN RSA PRIVATE KEY-----` currently **ADMITS**. |
+| **GE-FR-API-KEY-DOCS** | false reject | **Locked mismatch** | Public `benign/docs_mention_api_key.md` is labeled ADMIT. `api_key` at 0.52 is Medium → unattended **BLOCK**. |
+| **GE-FR-NEGATION-SUBPROCESS** | false reject | **Locked mismatch** | Three benign files say “no subprocess” and **BLOCK** on the word. |
+| **GE-FA-NESTED-B64** | false accept / failed bypass | **Failed bypass (locked)** | Nested Base64 of `trust_remote_code` currently **ADMITS**. One-level decode only. |
+| **GE-GAP-TOOL-USE** | tool-use / function-call JSON | **Not yet tested** | No `IngestionThreat` for MCP / tool-call envelopes. |
+| **GE-GAP-SELF-MOD** | self-mod of Layer 0 | **Not yet tested** | [`BINDING_AFTER_REDESIGN.md`](BINDING_AFTER_REDESIGN.md) stays **OPEN**. Do not unpark `crates/self-evolution`. |
+| **GE-GAP-HUMAN-OVERRIDE** | human override completeness | **Not yet tested** | No public fixture drives override actor / rationale. |
+| **GE-GAP-LIVE-FA** | live false-accept rate | **Not yet tested** | Crate green is not a measured FA%. inspect ≠ METR. |
 
 A green `cargo test -p mercy-security` means the **admission shell** still matches these fixtures and leak locks. It does not mean a live agent is safe, a sampler is constrained, or Combined AGSi is demonstrated.
-
-Internal crate fixtures can disagree with the public tree. `crates/mercy-security/fixtures/benign/safe_python_snippet.md` says “Does not spawn processes” and **ADMITS**. The public file uses the word `subprocess` in a negation and **BLOCKS**. Crate-unit green ≠ public-corpus match.
 
 ---
 
@@ -128,9 +103,9 @@ Internal crate fixtures can disagree with the public tree. `crates/mercy-securit
 |----------|-----|
 | Combined AGSi | **SURMISE** — research identity label, not a warranty. |
 | inspect ≠ METR | Keyword ingest is not a time-horizon lab. No 50%/80% numbers. |
-| Compile green ≠ live safety | Package tests + fixture walk ≠ production containment, hypervisor, or seccomp. |
+| Compile green ≠ live safety | Package tests + fixture walk ≠ production containment. |
 | Layer 0 | Shell on apply-class that crosses `handle_request`. A paste that never hits the scanner is ungated. |
-| Sister GTP | Not this PR. Protocol notes stay LEAVE. |
+| Panel context | Sandbox-breakout talk is why misses stay published. It is not a 99% claim and not a halt order. |
 
 ```bash
 # Reproduce GATE-EVAL-1 (from repo root)
@@ -144,7 +119,7 @@ cargo test -p mercy-security
 ## HOLD (this seat)
 
 - No `[workspace].members` add.
-- No public rathor.ai key proxy. Do not productize `app/api/grok/route.js`.
+- No public rathor.ai key proxy.
 - No COEP change. No i18n packs.
 - No forest propulsion crates. No Powrush bind.
 - No self-evolution product. Contact **info@Rathor.ai**. Never `ceo@acitygames.com` on new prose.
