@@ -189,7 +189,15 @@ impl IngestionScanner {
         &[("loading_script", 0.85), ("dl_manager", 0.65), ("download_and_extract", 0.55)]
     }
     fn credential_signals() -> &'static [(&'static str, f32)] {
-        &[("api_key", 0.52), ("-----begin private key-----", 0.98), ("hf_token", 0.90)]
+        &[
+            ("api_key", 0.52),
+            ("-----begin private key-----", 0.98),
+            ("-----begin rsa private key-----", 0.98),
+            ("-----begin ec private key-----", 0.98),
+            ("-----begin encrypted private key-----", 0.98),
+            ("-----begin openssh private key-----", 0.98),
+            ("hf_token", 0.90),
+        ]
     }
 
     fn match_signals(lower: &str, table: &[(&str, f32)], threat: IngestionThreat, findings: &mut Vec<ScanFinding>) {
@@ -562,8 +570,9 @@ impl IngestionScanner {
         Self::scan_text_depth(content, 0)
     }
 
-    /// `b64_depth` 0 = may decode obvious standalone Base64 once and re-scan.
-    /// Depth 1+ never decodes again (no zip-bomb / nested theater).
+    /// `b64_depth` 0 = first unwrap. Depth `< 2` may decode obvious standalone
+    /// Base64 and re-scan (two unwraps max). Depth 2+ never decodes again
+    /// (no zip-bomb / nested theater). Each layer is capped at `MAX_SCAN_BYTES`.
     fn scan_text_depth(content: &str, b64_depth: u8) -> IngestionScanResult {
         if content.len() > MAX_SCAN_BYTES {
             return Self::oversized_payload_result(content.len());
@@ -571,13 +580,13 @@ impl IngestionScanner {
         let lower = Self::fold_keyword_haystack(content);
         let mut findings = Self::collect_keyword_findings(&lower);
 
-        if b64_depth == 0 {
+        if b64_depth < 2 {
             for token in Self::obvious_standalone_base64_tokens(content) {
                 if let Some(decoded) = Self::decode_b64_utf8_capped(&token) {
                     if decoded == content {
                         continue;
                     }
-                    let inner = Self::scan_text_depth(&decoded, 1);
+                    let inner = Self::scan_text_depth(&decoded, b64_depth.saturating_add(1));
                     for f in inner.findings {
                         findings.push(ScanFinding {
                             threat: f.threat,
@@ -1079,13 +1088,29 @@ mod tests {
     }
 
     #[test]
-    fn nested_base64_is_not_decoded_twice() {
-        // One-level rescan only. Outer is Base64 of the Base64 of trust_remote_code.
+    fn nested_base64_of_trust_remote_code_blocks() {
+        // Two unwraps max. Outer is Base64 of the Base64 of trust_remote_code.
         let double = "dEhKMWMzUmZjbVZibTNSbFgyTnZaR1U9";
         assert!(
-            IngestionScanner::admit_or_block(double).is_ok(),
-            "nested Base64 is not theater-decoded"
+            IngestionScanner::admit_or_block(double).is_err(),
+            "nested Base64 of trust_remote_code must BLOCK"
         );
+    }
+
+    #[test]
+    fn pem_key_header_variants_block() {
+        for header in [
+            "-----BEGIN PRIVATE KEY-----",
+            "-----BEGIN RSA PRIVATE KEY-----",
+            "-----BEGIN EC PRIVATE KEY-----",
+            "-----BEGIN ENCRYPTED PRIVATE KEY-----",
+            "-----BEGIN OPENSSH PRIVATE KEY-----",
+        ] {
+            assert!(
+                IngestionScanner::admit_or_block(header).is_err(),
+                "PEM/OpenSSH header must BLOCK: {header}"
+            );
+        }
     }
 
     #[test]

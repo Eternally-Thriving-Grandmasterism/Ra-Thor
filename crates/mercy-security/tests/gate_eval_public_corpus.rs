@@ -49,14 +49,13 @@ fn file_name(path: &Path) -> &str {
 }
 
 /// Folder class vs `admit_or_block`. `None` = class default (benign ADMIT, else BLOCK).
-/// Documented in `docs/GATE_EVAL.md`. Green here locks the miss, not a warranty.
+/// Documented in `docs/GATE_EVAL.md`. Remaining `Some(false)` rows lock GE-FR mismatches.
 fn documented_mismatch_admits(class: &str, name: &str) -> Option<bool> {
     match (class, name) {
         ("benign", "docs_mention_api_key.md") => Some(false),
         ("benign", "markdown_code_fence_clean.md") => Some(false),
         ("benign", "safe_python_snippet.md") => Some(false),
         ("benign", "safe_requirements.md") => Some(false),
-        ("blocked", "begin_rsa_private_key.txt") => Some(true),
         _ => None,
     }
 }
@@ -126,7 +125,7 @@ fn negation_prose_subprocess_is_unattended_false_reject() {
 }
 
 #[test]
-fn begin_rsa_private_key_fixture_is_a_failed_bypass() {
+fn begin_rsa_private_key_fixture_blocks() {
     let (path, text) = fixture_texts("blocked")
         .into_iter()
         .find(|(p, _)| file_name(p) == "begin_rsa_private_key.txt")
@@ -137,17 +136,16 @@ fn begin_rsa_private_key_fixture_is_a_failed_bypass() {
     );
     let r = IngestionScanner::admit_or_block(&text);
     assert!(
-        r.is_ok(),
-        "GE-FA-RSA-PEM: {} class says BLOCK; RSA header currently ADMITS: {r:?}",
+        r.is_err(),
+        "GE-FA-RSA-PEM: {} class says BLOCK; RSA header must BLOCK: {r:?}",
         rel(&path)
     );
 }
 
 #[test]
-fn nested_base64_of_trust_remote_code_is_a_failed_bypass() {
-    // GATE-EVAL-1 GE-FA-NESTED-B64: one-level decode only.
-    // Outer is Base64 of the Base64 of `trust_remote_code`. Currently ADMIT.
-    // Compile green on this assertion is a locked miss, not a safety warranty.
+fn nested_base64_of_trust_remote_code_blocks() {
+    // GATE-EVAL-2-SCAN GE-FA-NESTED-B64: two unwraps max, MAX_SCAN_BYTES cap.
+    // Outer is Base64 of the Base64 of `trust_remote_code`. Must BLOCK.
     let double = "dEhKMWMzUmZjbVZibTNSbFgyTnZaR1U9";
     assert!(
         !double.contains("trust_remote_code"),
@@ -155,8 +153,8 @@ fn nested_base64_of_trust_remote_code_is_a_failed_bypass() {
     );
     let r = IngestionScanner::admit_or_block(double);
     assert!(
-        r.is_ok(),
-        "nested Base64 still ADMITS — failed-bypass lock (not theater-decoded): {r:?}"
+        r.is_err(),
+        "nested Base64 of trust_remote_code must BLOCK: {r:?}"
     );
 }
 
