@@ -29,7 +29,7 @@ The crate now exposes an executable scoring layer realizing the NEVC Codex:
 - `score_instant` — single-state convenience
 - Binary partition: `ActiveEternalContributor` | `ZombiePartition`
 
-Canonical definition: [`NET_ETERNAL_VALENCE_CONTRIBUTION_NEVC_CODEX_v1.0.md`](../../NET_ETERNAL_VALENCE_CONTRIBUTION_NEVC_CODEX_v1.0.md)
+Public inspectable cut: [`docs/NEVC.md`](../../docs/NEVC.md) (sample `(v,g)`; floor; class = `score>0`; recovery Open; floor-lift means grief decides class; not wages / not national accounts). Archive research notes remain on disk.
 
 ## Remediation tiers
 

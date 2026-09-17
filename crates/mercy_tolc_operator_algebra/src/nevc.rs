@@ -368,4 +368,70 @@ mod tests {
         assert_eq!(s.label, "Active Eternal Contributor");
         assert_eq!(s.recovery, CompassionRecoveryState::Open);
     }
+
+    /// NEVC-KERNEL-PUBLIC-1 fixture table (docs/NEVC.md).
+    /// Four rows: sustainable+regen; unsustainable; listing integrity i<0.5; recovery-after-grief.
+    #[test]
+    fn inspectable_cut_four_fixture_rows() {
+        let regen = score_instant(Valence::HIGH, 0.0);
+        assert!(
+            regen.is_contributor(),
+            "sustainable+regen must be Contributor, score={}",
+            regen.score
+        );
+        assert_eq!(regen.class, ContributionClass::ActiveEternalContributor);
+
+        let unsustainable = score_instant(Valence::ZERO, 1.0);
+        assert!(
+            !unsustainable.is_contributor(),
+            "unsustainable must be Zombie, score={}",
+            unsustainable.score
+        );
+        assert_eq!(unsustainable.class, ContributionClass::ZombiePartition);
+
+        let listing_i = 0.49_f64;
+        assert!(listing_i < 0.5);
+        let listing = score_instant(Valence::new(listing_i), 0.0);
+        assert!(
+            !listing.is_contributor(),
+            "listing integrity i<0.5 must be Zombie, i={}, score={}",
+            listing_i,
+            listing.score
+        );
+        assert_eq!(listing.class, ContributionClass::ZombiePartition);
+
+        let recovery = compute_nevc(
+            &[NevcSample::new(Valence::ZERO, 2.0, 0).transient()],
+            &NevcConfig::default(),
+        );
+        assert!(
+            recovery.recovery_open(),
+            "recovery-after-grief must stay Open"
+        );
+        assert_eq!(recovery.recovery, CompassionRecoveryState::Open);
+    }
+
+    /// Floor-lifted RBE action: v sits at the inclusive floor, so grief decides class.
+    #[test]
+    fn inspectable_cut_rbe_floor_lift_grief_decides_class() {
+        let floor = NevcConfig::default().valence_floor;
+        assert_eq!(Valence::HIGH.value(), floor);
+
+        let low_grief = score_instant(Valence::HIGH, 0.1);
+        assert!(
+            low_grief.is_contributor(),
+            "floor-lift + low grief must be Contributor, score={}",
+            low_grief.score
+        );
+        assert!((low_grief.score - 0.4).abs() < 1e-12, "score={}", low_grief.score);
+
+        let high_grief = score_instant(Valence::HIGH, 0.9);
+        assert_eq!(high_grief.class, ContributionClass::ZombiePartition);
+        assert!(
+            !high_grief.is_contributor(),
+            "floor-lift + high grief must be Zombie, score={}",
+            high_grief.score
+        );
+        assert!((high_grief.score + 0.4).abs() < 1e-12, "score={}", high_grief.score);
+    }
 }
