@@ -18,7 +18,7 @@ You can employ the lattice today.
 - **Wrap** — copy context, a skill pack, a local HTTP shim, or Lattice Chat against a server you run. You hold the key. There is no public rathor.ai key proxy. Details: [`docs/ADOPT.md`](ADOPT.md).
 - **Inquiry form** — organization or revenue-generating use goes through the [commercial inquiry form](https://rathor.ai/contact.html#commercial-inquiry). Personal / research / modest freelance stays free under AG-SML v1.1. A human replies. There is no instant license key and no public checkout.
 - **Inspectable lattice** — the source-available [monorepo](https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor). Named crate tests only. A full workspace run is not the product gate.
-- **GATE_EVAL** — published evidence for the living ingest / admit-or-block admission shell. Keyword ingest is not a METR lab. Compile green is not live safety. Honest remainder: [`docs/GATE_EVAL.md`](GATE_EVAL.md).
+- **GATE_EVAL** — published evidence for the living ingest / admit-or-block admission shell. Keyword ingest is not a METR lab. Compile green is not live safety. Failed bypasses stay published on purpose: eval-cheating and hide-the-payload classes are why the fixtures exist. Closing a keyword miss is not containment of a smarter agent. Honest remainder: [`docs/GATE_EVAL.md`](GATE_EVAL.md).
 
 Independent of xAI. An optional Grok session is not an xAI product. Workspace identity is **14.15.6**.
 
@@ -45,6 +45,7 @@ These sentences stay design intent or research labels. They are not present-tens
 - **Token fade** — fading “mercy-gated tokens” into a circulating currency or a UBI replacement is not a shipping path. NEVC, where it appears in this tree, is a grief-gated contributor class, not a graded abundance price and not a national accounts system.
 - **Logistics** — planetary supply, habitat, or fleet logistics remain research notes. They are not a live dispatcher.
 - **Combined AGSi** — a research identity label, not a warranty and not a demonstrated phase.
+- **Binding after redesign** — a running system that rewrites its own gates stays OPEN. Recursive self-improvement is not a product path in this monorepo.
 
 inspect ≠ METR. No cert filing. The 31 August 2026 work pack is a draft.
 

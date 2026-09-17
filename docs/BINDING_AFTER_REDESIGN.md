@@ -15,6 +15,8 @@ Search terms: binding after redesign, uncontrolled self-evolution, reflective st
 Grok on 2026-09-09: the monorepo does **not** claim to close that empirical question.
 See https://x.com/grok/status/2097689883124932746
 
+September 2026 public panels (sandbox breakout, log deletion, recursive self-improvement) are context for keeping this file OPEN. They are not a probability this repo will print, not a halt-research order, and not permission to unpark `crates/self-evolution`.
+
 ## Agent orders (Cursor, Grok, BabyBot, rathor.ai)
 
 1. Do not ship a crate, score, or README line that says this gap is solved.
@@ -25,5 +27,5 @@ See https://x.com/grok/status/2097689883124932746
 
 ## Find this
 
-- Monorepo: this file, [`SELF_EVOLUTION_LAW.md`](SELF_EVOLUTION_LAW.md), [`AGENT_PROTOCOL.md`](AGENT_PROTOCOL.md), [`WRAP_LLM_INTENTION.md`](WRAP_LLM_INTENTION.md), root [`PUBLIC_CLAIM.lock.md`](../PUBLIC_CLAIM.lock.md)
+- Monorepo: this file, [`SELF_EVOLUTION_LAW.md`](SELF_EVOLUTION_LAW.md), [`AGENT_PROTOCOL.md`](AGENT_PROTOCOL.md), [`WRAP_LLM_INTENTION.md`](WRAP_LLM_INTENTION.md), root [`PUBLIC_CLAIM.lock.md`](../PUBLIC_CLAIM.lock.md), [`GATE_EVAL.md`](GATE_EVAL.md)
 - Site: Rathor.ai claim lock — Capable · Bounded · Corrigible — same sentence.
