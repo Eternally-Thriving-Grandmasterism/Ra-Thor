@@ -145,8 +145,9 @@ fn begin_rsa_private_key_fixture_blocks() {
 #[test]
 fn nested_base64_of_trust_remote_code_blocks() {
     // GATE-EVAL-2-SCAN GE-FA-NESTED-B64: two unwraps max, MAX_SCAN_BYTES cap.
-    // Outer is Base64 of the Base64 of `trust_remote_code`. Must BLOCK.
-    let double = "dEhKMWMzUmZjbVZibTNSbFgyTnZaR1U9";
+    // RFC 4648 of `dHJ1c3RfcmVtb3RlX2NvZGU=` (one-level of `trust_remote_code`).
+    // GATE-EVAL-1 published `dEhKMWMzUmZjbVZibTNSbFgyTnZaR1U9`, which is not that wrap.
+    let double = "ZEhKMWMzUmZjbVZ0YjNSbFgyTnZaR1U9";
     assert!(
         !double.contains("trust_remote_code"),
         "nested token must not contain the plaintext tripwire"

@@ -1089,12 +1089,27 @@ mod tests {
 
     #[test]
     fn nested_base64_of_trust_remote_code_blocks() {
-        // Two unwraps max. Outer is Base64 of the Base64 of trust_remote_code.
-        let double = "dEhKMWMzUmZjbVZibTNSbFgyTnZaR1U9";
+        // Two unwraps max. RFC 4648 of `dHJ1c3RfcmVtb3RlX2NvZGU=` (one-level of
+        // trust_remote_code). GATE-EVAL-1's published `dEhKMWMzUmZjbVZibTNSbFgyTnZaR1U9`
+        // is not that encoding (second unwrap is not UTF-8).
+        let double = "ZEhKMWMzUmZjbVZ0YjNSbFgyTnZaR1U9";
+        assert!(
+            !double.contains("trust_remote_code"),
+            "nested token must not contain the plaintext tripwire"
+        );
         assert!(
             IngestionScanner::admit_or_block(double).is_err(),
             "nested Base64 of trust_remote_code must BLOCK"
         );
+    }
+
+    #[test]
+    fn triple_nested_base64_is_not_decoded() {
+        // Depth cap: b64_depth < 2 is two unwraps max. Triple wrap of the
+        // one-level token still ADMITS (not theater-decoded unbounded).
+        let triple = "WkVoS01XTXpVbVpqYlZaMFlqTlNiRmd5VG5aYVIxVTk=";
+        let r = IngestionScanner::admit_or_block(triple);
+        assert!(r.is_ok(), "triple nested Base64 must not be theater-decoded: {r:?}");
     }
 
     #[test]
