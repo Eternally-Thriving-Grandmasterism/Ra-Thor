@@ -6,6 +6,8 @@ New slice = new agent chat + new branch + new PR. Agent does not merge `main`.
 
 Run **A**, then stop. B and C are optional after A merges.
 
+Slice E exists: [`../AGENT_DISPATCH.md`](../AGENT_DISPATCH.md) (outer dispatch map). Do **not** paste Slice E into a Powrush chat.
+
 ---
 
 ## Slice A — paste this whole block as the first message
