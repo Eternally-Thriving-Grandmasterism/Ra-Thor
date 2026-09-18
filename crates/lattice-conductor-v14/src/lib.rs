@@ -17,6 +17,7 @@ pub mod lipschitz_gate;
 pub mod evidence_chain;
 pub mod inspect_sae;
 pub mod prefix_risk;
+pub mod alignment_research;
 
 pub mod council_arbitration;
 pub mod runtime_self_healing;
@@ -62,7 +63,13 @@ pub use prefix_risk::{
     score_prefix, GatedSubmitReceipt, HarnessDeltaProposal, HarnessError, HarnessFileEditResult,
     HarnessTarget, PrefixAction, PrefixConfig, PrefixFinding, PrefixRunResult, PrefixSnapshot,
     PrefixState, TraceProbe, TrajectoryStep, TrajectoryStepKind, CANONICAL_VERSION as PREFIX_CANONICAL_VERSION,
-    COUNCIL_13, DEFAULT_THRESHOLD, MIN_CLAIMED_MERCY,
+    COUNCIL_13 as PREFIX_COUNCIL_13, DEFAULT_THRESHOLD, MIN_CLAIMED_MERCY,
+};
+pub use alignment_research::{
+    AlignmentAuditHarness, AlignmentError, AlignmentResearchCouncil, AuditDimension, AuditLedger,
+    AuditScore, AuditVerdict, HypothesisKind, ProposalAuditFixture, ProposalStatus,
+    ResearchProposal, ResearchTicket, SandboxDecision, AUDIT_ACTOR, COUNCIL_13, HUMAN_OVERRIDE,
+    LAYER_0_VALENCE_FLOOR, MAX_STEPS, RESEARCH_COUNCIL_ID,
 };
 
 pub use council_arbitration::{ArbitrationDecision, CouncilArbitrationEngine};

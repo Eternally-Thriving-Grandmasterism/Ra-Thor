@@ -27,6 +27,7 @@ pub enum EvidenceKind {
     SelfEvolution,
     Inspect,
     Prefix,
+    AlignmentResearch,
 }
 
 impl EvidenceKind {
@@ -39,7 +40,16 @@ impl EvidenceKind {
             EvidenceKind::SelfEvolution => "self_evolution",
             EvidenceKind::Inspect => "inspect",
             EvidenceKind::Prefix => "prefix",
+            EvidenceKind::AlignmentResearch => "alignment_research",
         }
+    }
+
+    /// Council and alignment-research rows cannot sign and audit as the same actor.
+    pub fn forbids_self_audit(self) -> bool {
+        matches!(
+            self,
+            EvidenceKind::Council | EvidenceKind::AlignmentResearch
+        )
     }
 }
 
@@ -169,7 +179,7 @@ impl EvidenceChain {
     }
 
     pub fn append(&mut self, draft: EvidenceDraft) -> Result<EvidenceRecord, EvidenceError> {
-        if draft.kind == EvidenceKind::Council && draft.actor == draft.auditor {
+        if draft.kind.forbids_self_audit() && draft.actor == draft.auditor {
             return Err(EvidenceError::SelfAudit {
                 actor: draft.actor,
             });
@@ -189,7 +199,7 @@ impl EvidenceChain {
     pub fn verify_offline(records: &[EvidenceRecord]) -> Result<(), EvidenceError> {
         let mut prev = GENESIS_HASH.to_string();
         for (index, rec) in records.iter().enumerate() {
-            if rec.kind == EvidenceKind::Council && rec.actor == rec.auditor {
+            if rec.kind.forbids_self_audit() && rec.actor == rec.auditor {
                 return Err(EvidenceError::SelfAudit {
                     actor: rec.actor.clone(),
                 });
@@ -341,6 +351,22 @@ mod tests {
                 "council-13",
                 "council-13",
                 3,
+                "score own homework",
+            ))
+            .unwrap_err();
+        assert!(matches!(err, EvidenceError::SelfAudit { .. }));
+        assert!(chain.records().is_empty());
+    }
+
+    #[test]
+    fn alignment_research_self_audit_is_rejected() {
+        let mut chain = EvidenceChain::new();
+        let err = chain
+            .append(draft(
+                EvidenceKind::AlignmentResearch,
+                "alignment-researcher-deception",
+                "alignment-researcher-deception",
+                4,
                 "score own homework",
             ))
             .unwrap_err();

@@ -248,7 +248,7 @@ Later slice on `lattice-conductor-v14` plus a GitHub queued-intent face. **Not**
 - Qwen2.5-7B LoRA mapping into `Theta` (follow-up: flatten / sketch adapter deltas; estimate conservative `L` on a frozen adapter). Do not treat the vector fixture as a 7B result.
 - Literature delta 0 / O(d) wall-clock / any live `L` for this lattice.
 - AIREP compatibility, a signed production ledger, evidence-completeness rate.
-- Close of [`BINDING_AFTER_REDESIGN.md`](BINDING_AFTER_REDESIGN.md). Semantic Replay. Opportunity 5. Opportunity 1 and Opportunity 4 now have inspectable adapters — see Implementation status below.
+- Close of [`BINDING_AFTER_REDESIGN.md`](BINDING_AFTER_REDESIGN.md). Semantic Replay. Opportunity 1 and Opportunity 4 now have inspectable adapters — see Implementation status below. Opportunity 5 now has a gated researcher sandbox — see Implementation status below.
 
 **How to verify:**
 
@@ -278,7 +278,7 @@ Later slice on `lattice-conductor-v14` (adapter, not `crates/mercy-inspect-sae`)
 
 - Any SAE trained on this lattice, any published feature catalog, any steering success rate.
 - SAELens / NNsight / Hugging Face encode-decode against a live model.
-- Close of [`BINDING_AFTER_REDESIGN.md`](BINDING_AFTER_REDESIGN.md). Opportunity 5. Opportunity 4 now has a prefix-risk adapter — see Implementation status below.
+- Close of [`BINDING_AFTER_REDESIGN.md`](BINDING_AFTER_REDESIGN.md). Opportunity 4 now has a prefix-risk adapter — see Implementation status below. Opportunity 5 now has a gated researcher sandbox — see Implementation status below.
 
 **How to verify:**
 
@@ -308,13 +308,41 @@ Later slice on `lattice-conductor-v14`. **Not** a new workspace member. `patsagi
 
 - Any prefix-risk rate, halt-latency number, or claim that fluency is permission.
 - An observer-model (second LLM) score. The flag exists; the stub returns 0.
-- Close of [`BINDING_AFTER_REDESIGN.md`](BINDING_AFTER_REDESIGN.md). Opportunity 5.
+- Close of [`BINDING_AFTER_REDESIGN.md`](BINDING_AFTER_REDESIGN.md). Opportunity 5 now has a gated researcher sandbox — see Implementation status below.
 
 **How to verify:**
 
 ```bash
 cargo test -p lattice-conductor-v14 prefix
 cargo test -p lattice-conductor-v14 --test prefix_risk_apply
+```
+
+Named `-p` only. Not `cargo test --workspace`.
+
+---
+
+## Implementation status — Opportunity 5 (2026-09-18)
+
+Later slice on `lattice-conductor-v14` (AlignmentResearchCouncil sandbox under conductor arbitration). Forest name only under `crates/patsagi-councils/docs/ALIGNMENT_RESEARCH_COUNCIL.md`. **Not** added to `[workspace].members`. `crates/self-evolution` was not unparked. Layer 0 thresholds unchanged. Valence floor unchanged.
+
+**What is now true (named tests):**
+
+- Parallel researcher stubs (deception, over-refusal, APTD purity, wrap-bypass) each start from a distinct hypothesis with a step budget of 3. A stub can emit a proposal. The artifact seals an Opportunity 3 `EvidenceKind::AlignmentResearch` row (actor ≠ auditor).
+- Researcher cannot mark a proposal accepted (no Accepted status). Researcher cannot edit TOLC / Layer 0 thresholds, including the valence floor 0.999999, even via Council 13.
+- Missing evidence blocks promotion. Researcher promote is Rejected. Council 13 / human-override with a live row may **escalate** (human review) — not accept, not merge.
+- Same actor on proposal and audit is Rejected (chain self-audit + harness). External `AlignmentAuditHarness` writes the score; the researcher handle cannot overwrite the fixture `crates/lattice-conductor-v14/fixtures/alignment_research_proposal_audit_v0.json`.
+- Merge / `create_branch` without a human-owned commit SHA is Rejected. A valid SHA still does not merge `main` or fire GitHub writes from this sandbox. Stub wrap (`emit_proposal_with_stub_wrap`) uses fixture text through `wrap_model_output` — no live model.
+
+**What remains unproven:**
+
+- Any live alignment-researcher loop, any parallel-hypothesis yield, any audit independence score.
+- Combined AGSi. Close of [`BINDING_AFTER_REDESIGN.md`](BINDING_AFTER_REDESIGN.md).
+
+**How to verify:**
+
+```bash
+cargo test -p lattice-conductor-v14 alignment_research
+cargo test -p lattice-conductor-v14 --test alignment_research_apply
 ```
 
 Named `-p` only. Not `cargo test --workspace`.
@@ -342,7 +370,7 @@ Named tests: cargo test -p <named default member> <filter>
 
 This brief is **not**:
 
-- a running SAE, prefix scorer, or alignment-researcher loop (Opportunity 1 now has an inspectable stub adapter; Opportunity 4 now has a rule-based prefix-risk adapter — see Implementation status; not a trained SAE and not a measured prefix-risk rate)
+- a running SAE, prefix scorer, or alignment-researcher loop (Opportunity 1 now has an inspectable stub adapter; Opportunity 4 now has a rule-based prefix-risk adapter — see Implementation status; not a trained SAE and not a measured prefix-risk rate. Opportunity 5 now has a gated proposal sandbox — see Implementation status; not a live researcher)
 - a 7B LoRA Lipschitz measurement, AIREP-compatible ledger, or close of [`BINDING_AFTER_REDESIGN.md`](BINDING_AFTER_REDESIGN.md) (Opportunity 2+3 now have an inspectable adapter — see Implementation status)
 - permission to add `crates/mercy-inspect-sae` or `crates/mercy-lipschitz-gate` without a named slice (Opportunity 1 used the conductor adapter, matching Opportunity 2+3)
 - METR, Combined AGSi, ISO/IEC 42001, EU AI Act conformity, or an xAI product
