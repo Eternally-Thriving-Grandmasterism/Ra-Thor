@@ -2,6 +2,8 @@
 
 **Contact:** info@Rathor.ai
 
+Cursor chats on this repo also load [`.cursor/rules/ra-thor.mdc`](../../.cursor/rules/ra-thor.mdc) (`alwaysApply: true`). That file is standing law, not a work ticket. Slice tickets: [`SLICES.md`](SLICES.md).
+
 ## Mandatory read order
 
 1. [`../PATSAGI_AUTONOMOUS_DELIBERATION_PROTOCOL.md`](../PATSAGI_AUTONOMOUS_DELIBERATION_PROTOCOL.md) — ADP bands A/B/C
@@ -22,3 +24,4 @@
 - Never invent empirics.  
 - Prefer sparse pure PRs.  
 - No ego-splash on `main`.
+- Do not start Powrush work from this repo.
