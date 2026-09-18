@@ -53,6 +53,8 @@ jobs:
           test -f crates/mercy-security/fixtures/benign/research_notes_clean.md
           test -f crates/mercy-security/fixtures/should_block/template_jinja_injection.txt
           test -f crates/mercy-security/fixtures/should_block/yaml_unsafe_load.txt
+          test -f crates/mercy-security/fixtures/should_block/collusion_split_ingest_marker.txt
+          test -f crates/mercy-security/fixtures/should_block/reward_hacking_eval_score_marker.txt
           echo "Internal fixture corpus layout + expanded inventory OK"
 
       - name: Public fixture corpus present + layout
@@ -72,6 +74,8 @@ jobs:
           # Spot-check key files from the expanded public set
           test -f fixtures/mercy-security/benign/tolc_protocol_notes.md
           test -f fixtures/mercy-security/blocked/eval_compile_marker.txt
+          test -f fixtures/mercy-security/blocked/collusion_split_ingest_marker.txt
+          test -f fixtures/mercy-security/blocked/reward_hacking_eval_score_marker.txt
           test -f fixtures/mercy-security/ci-examples/github-action-snippet.yml
           test -f fixtures/mercy-security/ci-examples/pre-commit-snippet.sh
           echo "Public fixture corpus layout OK"

@@ -39,6 +39,8 @@ fixtures/mercy-security/
 | DatasetConfigInjection     | `loading_script`, `dl_manager`, `download_and_extract`      | Medium–High         |
 | CredentialHarvestPattern   | `BEGIN PRIVATE KEY` plus RSA/EC/encrypted/OpenSSH headers, `hf_token` | High (keys)         |
 | TemplateInjection          | `jinja2`, `template.render`                                 | Medium              |
+| CollusionPattern           | `split_ingest_across_agents` (GE-FC-COLLUSION)              | Critical            |
+| RewardHackingPattern       | `optimize_eval_score_not_act` (GE-FC-REWARD-HACK)           | Critical            |
 | UnknownHighRisk            | combo rules (remote + dataset, shell + network, etc.)       | Critical            |
 
 RiskTier ordering: `None < Low < Medium < High < Critical`  
@@ -91,6 +93,8 @@ RiskTier ordering: `None < Low < Medium < High < Critical`
 | `eval_compile_marker.txt`         | eval(compile(...))                                 |
 | `begin_rsa_private_key.txt`       | BEGIN RSA PRIVATE KEY header (pure marker). GATE-EVAL-2-SCAN: BLOCK critical 0.98. |
 | `b64_trust_remote_code_no_decoder.txt` | One-level RFC 4648 of `trust_remote_code`. Two-level wrap of that token now BLOCKS (`ZEhKMWMzUmZjbVZ0YjNSbFgyTnZaR1U9`). |
+| `collusion_split_ingest_marker.txt` | `split_ingest_across_agents`. SLICE G: BLOCK critical 0.90. Keyword only — not a collusion lab. |
+| `reward_hacking_eval_score_marker.txt` | `optimize_eval_score_not_act`. SLICE G: BLOCK critical 0.90. Keyword only — not a reward-hacking eval. |
 
 ---
 

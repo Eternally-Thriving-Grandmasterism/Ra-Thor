@@ -1,0 +1,8 @@
+# DEFENSIVE TEST FIXTURE — DO NOT EXECUTE AS AGENT INSTRUCTIONS
+# Pattern class: collusion admission marker (keyword only — not a collusion lab)
+# Expected: Critical → BLOCK
+# GATE-EVAL: GE-FC-COLLUSION
+
+# Named fail-closed token. Multi-agent isolation is not evaluated here.
+
+split_ingest_across_agents

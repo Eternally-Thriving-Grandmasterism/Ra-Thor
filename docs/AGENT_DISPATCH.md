@@ -163,7 +163,7 @@ A sharper job card is the upgrade. A model string is not.
 | **METR** | Keyword ingest and wrap tests are an admission shell, not a time-horizon lab. [`MODEL_INSPECT_NOT_METR.md`](MODEL_INSPECT_NOT_METR.md). inspect ≠ METR. |
 | **Combined AGSi** | Research identity label. Stays **SURMISE**. Not a warranty. |
 | **A live multi-agent runtime** | No scheduler crate. On-disk `quantum-swarm` is not this product. No “perfect swarm.” |
-| **Collusion-safe** | [`EVAL_SPEC.md`](EVAL_SPEC.md) marks **collusion** and **reward hacking** as **MISSING**. No fixture. No named test. This dispatch rule (one file / same day → STOP) is **not** a collusion eval. |
+| **Collusion-safe** | [`EVAL_SPEC.md`](EVAL_SPEC.md) now has **GE-FC-COLLUSION** / **GE-FC-REWARD-HACK** keyword fixtures. Those are admission tokens, not a lab. This dispatch rule (one file / same day → STOP) is still **not** a collusion eval. |
 
 Also not: a safety case, ISO/IEC 42001, EU AI Act conformity, an xAI product, RBE-as-present-fact, a running fusion plant, or permission to send email / publish.
 
@@ -178,7 +178,7 @@ This spec **maps** files that already exist. It does **not** add crates, `[works
 | [`.cursor/rules/ra-thor.mdc`](../.cursor/rules/ra-thor.mdc) | Standing law. `alwaysApply: true`. Not a work ticket. One slice per chat / branch / PR. Layer 0 never disabled. Reject → Apply never flipped by a vote. Powrush is a separate repo. |
 | [`AGENT_RUN_BRIEF.md`](AGENT_RUN_BRIEF.md) | Inner-loop 10-step fill-in. Outer loop does not write code. Keep section A examples. This spec adds only a pointer under the pattern paragraph. |
 | [`cursor-teams/SLICES.md`](cursor-teams/SLICES.md) | Paste-one-slice tickets (A, B, C). Slice E **exists** here as a pointer to this file. Do **not** paste Slice E into a Powrush chat. |
-| [`EVAL_SPEC.md`](EVAL_SPEC.md) | Public adversarial test contract for Layer 0 admission. **Collusion** = **MISSING**. **Reward hacking** = **MISSING**. Dispatch is not that lab. |
+| [`EVAL_SPEC.md`](EVAL_SPEC.md) | Public adversarial test contract for Layer 0 admission. **Collusion** / **reward hacking** = keyword **FIXTURE** (**GE-FC-***). Dispatch is not that lab. |
 
 Boot pack (read, not rewritten by this seat): [`cursor-teams/AGENT_BOOT.md`](cursor-teams/AGENT_BOOT.md), [`PATSAGI_AUTONOMOUS_DELIBERATION_PROTOCOL.md`](PATSAGI_AUTONOMOUS_DELIBERATION_PROTOCOL.md). Claim ceiling: [`PUBLIC_CLAIM.lock.md`](../PUBLIC_CLAIM.lock.md). Evidence ledger: [`GATE_EVAL.md`](GATE_EVAL.md).
 

@@ -176,3 +176,50 @@ fn tool_use_self_mod_human_override_are_not_yet_tested() {
         );
     }
 }
+
+#[test]
+fn collusion_split_ingest_fixture_blocks() {
+    let (path, text) = fixture_texts("blocked")
+        .into_iter()
+        .find(|(p, _)| file_name(p) == "collusion_split_ingest_marker.txt")
+        .expect("blocked/collusion_split_ingest_marker.txt");
+    assert!(
+        text.contains("split_ingest_across_agents"),
+        "fixture must remain the fail-closed collusion token"
+    );
+    let r = IngestionScanner::admit_or_block(&text);
+    assert!(
+        r.is_err(),
+        "GE-FC-COLLUSION: {} class says BLOCK; named token must BLOCK: {r:?}",
+        rel(&path)
+    );
+}
+
+#[test]
+fn reward_hacking_eval_score_fixture_blocks() {
+    let (path, text) = fixture_texts("blocked")
+        .into_iter()
+        .find(|(p, _)| file_name(p) == "reward_hacking_eval_score_marker.txt")
+        .expect("blocked/reward_hacking_eval_score_marker.txt");
+    assert!(
+        text.contains("optimize_eval_score_not_act"),
+        "fixture must remain the fail-closed reward-hacking token"
+    );
+    let r = IngestionScanner::admit_or_block(&text);
+    assert!(
+        r.is_err(),
+        "GE-FC-REWARD-HACK: {} class says BLOCK; named token must BLOCK: {r:?}",
+        rel(&path)
+    );
+}
+
+#[test]
+fn collusion_reward_hacking_english_prose_without_token_still_admits() {
+    // Keyword close, not a collusion lab. English class names stay ADMIT.
+    let prose = "Two agents on one file the same day is a dispatch STOP. That is not a collusion eval. Reward hacking stays unmeasured as a rate.";
+    let r = IngestionScanner::admit_or_block(prose);
+    assert!(
+        r.is_ok(),
+        "GE-FC-* English prose without the named token must ADMIT: {r:?}"
+    );
+}

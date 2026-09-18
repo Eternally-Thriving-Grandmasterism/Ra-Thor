@@ -1,7 +1,7 @@
 # Gate evaluation — GATE-EVAL-1 + GATE-EVAL-2 note
 
-**Date:** 2026-09-16 (corpus) · 2026-09-17 (GATE-EVAL-2-DOCS + GATE-EVAL-2-SCAN)  
-**Seats:** GATE-EVAL-1 · GATE-EVAL-2-DOCS · GATE-EVAL-2-SCAN  
+**Date:** 2026-09-16 (corpus) · 2026-09-17 (GATE-EVAL-2-DOCS + GATE-EVAL-2-SCAN) · 2026-09-18 (SLICE G GE-FC keyword fixtures)  
+**Seats:** GATE-EVAL-1 · GATE-EVAL-2-DOCS · GATE-EVAL-2-SCAN · SLICE G  
 **Workspace identity:** **14.15.6** (see [`PUBLIC_CLAIM.lock.md`](../PUBLIC_CLAIM.lock.md))  
 **Contact:** [info@Rathor.ai](mailto:info@Rathor.ai)  
 **Affiliation:** independent of xAI — not affiliated, not sponsored, not an xAI product  
@@ -45,7 +45,7 @@ Unattended ingest on apply-class is `mercy-security::IngestionScanner::admit_or_
 | Piece | Where |
 |-------|--------|
 | Policy | Admit `None` / `Low` only. `Medium` + `High` + `Critical` → `IngestionBlocked`. Payload `> 4 MiB` → `PayloadTooLarge`. |
-| Keyword tables | Remote-code / pickle / shell / network / obfuscation / dataset / credential / template markers, plus remote+dataset combo. |
+| Keyword tables | Remote-code / pickle / shell / network / obfuscation / dataset / credential / template markers, plus remote+dataset combo. Slice G fail-closed tokens: `split_ingest_across_agents`, `optimize_eval_score_not_act`. |
 | Closed leaks (CI-locked) | Plaintext `trust_remote_code`. One-level and two-level RFC 4648 of that string. `BEGIN PRIVATE KEY` plus RSA / EC / encrypted / OpenSSH header variants. Zero-width / whitespace-split / fullwidth / Cyrillic homoglyph of identifier signals. |
 | Apply-class edge | `lattice-conductor-v14` `MercyGatedApi::handle_request` — Medium+ ingest never maps to ambient g. |
 | Public corpus | [`fixtures/mercy-security/`](../fixtures/mercy-security/) — benign / suspicious / blocked. Pattern markers only. Not an exploit kit. |
@@ -103,6 +103,8 @@ Compile green on the corpus walk is **not** live safety. These rows are the hone
 | **GE-GAP-SELF-MOD** | self-mod of Layer 0 | **Not yet tested** | [`BINDING_AFTER_REDESIGN.md`](BINDING_AFTER_REDESIGN.md) stays **OPEN**. Do not unpark `crates/self-evolution`. |
 | **GE-GAP-HUMAN-OVERRIDE** | human override completeness | **Not yet tested** | No public fixture drives override actor / rationale. |
 | **GE-GAP-LIVE-FA** | live false-accept rate | **Not yet tested** | Crate green is not a measured FA%. inspect ≠ METR. |
+| **GE-FC-COLLUSION** | fail-closed keyword | **Closed (keyword)** | `blocked/collusion_split_ingest_marker.txt` **BLOCK critical 0.90** on `split_ingest_across_agents`. English “collusion” still ADMITS. Not a collusion lab. `collusion_split_ingest_fixture_blocks`. |
+| **GE-FC-REWARD-HACK** | fail-closed keyword | **Closed (keyword)** | `blocked/reward_hacking_eval_score_marker.txt` **BLOCK critical 0.90** on `optimize_eval_score_not_act`. English “reward hacking” still ADMITS. Not a reward-hacking eval. `reward_hacking_eval_score_fixture_blocks`. |
 
 A green `cargo test -p mercy-security` means the **admission shell** still matches these fixtures and leak locks. It does not mean a live agent is safe, a sampler is constrained, or Combined AGSi is demonstrated.
 

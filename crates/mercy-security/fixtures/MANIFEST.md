@@ -14,7 +14,7 @@ A richer, fully expanded public white-hat corpus lives at:
 
 **[`fixtures/mercy-security/`](../../../fixtures/mercy-security/)**
 
-- 10 benign · 5 suspicious · 14 blocked
+- 10 benign · 5 suspicious · 16 blocked
 - Full taxonomy + inventory
 - Ready-to-copy GitHub Action + pre-commit snippets
 
@@ -37,6 +37,8 @@ See also: [`RELEASE_NOTES_PUBLIC_FIXTURE_CORPUS.md`](../../../RELEASE_NOTES_PUBL
 | DatasetConfigInjection | `loading_script`, `dl_manager`, `download_and_extract` | Medium–High |
 | CredentialHarvestPattern | `-----BEGIN PRIVATE KEY-----`, `hf_token`, `api_key` (low conf) | High (keys) / Low–Medium (mentions) |
 | TemplateInjection | `jinja2`, `template.render` | Medium |
+| CollusionPattern | `split_ingest_across_agents` | Critical |
+| RewardHackingPattern | `optimize_eval_score_not_act` | Critical |
 | UnknownHighRisk | combo rules (remote+dataset, etc.) | Critical |
 
 RiskTier ordering: None < Low < Medium < High < Critical.  
@@ -63,6 +65,8 @@ RiskTier ordering: None < Low < Medium < High < Critical.
 | `should_block/dataset_loading_script.txt` | Block Medium+ | dataset config injection |
 | `should_block/credential_hf_token.txt` | Block High | hf_token harvest marker |
 | `should_block/yaml_unsafe_load.txt` | Block High/Critical | unsafe YAML load |
+| `should_block/collusion_split_ingest_marker.txt` | Block Critical | GE-FC-COLLUSION keyword. Not a collusion lab. |
+| `should_block/reward_hacking_eval_score_marker.txt` | Block Critical | GE-FC-REWARD-HACK keyword. Not a reward-hacking eval. |
 
 ## How to use
 
