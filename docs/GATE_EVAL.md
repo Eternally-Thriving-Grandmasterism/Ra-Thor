@@ -11,6 +11,8 @@ This file publishes **evidence** for the living ingest / admit-or-block gate. It
 
 Lock: [`PUBLIC_CLAIM.lock.md`](../PUBLIC_CLAIM.lock.md) · tiers: [`TIER_MAP.md`](../TIER_MAP.md) · forest: [`FOREST_TRIAGE.md`](FOREST_TRIAGE.md) · inspect: [`MODEL_INSPECT_NOT_METR.md`](MODEL_INSPECT_NOT_METR.md) · Layer 0: [`LAYER_0_RUNTIME_BOUNDARY.md`](LAYER_0_RUNTIME_BOUNDARY.md)
 
+**Public adversarial contract (v0):** [`EVAL_SPEC.md`](EVAL_SPEC.md). This file stays the evidence ledger.
+
 **Combined AGSi stays SURMISE.** inspect ≠ METR. Compile green ≠ live safety.
 
 Capable · Bounded · Corrigible.
