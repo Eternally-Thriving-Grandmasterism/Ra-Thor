@@ -116,6 +116,24 @@ Outer loop decides whether the job exists. Inner loop fetches current `main`, do
 
 ---
 
+## Organizations
+
+Who pays: org-wide use, revenue-generating use, a product embed, client service, or a staff-agent constitution.
+
+What they buy: time and rights to wrap one workflow under the same constitution. Inspect the admission shell. Keep or refuse.
+
+What they do not buy: ISO 42001, EU AI Act conformity, METR numbers, an AGSi warranty, a hosted key proxy, or a finished world.
+
+How to inquire: the [commercial inquiry](https://rathor.ai/contact.html#commercial-inquiry) form or [info@Rathor.ai](mailto:info@Rathor.ai). A human replies. There is no instant license key.
+
+Happier, safer, more wholesome here means work habits: fewer wasted tokens, refuse coerced binaries, a “what I refused” footnote. It is not a happiness guarantee.
+
+Peaceful thriving is purpose under construction, not a national program.
+
+Canonical visitor-voice article: [`PUBLIC_COMMERCIAL_BRIEF.md`](PUBLIC_COMMERCIAL_BRIEF.md). Living cards: [employ.html](https://rathor.ai/employ.html) · [briefing.html](https://rathor.ai/briefing.html).
+
+---
+
 ## 8. Honest gaps
 
 No measured METR numbers. Inspect ≠ METR. No cert filing. The 31 August 2026 work pack is a **draft**. Combined AGSi remains SURMISE. There is no public rathor.ai key proxy.
