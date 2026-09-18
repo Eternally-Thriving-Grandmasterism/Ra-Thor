@@ -4,6 +4,8 @@
 **Contact:** info@Rathor.ai  
 **Pattern:** CyrilXBT / Palmer outer–inner, adapted to PATSAGi. The **outer loop does not write code**. This file is the inner-loop contract.
 
+Outer map (which repo, which ticket shape, when to refuse a second agent): [`AGENT_DISPATCH.md`](AGENT_DISPATCH.md).
+
 Cursor / PATSAGi inner-loop agents start here. Fetch the named tip. Fill every section. Then implement **one slice**. Do not interview. Do not start a Powrush seat from this repo.
 
 ---
