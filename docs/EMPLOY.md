@@ -154,6 +154,8 @@ The August 31 work pack cited v1.0 as a freeze. See [`LICENSE-LIVING-STAMP.md`](
 
 Commercial / org / revenue → paid license. See [`COMMERCIAL_LICENSE.md`](../COMMERCIAL_LICENSE.md).
 
+Public visitor-voice commercial brief: [`PUBLIC_COMMERCIAL_BRIEF.md`](PUBLIC_COMMERCIAL_BRIEF.md). Living Organizations card on [employ.html](https://rathor.ai/employ.html).
+
 Contact **info@Rathor.ai** only (never `ceo@acitygames.com`).
 
 ---

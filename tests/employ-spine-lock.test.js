@@ -193,4 +193,51 @@ var familyLinkBlock = familyNav.slice(familyNav.indexOf('var LINKS = ['), family
 assert((familyLinkBlock.match(/href:/g) || []).length === 9, 'family walk must stay nine destinations after PILOT-SEQ-1');
 assert(familyLinkBlock.indexOf("{ href: '/briefing.html'") === -1, 'family walk must not grow a briefing tab');
 
+var commercialBrief = fs.readFileSync(path.join(root, 'docs/PUBLIC_COMMERCIAL_BRIEF.md'), 'utf8');
+assert(employMd.indexOf('PUBLIC_COMMERCIAL_BRIEF.md') !== -1, 'docs/EMPLOY.md must point at PUBLIC_COMMERCIAL_BRIEF.md');
+assert(commercialBrief.indexOf('14.15.6') !== -1, 'PUBLIC_COMMERCIAL_BRIEF.md must name workspace 14.15.6');
+assert(commercialBrief.indexOf('AG-SML v1.1') !== -1, 'PUBLIC_COMMERCIAL_BRIEF.md must name AG-SML v1.1');
+assert(commercialBrief.indexOf('info@Rathor.ai') !== -1, 'PUBLIC_COMMERCIAL_BRIEF.md must name info@Rathor.ai');
+assert(commercialBrief.indexOf('commercial-inquiry') !== -1, 'PUBLIC_COMMERCIAL_BRIEF.md must point at commercial inquiry');
+assert(commercialBrief.indexOf('Layer 0') !== -1, 'PUBLIC_COMMERCIAL_BRIEF.md must name Layer 0');
+assert(commercialBrief.indexOf('inspect') !== -1 && commercialBrief.indexOf('METR') !== -1, 'PUBLIC_COMMERCIAL_BRIEF.md must keep inspect / METR');
+assert(commercialBrief.indexOf('Stripe') === -1, 'PUBLIC_COMMERCIAL_BRIEF.md must not name Stripe');
+assert(commercialBrief.indexOf('xAI partner') === -1, 'PUBLIC_COMMERCIAL_BRIEF.md must not print xAI partner');
+assert(commercialBrief.indexOf('ceo@acitygames.com') === -1, 'PUBLIC_COMMERCIAL_BRIEF.md must not print ceo@acitygames.com');
+assert(commercialBrief.indexOf('14.18') === -1, 'PUBLIC_COMMERCIAL_BRIEF.md must not sell 14.18');
+
+function extractHeadingCard(html, heading) {
+  var needle = '>' + heading + '</h2>';
+  var idx = html.indexOf(needle);
+  assert(idx !== -1, 'missing heading card: ' + heading);
+  var start = html.lastIndexOf('<div class="card-hover', idx);
+  assert(start !== -1, 'Organizations card must sit in a card-hover div');
+  var next = html.indexOf('<div class="card-hover', idx);
+  return html.slice(start, next === -1 ? html.length : next);
+}
+
+var orgCard = extractHeadingCard(employHtml, 'Organizations');
+assert(orgCard.indexOf('commercial inquiry') !== -1, 'Organizations card must contain commercial inquiry');
+assert(orgCard.indexOf('info@Rathor.ai') !== -1, 'Organizations card must contain info@Rathor.ai');
+assert(orgCard.indexOf('/contact.html#commercial-inquiry') !== -1, 'Organizations card must link the commercial inquiry form');
+assert(orgCard.indexOf('Stripe') === -1, 'Organizations card must not name Stripe');
+assert(orgCard.indexOf('checkout') === -1, 'Organizations card must not name checkout');
+assert(orgCard.indexOf('14.18') === -1, 'Organizations card must not sell 14.18');
+assert(orgCard.indexOf('ceo@acitygames.com') === -1, 'Organizations card must not print ceo@acitygames.com');
+assert(orgCard.indexOf('xAI partner') === -1, 'Organizations card must not print xAI partner');
+assert(!/\bRBE\b/.test(orgCard) || /design thesis/.test(orgCard), 'Organizations card must not state RBE as present fact');
+assert(employHtml.indexOf('>A. What you are employing<') !== -1, 'employ.html must keep A');
+assert(employHtml.indexOf('>G. Honest gaps<') !== -1, 'employ.html must keep G');
+assert(employHtml.indexOf('>F. License<') !== -1, 'employ.html must keep F. License');
+assert(briefingHtml.indexOf('>Use cases<') !== -1, 'briefing.html must keep Use cases');
+assert(briefingHtml.indexOf('>Organizations<') !== -1, 'briefing.html must carry Organizations card');
+assert(briefingHtml.indexOf('>Twenty-four months, said honestly<') !== -1, 'briefing.html must keep Twenty-four months after Organizations');
+assert(briefingHtml.indexOf('>Organizations<') < briefingHtml.indexOf('>Twenty-four months, said honestly<'), 'briefing Organizations card must sit before Twenty-four months');
+assert(briefingHtml.indexOf('work habits') !== -1, 'briefing Organizations card may name work habits');
+assert(briefingHtml.indexOf('not a national program') !== -1, 'briefing Organizations card must refuse a national program');
+assert(briefingMd.indexOf('## Organizations') !== -1, 'PUBLIC_EMPLOY_BRIEFING.md must keep an Organizations section');
+assert(briefingMd.indexOf('commercial inquiry') !== -1, 'PUBLIC_EMPLOY_BRIEFING.md Organizations copy must name commercial inquiry');
+assert(briefingHtml.indexOf('Stripe') === -1, 'briefing.html must not name Stripe');
+assert(employHtml.indexOf('Stripe') === -1, 'employ.html must not name Stripe');
+
 console.log('EMPLOY-1 employ-spine-lock checks passed');
