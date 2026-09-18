@@ -120,6 +120,10 @@ pub enum IngestionThreat {
     ObfuscatedPayload,
     DatasetConfigInjection,
     CredentialHarvestPattern,
+    /// Admission keyword only. Not a multi-agent collusion lab.
+    CollusionPattern,
+    /// Admission keyword only. Not a reward-hacking eval.
+    RewardHackingPattern,
     UnknownHighRisk,
 }
 
@@ -198,6 +202,13 @@ impl IngestionScanner {
             ("-----begin openssh private key-----", 0.98),
             ("hf_token", 0.90),
         ]
+    }
+    /// Slice G fail-closed tokens. English “collusion” / “reward hacking” must not trip.
+    fn collusion_signals() -> &'static [(&'static str, f32)] {
+        &[("split_ingest_across_agents", 0.90)]
+    }
+    fn reward_hacking_signals() -> &'static [(&'static str, f32)] {
+        &[("optimize_eval_score_not_act", 0.90)]
     }
 
     fn match_signals(lower: &str, table: &[(&str, f32)], threat: IngestionThreat, findings: &mut Vec<ScanFinding>) {
@@ -283,6 +294,8 @@ impl IngestionScanner {
         Self::match_signals(lower, Self::dataset_config_signals(), IngestionThreat::DatasetConfigInjection, &mut findings);
         Self::match_signals(lower, Self::credential_signals(), IngestionThreat::CredentialHarvestPattern, &mut findings);
         Self::match_signals(lower, Self::template_signals(), IngestionThreat::TemplateInjection, &mut findings);
+        Self::match_signals(lower, Self::collusion_signals(), IngestionThreat::CollusionPattern, &mut findings);
+        Self::match_signals(lower, Self::reward_hacking_signals(), IngestionThreat::RewardHackingPattern, &mut findings);
 
         let has_remote = findings.iter().any(|f| f.threat == IngestionThreat::RemoteCodeLoader && f.confidence >= 0.70);
         let has_dataset = findings.iter().any(|f| f.threat == IngestionThreat::DatasetConfigInjection && f.confidence >= 0.55);
@@ -476,6 +489,8 @@ impl IngestionScanner {
                 IngestionThreat::RemoteCodeLoader
                     | IngestionThreat::SerializationGadget
                     | IngestionThreat::ShellProcessSpawn
+                    | IngestionThreat::CollusionPattern
+                    | IngestionThreat::RewardHackingPattern
                     | IngestionThreat::UnknownHighRisk
             ) && f.confidence >= 0.82
         });
@@ -1185,5 +1200,39 @@ mod tests {
             "Заметки о милосердии и classroom flow state. No remote loaders.",
         );
         assert!(r.is_ok(), "benign Cyrillic prose must admit: {r:?}");
+    }
+
+    #[test]
+    fn fixture_should_block_collusion_pattern() {
+        let content = include_str!("../fixtures/should_block/collusion_split_ingest_marker.txt");
+        assert!(
+            content.contains("split_ingest_across_agents"),
+            "fixture must keep the fail-closed token"
+        );
+        assert!(IngestionScanner::admit_or_block(content).is_err());
+        let scan = IngestionScanner::scan_text(content);
+        assert!(scan.threats.contains(&IngestionThreat::CollusionPattern));
+        assert!(scan.risk_tier >= RiskTier::High);
+    }
+
+    #[test]
+    fn fixture_should_block_reward_hacking_pattern() {
+        let content = include_str!("../fixtures/should_block/reward_hacking_eval_score_marker.txt");
+        assert!(
+            content.contains("optimize_eval_score_not_act"),
+            "fixture must keep the fail-closed token"
+        );
+        assert!(IngestionScanner::admit_or_block(content).is_err());
+        let scan = IngestionScanner::scan_text(content);
+        assert!(scan.threats.contains(&IngestionThreat::RewardHackingPattern));
+        assert!(scan.risk_tier >= RiskTier::High);
+    }
+
+    #[test]
+    fn collusion_reward_hacking_english_prose_without_token_admits() {
+        // GE-FC-* tokens are identifiers. Docs that name the threat class must still ADMIT.
+        let prose = "EVAL_SPEC marks collusion and reward hacking as keyword fixtures, not a collusion lab.";
+        let r = IngestionScanner::admit_or_block(prose);
+        assert!(r.is_ok(), "English threat names must not trip the tokens: {r:?}");
     }
 }
