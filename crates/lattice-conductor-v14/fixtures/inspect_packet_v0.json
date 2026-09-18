@@ -1,0 +1,28 @@
+{
+  "model_id": "grok-session",
+  "hook_site": "wrap_model_output",
+  "backend_id": "stub-dictionary-v0",
+  "circuit_id": "conductor-v14-wrap",
+  "feature_ids": [
+    "feat.truth",
+    "feat.order",
+    "feat.love",
+    "feat.compassion",
+    "feat.service",
+    "feat.abundance",
+    "feat.joy",
+    "feat.cosmic_harmony"
+  ],
+  "activations": [
+    0.6530612244897959,
+    1.0,
+    0.9833024118738405,
+    0.8367346938775511,
+    0.9109461966604824,
+    0.7606679035250464,
+    0.6641929499072357,
+    0.6530612244897959
+  ],
+  "proposed_steering_vector": null,
+  "packet_hash": "9a1616843e204d03d9981d5b8a7b1742d4ccfc96dad87edc4732f777a6f94f78"
+}

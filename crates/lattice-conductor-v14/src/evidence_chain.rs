@@ -25,6 +25,7 @@ pub enum EvidenceKind {
     Tool,
     Lipschitz,
     SelfEvolution,
+    Inspect,
 }
 
 impl EvidenceKind {
@@ -35,6 +36,7 @@ impl EvidenceKind {
             EvidenceKind::Tool => "tool",
             EvidenceKind::Lipschitz => "lipschitz",
             EvidenceKind::SelfEvolution => "self_evolution",
+            EvidenceKind::Inspect => "inspect",
         }
     }
 }

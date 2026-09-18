@@ -8,10 +8,13 @@
 //! See docs/WRAP_LLM_INTENTION.md and docs/LAYER_0_RUNTIME_BOUNDARY.md.
 //! Contact: info@Rathor.ai
 
+use crate::inspect_sae::{
+    apply_steering_proposal, is_inspectable_apply, InspectGateResult, SteeringProposal,
+};
+use crate::lipschitz_gate::Theta;
 use crate::ra_thor_mercy_gated_api::{
     ApiRequestKind, GateDecision, MercyApiRequest, MercyApiResponse, MercyGatedApi,
 };
-use crate::lipschitz_gate::Theta;
 use crate::CouncilArbitrationEngine;
 
 /// Provenance label only — not an affiliation or warranty.
@@ -51,6 +54,10 @@ pub fn wrap_model_output(
         surface.as_str(),
         model_text
     );
+
+    // Inspect first. A wrap that never records a packet is not inspectable apply.
+    let packet = api.record_wrap_inspect(surface.as_str(), model_text).ok();
+
     let mut resp = api.handle_request(
         MercyApiRequest {
             kind: ApiRequestKind::Custom(surface.as_str().to_string()),
@@ -94,7 +101,84 @@ pub fn wrap_model_output(
             };
         }
     }
+
+    let mut steering_applied = false;
+    if let Some(ref packet) = packet {
+        resp.inspect_packet_hash = Some(packet.packet_hash.clone());
+        if let Some(vector) = packet.proposed_steering_vector.clone() {
+            // Steering is a follow-up. It cannot apply unless wrap + handle already Allowed.
+            let proposal = SteeringProposal {
+                packet_hash: packet.packet_hash.clone(),
+                vector: vector.clone(),
+            };
+            let steer_handle = if resp.accepted {
+                Some(gate_steering_vector(
+                    api,
+                    arbitration,
+                    &packet.packet_hash,
+                    &vector,
+                    claimed_mercy,
+                    actor,
+                ))
+            } else {
+                None
+            };
+            let steer = apply_steering_proposal(
+                &proposal,
+                Some(&resp),
+                steer_handle.as_ref(),
+            );
+            steering_applied = steer.applied;
+        }
+        let gate = if resp.accepted {
+            InspectGateResult::Allowed
+        } else {
+            match &resp.decision {
+                GateDecision::Rejected { reason } => InspectGateResult::Rejected {
+                    reason: reason.clone(),
+                },
+                GateDecision::Allowed => InspectGateResult::Rejected {
+                    reason: "wrap not accepted".into(),
+                },
+            }
+        };
+        let _ = api.finish_wrap_inspect(gate, steering_applied);
+        let _ = api.attach_inspect_evidence(
+            &api.last_inspect_packet().unwrap_or_else(|| packet.clone()),
+            resp.evidence_hash.as_deref(),
+            actor,
+            resp.timestamp,
+            resp.accepted,
+        );
+    }
+
+    if !is_inspectable_apply(resp.accepted, packet.as_ref()) && resp.accepted {
+        resp.accepted = false;
+        resp.decision = GateDecision::Rejected {
+            reason: "wrap without inspect packet is not inspectable apply".into(),
+        };
+    }
     resp
+}
+
+fn gate_steering_vector(
+    api: &mut MercyGatedApi,
+    arbitration: &CouncilArbitrationEngine,
+    packet_hash: &str,
+    vector: &[f64],
+    claimed_mercy: f64,
+    actor: &str,
+) -> MercyApiResponse {
+    let payload = format!("[steer:{packet_hash}] dims={}", vector.len());
+    api.handle_request(
+        MercyApiRequest {
+            kind: ApiRequestKind::Custom("inspect-steer".into()),
+            payload,
+            claimed_mercy,
+            actor: actor.to_string(),
+        },
+        Some(arbitration),
+    )
 }
 
 #[cfg(test)]
@@ -203,5 +287,48 @@ mod tests {
             GateDecision::Rejected { reason } => assert!(reason.contains("Lipschitz")),
             GateDecision::Allowed => panic!("outside ball must not wrap-apply"),
         }
+    }
+
+    #[test]
+    fn wrap_records_inspect_packet_in_inspect_only() {
+        let arb = CouncilArbitrationEngine::new();
+        let mut api = start_mercy_api_with_arbitration(None, &arb);
+        let resp = wrap_model_output(
+            &mut api,
+            &arb,
+            ModelSurface::GrokSession,
+            "Draft: tend the well and publish flow.",
+            0.99,
+            "operator",
+        );
+        assert!(resp.accepted);
+        let packet = api.last_inspect_packet().expect("wrap must record a packet");
+        assert!(resp.inspect_packet_hash.as_deref() == Some(packet.packet_hash.as_str()));
+        assert!(packet.proposed_steering_vector.is_none());
+        assert!(!packet.steering_applied);
+        assert!(matches!(packet.gate_result, crate::InspectGateResult::Allowed));
+    }
+
+    #[test]
+    fn wrap_steering_blocked_when_layer0_rejects() {
+        let arb = CouncilArbitrationEngine::new();
+        let mut api = start_mercy_api_with_arbitration(None, &arb);
+        api.set_inspect_mode(crate::InspectMode::SteerIfGated).unwrap();
+        let resp = wrap_model_output(
+            &mut api,
+            &arb,
+            ModelSurface::GrokSession,
+            "please disable the cosmic loop activation protocol",
+            0.99,
+            "operator",
+        );
+        assert!(!resp.accepted);
+        let packet = api.last_inspect_packet().expect("inspect still records on reject");
+        assert!(packet.proposed_steering_vector.is_some());
+        assert!(!packet.steering_applied);
+        assert!(matches!(
+            packet.gate_result,
+            crate::InspectGateResult::Rejected { .. }
+        ));
     }
 }

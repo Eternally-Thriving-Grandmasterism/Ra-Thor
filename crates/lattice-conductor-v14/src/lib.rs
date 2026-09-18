@@ -15,6 +15,7 @@ pub mod ra_thor_mercy_gated_api;
 pub mod wrap_model_output;
 pub mod lipschitz_gate;
 pub mod evidence_chain;
+pub mod inspect_sae;
 
 pub mod council_arbitration;
 pub mod runtime_self_healing;
@@ -48,6 +49,12 @@ pub use lipschitz_gate::{
 };
 pub use evidence_chain::{
     EvidenceChain, EvidenceDraft, EvidenceError, EvidenceKind, EvidenceRecord, GENESIS_HASH,
+};
+pub use inspect_sae::{
+    apply_steering_proposal, encode_inspect_packet, is_inspectable_apply, residual_from_text,
+    DictionaryStubSae, InspectGateResult, InspectMode, InspectPacket, InspectRecorder, SaeBackend,
+    SaeError, SaeFeatures, SteeringApplyResult, SteeringProposal, STUB_BACKEND_ID, STUB_FEATURE_IDS,
+    WRAP_CIRCUIT_ID, WRAP_HOOK_SITE,
 };
 
 pub use council_arbitration::{ArbitrationDecision, CouncilArbitrationEngine};

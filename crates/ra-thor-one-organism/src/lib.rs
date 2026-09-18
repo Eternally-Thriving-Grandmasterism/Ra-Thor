@@ -57,6 +57,8 @@ pub use lattice_conductor_v14::{
     EternalMercyMesh, EternalMercyMeshConfig,
     MercyGatedApi, MercyApiRequest, MercyApiResponse, ApiRequestKind, GateDecision,
     start_mercy_api_with_arbitration,
+    wrap_model_output, ModelSurface,
+    InspectPacket, InspectMode, InspectGateResult, DictionaryStubSae,
 };
 
 include!("organism_body_a.rs");
