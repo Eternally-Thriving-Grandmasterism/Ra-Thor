@@ -26,16 +26,12 @@ fn clean_short() -> Vec<TrajectoryStep> {
             "Draft: tend the well and publish flow.",
             0.99,
         ),
-        TrajectoryStep::new(
-            TrajectoryStepKind::Verify,
-            "evidence-chain-verify",
-            0.99,
-        ),
+        TrajectoryStep::new(TrajectoryStepKind::Verify, "evidence-chain-verify", 0.99),
     ]
 }
 
 #[test]
-fn looping_trajectory_escalates_and_does_not_apply_later_steps() {
+fn prefix_looping_trajectory_escalates_and_does_not_apply_later_steps() {
     let arb = CouncilArbitrationEngine::new();
     let mut api = start_mercy_api_with_arbitration(None, &arb);
     let steps = vec![
@@ -65,13 +61,19 @@ fn looping_trajectory_escalates_and_does_not_apply_later_steps() {
 
     let chain = api.evidence_chain();
     let guard = chain.lock().unwrap();
-    assert!(guard.records().iter().any(|r| r.kind == EvidenceKind::Prefix));
-    assert!(guard.records().iter().any(|r| r.kind == EvidenceKind::Council));
+    assert!(guard
+        .records()
+        .iter()
+        .any(|r| r.kind == EvidenceKind::Prefix));
+    assert!(guard
+        .records()
+        .iter()
+        .any(|r| r.kind == EvidenceKind::Council));
     guard.verify().unwrap();
 }
 
 #[test]
-fn clean_short_trajectory_applies_wrap_and_does_not_escalate() {
+fn prefix_clean_short_trajectory_applies_wrap_and_does_not_escalate() {
     let arb = CouncilArbitrationEngine::new();
     let mut api = start_mercy_api_with_arbitration(None, &arb);
     let steps = clean_short();
@@ -85,7 +87,9 @@ fn clean_short_trajectory_applies_wrap_and_does_not_escalate() {
         run.snapshot.state,
         PrefixState::Complete | PrefixState::Verifying
     ));
-    let packet = api.last_inspect_packet().expect("wrap step records inspect");
+    let packet = api
+        .last_inspect_packet()
+        .expect("wrap step records inspect");
     assert!(!packet.packet_hash.is_empty());
 
     let chain = api.evidence_chain();
@@ -101,7 +105,7 @@ fn clean_short_trajectory_applies_wrap_and_does_not_escalate() {
 }
 
 #[test]
-fn two_step_blocked_ingest_halts_and_second_never_applies() {
+fn prefix_two_step_blocked_ingest_halts_and_second_never_applies() {
     let arb = CouncilArbitrationEngine::new();
     let mut api = start_mercy_api_with_arbitration(None, &arb);
     let steps = vec![
@@ -135,7 +139,7 @@ fn two_step_blocked_ingest_halts_and_second_never_applies() {
 }
 
 #[test]
-fn two_step_low_mercy_halts_and_second_never_applies() {
+fn prefix_two_step_low_mercy_halts_and_second_never_applies() {
     let arb = CouncilArbitrationEngine::new();
     let mut api = start_mercy_api_with_arbitration(None, &arb);
     let steps = vec![
@@ -168,7 +172,7 @@ fn conductor_prefix_path_is_the_lived_multi_step_hook() {
 }
 
 #[test]
-fn silent_prompt_rewrite_is_impossible_through_public_api() {
+fn prefix_silent_prompt_rewrite_is_impossible_through_public_api() {
     let miss = apply_harness_file_edit("wrappers/system_prompt.txt", "rewrite", None);
     match miss {
         HarnessFileEditResult::Miss { reason, .. } => {
