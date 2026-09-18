@@ -15,12 +15,16 @@
 
 use std::net::SocketAddr;
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use serde::{Deserialize, Serialize};
 
 use crate::distributed_mercy_mesh::MercyGate;
+use crate::evidence_chain::{
+    payload_digest, EvidenceChain, EvidenceDraft, EvidenceError, EvidenceKind,
+};
+use crate::lipschitz_gate::{LipschitzBall, LipschitzCheck, LipschitzError, LipschitzGate, Theta};
 use crate::CouncilArbitrationEngine;
 
 /// Kind of request accepted by the mercy-gated API.
@@ -75,6 +79,9 @@ pub struct MercyApiResponse {
     pub gates_checked: Vec<String>,
     pub timestamp: u64,
     pub cosmic_loop_ready: bool,
+    /// Hash of the evidential-face row for this apply-class decision, if emitted.
+    #[serde(default)]
+    pub evidence_hash: Option<String>,
 }
 
 /// High-level mercy-gated API handle.
@@ -86,6 +93,8 @@ pub struct MercyGatedApi {
     cosmic_loop_ready: Arc<AtomicBool>,
     request_count: u64,
     reject_count: u64,
+    evidence: Arc<Mutex<EvidenceChain>>,
+    lipschitz: Arc<Mutex<LipschitzGate>>,
 }
 
 impl MercyGatedApi {
@@ -97,6 +106,8 @@ impl MercyGatedApi {
             cosmic_loop_ready: Arc::new(AtomicBool::new(true)),
             request_count: 0,
             reject_count: 0,
+            evidence: Arc::new(Mutex::new(EvidenceChain::new())),
+            lipschitz: Arc::new(Mutex::new(LipschitzGate::new())),
         }
     }
 
@@ -144,6 +155,158 @@ impl MercyGatedApi {
             gates_checked: gates,
             timestamp: now_secs(),
             cosmic_loop_ready: loop_ready,
+            evidence_hash: None,
+        }
+    }
+
+    pub fn evidence_chain(&self) -> Arc<Mutex<EvidenceChain>> {
+        Arc::clone(&self.evidence)
+    }
+
+    pub fn lipschitz_gate(&self) -> Arc<Mutex<LipschitzGate>> {
+        Arc::clone(&self.lipschitz)
+    }
+
+    pub fn lipschitz_ball_installed(&self) -> bool {
+        self.lipschitz
+            .lock()
+            .ok()
+            .map(|g| g.current_ball().is_some())
+            .unwrap_or(false)
+    }
+
+    pub fn install_lipschitz_ball(&self, ball: LipschitzBall) -> Result<(), LipschitzError> {
+        let mut gate = self.lipschitz.lock().map_err(|_| LipschitzError::LockPoisoned)?;
+        gate.install(ball)
+    }
+
+    pub fn freeze_lipschitz_ball(
+        &self,
+        theta0: Theta,
+        margin_m: f64,
+        lipschitz_l: f64,
+    ) -> Result<(), LipschitzError> {
+        let mut gate = self.lipschitz.lock().map_err(|_| LipschitzError::LockPoisoned)?;
+        gate.freeze_new_ball(theta0, margin_m, lipschitz_l)
+    }
+
+    pub fn check_lipschitz(
+        &self,
+        theta: &Theta,
+        actor: &str,
+        timestamp: u64,
+    ) -> Result<LipschitzCheck, LipschitzError> {
+        let mut gate = self.lipschitz.lock().map_err(|_| LipschitzError::LockPoisoned)?;
+        if gate.current_ball().is_none() {
+            return Err(LipschitzError::MissingTheta0);
+        }
+        let check = gate.verify(theta);
+        drop(gate);
+        let directive = if check.accepted { "accept" } else { "reject" };
+        let mut chain = self
+            .evidence
+            .lock()
+            .map_err(|_| LipschitzError::LockPoisoned)?;
+        chain.append(EvidenceDraft {
+            subject: format!("lipschitz:{actor}"),
+            input: payload_digest(&format!("{:?}", theta.0)),
+            claim: check.reason.clone(),
+            evidence_pointers: vec![
+                format!("m={:?}", check.margin_m),
+                format!("L={:?}", check.lipschitz_l),
+                format!("r={:?}", check.radius),
+                format!("displacement={:?}", check.displacement),
+            ],
+            directive: directive.into(),
+            scope: "lattice-conductor-v14".into(),
+            kind: EvidenceKind::Lipschitz,
+            decision: directive.into(),
+            timestamp,
+            actor: actor.into(),
+            auditor: "lipschitz-gate".into(),
+        })
+        .map_err(|_| LipschitzError::EvidenceMissing)?;
+        Ok(check)
+    }
+
+    fn emit_gate_record(
+        &self,
+        request: &MercyApiRequest,
+        accepted: bool,
+        reason: &str,
+    ) -> Result<String, EvidenceError> {
+        let mut chain = self
+            .evidence
+            .lock()
+            .map_err(|_| EvidenceError::LockPoisoned)?;
+        let kind = match &request.kind {
+            ApiRequestKind::SelfEvolutionProposal => EvidenceKind::SelfEvolution,
+            ApiRequestKind::Custom(_) => EvidenceKind::Wrap,
+            ApiRequestKind::CouncilQuery => EvidenceKind::Council,
+            _ => EvidenceKind::Tool,
+        };
+        let directive = if accepted { "accept" } else { "reject" };
+        let rec = chain.append(EvidenceDraft {
+            subject: format!("{}:{}", kind.as_str(), request.actor),
+            input: payload_digest(&request.payload),
+            claim: reason.to_string(),
+            evidence_pointers: vec!["layer0".into(), "handle_request".into()],
+            directive: directive.into(),
+            scope: "lattice-conductor-v14".into(),
+            kind,
+            decision: directive.into(),
+            timestamp: now_secs(),
+            actor: request.actor.clone(),
+            auditor: "evidence-face".into(),
+        })?;
+        Ok(rec.hash)
+    }
+
+    fn chain_gate(&self, hash: &str) -> Result<(), EvidenceError> {
+        let chain = self
+            .evidence
+            .lock()
+            .map_err(|_| EvidenceError::LockPoisoned)?;
+        chain.gate_side_effect(Some(hash))
+    }
+
+    /// Evidential face: Allowed apply-class without a chained record is not apply.
+    fn seal_apply(
+        &mut self,
+        request: &MercyApiRequest,
+        mut resp: MercyApiResponse,
+        reason: &str,
+    ) -> MercyApiResponse {
+        if !request.kind.is_apply_class() {
+            return resp;
+        }
+        match self.emit_gate_record(request, resp.accepted, reason) {
+            Ok(h) => {
+                if resp.accepted && self.chain_gate(&h).is_err() {
+                    return self.reject(
+                        "missing or broken evidence chain".into(),
+                        "Rejected — evidential face".into(),
+                        request.claimed_mercy,
+                        resp.gates_checked,
+                        resp.cosmic_loop_ready,
+                    );
+                }
+                resp.evidence_hash = Some(h);
+                resp
+            }
+            Err(e) => {
+                if resp.accepted {
+                    self.reject(
+                        format!("evidence: {e}"),
+                        "Rejected — evidential face".into(),
+                        request.claimed_mercy,
+                        resp.gates_checked,
+                        resp.cosmic_loop_ready,
+                    )
+                } else {
+                    resp
+                }
+            }
         }
     }
 
@@ -158,13 +321,15 @@ impl MercyGatedApi {
         let gates: Vec<String> = MercyGate::all().iter().map(|g| format!("{:?}", g)).collect();
 
         if request.kind.is_apply_class() && arbitration.is_none() {
-            return self.reject(
-                "Layer 0: apply-class request requires CouncilArbitrationEngine at the runtime boundary".into(),
+            let reason = "Layer 0: apply-class request requires CouncilArbitrationEngine at the runtime boundary";
+            let resp = self.reject(
+                reason.into(),
                 "Rejected — missing Layer 0 engine".into(),
                 request.claimed_mercy,
                 gates,
                 self.cosmic_loop_ready.load(Ordering::SeqCst),
             );
+            return self.seal_apply(&request, resp, reason);
         }
 
         if let Some(arb) = arbitration {
@@ -177,41 +342,46 @@ impl MercyGatedApi {
         let loop_ready = self.cosmic_loop_ready.load(Ordering::SeqCst);
 
         if request.claimed_mercy < self.min_mercy_threshold {
-            return self.reject(
-                format!(
-                    "claimed_mercy {:.3} below threshold {:.3}",
-                    request.claimed_mercy, self.min_mercy_threshold
-                ),
+            let reason = format!(
+                "claimed_mercy {:.3} below threshold {:.3}",
+                request.claimed_mercy, self.min_mercy_threshold
+            );
+            let resp = self.reject(
+                reason.clone(),
                 "Rejected by Living Mercy Gates".into(),
                 request.claimed_mercy,
                 gates,
                 loop_ready,
             );
+            return self.seal_apply(&request, resp, &reason);
         }
 
         if let Some(arb) = arbitration {
             let decision = arb.arbitrate_cosmic_loop_change(&request.payload);
             if let crate::council_arbitration::ArbitrationDecision::Blocked { reason, .. } = decision
             {
-                return self.reject(
-                    reason,
+                let resp = self.reject(
+                    reason.clone(),
                     "Blocked by CouncilArbitrationEngine".into(),
                     request.claimed_mercy,
                     gates,
                     loop_ready,
                 );
+                return self.seal_apply(&request, resp, &reason);
             }
         }
 
         if request.kind.is_apply_class() {
             if let Err(e) = mercy_security::IngestionScanner::admit_or_block(&request.payload) {
-                return self.reject(
-                    format!("Layer 0 ingest: {e}"),
+                let reason = format!("Layer 0 ingest: {e}");
+                let resp = self.reject(
+                    reason.clone(),
                     "Rejected — mercy-security admit_or_block".into(),
                     request.claimed_mercy,
                     gates,
                     loop_ready,
                 );
+                return self.seal_apply(&request, resp, &reason);
             }
             let valence = mercy_tolc_operator_algebra::Valence::new(request.claimed_mercy);
             let _report =
@@ -227,7 +397,7 @@ impl MercyGatedApi {
             ApiRequestKind::Custom(s) => s.as_str(),
         };
 
-        MercyApiResponse {
+        let resp = MercyApiResponse {
             accepted: true,
             decision: GateDecision::Allowed,
             message: format!(
@@ -238,7 +408,9 @@ impl MercyGatedApi {
             gates_checked: gates,
             timestamp: ts,
             cosmic_loop_ready: loop_ready,
-        }
+            evidence_hash: None,
+        };
+        self.seal_apply(&request, resp, "accept")
     }
 
     pub fn status(&self) -> MercyApiResponse {
@@ -253,6 +425,7 @@ impl MercyGatedApi {
             gates_checked: MercyGate::all().iter().map(|g| format!("{:?}", g)).collect(),
             timestamp: now_secs(),
             cosmic_loop_ready: self.is_cosmic_loop_ready(),
+            evidence_hash: None,
         }
     }
 }
@@ -275,6 +448,8 @@ pub fn start_mercy_api_server(addr: Option<SocketAddr>) -> MercyGatedApi {
         cosmic_loop_ready: Arc::new(AtomicBool::new(true)),
         request_count: 0,
         reject_count: 0,
+        evidence: Arc::new(Mutex::new(EvidenceChain::new())),
+        lipschitz: Arc::new(Mutex::new(LipschitzGate::new())),
     }
 }
 
@@ -407,5 +582,75 @@ mod tests {
             }
             GateDecision::Allowed => panic!("blocked ingest must reject"),
         }
+    }
+
+    #[test]
+    fn apply_class_emits_chained_evidence_hash() {
+        let arb = CouncilArbitrationEngine::new();
+        let mut api = start_mercy_api_with_arbitration(None, &arb);
+        let resp = api.handle_request(
+            MercyApiRequest {
+                kind: ApiRequestKind::CouncilQuery,
+                payload: "tend the well and publish flow".into(),
+                claimed_mercy: 0.99,
+                actor: "operator".into(),
+            },
+            Some(&arb),
+        );
+        assert!(resp.accepted);
+        let hash = resp.evidence_hash.expect("apply-class must emit a record");
+        api.evidence_chain()
+            .lock()
+            .unwrap()
+            .gate_side_effect(Some(&hash))
+            .unwrap();
+    }
+
+    #[test]
+    fn broken_chain_rejects_later_apply() {
+        let arb = CouncilArbitrationEngine::new();
+        let mut api = start_mercy_api_with_arbitration(None, &arb);
+        let first = api.handle_request(
+            MercyApiRequest {
+                kind: ApiRequestKind::CouncilQuery,
+                payload: "tend the well and publish flow".into(),
+                claimed_mercy: 0.99,
+                actor: "operator".into(),
+            },
+            Some(&arb),
+        );
+        assert!(first.accepted);
+        api.evidence_chain()
+            .lock()
+            .unwrap()
+            .tamper_last_previous_hash();
+        let second = api.handle_request(
+            MercyApiRequest {
+                kind: ApiRequestKind::CouncilQuery,
+                payload: "second apply without a sound chain".into(),
+                claimed_mercy: 0.99,
+                actor: "operator".into(),
+            },
+            Some(&arb),
+        );
+        assert!(!second.accepted);
+        match second.decision {
+            GateDecision::Rejected { reason } => {
+                assert!(
+                    reason.contains("evidence") || reason.contains("chain"),
+                    "reason={reason}"
+                );
+            }
+            GateDecision::Allowed => panic!("broken chain must not apply"),
+        }
+    }
+
+    #[test]
+    fn missing_record_is_not_apply() {
+        let chain = EvidenceChain::new();
+        assert!(chain.gate_side_effect(None).is_err());
+        assert!(!crate::evidence_chain::apply_without_record_is_not_apply(
+            false, true
+        ));
     }
 }
