@@ -9,8 +9,9 @@
 //! Contact: info@Rathor.ai
 
 use crate::ra_thor_mercy_gated_api::{
-    ApiRequestKind, MercyApiRequest, MercyApiResponse, MercyGatedApi,
+    ApiRequestKind, GateDecision, MercyApiRequest, MercyApiResponse, MercyGatedApi,
 };
+use crate::lipschitz_gate::Theta;
 use crate::CouncilArbitrationEngine;
 
 /// Provenance label only — not an affiliation or warranty.
@@ -50,7 +51,7 @@ pub fn wrap_model_output(
         surface.as_str(),
         model_text
     );
-    api.handle_request(
+    let mut resp = api.handle_request(
         MercyApiRequest {
             kind: ApiRequestKind::Custom(surface.as_str().to_string()),
             payload,
@@ -58,7 +59,42 @@ pub fn wrap_model_output(
             actor: actor.to_string(),
         },
         Some(arbitration),
-    )
+    );
+    // Layer 0 ran first. Lipschitz only when Layer 0 allowed and a ball is installed.
+    if resp.accepted && api.lipschitz_ball_installed() {
+        let theta = Theta::from_bytes(model_text.as_bytes());
+        match api.check_lipschitz(&theta, actor, resp.timestamp) {
+            Ok(check) => {
+                if !check.accepted {
+                    resp.accepted = false;
+                    resp.decision = GateDecision::Rejected {
+                        reason: format!("Lipschitz reject: {}", check.reason),
+                    };
+                }
+            }
+            Err(e) => {
+                resp.accepted = false;
+                resp.decision = GateDecision::Rejected {
+                    reason: format!("Lipschitz fail-closed: {e}"),
+                };
+            }
+        }
+    }
+    if resp.accepted {
+        let chain = api.evidence_chain();
+        let ok = chain
+            .lock()
+            .ok()
+            .and_then(|c| c.gate_side_effect(resp.evidence_hash.as_deref()).ok())
+            .is_some();
+        if !ok {
+            resp.accepted = false;
+            resp.decision = GateDecision::Rejected {
+                reason: "missing or broken evidence chain".into(),
+            };
+        }
+    }
+    resp
 }
 
 #[cfg(test)]
@@ -112,5 +148,60 @@ mod tests {
         );
         assert!(!resp.accepted);
         assert!(arb.is_cosmic_loop_ready());
+    }
+
+    #[test]
+    fn wrap_apply_emits_evidence_record() {
+        let arb = CouncilArbitrationEngine::new();
+        let mut api = start_mercy_api_with_arbitration(None, &arb);
+        let resp = wrap_model_output(
+            &mut api,
+            &arb,
+            ModelSurface::GrokSession,
+            "Draft: tend the well and publish flow.",
+            0.99,
+            "operator",
+        );
+        assert!(resp.accepted);
+        assert!(resp.evidence_hash.is_some());
+    }
+
+    #[test]
+    fn wrap_lipschitz_safe_encoding_accepts_and_far_point_rejects() {
+        let arb = CouncilArbitrationEngine::new();
+        let mut api = start_mercy_api_with_arbitration(None, &arb);
+        let safe = "Draft: tend the well and publish flow.";
+        let theta0 = Theta::from_bytes(safe.as_bytes());
+        api.install_lipschitz_ball(
+            crate::LipschitzBall::try_new(theta0, 1.0, 2.0).unwrap(),
+        )
+        .unwrap();
+        let accept = wrap_model_output(
+            &mut api,
+            &arb,
+            ModelSurface::GrokSession,
+            safe,
+            0.99,
+            "operator",
+        );
+        assert!(accept.accepted, "same encoding must sit at theta0");
+
+        api.install_lipschitz_ball(
+            crate::LipschitzBall::try_new(Theta(vec![0.0, 0.0, 0.0, 0.0]), 0.001, 100.0).unwrap(),
+        )
+        .unwrap();
+        let reject = wrap_model_output(
+            &mut api,
+            &arb,
+            ModelSurface::GrokSession,
+            safe,
+            0.99,
+            "operator",
+        );
+        assert!(!reject.accepted, "far from a tiny ball around origin");
+        match reject.decision {
+            GateDecision::Rejected { reason } => assert!(reason.contains("Lipschitz")),
+            GateDecision::Allowed => panic!("outside ball must not wrap-apply"),
+        }
     }
 }

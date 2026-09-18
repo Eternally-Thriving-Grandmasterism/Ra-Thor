@@ -13,6 +13,8 @@ pub mod healing_integration;
 pub mod eternal_mercy_mesh;
 pub mod ra_thor_mercy_gated_api;
 pub mod wrap_model_output;
+pub mod lipschitz_gate;
+pub mod evidence_chain;
 
 pub mod council_arbitration;
 pub mod runtime_self_healing;
@@ -41,6 +43,12 @@ pub use ra_thor_mercy_gated_api::{
     MercyApiRequest, MercyApiResponse, ApiRequestKind, GateDecision,
 };
 pub use wrap_model_output::{wrap_model_output, ModelSurface};
+pub use lipschitz_gate::{
+    LipschitzBall, LipschitzCheck, LipschitzError, LipschitzGate, Theta, verify_parts,
+};
+pub use evidence_chain::{
+    EvidenceChain, EvidenceDraft, EvidenceError, EvidenceKind, EvidenceRecord, GENESIS_HASH,
+};
 
 pub use council_arbitration::{ArbitrationDecision, CouncilArbitrationEngine};
 pub use runtime_self_healing::{
@@ -157,6 +165,24 @@ impl LatticeConductorV14 {
         self.mercy_api.as_mut().map(|api| {
             wrap_model_output::wrap_model_output(api, arb, surface, model_text, claimed_mercy, actor)
         })
+    }
+
+    pub fn install_lipschitz_ball(
+        &mut self,
+        ball: crate::LipschitzBall,
+    ) -> Result<(), crate::LipschitzError> {
+        let api = self.mercy_api.as_ref().ok_or(crate::LipschitzError::MissingTheta0)?;
+        api.install_lipschitz_ball(ball)
+    }
+
+    pub fn freeze_lipschitz_theta0(
+        &mut self,
+        theta0: crate::Theta,
+        margin_m: f64,
+        lipschitz_l: f64,
+    ) -> Result<(), crate::LipschitzError> {
+        let api = self.mercy_api.as_ref().ok_or(crate::LipschitzError::MissingTheta0)?;
+        api.freeze_lipschitz_ball(theta0, margin_m, lipschitz_l)
     }
 
     pub fn mercy_api_status(&self) -> Option<MercyApiResponse> {

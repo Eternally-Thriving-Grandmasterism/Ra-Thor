@@ -233,6 +233,36 @@ One opportunity per slice unless 2 and 3 are explicitly paired in one steward ca
 
 ---
 
+## Implementation status — Opportunity 2 + 3 (2026-09-18)
+
+Later slice on `lattice-conductor-v14` plus a GitHub queued-intent face. **Not** a new workspace member. `crates/mercy-lipschitz-gate` was not added. `core/idea_recycler.rs` / `core/innovation_generator.rs` remain archive-only. `patsagi-councils` remains forest (not added to `[workspace].members`). Layer 0 thresholds unchanged. Valence floor unchanged.
+
+**What is now true (named tests):**
+
+- Lipschitz-ball verifier: accept only if `distance(theta, theta0) < r` with `r = m/L`. Missing `theta0` / `L` / `m` fail closed. Fixture `crates/lattice-conductor-v14/fixtures/lipschitz_ball_v0.json`: known-safe point accepts; outside rejects; zero false accepts. Distance `== r` rejects. A mock council approve cannot enlarge `r` or freeze a Rejected ball. Ball chaining: an accepted check may become the next `theta0`.
+- Evidence chain (Ra-Thor-native, AIREP-inspired): subject, input, claim, evidence pointers, directive, scope, kind, decision, timestamp, actor, auditor, hash, previous-hash. One row per apply-class `handle_request` / wrap / Lipschitz decision / gated submit. Missing record or broken previous-hash → no apply. Council self-audit (actor == auditor) is Rejected. Erase is forbidden. Offline `EvidenceChain::verify_offline` recomputes the three-row fixture `crates/lattice-conductor-v14/fixtures/evidence_chain_three_row_v0.json`.
+- Lived wiring: `wrap_model_output` and `submit_self_evolution_proposal_securely` still run Layer 0 first; Lipschitz runs when a ball is installed or an explicit `theta` exists; evidential face seals apply. `PatsagiCouncilSimulator::review_with_evidence` / `freeze_ball_after_approve` sit beside the existing simulator. `github-connector::queued_branch_intent` is a no-network tool face: missing receipt, broken chain, or a branch name in place of a commit SHA fail closed. GitHub writes are not called.
+
+**What remains unproven:**
+
+- Qwen2.5-7B LoRA mapping into `Theta` (follow-up: flatten / sketch adapter deltas; estimate conservative `L` on a frozen adapter). Do not treat the vector fixture as a 7B result.
+- Literature delta 0 / O(d) wall-clock / any live `L` for this lattice.
+- AIREP compatibility, a signed production ledger, evidence-completeness rate.
+- Close of [`BINDING_AFTER_REDESIGN.md`](BINDING_AFTER_REDESIGN.md). Semantic Replay. Opportunity 1 / 4 / 5.
+
+**How to verify:**
+
+```bash
+cargo test -p lattice-conductor-v14 lipschitz
+cargo test -p lattice-conductor-v14 evidence
+cargo test -p lattice-conductor-v14 --test lipschitz_evidence_apply
+cargo test -p github-connector queued_branch
+```
+
+Named `-p` only. Not `cargo test --workspace`.
+
+---
+
 ## Job card for a later seat (copy)
 
 Fill this before the inner loop starts. Paste into [`AGENT_RUN_BRIEF.md`](AGENT_RUN_BRIEF.md) sections 1–10.
@@ -254,9 +284,9 @@ Named tests: cargo test -p <named default member> <filter>
 
 This brief is **not**:
 
-- a running SAE, Lipschitz verifier, evidence ledger, prefix scorer, or alignment-researcher loop
+- a running SAE, prefix scorer, or alignment-researcher loop
+- a 7B LoRA Lipschitz measurement, AIREP-compatible ledger, or close of [`BINDING_AFTER_REDESIGN.md`](BINDING_AFTER_REDESIGN.md) (Opportunity 2+3 now have an inspectable adapter — see Implementation status)
 - permission to add `crates/mercy-inspect-sae` or `crates/mercy-lipschitz-gate` without a named slice
-- a close of [`BINDING_AFTER_REDESIGN.md`](BINDING_AFTER_REDESIGN.md)
 - METR, Combined AGSi, ISO/IEC 42001, EU AI Act conformity, or an xAI product
 - RBE as present fact
 - a valence, delta, or O(d) measurement of this lattice

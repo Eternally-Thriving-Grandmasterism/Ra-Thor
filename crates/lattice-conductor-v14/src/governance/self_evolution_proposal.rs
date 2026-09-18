@@ -1,5 +1,6 @@
 //! Self-Evolution Proposal — PQ Verification in Governance (v14.8.2)
 
+use crate::lipschitz_gate::Theta;
 use crate::post_quantum_signatures::{create_post_quantum_signature, verify_post_quantum_signature};
 
 #[derive(Debug, Clone)]
@@ -10,6 +11,8 @@ pub struct SelfEvolutionProposal {
     pub proposed_by: String,
     pub mercy_alignment: f64,
     pub pq_signature: Option<crate::post_quantum_signatures::PostQuantumSignature>,
+    /// Optional parameter-like encoding. When present, the Lipschitz gate must run.
+    pub theta: Option<Theta>,
 }
 
 impl SelfEvolutionProposal {
@@ -21,6 +24,7 @@ impl SelfEvolutionProposal {
             proposed_by,
             mercy_alignment: 0.5,
             pq_signature: None,
+            theta: None,
         }
     }
 

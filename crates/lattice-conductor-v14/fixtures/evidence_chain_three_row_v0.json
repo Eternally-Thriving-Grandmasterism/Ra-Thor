@@ -1,0 +1,41 @@
+[
+  {
+    "subject": "wrap:operator",
+    "input": "3b4a1c9f0e8d7a6b5c4d3e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8b7c6d5e4f3a2b",
+    "claim": "wrap-apply",
+    "evidence_pointers": ["layer0", "wrap_model_output"],
+    "directive": "accept",
+    "scope": "lattice-conductor-v14",
+    "kind": "wrap",
+    "decision": "accept",
+    "timestamp": 1,
+    "actor": "operator",
+    "auditor": "evidence-face"
+  },
+  {
+    "subject": "lipschitz:operator",
+    "input": "theta-safe-0.2",
+    "claim": "lipschitz-accept displacement<r",
+    "evidence_pointers": ["lipschitz_ball_v0.json"],
+    "directive": "accept",
+    "scope": "lattice-conductor-v14",
+    "kind": "lipschitz",
+    "decision": "accept",
+    "timestamp": 2,
+    "actor": "operator",
+    "auditor": "lipschitz-gate"
+  },
+  {
+    "subject": "tool:operator",
+    "input": "queued-branch-intent",
+    "claim": "tool-fire gated queued intent",
+    "evidence_pointers": ["github-connector/gated_intent"],
+    "directive": "accept",
+    "scope": "github-connector",
+    "kind": "tool",
+    "decision": "accept",
+    "timestamp": 3,
+    "actor": "operator",
+    "auditor": "evidence-face"
+  }
+]

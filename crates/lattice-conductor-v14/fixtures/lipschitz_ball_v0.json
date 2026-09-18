@@ -1,0 +1,23 @@
+{
+  "note": "Small-vector fixture. Not a 7B LoRA run. r = m/L = 0.5 is not a valence number.",
+  "theta0": [0.0, 0.0, 0.0, 0.0],
+  "m": 1.0,
+  "L": 2.0,
+  "r": 0.5,
+  "safe": {
+    "theta": [0.2, 0.0, 0.0, 0.0],
+    "distance": 0.2,
+    "decision": "accept"
+  },
+  "outside": {
+    "theta": [0.9, 0.0, 0.0, 0.0],
+    "distance": 0.9,
+    "decision": "reject"
+  },
+  "false_accept_probes": [
+    [0.5, 0.0, 0.0, 0.0],
+    [0.0, 0.6, 0.0, 0.0],
+    [0.4, 0.4, 0.0, 0.0],
+    [10.0, 10.0, 10.0, 10.0]
+  ]
+}

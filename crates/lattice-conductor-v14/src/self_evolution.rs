@@ -8,7 +8,9 @@
 //! This does not close BINDING_AFTER_REDESIGN.md (uncontrolled redesign stays OPEN).
 //! Contact: info@Rathor.ai
 
+use crate::evidence_chain::EvidenceError;
 use crate::governance::self_evolution_proposal::SelfEvolutionProposal;
+use crate::lipschitz_gate::Theta;
 use crate::ra_thor_mercy_gated_api::{ApiRequestKind, GateDecision, MercyApiRequest};
 use crate::LatticeConductorV14;
 
@@ -17,6 +19,7 @@ pub struct SecureSubmissionResult {
     pub accepted: bool,
     pub audit: Vec<String>,
     pub score: f64,
+    pub evidence_hash: Option<String>,
 }
 
 /// Submit a self-evolution proposal securely.
@@ -46,6 +49,7 @@ pub fn submit_self_evolution_proposal_securely(
             accepted: false,
             audit: vec!["Layer 0: missing mercy API — miss, not apply".into()],
             score: 0.0,
+            evidence_hash: None,
         };
     };
     if !resp.accepted {
@@ -57,18 +61,87 @@ pub fn submit_self_evolution_proposal_securely(
             accepted: false,
             audit: vec![format!("Layer 0 reject: {reason}")],
             score: 0.0,
+            evidence_hash: resp.evidence_hash,
+        };
+    }
+
+    let theta = proposal.theta.clone().or_else(|| {
+        resp_api_has_ball(conductor).then(|| Theta::from_bytes(proposal.description.as_bytes()))
+    });
+    if let Some(theta) = theta {
+        let Some(api) = conductor.mercy_api.as_ref() else {
+            return SecureSubmissionResult {
+                accepted: false,
+                audit: vec!["Lipschitz: missing mercy API — fail closed".into()],
+                score: 0.0,
+                evidence_hash: resp.evidence_hash,
+            };
+        };
+        match api.check_lipschitz(&theta, signer_id, resp.timestamp) {
+            Ok(check) => {
+                if !check.accepted {
+                    return SecureSubmissionResult {
+                        accepted: false,
+                        audit: vec![format!("Lipschitz reject: {}", check.reason)],
+                        score: 0.0,
+                        evidence_hash: resp.evidence_hash,
+                    };
+                }
+            }
+            Err(e) => {
+                return SecureSubmissionResult {
+                    accepted: false,
+                    audit: vec![format!("Lipschitz fail-closed: {e}")],
+                    score: 0.0,
+                    evidence_hash: resp.evidence_hash,
+                };
+            }
+        }
+    }
+
+    if let Err(e) = gate_submit_side_effect(conductor, resp.evidence_hash.as_deref()) {
+        return SecureSubmissionResult {
+            accepted: false,
+            audit: vec![format!("evidential face: {e}")],
+            score: 0.0,
+            evidence_hash: resp.evidence_hash,
         };
     }
 
     proposal.sign_with_post_quantum(signer_id);
     let (accepted, mut audit, score) = proposal.evaluate_governance(threshold);
     audit.insert(0, "Layer 0 apply-class crossed".into());
+    if accepted {
+        audit.insert(1, "evidential face chained".into());
+    }
 
     SecureSubmissionResult {
         accepted,
         audit,
         score,
+        evidence_hash: resp.evidence_hash,
     }
+}
+
+fn resp_api_has_ball(conductor: &LatticeConductorV14) -> bool {
+    conductor
+        .mercy_api
+        .as_ref()
+        .map(|api| api.lipschitz_ball_installed())
+        .unwrap_or(false)
+}
+
+fn gate_submit_side_effect(
+    conductor: &LatticeConductorV14,
+    hash: Option<&str>,
+) -> Result<(), EvidenceError> {
+    let api = conductor
+        .mercy_api
+        .as_ref()
+        .ok_or(EvidenceError::MissingRecord)?;
+    let chain = api.evidence_chain();
+    let guard = chain.lock().map_err(|_| EvidenceError::LockPoisoned)?;
+    guard.gate_side_effect(hash)
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -217,5 +290,53 @@ mod tests {
         let result = evo.advance(&mut conductor, "operator", 5.0);
         assert!(!result.accepted);
         assert_eq!(evo.state, EvolutionLoopState::Rejected);
+    }
+
+    #[test]
+    fn theta_outside_ball_is_rejected_and_not_signed() {
+        let mut conductor = LatticeConductorV14::new();
+        let api = conductor.mercy_api.as_ref().unwrap();
+        api.install_lipschitz_ball(
+            crate::LipschitzBall::try_new(Theta(vec![0.0, 0.0, 0.0, 0.0]), 1.0, 2.0).unwrap(),
+        )
+        .unwrap();
+        let mut proposal = signed_ready("Strengthen shared flag", 0.95);
+        proposal.theta = Some(Theta(vec![0.9, 0.0, 0.0, 0.0]));
+        let result =
+            submit_self_evolution_proposal_securely(&mut conductor, &mut proposal, "operator", 5.0);
+        assert!(!result.accepted);
+        assert!(
+            result.audit.iter().any(|a| a.contains("Lipschitz")),
+            "audit={:?}",
+            result.audit
+        );
+        assert!(proposal.pq_signature.is_none(), "reject must not sign");
+    }
+
+    #[test]
+    fn theta_inside_ball_may_accept_and_emits_evidence() {
+        let mut conductor = LatticeConductorV14::new();
+        let api = conductor.mercy_api.as_ref().unwrap();
+        api.install_lipschitz_ball(
+            crate::LipschitzBall::try_new(Theta(vec![0.0, 0.0, 0.0, 0.0]), 1.0, 2.0).unwrap(),
+        )
+        .unwrap();
+        let mut proposal = signed_ready("Strengthen shared flag", 0.95);
+        proposal.theta = Some(Theta(vec![0.2, 0.0, 0.0, 0.0]));
+        let result =
+            submit_self_evolution_proposal_securely(&mut conductor, &mut proposal, "operator", 5.0);
+        assert!(result.accepted, "audit={:?}", result.audit);
+        assert!(result.evidence_hash.is_some());
+    }
+
+    #[test]
+    fn explicit_theta_without_ball_fails_closed() {
+        let mut conductor = LatticeConductorV14::new();
+        let mut proposal = signed_ready("Strengthen shared flag", 0.95);
+        proposal.theta = Some(Theta(vec![0.1, 0.0, 0.0, 0.0]));
+        let result =
+            submit_self_evolution_proposal_securely(&mut conductor, &mut proposal, "operator", 5.0);
+        assert!(!result.accepted);
+        assert!(proposal.pq_signature.is_none());
     }
 }

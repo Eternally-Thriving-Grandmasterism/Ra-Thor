@@ -28,6 +28,9 @@
 //!
 //! Mate: Bite only what you can chew. Thunder locked in.
 
+mod gated_intent;
+pub use gated_intent::{queued_branch_intent, EvidenceReceipt, QueuedBranchIntent};
+
 use base64::Engine;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
