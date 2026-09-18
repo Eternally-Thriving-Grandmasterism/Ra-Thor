@@ -248,7 +248,7 @@ Later slice on `lattice-conductor-v14` plus a GitHub queued-intent face. **Not**
 - Qwen2.5-7B LoRA mapping into `Theta` (follow-up: flatten / sketch adapter deltas; estimate conservative `L` on a frozen adapter). Do not treat the vector fixture as a 7B result.
 - Literature delta 0 / O(d) wall-clock / any live `L` for this lattice.
 - AIREP compatibility, a signed production ledger, evidence-completeness rate.
-- Close of [`BINDING_AFTER_REDESIGN.md`](BINDING_AFTER_REDESIGN.md). Semantic Replay. Opportunity 4 / 5. Opportunity 1 now has an inspectable adapter — see Implementation status below.
+- Close of [`BINDING_AFTER_REDESIGN.md`](BINDING_AFTER_REDESIGN.md). Semantic Replay. Opportunity 5. Opportunity 1 and Opportunity 4 now have inspectable adapters — see Implementation status below.
 
 **How to verify:**
 
@@ -278,7 +278,7 @@ Later slice on `lattice-conductor-v14` (adapter, not `crates/mercy-inspect-sae`)
 
 - Any SAE trained on this lattice, any published feature catalog, any steering success rate.
 - SAELens / NNsight / Hugging Face encode-decode against a live model.
-- Close of [`BINDING_AFTER_REDESIGN.md`](BINDING_AFTER_REDESIGN.md). Opportunity 4 / 5.
+- Close of [`BINDING_AFTER_REDESIGN.md`](BINDING_AFTER_REDESIGN.md). Opportunity 5. Opportunity 4 now has a prefix-risk adapter — see Implementation status below.
 
 **How to verify:**
 
@@ -286,6 +286,35 @@ Later slice on `lattice-conductor-v14` (adapter, not `crates/mercy-inspect-sae`)
 cargo test -p lattice-conductor-v14 inspect
 cargo test -p lattice-conductor-v14 --test inspect_sae_apply
 cargo test -p lattice-conductor-v14 wrap
+```
+
+Named `-p` only. Not `cargo test --workspace`.
+
+---
+
+## Implementation status — Opportunity 4 (2026-09-18)
+
+Later slice on `lattice-conductor-v14`. **Not** a new workspace member. `patsagi-councils` remains forest (not added to `[workspace].members`). Layer 0 thresholds unchanged. Valence floor unchanged. Observer-model hook is a runtime flag defaulting off; default CI does not call a second LLM.
+
+**What is now true (named tests):**
+
+- Canonical trajectory taxonomy: search, read, edit, tool, vote, wrap, verify, revert. TRACES-like states: idle / planned / acting / verifying / complete / halted / escalated / reverted. Prefix risk is scored after each step (rule-based: loops, skipped verify, tool before plan, repeated identical tool, low claimed mercy). High risk halts or escalates to council 13 before later steps apply.
+- Lived multi-step path: `MercyGatedApi::run_prefix_trajectory` / `LatticeConductorV14::run_prefix_trajectory` fires `wrap_model_output` / `handle_request` only while Continue. A looping trajectory escalates; a clean short search→read→wrap→verify does not. Step 1 blocked ingest or low claimed mercy → halt; step 2 never applies.
+- Each prefix step emits `EvidenceKind::Prefix` (Opportunity 3 chain). Escalation appends a council row with auditor `prefix-risk-face` (not self-audit). Halt / escalate are visible on the snapshot — not hidden behind a fluent final string.
+- Harness evolution is a SHE-like `HarnessDeltaProposal` only. `apply_harness_delta` always returns SilentMutationForbidden. An ungated harness-file edit is a named miss (not apply). A gated submit receipt still does not write prompt / rule bank / tool policy.
+- Offline fixture `crates/lattice-conductor-v14/fixtures/prefix_trajectory_v0.json` is hash-stable (`RT-PREFIX-v1`) with per-step decisions, not only a final string.
+
+**What remains unproven:**
+
+- Any prefix-risk rate, halt-latency number, or claim that fluency is permission.
+- An observer-model (second LLM) score. The flag exists; the stub returns 0.
+- Close of [`BINDING_AFTER_REDESIGN.md`](BINDING_AFTER_REDESIGN.md). Opportunity 5.
+
+**How to verify:**
+
+```bash
+cargo test -p lattice-conductor-v14 prefix
+cargo test -p lattice-conductor-v14 --test prefix_risk_apply
 ```
 
 Named `-p` only. Not `cargo test --workspace`.
@@ -313,7 +342,7 @@ Named tests: cargo test -p <named default member> <filter>
 
 This brief is **not**:
 
-- a running SAE, prefix scorer, or alignment-researcher loop (Opportunity 1 now has an inspectable stub adapter — see Implementation status; not a trained SAE)
+- a running SAE, prefix scorer, or alignment-researcher loop (Opportunity 1 now has an inspectable stub adapter; Opportunity 4 now has a rule-based prefix-risk adapter — see Implementation status; not a trained SAE and not a measured prefix-risk rate)
 - a 7B LoRA Lipschitz measurement, AIREP-compatible ledger, or close of [`BINDING_AFTER_REDESIGN.md`](BINDING_AFTER_REDESIGN.md) (Opportunity 2+3 now have an inspectable adapter — see Implementation status)
 - permission to add `crates/mercy-inspect-sae` or `crates/mercy-lipschitz-gate` without a named slice (Opportunity 1 used the conductor adapter, matching Opportunity 2+3)
 - METR, Combined AGSi, ISO/IEC 42001, EU AI Act conformity, or an xAI product

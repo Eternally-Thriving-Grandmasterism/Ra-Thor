@@ -16,6 +16,7 @@ pub mod wrap_model_output;
 pub mod lipschitz_gate;
 pub mod evidence_chain;
 pub mod inspect_sae;
+pub mod prefix_risk;
 
 pub mod council_arbitration;
 pub mod runtime_self_healing;
@@ -55,6 +56,13 @@ pub use inspect_sae::{
     DictionaryStubSae, InspectGateResult, InspectMode, InspectPacket, InspectRecorder, SaeBackend,
     SaeError, SaeFeatures, SteeringApplyResult, SteeringProposal, STUB_BACKEND_ID, STUB_FEATURE_IDS,
     WRAP_CIRCUIT_ID, WRAP_HOOK_SITE,
+};
+pub use prefix_risk::{
+    apply_harness_delta, apply_harness_file_edit, propose_harness_delta, run_prefix_trajectory,
+    score_prefix, GatedSubmitReceipt, HarnessDeltaProposal, HarnessError, HarnessFileEditResult,
+    HarnessTarget, PrefixAction, PrefixConfig, PrefixFinding, PrefixRunResult, PrefixSnapshot,
+    PrefixState, TraceProbe, TrajectoryStep, TrajectoryStepKind, CANONICAL_VERSION as PREFIX_CANONICAL_VERSION,
+    COUNCIL_13, DEFAULT_THRESHOLD, MIN_CLAIMED_MERCY,
 };
 
 pub use council_arbitration::{ArbitrationDecision, CouncilArbitrationEngine};
@@ -172,6 +180,22 @@ impl LatticeConductorV14 {
         self.mercy_api.as_mut().map(|api| {
             wrap_model_output::wrap_model_output(api, arb, surface, model_text, claimed_mercy, actor)
         })
+    }
+
+    /// Multi-step prefix path: score after each step, halt or escalate before
+    /// later apply. Does not mutate prompts or harnesses.
+    pub fn run_prefix_trajectory(
+        &mut self,
+        steps: &[crate::TrajectoryStep],
+        config: &crate::PrefixConfig,
+    ) -> Option<crate::PrefixRunResult> {
+        let api = self.mercy_api.as_mut()?;
+        Some(crate::prefix_risk::run_prefix_trajectory(
+            api,
+            &self.arbitration_engine,
+            steps,
+            config,
+        ))
     }
 
     pub fn install_lipschitz_ball(
