@@ -4,6 +4,7 @@
 | --- | --- |
 | [`AGENT_BOOT.md`](AGENT_BOOT.md) | **Load first** |
 | [`../PATSAGI_AUTONOMOUS_DELIBERATION_PROTOCOL.md`](../PATSAGI_AUTONOMOUS_DELIBERATION_PROTOCOL.md) | ADP — when to proceed / propose / HOLD |
+| [`../R_AND_D_OPPORTUNITIES.md`](../R_AND_D_OPPORTUNITIES.md) | Later-agent R&D map (spec only; 2+3 then 1 then 4 then 5) |
 | `RULES_CONSTITUTION.md` | Team Rules |
 | `MERGE_AUTHORITY.md` | Dual-gate merge |
 | `ROLES.md` | Role templates |
