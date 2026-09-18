@@ -248,7 +248,7 @@ Later slice on `lattice-conductor-v14` plus a GitHub queued-intent face. **Not**
 - Qwen2.5-7B LoRA mapping into `Theta` (follow-up: flatten / sketch adapter deltas; estimate conservative `L` on a frozen adapter). Do not treat the vector fixture as a 7B result.
 - Literature delta 0 / O(d) wall-clock / any live `L` for this lattice.
 - AIREP compatibility, a signed production ledger, evidence-completeness rate.
-- Close of [`BINDING_AFTER_REDESIGN.md`](BINDING_AFTER_REDESIGN.md). Semantic Replay. Opportunity 1 / 4 / 5.
+- Close of [`BINDING_AFTER_REDESIGN.md`](BINDING_AFTER_REDESIGN.md). Semantic Replay. Opportunity 4 / 5. Opportunity 1 now has an inspectable adapter — see Implementation status below.
 
 **How to verify:**
 
@@ -257,6 +257,35 @@ cargo test -p lattice-conductor-v14 lipschitz
 cargo test -p lattice-conductor-v14 evidence
 cargo test -p lattice-conductor-v14 --test lipschitz_evidence_apply
 cargo test -p github-connector queued_branch
+```
+
+Named `-p` only. Not `cargo test --workspace`.
+
+---
+
+## Implementation status — Opportunity 1 (2026-09-18)
+
+Later slice on `lattice-conductor-v14` (adapter, not `crates/mercy-inspect-sae`). Default backend is a deterministic in-Rust dictionary stub. `sae-lens-hook` is a design-only feature: named HF / NNsight encode/decode entries, no Python stack, no weight download. Layer 0 thresholds unchanged. Valence floor unchanged. ONE Organism re-exports the wrap + inspect types; the lived hook remains `wrap_model_output`.
+
+**What is now true (named tests):**
+
+- Stable inspect packet: model id, hook site, feature ids, activations, optional proposed steering vector, gate result, optional circuit id, backend id, packet hash. Serializes. Inspect-only mode records a packet without proposing or applying steering.
+- Stub SAE is deterministic. Offline fixture `crates/lattice-conductor-v14/fixtures/inspect_packet_v0.json` is hash-stable (`RT-INSPECT-v1` canonical preimage). A wrap that never records a packet is not an inspectable apply.
+- Steering proposals cannot apply unless they already passed `wrap_model_output` / `handle_request`. Missing wrap receipt is BypassRejected. A Layer 0 reject blocks steering. An Allowed-looking SAE packet cannot flip Reject → Apply.
+- Packet attaches to the Opportunity 3 evidence chain as `EvidenceKind::Inspect` (pointer `inspect-packet:<hash>` plus wrap hash). Council markdown / JSON dashboard dump is an offline string, not a live runtime.
+
+**What remains unproven:**
+
+- Any SAE trained on this lattice, any published feature catalog, any steering success rate.
+- SAELens / NNsight / Hugging Face encode-decode against a live model.
+- Close of [`BINDING_AFTER_REDESIGN.md`](BINDING_AFTER_REDESIGN.md). Opportunity 4 / 5.
+
+**How to verify:**
+
+```bash
+cargo test -p lattice-conductor-v14 inspect
+cargo test -p lattice-conductor-v14 --test inspect_sae_apply
+cargo test -p lattice-conductor-v14 wrap
 ```
 
 Named `-p` only. Not `cargo test --workspace`.
@@ -284,9 +313,9 @@ Named tests: cargo test -p <named default member> <filter>
 
 This brief is **not**:
 
-- a running SAE, prefix scorer, or alignment-researcher loop
+- a running SAE, prefix scorer, or alignment-researcher loop (Opportunity 1 now has an inspectable stub adapter — see Implementation status; not a trained SAE)
 - a 7B LoRA Lipschitz measurement, AIREP-compatible ledger, or close of [`BINDING_AFTER_REDESIGN.md`](BINDING_AFTER_REDESIGN.md) (Opportunity 2+3 now have an inspectable adapter — see Implementation status)
-- permission to add `crates/mercy-inspect-sae` or `crates/mercy-lipschitz-gate` without a named slice
+- permission to add `crates/mercy-inspect-sae` or `crates/mercy-lipschitz-gate` without a named slice (Opportunity 1 used the conductor adapter, matching Opportunity 2+3)
 - METR, Combined AGSi, ISO/IEC 42001, EU AI Act conformity, or an xAI product
 - RBE as present fact
 - a valence, delta, or O(d) measurement of this lattice

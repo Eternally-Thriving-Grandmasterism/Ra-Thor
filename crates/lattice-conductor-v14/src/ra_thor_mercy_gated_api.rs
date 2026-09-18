@@ -24,6 +24,9 @@ use crate::distributed_mercy_mesh::MercyGate;
 use crate::evidence_chain::{
     payload_digest, EvidenceChain, EvidenceDraft, EvidenceError, EvidenceKind,
 };
+use crate::inspect_sae::{
+    InspectGateResult, InspectMode, InspectPacket, InspectRecorder, SaeError,
+};
 use crate::lipschitz_gate::{LipschitzBall, LipschitzCheck, LipschitzError, LipschitzGate, Theta};
 use crate::CouncilArbitrationEngine;
 
@@ -82,6 +85,9 @@ pub struct MercyApiResponse {
     /// Hash of the evidential-face row for this apply-class decision, if emitted.
     #[serde(default)]
     pub evidence_hash: Option<String>,
+    /// Hash of the inspect packet recorded on wrap, if any.
+    #[serde(default)]
+    pub inspect_packet_hash: Option<String>,
 }
 
 /// High-level mercy-gated API handle.
@@ -95,6 +101,7 @@ pub struct MercyGatedApi {
     reject_count: u64,
     evidence: Arc<Mutex<EvidenceChain>>,
     lipschitz: Arc<Mutex<LipschitzGate>>,
+    inspect: Arc<Mutex<InspectRecorder>>,
 }
 
 impl MercyGatedApi {
@@ -108,6 +115,7 @@ impl MercyGatedApi {
             reject_count: 0,
             evidence: Arc::new(Mutex::new(EvidenceChain::new())),
             lipschitz: Arc::new(Mutex::new(LipschitzGate::new())),
+            inspect: Arc::new(Mutex::new(InspectRecorder::default())),
         }
     }
 
@@ -156,6 +164,7 @@ impl MercyGatedApi {
             timestamp: now_secs(),
             cosmic_loop_ready: loop_ready,
             evidence_hash: None,
+            inspect_packet_hash: None,
         }
     }
 
@@ -227,6 +236,94 @@ impl MercyGatedApi {
         })
         .map_err(|_| LipschitzError::EvidenceMissing)?;
         Ok(check)
+    }
+
+    pub fn inspect_recorder(&self) -> Arc<Mutex<InspectRecorder>> {
+        Arc::clone(&self.inspect)
+    }
+
+    pub fn set_inspect_mode(&self, mode: InspectMode) -> Result<(), SaeError> {
+        let mut rec = self
+            .inspect
+            .lock()
+            .map_err(|_| SaeError::LockPoisoned)?;
+        rec.set_mode(mode);
+        Ok(())
+    }
+
+    pub fn last_inspect_packet(&self) -> Option<InspectPacket> {
+        self.inspect
+            .lock()
+            .ok()
+            .and_then(|r| r.last().cloned())
+    }
+
+    pub fn record_wrap_inspect(
+        &self,
+        model_id: &str,
+        text: &str,
+    ) -> Result<InspectPacket, SaeError> {
+        let mut rec = self
+            .inspect
+            .lock()
+            .map_err(|_| SaeError::LockPoisoned)?;
+        rec.record_text(
+            model_id,
+            crate::inspect_sae::WRAP_HOOK_SITE,
+            text,
+            Some(crate::inspect_sae::WRAP_CIRCUIT_ID.into()),
+        )
+    }
+
+    pub fn finish_wrap_inspect(
+        &self,
+        gate: InspectGateResult,
+        steering_applied: bool,
+    ) -> Result<(), SaeError> {
+        let mut rec = self
+            .inspect
+            .lock()
+            .map_err(|_| SaeError::LockPoisoned)?;
+        rec.update_last_gate(gate, steering_applied);
+        Ok(())
+    }
+
+    /// Opportunity 3 attach: one Inspect row pointing at the packet + wrap hash.
+    pub fn attach_inspect_evidence(
+        &self,
+        packet: &InspectPacket,
+        wrap_hash: Option<&str>,
+        actor: &str,
+        timestamp: u64,
+        accepted: bool,
+    ) -> Result<String, EvidenceError> {
+        let mut chain = self
+            .evidence
+            .lock()
+            .map_err(|_| EvidenceError::LockPoisoned)?;
+        let directive = if accepted { "accept" } else { "reject" };
+        let rec = chain.append(EvidenceDraft {
+            subject: format!("inspect:{actor}"),
+            input: packet.packet_hash.clone(),
+            claim: format!(
+                "inspect {} gate={}",
+                packet.hook_site,
+                packet.gate_result.as_label()
+            ),
+            evidence_pointers: vec![
+                packet.as_evidence_pointer(),
+                format!("wrap:{}", wrap_hash.unwrap_or("none")),
+                format!("backend:{}", packet.backend_id),
+            ],
+            directive: directive.into(),
+            scope: "lattice-conductor-v14".into(),
+            kind: EvidenceKind::Inspect,
+            decision: directive.into(),
+            timestamp,
+            actor: actor.into(),
+            auditor: "inspect-face".into(),
+        })?;
+        Ok(rec.hash)
     }
 
     fn emit_gate_record(
@@ -409,6 +506,7 @@ impl MercyGatedApi {
             timestamp: ts,
             cosmic_loop_ready: loop_ready,
             evidence_hash: None,
+            inspect_packet_hash: None,
         };
         self.seal_apply(&request, resp, "accept")
     }
@@ -426,6 +524,7 @@ impl MercyGatedApi {
             timestamp: now_secs(),
             cosmic_loop_ready: self.is_cosmic_loop_ready(),
             evidence_hash: None,
+            inspect_packet_hash: None,
         }
     }
 }
@@ -450,6 +549,7 @@ pub fn start_mercy_api_server(addr: Option<SocketAddr>) -> MercyGatedApi {
         reject_count: 0,
         evidence: Arc::new(Mutex::new(EvidenceChain::new())),
         lipschitz: Arc::new(Mutex::new(LipschitzGate::new())),
+        inspect: Arc::new(Mutex::new(InspectRecorder::default())),
     }
 }
 

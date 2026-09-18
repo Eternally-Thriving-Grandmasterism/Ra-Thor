@@ -24,6 +24,8 @@ full-clifford = []
 web-demo = ["tokio", "axum"]
 # Additive v13 trait surface for leaf-crate migration (see MIGRATION_v13_to_v14.md)
 v13-compat = []
+# Design-only SAELens / HF / NNsight hook surface. No Python. No weight download.
+sae-lens-hook = []
 
 [lib]
 path = "src/lib.rs"
