@@ -129,7 +129,7 @@ fn decision_record_refuses_raw_payload_in_the_log() {
     let sneaky_json = serde_json::to_string(&sneaky).unwrap();
     let err = DecisionRecord::from_log_json(&sneaky_json).expect_err("raw payload field must refuse");
     assert!(
-        matches!(err, DecisionRecordError::Refused(msg) if msg.contains("payload")),
+        matches!(err, DecisionRecordError::Refused(ref msg) if msg.contains("payload")),
         "expected Refused(payload…), got {err:?}"
     );
 
