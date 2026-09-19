@@ -17,6 +17,7 @@
 | [`COUNSEL-COVER-2026-08-31.md`](COUNSEL-COVER-2026-08-31.md) | Draft letter — **do not send unsigned** |
 | [`evals/`](evals/README.md) | 20+20 harness — RESULTS UNMEASURED |
 | [`aims/`](aims/README.md) | AIMS skeleton — planning only |
+| [`procurement/`](procurement/README.md) | 2026-09-19 buyer-format drafts — system card, control map, pilot SOW, Cursor prompts, hire/partner later |
 
 Root lock: [`../../PUBLIC_CLAIM.lock.md`](../../PUBLIC_CLAIM.lock.md)
 
