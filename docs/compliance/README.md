@@ -19,6 +19,8 @@
 | [`aims/`](aims/README.md) | AIMS skeleton — planning only |
 | [`procurement/`](procurement/README.md) | 2026-09-19 buyer-format drafts — system card, control map, pilot SOW, Cursor prompts, hire/partner later |
 
+Pointers: NIST/ISO map [`procurement/NIST-ISO-CONTROL-MAP-2026-09-19.md`](procurement/NIST-ISO-CONTROL-MAP-2026-09-19.md); decision-record schema [`procurement/DECISION-RECORD-SCHEMA.md`](procurement/DECISION-RECORD-SCHEMA.md); egress [`MODEL-MAP-EGRESS-2026-08-31.md`](MODEL-MAP-EGRESS-2026-08-31.md).
+
 Root lock: [`../../PUBLIC_CLAIM.lock.md`](../../PUBLIC_CLAIM.lock.md)
 
 Watch: [`../REPRESENTATIVE_BRIEFING_AND_CONVERSATION_PACK.md`](../REPRESENTATIVE_BRIEFING_AND_CONVERSATION_PACK.md) is commercial voice and may conflict with the claim lock.
