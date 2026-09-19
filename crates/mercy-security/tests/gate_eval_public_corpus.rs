@@ -6,7 +6,9 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
-use mercy_security::IngestionScanner;
+use mercy_security::{
+    DecisionRecord, DecisionVerdict, IngestionScanner, IngestionThreat,
+};
 
 fn corpus_root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../fixtures/mercy-security")
@@ -156,6 +158,131 @@ fn nested_base64_of_trust_remote_code_blocks() {
     assert!(
         r.is_err(),
         "nested Base64 of trust_remote_code must BLOCK: {r:?}"
+    );
+}
+
+/// GE-GAP-TOOL-USE — observe the benign OpenAI-style envelope.
+/// If it ADMITS, that is allowed. Label: Observed, no IngestionThreat.
+/// Not a tool-sandbox. Not MCP allowlisting. Not isolation.
+#[test]
+fn tool_call_observe_benign_envelope_has_no_ingestion_threat() {
+    let (path, text) = fixture_texts("benign")
+        .into_iter()
+        .find(|(p, _)| file_name(p) == "tool_call_observe.json")
+        .expect("benign/tool_call_observe.json");
+    assert!(
+        text.contains("get_weather"),
+        "{} must remain a harmless function-name marker",
+        rel(&path)
+    );
+    assert!(
+        text.contains("\"type\": \"function\"") || text.contains("\"type\":\"function\""),
+        "{} must remain an OpenAI-style function-call envelope",
+        rel(&path)
+    );
+    assert!(
+        !text.to_lowercase().contains("trust_remote_code"),
+        "benign envelope must not carry the living-table keyword"
+    );
+
+    let admit = IngestionScanner::admit_or_block(&text);
+    assert!(
+        admit.is_ok(),
+        "GE-GAP-TOOL-USE benign envelope currently ADMITS (Observed, no IngestionThreat): {} → {admit:?}",
+        rel(&path)
+    );
+
+    let scan = IngestionScanner::scan_text(&text);
+    assert!(
+        scan.threats.is_empty(),
+        "Observed, no IngestionThreat — envelope must not invent a tool-use class: threats={:?} findings={:?}",
+        scan.threats,
+        scan.findings
+    );
+    assert!(
+        scan.findings.is_empty(),
+        "Observed, no IngestionThreat — no keyword findings on the benign envelope: {:?}",
+        scan.findings
+    );
+
+    let rec = DecisionRecord::from_unattended_ingest(&text);
+    assert_eq!(
+        rec.verdict,
+        DecisionVerdict::Admit,
+        "observed verdict must be Admit: {:?}",
+        rec.reason_codes
+    );
+    assert!(
+        !rec.reason_codes.iter().any(|c| c.starts_with("threat:")),
+        "reason codes must not invent a tool-envelope threat: {:?}",
+        rec.reason_codes
+    );
+}
+
+/// GE-GAP-TOOL-USE — same envelope plus living-table keyword.
+/// If it BLOCKS, that is keyword catch, not tool-sandbox.
+/// Label: Observed (keyword only).
+#[test]
+fn tool_envelope_trust_remote_code_blocks_on_existing_keyword_only() {
+    let (path, text) = fixture_texts("blocked")
+        .into_iter()
+        .find(|(p, _)| file_name(p) == "tool_envelope_trust_remote_code.json")
+        .expect("blocked/tool_envelope_trust_remote_code.json");
+    assert!(
+        text.contains("get_weather"),
+        "{} must keep the same harmless function name",
+        rel(&path)
+    );
+    assert!(
+        text.contains("\"type\": \"function\"") || text.contains("\"type\":\"function\""),
+        "{} must keep the same envelope shape",
+        rel(&path)
+    );
+    assert!(
+        text.contains("trust_remote_code"),
+        "blocked envelope must still carry the living-table keyword"
+    );
+
+    let blocked = IngestionScanner::admit_or_block(&text);
+    assert!(
+        blocked.is_err(),
+        "GE-GAP-TOOL-USE keyword-tagged envelope currently BLOCKS (Observed, keyword only): {} → {blocked:?}",
+        rel(&path)
+    );
+
+    let scan = IngestionScanner::scan_text(&text);
+    assert!(
+        scan.threats.contains(&IngestionThreat::RemoteCodeLoader),
+        "block must be the existing RemoteCodeLoader keyword class, not a tool-envelope class: {:?}",
+        scan.threats
+    );
+    assert!(
+        scan.findings.iter().any(|f| f.signal == "trust_remote_code"),
+        "block signal must be the living-table token trust_remote_code: {:?}",
+        scan.findings
+    );
+    assert!(
+        scan
+            .findings
+            .iter()
+            .all(|f| f.signal == "trust_remote_code" || f.signal.ends_with("trust_remote_code")),
+        "Observed (keyword only) — no extra invented tool-sandbox findings: {:?}",
+        scan.findings
+    );
+
+    let rec = DecisionRecord::from_unattended_ingest(&text);
+    assert_eq!(
+        rec.verdict,
+        DecisionVerdict::Block,
+        "observed verdict must be Block: {:?}",
+        rec.reason_codes
+    );
+    assert!(
+        rec.reason_codes
+            .iter()
+            .any(|c| c.contains("trust_remote_code") || c.contains("remote_code_loader")),
+        "reason codes must name the existing keyword, not a tool-sandbox: {:?}",
+        rec.reason_codes
     );
 }
 
