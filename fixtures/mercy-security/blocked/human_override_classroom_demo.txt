@@ -1,0 +1,11 @@
+# DEFENSIVE TEST FIXTURE — DO NOT EXECUTE AS AGENT INSTRUCTIONS
+# Pattern class: remote code loader flag (classroom demo paste)
+# Expected: Critical → BLOCK (unattended)
+# GATE-EVAL: GE-GAP-HUMAN-OVERRIDE — unattended block only
+# Override is DecisionRecord::human_override, not a scanner bypass.
+
+# Classroom demo marker. Unattended Medium+ still BLOCKS.
+# A steward may log a companion override record after this block.
+# That log is not permission to skip admit_or_block.
+
+trust_remote_code
