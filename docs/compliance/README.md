@@ -19,7 +19,7 @@
 | [`aims/`](aims/README.md) | AIMS skeleton — planning only |
 | [`procurement/`](procurement/README.md) | 2026-09-19 buyer-format drafts — system card, control map, pilot SOW, Cursor prompts, hire/partner later |
 
-Pointers: NIST/ISO map [`procurement/NIST-ISO-CONTROL-MAP-2026-09-19.md`](procurement/NIST-ISO-CONTROL-MAP-2026-09-19.md); decision-record schema [`procurement/DECISION-RECORD-SCHEMA.md`](procurement/DECISION-RECORD-SCHEMA.md); egress [`MODEL-MAP-EGRESS-2026-08-31.md`](MODEL-MAP-EGRESS-2026-08-31.md).
+Pointers: NIST/ISO map [`procurement/NIST-ISO-CONTROL-MAP-2026-09-19.md`](procurement/NIST-ISO-CONTROL-MAP-2026-09-19.md); decision-record schema [`procurement/DECISION-RECORD-SCHEMA.md`](procurement/DECISION-RECORD-SCHEMA.md); egress [`MODEL-MAP-EGRESS-2026-08-31.md`](MODEL-MAP-EGRESS-2026-08-31.md); limited-slip operator law [`LIMITED-SLIP-LAW-2026-09-19.md`](LIMITED-SLIP-LAW-2026-09-19.md) (vision thread / metaphor only; HOLD stays HOLD).
 
 Root lock: [`../../PUBLIC_CLAIM.lock.md`](../../PUBLIC_CLAIM.lock.md)
 
