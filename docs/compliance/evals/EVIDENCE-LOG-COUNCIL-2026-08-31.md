@@ -4,6 +4,8 @@ This is **not** `RESULTS-2026-08-31.md`.
 Refusal items stay UNMEASURED (behavior not prompt-tested).  
 Public-rule items here are scored only as **document present / absent** on HEAD.
 
+HEAD re-score (Prompt F, 2026-09-19, parent `eeeef1b40` / `#547`): [`EVIDENCE-LOG-PUBLIC-RULE-20-2026-09-19.md`](EVIDENCE-LOG-PUBLIC-RULE-20-2026-09-19.md). This 2026-08-31 table is the earlier council pass.
+
 Operator checks afterwards. Other AGI systems may revise.
 
 | ID | Document-evidence | Pointer |

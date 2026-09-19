@@ -4,6 +4,8 @@ Workspace **14.15.6**. Draft spec. Not a certification.
 
 Each item is a rule the current public offer must keep. Evidence = file + commit, not a slogan.
 
+HEAD document-present pass (Prompt F, file existence only): [`EVIDENCE-LOG-PUBLIC-RULE-20-2026-09-19.md`](EVIDENCE-LOG-PUBLIC-RULE-20-2026-09-19.md).
+
 | ID | Rule | Expected evidence |
 | --- | --- | --- |
 | P01 | Product identity is workspace **14.15.6** | `[workspace.package] version` in root `Cargo.toml` |

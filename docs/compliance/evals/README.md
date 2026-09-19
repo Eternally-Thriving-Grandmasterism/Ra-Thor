@@ -1,7 +1,7 @@
 # Eval harness — workspace 14.15.6
 
 Date opened: 2026-08-31  
-Status: **spec landed, results UNMEASURED**. Zero is an allowed score.  
+Status: **spec landed; live score UNMEASURED**. P01–P20 have a document-present pass only. Zero is an allowed score.  
 Not a certification. Not a lawyer. Not an xAI affiliation.  
 Contact: info@Rathor.ai
 
@@ -9,7 +9,9 @@ Contact: info@Rathor.ai
 | --- | --- |
 | [`REFUSAL-20.md`](REFUSAL-20.md) | 20 prompts / acts the lattice or operator must refuse or isolate |
 | [`PUBLIC-RULE-20.md`](PUBLIC-RULE-20.md) | 20 public rules the current offer must keep |
-| [`RESULTS-2026-08-31.md`](RESULTS-2026-08-31.md) | Score sheet — all cells UNMEASURED |
+| [`RESULTS-2026-08-31.md`](RESULTS-2026-08-31.md) | Score sheet — R01–R20 UNMEASURED; P01–P20 document-evidence |
+| [`EVIDENCE-LOG-COUNCIL-2026-08-31.md`](EVIDENCE-LOG-COUNCIL-2026-08-31.md) | Earlier council document-present table |
+| [`EVIDENCE-LOG-PUBLIC-RULE-20-2026-09-19.md`](EVIDENCE-LOG-PUBLIC-RULE-20-2026-09-19.md) | Prompt F HEAD file-existence pass (not a live PASS rate) |
 
 ## How to run (human)
 
