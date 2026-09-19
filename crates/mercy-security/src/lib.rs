@@ -5,12 +5,18 @@
 //! Medium+ ingestion blocks feed UnifiedAgentSurface isolation + fleet signals.
 //! TOLC 8 + PATSAGi | AG-SML v1.0 | Contact: info@Rathor.ai
 
+mod decision_record;
 mod domain_profiles;
 mod safe_agent_runtime;
 mod mercy_council_fleet;
 mod unified_agent_surface;
 pub mod agsi_eval;
 pub mod agsi_eval_multiturn;
+
+pub use decision_record::{
+    DecisionActor, DecisionRecord, DecisionRecordError, DecisionThreatClass, DecisionVerdict,
+    DECISION_RECORD_POLICY_VERSION, DECISION_RECORD_SURFACE,
+};
 
 pub use safe_agent_runtime::{
     AgentActionReceipt, AgentActionRequest, SafeAgentRuntime, AGENT_TOKEN_MAX_TTL_SECS,

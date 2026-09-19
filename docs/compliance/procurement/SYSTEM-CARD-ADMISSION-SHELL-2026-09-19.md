@@ -70,7 +70,7 @@ From `docs/GATE_EVAL.md` (do not silently delete):
 
 ## 6. Human-in-the-loop
 
-The employ loop ends in **human Act**. Fluency is not permission. Override, if added, must record: actor, timestamp, rationale, previous verdict, new verdict, policy version.
+The employ loop ends in **human Act**. Fluency is not permission. Override, if added, must record: actor, timestamp, rationale, previous verdict, new verdict, policy version. Schema: [`DECISION-RECORD-SCHEMA.md`](DECISION-RECORD-SCHEMA.md) (not a SIEM; not EU AI Act logging).
 
 ## 7. Rollback / kill switch (pilot)
 

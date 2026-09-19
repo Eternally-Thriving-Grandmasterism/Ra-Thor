@@ -10,6 +10,7 @@ These files translate the existing claim lock into the language high-stakes buye
 | File | Role |
 | --- | --- |
 | [`SYSTEM-CARD-ADMISSION-SHELL-2026-09-19.md`](SYSTEM-CARD-ADMISSION-SHELL-2026-09-19.md) | Intended use, out-of-scope, failure modes |
+| [`DECISION-RECORD-SCHEMA.md`](DECISION-RECORD-SCHEMA.md) | Replayable admit/block/override JSON — not a SIEM, not EU AI Act logging |
 | [`BUYER-EVIDENCE-PACK-2026-09-19.md`](BUYER-EVIDENCE-PACK-2026-09-19.md) | Scoring-sheet walk; what exists vs missing |
 | [`NIST-ISO-CONTROL-MAP-2026-09-19.md`](NIST-ISO-CONTROL-MAP-2026-09-19.md) | Control IDs → HEAD artifact → coverage tag |
 | [`PILOT-SOW-AND-LIMITS-MEMO-2026-09-19.md`](PILOT-SOW-AND-LIMITS-MEMO-2026-09-19.md) | Time-boxed pilot, kill switch, limits |
