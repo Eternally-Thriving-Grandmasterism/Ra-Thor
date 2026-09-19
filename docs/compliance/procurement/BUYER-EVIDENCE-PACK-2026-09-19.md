@@ -32,7 +32,7 @@ That is why a buyer can need a control layer and still treat a sole steward as a
 | System card | Intended use, out-of-scope, failure modes | `SYSTEM-CARD-ADMISSION-SHELL-2026-09-19.md` | DRAFT |
 | Data-flow diagram | On-device vs wrap vs third-party model | `MODEL-MAP-EGRESS-2026-08-31.md` + system card §4 | DRAFT inventory |
 | Control map | NIST functions or ISO 42001 Annex A | `NIST-ISO-CONTROL-MAP-2026-09-19.md` | PARTIAL / NONE tagged |
-| Logging | Who admitted, blocked, overrode + retention | Schema proposed in Cursor prompt A; not a hash-chained export yet | GAP |
+| Logging | Who admitted, blocked, overrode + retention | `DECISION-RECORD-SCHEMA.md` + `mercy-security::DecisionRecord` (#543). Schema exists; not a hash-chained SIEM. | PARTIAL |
 | HITL + rollback | Procedure | System card §6–7; employ loop ends in human Act | DRAFT |
 | Pilot SOW + kill switch + limits memo | Time-boxed, written limits | `PILOT-SOW-AND-LIMITS-MEMO-2026-09-19.md` | DRAFT |
 | Key-person + escrow | Buyer not married to one operator | `HIRE-PARTNER-LATER-PLAN-2026-09-19.md` | GAP / later |
@@ -41,6 +41,8 @@ That is why a buyer can need a control layer and still treat a sole steward as a
 | Audited financials | Going-concern | None in-repo | NONE |
 | ISO 42001 certificate | Accredited auditor | HOLD application. AIMS skeleton only | HOLD |
 | METR-style measurement | Independent time-horizon | Explicitly not claimed | NONE |
+
+Logging row after Prompt A: GAP → PARTIAL because the schema file exists; it is not a hash-chained SIEM.
 
 ---
 

@@ -19,4 +19,6 @@ These files translate the existing claim lock into the language high-stakes buye
 
 Minute: [`../../science/PATSAGI-COUNCIL-MINUTE-2026-09-19-PROCUREMENT-READINESS.md`](../../science/PATSAGI-COUNCIL-MINUTE-2026-09-19-PROCUREMENT-READINESS.md)
 
+Egress survey (Prompt E §4): [`../MODEL-MAP-EGRESS-2026-08-31.md`](../MODEL-MAP-EGRESS-2026-08-31.md).
+
 Parent index: [`../README.md`](../README.md)
