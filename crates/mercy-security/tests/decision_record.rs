@@ -161,3 +161,83 @@ fn human_override_records_actor_rationale_and_prev_verdict() {
     // Unattended path is unchanged by the override constructor.
     assert!(IngestionScanner::admit_or_block(&text).is_err());
 }
+
+/// GE-GAP-HUMAN-OVERRIDE — public blocked ingest + companion override note.
+/// Docs+test completeness only. Not a claim that override is safe.
+#[test]
+fn human_override_blocked_public_fixture_is_complete() {
+    let ingest = public_fixture("blocked/human_override_classroom_demo.txt");
+    let note = public_fixture("human-override/classroom_demo.override.md");
+
+    assert!(
+        ingest.contains("trust_remote_code"),
+        "blocked override fixture must remain a pattern marker"
+    );
+    assert!(
+        IngestionScanner::admit_or_block(&ingest).is_err(),
+        "unattended Medium+ must still BLOCK; human_override is not a scanner bypass"
+    );
+
+    let blocked = DecisionRecord::from_unattended_ingest(&ingest);
+    assert_eq!(blocked.verdict, DecisionVerdict::Block);
+    assert_eq!(blocked.actor, DecisionActor::Unattended);
+    assert!(blocked.override_rationale.is_none());
+    assert!(blocked.prev_verdict.is_none());
+
+    let empty = DecisionRecord::human_override(&blocked, "");
+    assert!(
+        matches!(empty, Err(DecisionRecordError::Refused(ref msg) if msg.contains("override_rationale"))),
+        "empty rationale must be refused: {empty:?}"
+    );
+    let whitespace = DecisionRecord::human_override(&blocked, "   \n\t  ");
+    assert!(
+        matches!(whitespace, Err(DecisionRecordError::Refused(_))),
+        "whitespace-only rationale must be refused: {whitespace:?}"
+    );
+
+    let rationale = note.trim();
+    assert!(
+        !rationale.is_empty(),
+        "companion override note must be non-empty rationale"
+    );
+    assert!(
+        IngestionScanner::admit_or_block(rationale).is_ok(),
+        "companion override note is rationale prose, not a second blocked ingest"
+    );
+
+    let over = DecisionRecord::human_override(&blocked, rationale)
+        .expect("companion note is a non-empty rationale");
+    assert_eq!(over.actor, DecisionActor::Human);
+    assert_eq!(over.verdict, DecisionVerdict::Override);
+    assert_eq!(over.prev_verdict, Some(DecisionVerdict::Block));
+    assert_eq!(over.payload_sha256, blocked.payload_sha256);
+    let logged_rationale = over
+        .override_rationale
+        .as_deref()
+        .expect("override must carry rationale");
+    assert!(!logged_rationale.trim().is_empty());
+    assert_eq!(logged_rationale, rationale);
+
+    let json = over.to_log_json().expect("serialize override log");
+    let back = DecisionRecord::from_log_json(&json).expect("deserialize override log");
+    assert_eq!(over, back);
+    assert!(
+        !json.contains(&ingest),
+        "to_log_json must not contain the raw blocked ingest"
+    );
+    assert!(
+        !json.contains("DEFENSIVE TEST FIXTURE"),
+        "to_log_json must not contain the ingest fixture header"
+    );
+    assert!(
+        !json.contains("trust_remote_code"),
+        "to_log_json must not contain the raw loader marker"
+    );
+    assert!(
+        json.contains("\"verdict\":\"override\"") || json.contains("\"verdict\": \"override\""),
+        "log must name verdict=override: {json}"
+    );
+
+    // Constructor does not change the living unattended gate.
+    assert!(IngestionScanner::admit_or_block(&ingest).is_err());
+}
