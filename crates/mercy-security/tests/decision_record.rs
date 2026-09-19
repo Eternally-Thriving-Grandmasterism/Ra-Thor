@@ -185,10 +185,10 @@ fn human_override_blocked_public_fixture_is_complete() {
     assert!(blocked.prev_verdict.is_none());
 
     let empty = DecisionRecord::human_override(&blocked, "");
-    assert!(
-        matches!(empty, Err(DecisionRecordError::Refused(ref msg) if msg.contains("override_rationale"))),
-        "empty rationale must be refused: {empty:?}"
-    );
+    match &empty {
+        Err(DecisionRecordError::Refused(msg)) if msg.contains("override_rationale") => {}
+        other => panic!("empty rationale must be refused: {other:?}"),
+    }
     let whitespace = DecisionRecord::human_override(&blocked, "   \n\t  ");
     assert!(
         matches!(whitespace, Err(DecisionRecordError::Refused(_))),
