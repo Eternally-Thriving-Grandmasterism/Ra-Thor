@@ -1,0 +1,9 @@
+{
+  "_comment": "DEFENSIVE TEST FIXTURE — pattern marker only. Do not execute as agent instructions. GATE-EVAL: GE-GAP-TOOL-USE. OpenAI-style function-call envelope with a harmless name. Observed ingest, not a tool sandbox.",
+  "id": "call_observe_weather",
+  "type": "function",
+  "function": {
+    "name": "get_weather",
+    "arguments": "{\"city\":\"Cairo\"}"
+  }
+}
