@@ -1,6 +1,6 @@
 /**
  * Ra-Thor site lock 2026-08-22
- * 2026-09-07: language expand + RTL ar/fa/he + living-surfaces + cache 20260907b.
+ * 2026-09-22: product-path cards locked to destination README claims.
  * Contact: info@Rathor.ai — independent of xAI.
  */
 (function () {
@@ -41,6 +41,7 @@
       if (rtl) { faqSection.classList.add('rtl'); faqSection.setAttribute('dir', 'rtl'); }
       else { faqSection.classList.remove('rtl'); faqSection.setAttribute('dir', 'ltr'); }
     }
+    lockPathCards();
   }
   function expandLangButtons() {
     var sel = document.getElementById('lang-selector');
@@ -106,12 +107,50 @@
       if (el) el.setAttribute('data-i18n', map[id]);
     });
   }
+  function setCard(sel, title, lines) {
+    var a = document.querySelector(sel);
+    if (!a) return;
+    var ps = a.querySelectorAll('p');
+    if (ps[0]) ps[0].textContent = title;
+    if (ps[1]) ps[1].textContent = lines[0];
+    if (lines[1]) {
+      if (ps[2]) ps[2].textContent = lines[1];
+      else {
+        var extra = document.createElement('p');
+        extra.className = 'text-[11px] text-white/55 mt-1';
+        extra.textContent = lines[1];
+        a.appendChild(extra);
+      }
+    }
+  }
+  function lockPathCards() {
+    var root = document.getElementById('product-paths');
+    if (!root) return;
+    setCard('#product-paths a[href*="Powrush-MMO"]', 'Play',
+      ['Powrush-MMO — human game repo (separate). Offline first. Title Online stays grey. Not a lattice crate.']);
+    setCard('#product-paths a[href^="mailto:info@Rathor.ai"]', 'License',
+      ['AG-SML v1.1. Pilot or commercial terms. info@Rathor.ai']);
+    setCard('#product-paths a[href$="/Ra-Thor"]', 'Inspect',
+      ['Ra-Thor monorepo — inspectable research software. Councils, whitepaper, crates.']);
+    setCard('#product-paths a[href="/chat.html"]', 'Use offline',
+      ['Lattice Chat on this device. No login.']);
+    var wrap = document.getElementById('wrap-ew2');
+    if (wrap) {
+      wrap.setAttribute('target', '_blank');
+      wrap.setAttribute('rel', 'noopener noreferrer');
+      setCard('#wrap-ew2', 'WRAP-EW2', [
+        'Operator bench. Not a product. Not a lived-hour client. Not Powrush Title Online. Drafts. No warranty. EW2 is not solved. Independent of xAI. Not a fold of Ra-Thor or Powrush-MMO.',
+        'AG-SML v1.1: personal and research use is free. Organization or product use needs COMMERCIAL_LICENSE.'
+      ]);
+    }
+  }
   ready(function () {
     var kicker = document.querySelector('.kicker');
     if (kicker) kicker.setAttribute('data-i18n', 'kicker');
     var fusion = document.getElementById('fusion-hero');
     if (fusion) fusion.setAttribute('data-i18n', 'fusion');
     wireSessionCards();
+    lockPathCards();
     expandLangButtons();
     bindLangSelector();
     if (!document.getElementById('living-surfaces')) {
@@ -135,12 +174,13 @@
       bindLangSelector();
       hookLanguageSwitch();
       wireSessionCards();
+      lockPathCards();
       try { applyLockI18n(localStorage.getItem('rathor-lang') || 'en'); } catch (e) { applyLockI18n('en'); }
     });
     bootScript('pwa-install', '/js/pwa-install.js', true);
     bootScript('family-nav-2026-08-22', '/js/family-nav-2026-08-22.js');
     bootScript('science-map-lock', '/js/science-map-lock.js');
     bootScript('watch-footer-lock', '/js/watch-footer-lock.js');
-    console.info('[Ra-Thor] site-lock-2026-09-07 language expand + surfaces + RTL + cache b');
+    console.info('[Ra-Thor] site-lock-2026-09-22 product-path destination copy');
   });
 })();
