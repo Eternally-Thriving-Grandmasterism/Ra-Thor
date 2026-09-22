@@ -67,6 +67,9 @@
   background: var(--rt-wash);
   outline: none;
 }
+#product-paths a#wrap-ew2 {
+  grid-column: 1 / -1;
+}
 #product-paths a p {
   margin: 0;
   text-decoration: none !important;
