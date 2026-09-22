@@ -75,7 +75,7 @@ Not in this survey: `employ.html`, Launch / Shard / Forge / Contact bodies, arch
 | `js/google-translate-optin.js` | `googleHref` | User-opened card | New tab to `translate.google.com` with `u=https://rathor.ai` + path |
 | `js/family-nav-2026-08-22.js` | Follow / GitHub `<a href>` | User-opened card | Navigation the user clicks |
 | `js/science-map-lock.js` | GitHub work-card `<a href>` | User-opened card | Injected on science-map pages; hrefs only |
-| `js/week-window.js` | `fetch('/js/week-window.json', { credentials: 'same-origin' })` | Same-origin presentation | Date stamp JSON. Not chat bytes. |
+| `js/week-window.js` | none (display no-op as of Recent Updates) | Same-origin presentation | Does not fetch. Does not paint a date range. Not chat bytes. |
 | `sw.js` | `fetch` inside `fetch` handler | Same-origin cache | `if (url.origin !== self.location.origin) return`. GET only. Not chat POST. |
 | `index.html` / `js/site-lock-2026-08-22.js` / `js/pwa-install.js` | `createElement('script')` / `serviceWorker.register('/sw.js')` | Same-origin presentation | First-party `/i18n/{lang}.js`, `/js/*`. Not a model API. |
 | `js/chat.js` | `connectBackend` → `fetch(endpoint + '/models')` | Live client | GET to user-typed URL (default `http://localhost:11434/v1`). No chat body. |

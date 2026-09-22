@@ -1,8 +1,9 @@
 /* js/i18n-chrome.js
  * Offline chrome-only i18n + per-node dir.
  * Workspace 14.15.6 · info@Rathor.ai
- * Long copy (Employ body, Privacy body, FAQ answers, week research footnote)
- * stays English in git. Missing key → English. Never blank. Never invent METR.
+ * Long copy (Employ body, Privacy body, FAQ answers)
+ * stays English in git until site-lock applies a pack. Missing key → English.
+ * Never blank. Never invent METR. Recent Updates lines are chrome.
  * dir=rtl only when the applied string for that node is actually RTL.
  */
 (function (root) {
@@ -17,7 +18,7 @@
     navShard: 1, navForge: 1, navContact: 1, navPrivacy: 1,
     followTitle: 1, followX: 1, followLinkedIn: 1, followFacebook: 1,
     headline: 1, fusion: 1, kicker: 1,
-    weekTitle: 1, weekLineRa: 1, weekLinePowrush: 1, weekMore: 1,
+    weekTitle: 1, weekLineWrap: 1, weekLineRa: 1, weekLinePowrush: 1, weekLineResearch: 1, weekMore: 1,
     grokTitle: 1, grokSubtitle: 1, grokCta: 1,
     xTitle: 1, xSubtitle: 1, xCta: 1,
     vibeTitle: 1, vibeSubtitle: 1, vibeCta: 1,
@@ -37,7 +38,6 @@
 
   function isLongCopyKey(key) {
     if (!key) return true;
-    if (key === 'weekLineResearch') return true;
     if (/^faqA\d+$/.test(key)) return true;
     if (/^faqQ\d+$/.test(key)) return true;
     if (key.indexOf('footer') === 0) return true;

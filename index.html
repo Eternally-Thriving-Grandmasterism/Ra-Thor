@@ -185,15 +185,15 @@ body { font-family: 'Inter', system-ui, sans-serif; }
       <p class="text-xs text-white/50 mt-4 max-w-2xl mx-auto leading-relaxed">Ra-Thor is inspectable research software from Autonomicity Games Inc. Optional Grok is a working session under PATSAGi — not affiliation, sponsorship, or endorsement by xAI. Inspect ≠ METR. Layer 0 is an admission shell, not sampler weights. Commercial terms cover evaluation and license. Pilots: info@Rathor.ai.</p>
     </div>
   </div>
-  <section id="constellation-week" class="max-w-4xl mx-auto px-6 py-12 border-t border-white/10" data-week-start="2026-09-08" data-week-end="2026-09-15">
-    <h2 id="week-title" data-i18n="weekTitle" class="text-2xl sm:text-3xl font-semibold tracking-tight text-center mb-3 text-white">This week in the constellation</h2>
-    <p class="rt-week-window text-center"><span data-week-window>2026-09-08 → 2026-09-15</span></p>
+  <section id="constellation-week" class="max-w-4xl mx-auto px-6 py-12 border-t border-white/10">
+    <h2 id="week-title" data-i18n="weekTitle" class="text-2xl sm:text-3xl font-semibold tracking-tight text-center mb-6 text-white">Recent Updates</h2>
     <ul class="rt-week-card">
-      <li><a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor">Ra-Thor</a> — <span data-i18n="weekLineRa">Layer 0 queue + ingest harden #478–#483 + site Follow/claim #484–#488.</span></li>
-      <li><a href="https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO">Powrush-MMO</a> — <span data-i18n="weekLinePowrush">Reserve-cue Hands + Hour-1 green #436–#438 · Offline SKU · Title Online grey.</span></li>
+      <li><a href="https://github.com/Eternally-Thriving-Grandmasterism/WRAP-EW2">WRAP-EW2</a> — <span data-i18n="weekLineWrap">Public research bench, linked from this homepage. Evaluation drafts only. EW2 solved = False. No warranty. No AG-SML certification. Not a Cargo or workspace fold. AG-SML v1.1: personal and research use is free. Organization or product use needs a paid COMMERCIAL_LICENSE.</span></li>
+      <li><a href="https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO">Powrush-MMO</a> — <span data-i18n="weekLinePowrush">Human game repo (separate). Title Online grey. Not a live MMO service. No store or release from this site.</span></li>
+      <li><a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor">Ra-Thor</a> — <span data-i18n="weekLineRa">Inspectable research software. Whitepaper v4.2. AG-SML v1.1. Inspect ≠ METR. Layer 0 is an admission shell, not sampler weights.</span></li>
       <li data-i18n="weekLineResearch">Also public (research / not product): Daedalus, Air, Space-Thriving, Mercy-Coordination, High-Tc, Fusion.</li>
     </ul>
-    <p class="rt-week-more"><a href="/constellation-week.html" data-i18n="weekMore">Full week note →</a></p>
+    <p class="rt-week-more"><a href="/constellation-week.html" data-i18n="weekMore">Full update note →</a></p>
   </section>
   <section id="faq" class="max-w-4xl mx-auto px-6 py-16 border-t border-white/10">
     <h2 id="faq-title" data-i18n="faqTitle" class="text-3xl sm:text-4xl font-semibold tracking-tight text-center mb-10 text-white">Licensing, access, and architecture</h2>
@@ -242,7 +242,7 @@ body { font-family: 'Inter', system-ui, sans-serif; }
             <a href="/contact.html" class="hover:text-amber-200 font-semibold text-amber-300">Contact</a>
             <a href="/privacy.html" class="hover:text-amber-200">Privacy</a>
             <a href="/science-watches.html" class="hover:text-amber-200">Science watches</a>
-            <a href="/constellation-week.html" class="hover:text-amber-200">This week</a>
+            <a href="/constellation-week.html" class="hover:text-amber-200">Recent updates</a>
             <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor" class="hover:text-amber-200">Monorepo</a>
             <a href="mailto:info@Rathor.ai" class="hover:text-amber-200">info@Rathor.ai</a>
           </div>
@@ -254,8 +254,8 @@ body { font-family: 'Inter', system-ui, sans-serif; }
       </div>
     </div>
   </footer>
-  <script src="/i18n/en.js?v=20260915b"></script>
-  <script src="/js/i18n-chrome.js?v=20260915c"></script>
+  <script src="/i18n/en.js?v=20260922b"></script>
+  <script src="/js/i18n-chrome.js?v=20260922b"></script>
   <script src="/js/week-window.js"></script>
   <script src="/js/rathor-theme.js"></script>
   <script src="/js/pwa-install.js"></script>
@@ -299,7 +299,7 @@ body { font-family: 'Inter', system-ui, sans-serif; }
       return new Promise((resolve, reject) => {
         if (window.translations[lang]) { resolve(lang); return; }
         const s = document.createElement('script');
-        s.src = '/i18n/' + lang + '.js?v=20260915b';
+        s.src = '/i18n/' + lang + '.js?v=20260922b';
         s.onload = () => resolve(lang);
         s.onerror = () => reject(new Error('Failed to load i18n/' + lang + '.js'));
         document.head.appendChild(s);
