@@ -118,7 +118,7 @@ a.rt-card-uniform h3 {
   .rt-card-uniform {
     min-height: 0 !important;
     height: auto !important;
-    overflow: hidden;
+    overflow: visible;
     display: flex;
     flex-direction: column;
     margin-bottom: 0.85rem;
