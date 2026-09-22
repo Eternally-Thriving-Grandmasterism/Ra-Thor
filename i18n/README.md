@@ -1,6 +1,6 @@
 # Rathor.ai homepage locale packs
 
-**Cache token:** `20260915c` (`i18n-chrome.js`) · packs still `?v=20260915b`  
+**Cache token:** `20260922b` (`i18n-chrome.js` and packs)  
 **Source of truth:** `i18n/en.js`  
 **Contact:** info@Rathor.ai
 
@@ -13,7 +13,7 @@ Offline packs translate **chrome**, not essays. Future copy edits to Employ / Pr
 - family labels — `navHome` … `navPrivacy`
 - Follow — `followTitle`, `followX`, `followLinkedIn`, `followFacebook`
 - hero / subhead — `headline`, `fusion`, `kicker`
-- week lines — `weekTitle`, `weekLineRa`, `weekLinePowrush`, `weekMore`
+- recent updates — `weekTitle`, `weekLineWrap`, `weekLineRa`, `weekLinePowrush`, `weekLineResearch`, `weekMore`
 - session cards — titles, subtitles, CTAs (`grok*` `x*` `vibe*` `employCta`)
 - Employ chrome — `employTitle`, `employSubtitle`
 - Contact inquiry — `contactInquiry`
@@ -24,15 +24,14 @@ Offline packs translate **chrome**, not essays. Future copy edits to Employ / Pr
 - Employ body (`article.rt-prose`)
 - Privacy body
 - FAQ answers (`faqA*`) and FAQ questions (`faqQ*`)
-- week research footnote (`weekLineResearch`)
 
-Missing key → English. Never blank. Never invent METR.
+Missing key → English. Never blank. Never invent METR. Recent Updates lines are chrome, including `weekLineResearch`. The homepage site-lock still applies FAQ packs after chrome.
 
 ## Direction
 
 `dir=rtl` only when the **applied string** for that node is actually RTL (`ar` / `fa` / `he` script). English fallback forces `dir=ltr` on that node. If most chrome nodes fell back, `<main>` stays `ltr`. `html[dir]` follows chrome only — not the language code alone. `<article>` / `.rt-prose` stay `dir=ltr lang=en` until a real translation exists. Family pill row stays Home…Privacy left-to-right (do not mirror).
 
-Buttons on `index.html` load `/i18n/{lang}.js?v=20260915b`.
+Buttons on `index.html` load `/i18n/{lang}.js?v=20260922b`.
 
 Service worker precaches `/i18n/*.js`. Offline packs are the product UX. Google Translate is a **new-tab URL** (`js/google-translate-optin.js`) — it does **not** inject `translate.google.com` (COEP `require-corp` would fail a widget). Do not relax COEP on `/chat.html` or worker paths.
 
