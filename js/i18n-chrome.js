@@ -38,10 +38,21 @@
     surfaceMap: 1, surfaceMapNote: 1,
     surfaceShard: 1, surfaceShardNote: 1,
     surfaceRepo: 1, surfaceRepoNote: 1,
-    homeSurfacePaper: 1, homeSurfacePaperNote: 1
+    homeSurfacePaper: 1, homeSurfacePaperNote: 1,
+    chatTitle: 1, chatSubtitle: 1, chatOfflineMercy: 1,
+    chatPathFast: 1, chatPathServer: 1, chatLocalIntel: 1,
+    chatStatusDefault: 1, chatNotAvailable: 1, chatLocalNote: 1,
+    chatSearch: 1, chatSpeak: 1, chatSend: 1, chatSessionFoot: 1,
+    chatBridgeTitle: 1, chatBridgeBody: 1,
+    chatCopyTitle: 1, chatCopyContext: 1, chatOpenGrok: 1, chatOpenX: 1,
+    chatReplyHello: 1, chatReplyWho: 1, chatReplyTolc: 1, chatReplyPrivacy: 1,
+    chatReplyOffline: 1, chatReplyLocal: 1, chatReplyOllama: 1, chatReplyDoc: 1,
+    chatReplySearch: 1, chatReplyLicense: 1, chatReplyPowrush: 1, chatReplyCopy: 1,
+    chatReplyHelp: 1, chatReplyThanks: 1, chatReplyBye: 1, chatReplyMercy: 1,
+    chatReplyEmpty: 1, chatReplyFallback: 1
   };
 
-  var PACK_V = '20260923d';
+  var PACK_V = '20260923e';
 
   var NAV_BY_HREF = {
     '/': 'navHome',
@@ -204,7 +215,9 @@
       var picked = pick(lang, key);
       if (picked.val == null) continue;
       applied++;
-      if (el.hasAttribute('data-i18n-html')) el.innerHTML = picked.val;
+      var attrName = el.getAttribute('data-i18n-attr');
+      if (attrName) el.setAttribute(attrName, picked.val);
+      else if (el.hasAttribute('data-i18n-html')) el.innerHTML = picked.val;
       else el.textContent = picked.val;
       var rtl = !picked.fallback && isRtlText(picked.val);
       setDir(el, rtl, lang);
@@ -274,7 +287,13 @@
     return rtl;
   }
 
+  function chatSurfaceDir(text, lang) {
+    var rtl = isRtlText(text);
+    return { dir: rtl ? 'rtl' : 'ltr', lang: rtl ? (lang || 'ar') : 'en' };
+  }
+
   root.rtIsRtlText = isRtlText;
+  root.rtChatSurfaceDir = chatSurfaceDir;
   root.rtIsChromeKey = isChromeKey;
   root.rtIsLongCopyKey = isLongCopyKey;
   root.rtPickChrome = pick;

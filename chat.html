@@ -93,8 +93,8 @@
 
   <header class="relative z-10 border-b border-amber-300/20 bg-black/90">
     <div class="max-w-3xl mx-auto px-3 sm:px-4 py-3 text-center">
-      <h1 class="title-font text-lg sm:text-xl font-black tracking-tight thunder-glow">Lattice Chat ⚡️</h1>
-      <p class="text-[10px] text-amber-400/70 mt-0.5">v14.18.x • workspace 14.15.6 • TOLC 8 • family bar shared</p>
+      <h1 class="title-font text-lg sm:text-xl font-black tracking-tight thunder-glow" data-i18n="chatTitle">Lattice Chat ⚡️</h1>
+      <p class="text-[10px] text-amber-400/70 mt-0.5" data-i18n="chatSubtitle">v14.18.x • workspace 14.15.6 • TOLC 8 • family bar shared</p>
     </div>
   </header>
 
@@ -103,10 +103,10 @@
       <div class="flex flex-wrap items-center gap-1.5 mb-2">
         <span class="inline-flex items-center gap-1.5 text-amber-400 text-xs font-medium">
           <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
-          Offline Mercy Thunder
+          <span data-i18n="chatOfflineMercy">Offline Mercy Thunder</span>
         </span>
         <span class="text-white/30 text-xs">•</span>
-        <span id="active-path-badge" class="path-badge">Fast Responder</span>
+        <span id="active-path-badge" class="path-badge" data-i18n="chatPathFast">Fast Responder</span>
         <span id="encrypt-status" class="encrypt-badge hidden"><i class="fa-solid fa-lock text-[9px]"></i> Encrypted</span>
         <span id="session-meta" class="text-white/40 text-xs ml-auto"></span>
       </div>
@@ -116,11 +116,11 @@
         <button id="rename-session-btn" class="ctrl-btn" title="Rename"><i class="fa-solid fa-pen"></i></button>
         <button id="delete-session-btn" class="ctrl-btn" title="Delete"><i class="fa-solid fa-trash"></i></button>
         <span class="text-white/15 mx-0.5">|</span>
-        <input id="search-input" type="search" placeholder="Search…" title="Search current session">
+        <input id="search-input" type="search" placeholder="Search…" title="Search current session" data-i18n="chatSearch" data-i18n-attr="placeholder">
         <button id="export-session-btn" class="ctrl-btn" title="Export"><i class="fa-solid fa-download"></i></button>
         <button id="export-all-btn" class="ctrl-btn" title="Export All"><i class="fa-solid fa-file-export"></i></button>
         <button id="import-session-btn" class="ctrl-btn" title="Import"><i class="fa-solid fa-upload"></i></button>
-        <button id="copy-context-btn" class="ctrl-btn" title="Copy Context"><i class="fa-solid fa-clipboard"></i></button>
+        <button id="copy-context-btn" class="ctrl-btn" title="Copy Context" data-i18n="chatCopyTitle" data-i18n-attr="title"><i class="fa-solid fa-clipboard"></i></button>
         <button id="voice-settings-btn" class="ctrl-btn" title="Voice / TTS"><i class="fa-solid fa-volume-high"></i></button>
         <button id="encrypt-btn" class="ctrl-btn" title="Optional Passphrase Encryption"><i class="fa-solid fa-lock"></i></button>
       </div>
@@ -129,12 +129,12 @@
     <div class="mb-2.5 rounded-2xl border border-amber-400/25 bg-zinc-950/20 px-3 py-2.5">
       <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
         <div class="min-w-0">
-          <p class="text-amber-200 text-sm font-medium">Local Intelligence</p>
-          <p id="local-llm-status" class="text-[11px] text-white/50 mt-0.5 truncate">Fast responder active (default)</p>
+          <p class="text-amber-200 text-sm font-medium" data-i18n="chatLocalIntel">Local Intelligence</p>
+          <p id="local-llm-status" class="text-[11px] text-white/50 mt-0.5 truncate" data-i18n="chatStatusDefault">Fast responder active (default)</p>
         </div>
         <div class="flex gap-1.5">
           <button id="local-llm-btn" class="ctrl-btn border-amber-400/50 text-amber-200 shrink-0"><i class="fa-solid fa-microchip"></i> WebLLM</button>
-          <button id="local-backend-btn" class="ctrl-btn border-cyan-400/50 text-cyan-200 shrink-0"><i class="fa-solid fa-server"></i> Local Server</button>
+          <button id="local-backend-btn" class="ctrl-btn border-cyan-400/50 text-cyan-200 shrink-0"><i class="fa-solid fa-server"></i> <span data-i18n="chatPathServer">Local Server</span></button>
         </div>
       </div>
       <div id="backend-settings" class="hidden mt-2 pt-2 border-t border-amber-400/15">
@@ -157,7 +157,7 @@
       <div class="mt-2 h-1 bg-zinc-800 rounded-full overflow-hidden">
         <div id="local-llm-progress" class="h-full bg-amber-400 transition-all duration-300" style="width:0%"></div>
       </div>
-      <p id="local-llm-note" class="text-[10px] text-white/40 mt-1.5 leading-snug">WebLLM = pure browser. Local Server = Ollama / LM Studio / any OpenAI-compatible endpoint on your machine.</p>
+      <p id="local-llm-note" class="text-[10px] text-white/40 mt-1.5 leading-snug" data-i18n="chatLocalNote">WebLLM = pure browser. Local Server = Ollama / LM Studio / any OpenAI-compatible endpoint on your machine.</p>
     </div>
 
     <div id="docs-bar" class="mb-2 hidden flex flex-wrap items-center gap-1"></div>
@@ -165,23 +165,23 @@
 
     <div class="rounded-2xl border border-amber-300/30 bg-zinc-950/90 p-2.5">
       <div class="input-row">
-        <input id="chat-input" type="text" placeholder="Speak your truth…" autocomplete="off">
+        <input id="chat-input" type="text" placeholder="Speak your truth…" autocomplete="off" data-i18n="chatSpeak" data-i18n-attr="placeholder">
         <button id="doc-btn" title="Upload document to inject into context"><i class="fa-solid fa-file-lines"></i></button>
         <button id="mic-btn" title="Voice input (STT)"><i class="fa-solid fa-microphone"></i></button>
-        <button id="send-btn">Send <span>⚡️</span></button>
+        <button id="send-btn"><span data-i18n="chatSend">Send</span> <span>⚡️</span></button>
       </div>
-      <p class="text-[10px] text-white/40 mt-1.5 text-center leading-snug">Local session store • Multi-session • Optional passphrase (PBKDF2 + AES-GCM) • No backend we control</p>
+      <p class="text-[10px] text-white/40 mt-1.5 text-center leading-snug" data-i18n="chatSessionFoot">Local session store • Multi-session • Optional passphrase (PBKDF2 + AES-GCM) • No backend we control</p>
     </div>
 
     <div class="mt-4 rounded-2xl border border-violet-400/30 bg-violet-950/20 px-3.5 py-4 text-center">
-      <p class="text-violet-200 font-medium text-sm mb-1">Bridge to any cloud LLM</p>
-      <p class="text-[11px] text-white/50 mb-3.5 leading-relaxed max-w-sm mx-auto">Recommended on phones: copy a clean system prompt + history, then paste into Grok, Claude, Gemini, ChatGPT, or any model.</p>
+      <p class="text-violet-200 font-medium text-sm mb-1" data-i18n="chatBridgeTitle">Bridge to any cloud LLM</p>
+      <p class="text-[11px] text-white/50 mb-3.5 leading-relaxed max-w-sm mx-auto" data-i18n="chatBridgeBody">Recommended on phones: copy a clean system prompt + history, then paste into Grok, Claude, Gemini, ChatGPT, or any model.</p>
       <button id="copy-context-btn-alt" class="inline-flex items-center justify-center gap-2 w-full max-w-xs mx-auto px-5 py-2.5 rounded-xl bg-violet-500/20 border border-violet-400 text-violet-200 text-sm font-medium mb-3">
-        <i class="fa-solid fa-clipboard"></i> Copy Context for any LLM
+        <i class="fa-solid fa-clipboard"></i> <span data-i18n="chatCopyContext">Copy Context for any LLM</span>
       </button>
       <div class="flex flex-col gap-2 max-w-xs mx-auto">
-        <a href="https://grok.com/share/c2hhcmQtMi1jb3B5_1f46e31d-9fe1-4982-a5e6-5a27e7517052" target="_blank" rel="noopener" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-sky-300/50 text-sky-200 text-sm"><i class="fa-solid fa-bolt"></i> Open Grok Demo</a>
-        <a href="/go-x.html" target="_blank" rel="noopener" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-cyan-300/40 text-cyan-200 text-sm"><i class="fa-brands fa-x-twitter"></i> Open X Demo</a>
+        <a href="https://grok.com/share/c2hhcmQtMi1jb3B5_1f46e31d-9fe1-4982-a5e6-5a27e7517052" target="_blank" rel="noopener" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-sky-300/50 text-sky-200 text-sm"><i class="fa-solid fa-bolt"></i> <span data-i18n="chatOpenGrok">Open Grok Demo</span></a>
+        <a href="/go-x.html" target="_blank" rel="noopener" class="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-cyan-300/40 text-cyan-200 text-sm"><i class="fa-brands fa-x-twitter"></i> <span data-i18n="chatOpenX">Open X Demo</span></a>
       </div>
     </div>
   </main>
@@ -231,8 +231,8 @@
   </script>
   <script src="/js/rathor-theme.js"></script>
   <script src="/js/pwa-install.js" defer></script>
-  <script src="/i18n/en.js?v=20260923d"></script>
-  <script src="/js/i18n-chrome.js?v=20260923d"></script>
+  <script src="/i18n/en.js?v=20260923e"></script>
+  <script src="/js/i18n-chrome.js?v=20260923e"></script>
   <script src="/js/family-nav-2026-08-22.js" defer></script>
   <script src="/js/site-lock-2026-08-22.js"></script>
 </body>
