@@ -99,6 +99,8 @@ Sister map (docs, not Cargo): [`docs/SISTER_ADOPTION.md`](SISTER_ADOPTION.md). L
 
 ## D. Launch from root Cargo.toml
 
+Stranger hello-path (15 min): [`RUNBOOK_15_MIN.md`](RUNBOOK_15_MIN.md).
+
 Default members only. Quoted from current `[workspace]` `members`:
 
 ```toml

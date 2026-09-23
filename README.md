@@ -268,6 +268,8 @@ Production implementation lives in `crates/github-connector`. `get_tree_safe` re
 
 ## Getting started
 
+Stranger hello-path (15 min): docs/RUNBOOK_15_MIN.md
+
 ```bash
 git clone https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor.git
 cd Ra-Thor
