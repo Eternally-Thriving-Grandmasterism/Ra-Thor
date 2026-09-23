@@ -102,7 +102,7 @@ body { font-family: 'Inter', system-ui, sans-serif; }
   <div class="min-h-screen flex flex-col items-center justify-center relative px-4 sm:px-6 py-12">
     <div class="max-w-3xl mx-auto text-center z-10 w-full">
 
-      <div id="lang-selector" class="flex flex-wrap justify-center gap-2 mb-8">
+      <div id="lang-selector" dir="ltr" class="flex flex-wrap justify-center gap-2 mb-8">
         <button type="button" data-lang="en" class="lang-tab active px-4 py-2 rounded-3xl border border-amber-300 text-amber-300 text-sm">English</button>
         <button type="button" data-lang="ar" class="lang-tab px-4 py-2 rounded-3xl border border-amber-300 text-amber-300 text-sm">العربية</button>
         <button type="button" data-lang="es" class="lang-tab px-4 py-2 rounded-3xl border border-amber-300 text-amber-300 text-sm">Español</button>
@@ -143,35 +143,35 @@ body { font-family: 'Inter', system-ui, sans-serif; }
       </div>
 
       <section id="commercial-inquiry" class="card-hover bg-zinc-950 border border-amber-300/30 rounded-3xl p-8 sm:p-10 mb-10 max-w-xl mx-auto text-left">
-        <h2 class="text-2xl font-semibold text-amber-300 mb-3">AG-SML commercial inquiry</h2>
-        <p class="text-white/80 text-sm leading-relaxed mb-6">Personal / education / modest freelance remains free under AG-SML v1.1. This form is for organization or revenue-generating use. A human replies. There is no instant license key and no public checkout.</p>
+        <h2 class="text-2xl font-semibold text-amber-300 mb-3" data-i18n="contactInquiryTitle">AG-SML commercial inquiry</h2>
+        <p class="text-white/80 text-sm leading-relaxed mb-6" data-i18n="contactInquiryLead">Personal / education / modest freelance remains free under AG-SML v1.1. This form is for organization or revenue-generating use. A human replies. There is no instant license key and no public checkout.</p>
         <form id="license-inquiry-form" dir="ltr" method="post" action="#" autocomplete="on">
-          <label class="rt-field-label" for="license-org">Organization name</label>
+          <label class="rt-field-label" for="license-org" data-i18n="contactOrgLabel">Organization name</label>
           <input id="license-org" name="organization" type="text" autocomplete="organization" required>
 
-          <label class="rt-field-label" for="license-url">Public site / product URL</label>
+          <label class="rt-field-label" for="license-url" data-i18n="contactUrlLabel">Public site / product URL</label>
           <input id="license-url" name="url" type="text" inputmode="url" autocomplete="url">
 
           <fieldset>
-            <legend>Use</legend>
+            <legend data-i18n="contactUseLegend">Use</legend>
             <div class="rt-use-list">
-              <label for="license-use-wrap"><input id="license-use-wrap" type="radio" name="use" value="wrapping a model" autocomplete="off"> wrapping a model</label>
-              <label for="license-use-ship"><input id="license-use-ship" type="radio" name="use" value="shipping a product" autocomplete="off"> shipping a product</label>
-              <label for="license-use-eval"><input id="license-use-eval" type="radio" name="use" value="internal eval" autocomplete="off"> internal eval</label>
-              <label for="license-use-other"><input id="license-use-other" type="radio" name="use" value="other" autocomplete="off"> other</label>
+              <label for="license-use-wrap"><input id="license-use-wrap" type="radio" name="use" value="wrapping a model" autocomplete="off"> <span data-i18n="contactUseWrap">wrapping a model</span></label>
+              <label for="license-use-ship"><input id="license-use-ship" type="radio" name="use" value="shipping a product" autocomplete="off"> <span data-i18n="contactUseShip">shipping a product</span></label>
+              <label for="license-use-eval"><input id="license-use-eval" type="radio" name="use" value="internal eval" autocomplete="off"> <span data-i18n="contactUseEval">internal eval</span></label>
+              <label for="license-use-other"><input id="license-use-other" type="radio" name="use" value="other" autocomplete="off"> <span data-i18n="contactUseOther">other</span></label>
             </div>
           </fieldset>
 
-          <label class="rt-field-label" for="license-seats">Approx seats or servers</label>
+          <label class="rt-field-label" for="license-seats" data-i18n="contactSeatsLabel">Approx seats or servers</label>
           <input id="license-seats" name="seats" type="text" inputmode="numeric" autocomplete="off">
 
-          <label class="rt-field-label" for="license-email">Reply email</label>
+          <label class="rt-field-label" for="license-email" data-i18n="contactReplyLabel">Reply email</label>
           <input id="license-email" name="email" type="email" autocomplete="email" required>
 
-          <label class="rt-field-label" for="license-name">Contact name <span class="font-normal text-white/50">(optional)</span></label>
+          <label class="rt-field-label" for="license-name" data-i18n="contactNameLabel" data-i18n-html>Contact name <span class="font-normal text-white/50">(optional)</span></label>
           <input id="license-name" name="name" type="text" autocomplete="name">
 
-          <label class="rt-field-label" for="license-message">Message</label>
+          <label class="rt-field-label" for="license-message" data-i18n="contactMessageLabel">Message</label>
           <textarea id="license-message" name="message" autocomplete="off"></textarea>
 
           <div class="rt-hp" aria-hidden="true">
@@ -180,12 +180,12 @@ body { font-family: 'Inter', system-ui, sans-serif; }
           </div>
 
           <div class="rt-submit-row">
-            <button type="submit" class="rt-btn-primary">Open mail to info@Rathor.ai</button>
+            <button type="submit" class="rt-btn-primary" data-i18n="contactSubmit">Open mail to info@Rathor.ai</button>
             <a href="/privacy.html" class="text-amber-300 underline text-sm">Privacy</a>
           </div>
-          <p id="license-inquiry-status" class="text-sm text-amber-300 mt-3" role="status" hidden>Opens mail to info@Rathor.ai</p>
+          <p id="license-inquiry-status" class="text-sm text-amber-300 mt-3" role="status" hidden data-i18n="contactSubmitStatus">Opens mail to info@Rathor.ai</p>
         </form>
-        <p class="text-xs text-white/50 mt-4">Submit opens your mail app to info@Rathor.ai. Nothing is uploaded to rathor.ai. Fallback: <a class="text-amber-300 underline" href="mailto:info@Rathor.ai">info@Rathor.ai</a>.</p>
+        <p class="text-xs text-white/50 mt-4" data-i18n="contactInquiryFoot" data-i18n-html>Submit opens your mail app to info@Rathor.ai. Nothing is uploaded to rathor.ai. Fallback: <a class="text-amber-300 underline" href="mailto:info@Rathor.ai">info@Rathor.ai</a>.</p>
         <noscript>
           <p class="text-xs text-white/70 mt-3">Without JavaScript, write to <a class="text-amber-300 underline" href="mailto:info@Rathor.ai">info@Rathor.ai</a> with subject AG-SML commercial inquiry.</p>
         </noscript>
@@ -215,19 +215,19 @@ body { font-family: 'Inter', system-ui, sans-serif; }
       </div>
 
       <div class="max-w-xl mx-auto text-left bg-zinc-950/60 border border-white/10 rounded-3xl p-8 mb-10">
-        <h4 id="guidance-title" class="font-semibold text-amber-300 mb-4 flex items-center gap-2">
+        <h4 id="guidance-title" class="font-semibold text-amber-300 mb-4 flex items-center gap-2" data-i18n="contactGuideTitle" data-i18n-html>
           <i class="fa-solid fa-lightbulb"></i>
           What to include in your message
         </h4>
         <ul class="space-y-2 text-white/80 text-sm" id="guidance-list">
-          <li id="guidance-1">• <strong>Commercial licensing or Tier A pilot</strong> — use the <a href="#commercial-inquiry" class="text-amber-300 underline">AG-SML commercial inquiry</a> form, or write with intended use, scale, timeline, and whether you want a time-boxed white-hat / containment evaluation or an AG-SML license</li>
-          <li id="guidance-2">• <strong>Security reports</strong> — steps to reproduce + potential impact</li>
-          <li id="guidance-3">• <strong>Stewardship or partnership</strong> — clear context and proposal</li>
-          <li id="guidance-4">• <strong>General inquiries</strong> — as much relevant detail as possible</li>
-          <li id="guidance-5">• <strong>Science lattices</strong> — Fusion, High-Tc, Protein Design, Mercy Substrate, Daedalus-Skin, or Air Foundation research contact; same address, same gates. Research surfaces — not product warranties</li>
+          <li id="guidance-1" data-i18n="contactGuide1" data-i18n-html>• <strong>Commercial licensing or Tier A pilot</strong> — use the <a href="#commercial-inquiry" class="text-amber-300 underline">AG-SML commercial inquiry</a> form, or write with intended use, scale, timeline, and whether you want a time-boxed white-hat / containment evaluation or an AG-SML license</li>
+          <li id="guidance-2" data-i18n="contactGuide2" data-i18n-html>• <strong>Security reports</strong> — steps to reproduce + potential impact</li>
+          <li id="guidance-3" data-i18n="contactGuide3" data-i18n-html>• <strong>Stewardship or partnership</strong> — clear context and proposal</li>
+          <li id="guidance-4" data-i18n="contactGuide4" data-i18n-html>• <strong>General inquiries</strong> — as much relevant detail as possible</li>
+          <li id="guidance-5" data-i18n="contactGuide5" data-i18n-html>• <strong>Science lattices</strong> — Fusion, High-Tc, Protein Design, Mercy Substrate, Daedalus-Skin, or Air Foundation research contact; same address, same gates. Research surfaces — not product warranties</li>
         </ul>
-        <p class="text-xs text-white/60 mt-4">Commercial or pilot inquiries: use the subject <code class="text-amber-200">Ra-Thor Pilot Inquiry — [Org]</code>.</p>
-        <p id="guidance-note" class="text-xs text-white/50 mt-5">All communications are handled under the TOLC 8 Mercy Gates. Outputs and replies are drafts for human review — not a certified legal product.</p>
+        <p class="text-xs text-white/60 mt-4" data-i18n="contactGuideSubject" data-i18n-html>Commercial or pilot inquiries: use the subject <code class="text-amber-200">Ra-Thor Pilot Inquiry — [Org]</code>.</p>
+        <p id="guidance-note" class="text-xs text-white/50 mt-5" data-i18n="contactGuideNote">All communications are handled under the TOLC 8 Mercy Gates. Outputs and replies are drafts for human review — not a certified legal product.</p>
       </div>
 
       <div class="rt-cta-row">
@@ -236,8 +236,9 @@ body { font-family: 'Inter', system-ui, sans-serif; }
       </div>
     </div>
   </div>
-<script src="/i18n/en.js?v=20260923a"></script>
-  <script src="/js/i18n-chrome.js?v=20260923a"></script>
+<script src="/i18n/en.js?v=20260923b"></script>
+  <script src="/js/i18n-chrome.js?v=20260923b"></script>
+  <script src="/js/i18n-essay.js?v=20260923b"></script>
   <script src="/js/contact-i18n.js"></script>
   <script src="/js/license-inquiry.js"></script>
   <script>
