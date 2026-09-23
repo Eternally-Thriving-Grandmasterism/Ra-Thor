@@ -26,10 +26,22 @@
     employTitle: 1, employSubtitle: 1, employCta: 1,
     contactInquiry: 1,
     gTranslateBtn: 1, gTranslateNote: 1,
-    installTitle: 1, installStatus: 1, installCta: 1, demoNote: 1
+    installTitle: 1, installStatus: 1, installCta: 1, demoNote: 1,
+    steward: 1, langStoredNote: 1,
+    pathPlayTitle: 1, pathPlayBody: 1,
+    pathLicenseTitle: 1, pathLicenseBody: 1,
+    pathInspectTitle: 1, pathInspectBody: 1,
+    pathOfflineTitle: 1, pathOfflineBody: 1,
+    pathWrapTitle: 1, pathWrapBody: 1,
+    surfacesTitle: 1,
+    surfaceChat: 1, surfaceChatNote: 1,
+    surfaceMap: 1, surfaceMapNote: 1,
+    surfaceShard: 1, surfaceShardNote: 1,
+    surfaceRepo: 1, surfaceRepoNote: 1,
+    homeSurfacePaper: 1, homeSurfacePaperNote: 1
   };
 
-  var PACK_V = '20260923c';
+  var PACK_V = '20260923d';
 
   var NAV_BY_HREF = {
     '/': 'navHome',

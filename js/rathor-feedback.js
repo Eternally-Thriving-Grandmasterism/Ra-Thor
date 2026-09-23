@@ -34,8 +34,23 @@
 
   var LANG_NAMES = {
     en: 'English', ar: 'العربية', es: 'Español', fr: 'Français', nl: 'Nederlands',
-    de: 'Deutsch', zh: '简体中文', ja: '日本語', pt: 'Português', ru: 'Русский', hi: 'हिन्दी'
+    de: 'Deutsch', zh: '简体中文', ja: '日本語', pt: 'Português', ru: 'Русский', hi: 'हिन्दी',
+    it: 'Italiano', ko: '한국어', uk: 'Українська', pl: 'Polski', tr: 'Türkçe',
+    vi: 'Tiếng Việt', id: 'Bahasa Indonesia', sv: 'Svenska', th: 'ไทย',
+    el: 'Ελληνικά', fa: 'فارسی', he: 'עברית'
   };
+  var RTL_RE = /[\u0590-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFF]/;
+  var langClick = false;
+
+  function packLine(lang, key, fallback) {
+    var packs = window.translations || {};
+    var pack = packs[lang] || {};
+    var en = packs.en || {};
+    var val = pack[key];
+    if (val != null && String(val) !== '') return String(val);
+    if (en[key] != null && String(en[key]) !== '') return String(en[key]);
+    return fallback;
+  }
 
   var BY_ID = {
     'new-session-btn': { title: 'New session', body: 'Blank thread on this device. Previous sessions stay in the list.', tone: 'ok' },
@@ -111,6 +126,10 @@
       return;
     }
     el.dataset.tone = tone;
+    var applied = (title || '') + (body || '');
+    var rtl = RTL_RE.test(applied);
+    el.setAttribute('dir', rtl ? 'rtl' : 'ltr');
+    el.setAttribute('lang', rtl ? (opts.lang || 'ar') : 'en');
     el.innerHTML =
       (title ? '<p class="rt-hf-title">' + esc(title) + '</p>' : '') +
       (body ? '<p class="rt-hf-body">' + esc(body) + '</p>' : '');
@@ -200,12 +219,8 @@
     if (id && BY_ID[id]) return BY_ID[id];
 
     if (node.classList && node.classList.contains('lang-tab')) {
-      var code = node.getAttribute('data-lang') || '';
-      return {
-        title: LANG_NAMES[code] || code || 'Language',
-        body: 'Language stored on this device only. Not sent to rathor.ai.',
-        tone: 'ok'
-      };
+      langClick = true;
+      return null;
     }
 
     var oc = fromOnclick(node);
@@ -288,6 +303,18 @@
   window.rathorSay = say;
   window.rathorSayHide = hide;
   window.rathorSayOnce = once;
+
+  document.addEventListener('rt-chrome-i18n', function (e) {
+    if (!langClick) return;
+    langClick = false;
+    var lang = (e && e.detail && e.detail.lang) || 'en';
+    say({
+      title: LANG_NAMES[lang] || lang || 'Language',
+      body: packLine(lang, 'langStoredNote', 'Language stored on this device only. Not sent to rathor.ai.'),
+      tone: 'ok',
+      lang: lang
+    });
+  });
 
   function boot() {
     bindClicks();

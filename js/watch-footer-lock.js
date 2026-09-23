@@ -16,6 +16,7 @@
       if (!privacy || !privacy.parentNode) continue;
       var a = document.createElement('a');
       a.href = '/science-watches.html';
+      a.setAttribute('data-i18n', 'swatchTitle');
       a.textContent = 'Science watches';
       a.className = privacy.className || 'hover:text-amber-200';
       if (privacy.nextSibling) privacy.parentNode.insertBefore(a, privacy.nextSibling);

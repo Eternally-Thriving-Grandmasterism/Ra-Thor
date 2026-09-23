@@ -22,6 +22,23 @@ assert(KEYS.length >= 40, 'applied chrome key list must stay complete');
 assert(KEYS.indexOf('employTitle') !== -1, 'employTitle must stay applied');
 assert(KEYS.indexOf('gTranslateNote') !== -1, 'gTranslateNote must stay applied');
 assert(KEYS.indexOf('navEmploy') !== -1, 'navEmploy must stay applied');
+assert(KEYS.indexOf('steward') !== -1, 'steward must be applied chrome');
+assert(KEYS.indexOf('langStoredNote') !== -1, 'lang storage note must be applied chrome');
+assert(KEYS.indexOf('installCta') !== -1, 'installCta must stay applied chrome');
+
+var PATH_KEYS = [
+  'pathPlayTitle', 'pathPlayBody',
+  'pathLicenseTitle', 'pathLicenseBody',
+  'pathInspectTitle', 'pathInspectBody',
+  'pathOfflineTitle', 'pathOfflineBody',
+  'pathWrapTitle', 'pathWrapBody'
+];
+PATH_KEYS.forEach(function (key) {
+  assert(KEYS.indexOf(key) !== -1, key + ' must be in the chrome allowlist');
+});
+['surfacesTitle', 'surfaceChat', 'surfaceChatNote', 'surfaceMap', 'surfaceMapNote', 'surfaceShard', 'surfaceShardNote', 'surfaceRepo', 'surfaceRepoNote', 'homeSurfacePaper', 'homeSurfacePaperNote'].forEach(function (key) {
+  assert(KEYS.indexOf(key) !== -1, key + ' must be in the chrome allowlist');
+});
 
 var HIRING = {
   ar: 'التوظيف',
@@ -61,6 +78,15 @@ var en = loadPack('en');
 assert(en.employCta === 'Open how to employ →', 'English employ CTA must say how to employ');
 assert(en.employCta.indexOf('employment guide') === -1, 'English employ CTA must not say employment guide');
 assert(en.weekTitle === 'Recent Updates', 'English recent-updates title stays undated');
+assert(en.pathPlayTitle === 'Play', 'English play card title');
+assert(en.pathPlayBody.indexOf('Title Online grey') !== -1, 'English play card keeps Title Online grey');
+assert(en.pathLicenseBody.indexOf('info@Rathor.ai') !== -1, 'English license card keeps the contact');
+assert(en.pathWrapTitle === 'WRAP-EW2', 'WRAP card title stays the repo name');
+assert(en.pathWrapBody.indexOf('EW2 solved = False') !== -1, 'English WRAP card keeps EW2 solved = False');
+assert(en.pathWrapBody.indexOf('COMMERCIAL_LICENSE') !== -1, 'English WRAP card keeps the commercial license');
+assert(en.pathWrapBody.indexOf('No AG-SML certification') !== -1, 'English WRAP card keeps no AG-SML certification');
+assert(en.langStoredNote.indexOf('rathor.ai') !== -1, 'English language note names this device and the site');
+assert(en.homeSurfacePaper === 'Whitepaper v4.2', 'on-device paper card stays whitepaper v4.2');
 KEYS.forEach(function (key) {
   assert(typeof en[key] === 'string' && en[key].trim() !== '', 'en ' + key + ' must be a non-empty string');
 });
@@ -80,11 +106,29 @@ files.forEach(function (file) {
     assert(pack.employSubtitle !== en.employSubtitle, lang + ' employSubtitle must be translated');
     assert(pack.gTranslateBtn !== en.gTranslateBtn, lang + ' gTranslateBtn must be translated');
     assert(pack.gTranslateNote !== en.gTranslateNote, lang + ' gTranslateNote must be translated');
+    assert(pack.pathPlayTitle !== en.pathPlayTitle, lang + ' pathPlayTitle must be translated');
+    assert(pack.pathPlayBody !== en.pathPlayBody, lang + ' pathPlayBody must be translated');
+    assert(pack.pathLicenseTitle !== en.pathLicenseTitle, lang + ' pathLicenseTitle must be translated');
+    assert(pack.pathInspectTitle !== en.pathInspectTitle, lang + ' pathInspectTitle must be translated');
+    assert(pack.pathOfflineTitle !== en.pathOfflineTitle, lang + ' pathOfflineTitle must be translated');
+    assert(pack.pathWrapBody !== en.pathWrapBody, lang + ' pathWrapBody must be translated');
+    assert(pack.steward !== en.steward, lang + ' steward must be translated');
+    assert(pack.langStoredNote !== en.langStoredNote, lang + ' langStoredNote must be translated');
+    assert(pack.homeSurfacePaperNote !== en.homeSurfacePaperNote, lang + ' homeSurfacePaperNote must be translated');
   }
+  assert(pack.pathWrapTitle === 'WRAP-EW2', lang + ' WRAP title stays the repo name');
+  assert(pack.pathPlayBody.indexOf('Title Online') !== -1, lang + ' play card must keep Title Online');
+  assert(pack.pathWrapBody.indexOf('EW2 solved = False') !== -1, lang + ' WRAP card must keep EW2 solved = False');
+  assert(pack.pathWrapBody.indexOf('COMMERCIAL_LICENSE') !== -1, lang + ' WRAP card must keep COMMERCIAL_LICENSE');
+  assert(pack.pathWrapBody.indexOf('solved = True') === -1, lang + ' WRAP card must not solve EW2');
   if (RTL[lang]) {
     assert(RTL_RE.test(pack.employTitle), lang + ' employTitle must be RTL script');
     assert(RTL_RE.test(pack.navEmploy), lang + ' navEmploy must be RTL script');
     assert(RTL_RE.test(pack.gTranslateNote), lang + ' gTranslateNote must be RTL script');
+    assert(RTL_RE.test(pack.pathPlayTitle), lang + ' pathPlayTitle must be RTL script');
+    assert(RTL_RE.test(pack.pathWrapBody), lang + ' pathWrapBody must be RTL script');
+    assert(RTL_RE.test(pack.steward), lang + ' steward must be RTL script');
+    assert(RTL_RE.test(pack.langStoredNote), lang + ' langStoredNote must be RTL script');
   }
   assert(pack.weekTitle.indexOf('2026-09-08') === -1, lang + ' must not date Recent Updates');
 });
@@ -96,9 +140,9 @@ files.forEach(function (file) {
 assert(sw.indexOf("'/js/i18n-chrome.js'") !== -1, 'sw precache must list i18n-chrome.js');
 assert(sw.indexOf('ignoreSearch: true') !== -1, 'offline pack loads must ignore the cache query');
 assert(sw.indexOf("pathname.indexOf('/i18n/')") !== -1, 'offline fallback must cover /i18n/');
-assert(sw.indexOf('20260923c') !== -1, 'service worker lock must match the pack token');
-assert(read('js/site-lock-2026-08-22.js').indexOf('20260923c') !== -1, 'site-lock must load the same pack token');
-assert(read('i18n/README.md').indexOf('20260923c') !== -1, 'i18n README must name the cache token');
+assert(sw.indexOf('20260923d') !== -1, 'service worker lock must match the pack token');
+assert(read('js/site-lock-2026-08-22.js').indexOf('20260923d') !== -1, 'site-lock must load the same pack token');
+assert(read('i18n/README.md').indexOf('20260923d') !== -1, 'i18n README must name the cache token');
 assert(chrome.indexOf('rtApplyChromeI18n') !== -1, 'chrome helper must keep apply');
 assert(read('js/site-lock-2026-08-22.js').indexOf('rtApplyChromeI18n') !== -1, 'site-lock must delegate chrome apply');
 
@@ -109,9 +153,23 @@ var pages = [
 ];
 pages.forEach(function (page) {
   var html = read(page);
-  assert(html.indexOf('/js/i18n-chrome.js?v=20260923c') !== -1, page + ' must load i18n-chrome at the pack token');
-  assert(html.indexOf('/i18n/en.js?v=20260923c') !== -1, page + ' must load the English pack at the pack token');
+  assert(html.indexOf('/js/i18n-chrome.js?v=20260923d') !== -1, page + ' must load i18n-chrome at the pack token');
+  assert(html.indexOf('/i18n/en.js?v=20260923d') !== -1, page + ' must load the English pack at the pack token');
 });
+var homeHtml = read('index.html');
+PATH_KEYS.forEach(function (key) {
+  assert(homeHtml.indexOf('data-i18n="' + key + '"') !== -1, 'homepage must mark ' + key);
+});
+assert(homeHtml.indexOf('data-i18n="homeLaunchMap"') !== -1, 'homepage quick link must mark Launch map');
+assert(homeHtml.indexOf('data-i18n="homeMoments"') !== -1, 'homepage quick link must mark Micro-moments');
+assert(homeHtml.indexOf('data-i18n="homeOfflineChat"') !== -1, 'homepage quick link must mark Offline Lattice Chat');
+assert(homeHtml.indexOf('data-i18n="installCta"') !== -1, 'homepage install control must mark installCta');
+assert(homeHtml.indexOf('data-i18n="steward"') !== -1, 'homepage steward line must stay marked');
+assert(read('js/pwa-install.js').indexOf('installCta') !== -1, 'install button path must read installCta');
+assert(read('js/rathor-feedback.js').indexOf('langStoredNote') !== -1, 'language note must read langStoredNote');
+assert(read('js/site-lock-2026-08-22.js').indexOf('Operator bench') === -1, 'site-lock must not restamp English product paths');
+assert(read('js/site-lock-2026-08-22.js').indexOf('pathPlayTitle') !== -1, 'site-lock must keep the play-card key');
+assert(read('js/site-lock-2026-08-22.js').indexOf('homeSurfacePaper') !== -1, 'on-device paper card must be marked');
 assert(read('privacy.html').indexOf('data-i18n="navPrivacy"') !== -1, 'privacy title must be chrome');
 assert(read('offline.html').indexOf('data-i18n="navHome"') !== -1, 'offline home control must be chrome');
 assert(read('go-x.html').indexOf('data-i18n="xTitle"') !== -1, 'go-x title must be chrome');
@@ -124,6 +182,8 @@ assert(essayBlock, 'i18n-essay.js must declare ESSAY');
 var ESSAY = [];
 essayBlock[1].replace(/(\w+)\s*:/g, function (_, key) { ESSAY.push(key); });
 assert(ESSAY.length >= 200, 'visitor essay key list must cover the wired pages, found ' + ESSAY.length);
+assert(ESSAY.indexOf('footerTrademarksTitle') !== -1, 'footer trademarks title must be an essay key');
+assert(ESSAY.indexOf('footerTrademarksText') !== -1, 'footer trademarks text must be an essay key');
 ESSAY.forEach(function (key) {
   assert(KEYS.indexOf(key) === -1, key + ' is chrome and must not also be listed as an essay key');
   assert(typeof en[key] === 'string' && en[key].trim() !== '', 'en essay key ' + key + ' must be a non-empty string');
@@ -133,7 +193,7 @@ var essayPages = ['index.html', 'employ.html', 'privacy.html', 'briefing.html', 
 var wired = {};
 essayPages.forEach(function (page) {
   var html = read(page);
-  assert(html.indexOf('/js/i18n-essay.js?v=20260923c') !== -1, page + ' must load i18n-essay at the pack token');
+  assert(html.indexOf('/js/i18n-essay.js?v=20260923d') !== -1, page + ' must load i18n-essay at the pack token');
   var marks = html.match(/data-i18n="([^"]+)"/g) || [];
   marks.forEach(function (raw) {
     var key = raw.slice('data-i18n="'.length, -1);
