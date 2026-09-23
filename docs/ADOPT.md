@@ -7,6 +7,8 @@
 
 How a stranger wraps Grok, Claude, ChatGPT, Gemini, Ollama, or any OpenAI-compatible host under Ra-Thor. Outputs remain **drafts**. inspect ≠ METR. Independent of xAI.
 
+Four-edge wrap path: [`WRAP_FOUR_EDGES.md`](WRAP_FOUR_EDGES.md).
+
 Public briefing (same doors, visitor voice): [`/briefing.html`](https://rathor.ai/briefing.html) · [`PUBLIC_EMPLOY_BRIEFING.md`](PUBLIC_EMPLOY_BRIEFING.md).
 
 ## Four doors (pick one)
