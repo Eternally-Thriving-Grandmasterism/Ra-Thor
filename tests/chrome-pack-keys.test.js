@@ -96,9 +96,9 @@ files.forEach(function (file) {
 assert(sw.indexOf("'/js/i18n-chrome.js'") !== -1, 'sw precache must list i18n-chrome.js');
 assert(sw.indexOf('ignoreSearch: true') !== -1, 'offline pack loads must ignore the cache query');
 assert(sw.indexOf("pathname.indexOf('/i18n/')") !== -1, 'offline fallback must cover /i18n/');
-assert(sw.indexOf('20260923b') !== -1, 'service worker lock must match the pack token');
-assert(read('js/site-lock-2026-08-22.js').indexOf('20260923b') !== -1, 'site-lock must load the same pack token');
-assert(read('i18n/README.md').indexOf('20260923b') !== -1, 'i18n README must name the cache token');
+assert(sw.indexOf('20260923c') !== -1, 'service worker lock must match the pack token');
+assert(read('js/site-lock-2026-08-22.js').indexOf('20260923c') !== -1, 'site-lock must load the same pack token');
+assert(read('i18n/README.md').indexOf('20260923c') !== -1, 'i18n README must name the cache token');
 assert(chrome.indexOf('rtApplyChromeI18n') !== -1, 'chrome helper must keep apply');
 assert(read('js/site-lock-2026-08-22.js').indexOf('rtApplyChromeI18n') !== -1, 'site-lock must delegate chrome apply');
 
@@ -109,8 +109,8 @@ var pages = [
 ];
 pages.forEach(function (page) {
   var html = read(page);
-  assert(html.indexOf('/js/i18n-chrome.js?v=20260923b') !== -1, page + ' must load i18n-chrome at the pack token');
-  assert(html.indexOf('/i18n/en.js?v=20260923b') !== -1, page + ' must load the English pack at the pack token');
+  assert(html.indexOf('/js/i18n-chrome.js?v=20260923c') !== -1, page + ' must load i18n-chrome at the pack token');
+  assert(html.indexOf('/i18n/en.js?v=20260923c') !== -1, page + ' must load the English pack at the pack token');
 });
 assert(read('privacy.html').indexOf('data-i18n="navPrivacy"') !== -1, 'privacy title must be chrome');
 assert(read('offline.html').indexOf('data-i18n="navHome"') !== -1, 'offline home control must be chrome');
@@ -133,7 +133,7 @@ var essayPages = ['index.html', 'employ.html', 'privacy.html', 'briefing.html', 
 var wired = {};
 essayPages.forEach(function (page) {
   var html = read(page);
-  assert(html.indexOf('/js/i18n-essay.js?v=20260923b') !== -1, page + ' must load i18n-essay at the pack token');
+  assert(html.indexOf('/js/i18n-essay.js?v=20260923c') !== -1, page + ' must load i18n-essay at the pack token');
   var marks = html.match(/data-i18n="([^"]+)"/g) || [];
   marks.forEach(function (raw) {
     var key = raw.slice('data-i18n="'.length, -1);
