@@ -168,6 +168,10 @@ window.translations["sv"] = {
   "weekLineWrap": "Offentlig forskningsbänk, länkad från denna startsida. Endast utvärderingsutkast. EW2 solved = False. Ingen garanti. Ingen AG-SML-certifiering. Inte en Cargo- eller arbetsytevikning. AG-SML v1.1: personlig och forskningsanvändning är fri. Organisations- eller produktanvändning kräver en betald COMMERCIAL_LICENSE.",
   "weekLineResearch": "Också offentligt (forskning / inte produkt): Daedalus, Air, Space-Thriving, Mercy-Coordination, High-Tc, Fusion.",
   "weekMore": "Hela uppdateringsnoten →",
-  "employCta": "Öppna användningsguiden →",
+  "employCta": "Öppna hur man använder →",
   "contactInquiry": "Skriv till info@Rathor.ai",
+  "employTitle": "Hur man använder",
+  "employSubtitle": "Tre dörrar. En slinga. Två rättigheter. Personlig användning på den här enheten. Organisationer frågar efter en pilot.",
+  "gTranslateBtn": "Översätt med Google",
+  "gTranslateNote": "Öppnar Google Översätt i en ny flik. Kräver nätet. Inte offlinepaketet.",
 };

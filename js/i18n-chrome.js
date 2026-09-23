@@ -28,6 +28,103 @@
     installTitle: 1, installStatus: 1, installCta: 1, demoNote: 1
   };
 
+  var PACK_V = '20260923a';
+
+  var NAV_BY_HREF = {
+    '/': 'navHome',
+    '/index.html': 'navHome',
+    '/chat.html': 'navChat',
+    '/employ.html': 'navEmploy',
+    '/Launch-Ra-Thor.html': 'navLaunch',
+    '/micro-moment.html': 'navMoments',
+    '/sovereign-shard.html': 'navShard',
+    '/web-forge.html': 'navForge',
+    '/contact.html': 'navContact',
+    '/privacy.html': 'navPrivacy'
+  };
+
+  var LANG_TABS = [
+    ['en', 'English'], ['ar', 'العربية'], ['es', 'Español'], ['fr', 'Français'],
+    ['nl', 'Nederlands'], ['de', 'Deutsch'], ['zh', '简体中文'], ['ja', '日本語'],
+    ['pt', 'Português'], ['ru', 'Русский'], ['hi', 'हिन्दी'], ['it', 'Italiano'],
+    ['ko', '한국어'], ['uk', 'Українська'], ['pl', 'Polski'], ['tr', 'Türkçe'],
+    ['vi', 'Tiếng Việt'], ['id', 'Bahasa Indonesia'], ['sv', 'Svenska'], ['th', 'ไทย'],
+    ['el', 'Ελληνικά'], ['fa', 'فارسی'], ['he', 'עברית']
+  ];
+
+  function savedLang() {
+    try { return localStorage.getItem('rathor-lang') || 'en'; } catch (e) { return 'en'; }
+  }
+
+  function stampKnownChrome() {
+    var nav = document.getElementById('rt-family-nav');
+    if (nav) {
+      var links = nav.querySelectorAll('a[href]');
+      for (var i = 0; i < links.length; i++) {
+        var key = NAV_BY_HREF[links[i].getAttribute('href')];
+        if (key) links[i].setAttribute('data-i18n', key);
+      }
+    }
+    var follows = document.querySelectorAll('.rt-follow a[href], a#follow-x, a#follow-linkedin, a#follow-facebook');
+    for (var f = 0; f < follows.length; f++) {
+      var href = follows[f].getAttribute('href') || '';
+      var fkey = '';
+      if (href.indexOf('x.com/AlphaProMega') !== -1) fkey = 'followX';
+      else if (href.indexOf('linkedin.com/in/sherif-botros') !== -1) fkey = 'followLinkedIn';
+      else if (href.indexOf('facebook.com/') !== -1) fkey = 'followFacebook';
+      if (fkey) follows[f].setAttribute('data-i18n', fkey);
+    }
+    var labels = document.querySelectorAll('.rt-follow-label, #follow-title');
+    for (var n = 0; n < labels.length; n++) labels[n].setAttribute('data-i18n', 'followTitle');
+  }
+
+  function ensureLangSelector() {
+    if (!document.body || document.getElementById('lang-selector')) return;
+    if (document.body.getAttribute('data-rt-family') === 'off') return;
+    var lang = savedLang();
+    var sel = document.createElement('div');
+    sel.id = 'lang-selector';
+    sel.setAttribute('data-rt-lang-injected', '1');
+    sel.setAttribute('dir', 'ltr');
+    for (var i = 0; i < LANG_TABS.length; i++) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.setAttribute('data-lang', LANG_TABS[i][0]);
+      b.className = 'lang-tab';
+      if (LANG_TABS[i][0] === lang) b.className += ' active';
+      b.textContent = LANG_TABS[i][1];
+      sel.appendChild(b);
+    }
+    var nav = document.getElementById('rt-family-nav');
+    if (nav && nav.parentNode) nav.parentNode.insertBefore(sel, nav.nextSibling);
+    else {
+      var main = document.querySelector('main') || document.body;
+      main.insertBefore(sel, main.firstChild);
+    }
+    if (sel.getAttribute('data-rt-chrome-bound') === '1') return;
+    sel.setAttribute('data-rt-chrome-bound', '1');
+    sel.addEventListener('click', function (e) {
+      var btn = e.target && e.target.closest && e.target.closest('[data-lang]');
+      if (!btn || !sel.contains(btn)) return;
+      var code = btn.getAttribute('data-lang');
+      if (typeof root.switchLanguage === 'function') root.switchLanguage(code);
+      else loadPackAndApply(code);
+    });
+  }
+
+  function loadPackAndApply(lang) {
+    lang = lang || 'en';
+    if (root.translations && root.translations[lang]) {
+      applyChromeI18n(lang);
+      return;
+    }
+    var s = document.createElement('script');
+    s.src = '/i18n/' + lang + '.js?v=' + PACK_V;
+    s.onload = function () { applyChromeI18n(lang); };
+    s.onerror = function () { if (lang !== 'en') loadPackAndApply('en'); };
+    (document.head || document.documentElement).appendChild(s);
+  }
+
   function isRtlText(s) {
     return typeof s === 'string' && RTL_RE.test(s);
   }
@@ -78,6 +175,7 @@
 
   function applyChromeI18n(lang) {
     lang = lang || 'en';
+    stampKnownChrome();
     var applied = 0;
     var rtlHits = 0;
     var fallbackHits = 0;
@@ -141,6 +239,11 @@
       setDir(faq, false, 'en');
     }
 
+    var family = document.getElementById('rt-family-nav');
+    if (family) family.setAttribute('dir', 'ltr');
+    var langBar = document.getElementById('lang-selector');
+    if (langBar) langBar.setAttribute('dir', 'ltr');
+
     try { localStorage.setItem('rathor-lang', lang); } catch (e) {}
     if (typeof root.rtGTranslateSync === 'function') {
       try { root.rtGTranslateSync(); } catch (e2) {}
@@ -165,4 +268,15 @@
   root.rtApplyChromeI18n = applyChromeI18n;
   root.rtApplyNodeDirFromText = applyNodeDirFromText;
   root.rtLockProseDir = lockProse;
+  root.rtEnsureLangSelector = ensureLangSelector;
+
+  function bootChrome() {
+    ensureLangSelector();
+    var lang = savedLang();
+    if (root.translations && root.translations[lang]) applyChromeI18n(lang);
+    else if (root.translations && root.translations.en) applyChromeI18n('en');
+  }
+  document.addEventListener('rathor-nav-ready', bootChrome);
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bootChrome);
+  else bootChrome();
 })(typeof window !== 'undefined' ? window : this);

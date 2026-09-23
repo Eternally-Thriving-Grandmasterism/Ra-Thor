@@ -168,6 +168,10 @@ window.translations["nl"] = {
   "weekLineWrap": "Openbare onderzoeksbank, gelinkt vanaf deze homepage. Alleen evaluatieconcepten. EW2 solved = False. Geen garantie. Geen AG-SML-certificering. Geen Cargo- of workspace-vouw. AG-SML v1.1: persoonlijk en onderzoekgebruik is gratis. Organisatie- of productgebruik heeft een betaalde COMMERCIAL_LICENSE nodig.",
   "weekLineResearch": "Ook openbaar (onderzoek / geen product): Daedalus, Air, Space-Thriving, Mercy-Coordination, High-Tc, Fusion.",
   "weekMore": "Volledige updatenotitie →",
-  "employCta": "Open de inzetgids →",
+  "employCta": "Open hoe inzetten →",
   "contactInquiry": "Schrijf naar info@Rathor.ai",
+  "employTitle": "Hoe inzetten",
+  "employSubtitle": "Drie deuren. Eén lus. Twee rechten. Persoonlijk gebruik op dit apparaat. Organisaties vragen een pilot aan.",
+  "gTranslateBtn": "Vertalen met Google",
+  "gTranslateNote": "Opent Google Translate in een nieuw tabblad. Heeft het netwerk nodig. Niet het offlinepakket.",
 };

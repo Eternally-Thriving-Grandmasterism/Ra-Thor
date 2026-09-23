@@ -1,9 +1,9 @@
 /* sw.js — Ra-Thor vanilla offline worker
- * Workspace 14.15.6 · LOCK 20260922a
+ * Workspace 14.15.6 · LOCK 20260923a
  * Pass-through documents. Fetch handler present for Chrome installability.
  * Contact: info@Rathor.ai
  */
-var LOCK = '20260922a';
+var LOCK = '20260923a';
 var CACHE = 'rathor-core-' + LOCK;
 var PRECACHE = [
   '/', '/index.html', '/chat.html', '/contact.html', '/privacy.html',
@@ -18,7 +18,7 @@ var PRECACHE = [
   '/js/family-nav-2026-08-22.js', '/js/site-lock-2026-08-22.js',
   '/js/science-map-lock.js', '/js/watch-footer-lock.js', '/js/sovereign-shard.js', '/js/chat.js',
   '/js/contact-i18n.js', '/js/license-inquiry.js', '/js/week-window.js', '/js/week-window.json',
-  '/js/google-translate-optin.js',
+  '/js/google-translate-optin.js', '/js/i18n-chrome.js',
   '/i18n/en.js', '/i18n/ar.js', '/i18n/es.js', '/i18n/fr.js', '/i18n/nl.js',
   '/i18n/de.js', '/i18n/zh.js', '/i18n/ja.js', '/i18n/pt.js', '/i18n/ru.js',
   '/i18n/hi.js', '/i18n/it.js', '/i18n/ko.js', '/i18n/uk.js', '/i18n/pl.js',
@@ -79,7 +79,12 @@ self.addEventListener('fetch', function (event) {
         }
         return res;
       }).catch(function () {
-        return caches.match(req);
+        return caches.match(req).then(function (hit) {
+          if (hit) return hit;
+          if (url.pathname.indexOf('/i18n/') === 0 || url.pathname === '/js/i18n-chrome.js' || url.pathname === '/js/google-translate-optin.js') {
+            return caches.match(url.pathname, { ignoreSearch: true });
+          }
+        });
       })
     );
     return;

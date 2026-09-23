@@ -18,7 +18,7 @@ window.translations["en"] = {
   "vibeCta": "Open the build session \u2192",
   "employTitle": "How to employ",
   "employSubtitle": "Three doors. One loop. Two rights. Personal use on this device. Organizations inquire for a pilot.",
-  "employCta": "Open the employment guide \u2192",
+  "employCta": "Open how to employ →",
   "installTitle": "Install Ra-Thor from this website",
   "installStatus": "Install on this device. No store. Offline-ready.",
   "installCta": "Install Ra-Thor",

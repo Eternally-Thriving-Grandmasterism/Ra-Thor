@@ -29,7 +29,7 @@ body { font-family: 'Inter', system-ui, sans-serif; }
     </style>
 </head>
 <body class="bg-black text-white">
-    <main id="rt-family-main" class="max-w-5xl mx-auto px-5 sm:px-8 py-12 sm:py-16">
+    <main id="rt-family-main" class="max-w-5xl mx-auto px-5 sm:px-8 py-12 sm:py-16" data-rt-prose>
         <div class="text-center">
             <div class="flex flex-wrap items-center justify-center gap-2 mb-6">
                 <span class="rt-kicker">Lattice map</span>
@@ -173,7 +173,7 @@ cargo test -p mercy-security</code></pre>
 
         <div class="mt-10 rt-cta-row">
             <a href="/chat.html" class="rt-btn-primary">Open Lattice Chat</a>
-            <a href="/contact.html" class="rt-btn-ghost">Contact</a>
+            <a href="/contact.html" class="rt-btn-ghost" data-i18n="navContact">Contact</a>
         </div>
     </main>
 <script>
@@ -190,6 +190,8 @@ cargo test -p mercy-security</code></pre>
         }
         window.addEventListener('load', animateCouncilCount);
     </script>
+    <script src="/i18n/en.js?v=20260923a"></script>
+    <script src="/js/i18n-chrome.js?v=20260923a"></script>
     <script src="/js/rathor-theme.js"></script>
     <script src="/js/pwa-install.js" defer></script>
     <script src="/js/family-nav-2026-08-22.js" defer></script>

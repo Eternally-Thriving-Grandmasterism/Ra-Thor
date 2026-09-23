@@ -168,6 +168,10 @@ window.translations["fa"] = {
   "weekLineWrap": "نیمکت پژوهش عمومی، پیوند از این صفحهٔ اصلی. فقط پیش‌نویس‌های ارزیابی. EW2 solved = False. بدون ضمانت. بدون گواهی AG-SML. تاشدگی Cargo یا فضای کار نیست. AG-SML v1.1: استفادهٔ شخصی و پژوهشی رایگان است. استفادهٔ سازمان یا محصول به COMMERCIAL_LICENSE پولی نیاز دارد.",
   "weekLineResearch": "همچنین عمومی (پژوهش / نه محصول): Daedalus، Air، Space-Thriving، Mercy-Coordination، High-Tc، Fusion.",
   "weekMore": "یادداشت کامل به‌روزرسانی ←",
-  "employCta": "راهنمای به‌کارگیری را باز کنید ←",
+  "employCta": "«چگونه به‌کار ببرید» را باز کنید ←",
   "contactInquiry": "به info@Rathor.ai بنویسید",
+  "employTitle": "چگونه به‌کار ببرید",
+  "employSubtitle": "سه در. یک حلقه. دو حق. استفادهٔ شخصی روی این دستگاه. سازمان‌ها برای پایلوت پرس‌وجو می‌کنند.",
+  "gTranslateBtn": "ترجمه با Google",
+  "gTranslateNote": "ترجمهٔ Google را در زبانهٔ تازه باز می‌کند. به شبکه نیاز دارد. بستهٔ آفلاین نیست.",
 };
