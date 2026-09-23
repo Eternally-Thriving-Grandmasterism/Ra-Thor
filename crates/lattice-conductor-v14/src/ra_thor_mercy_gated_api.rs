@@ -7,9 +7,12 @@
 //! - apply-class requires a live CouncilArbitrationEngine
 //! - apply-class must pass mercy-security admit_or_block
 //! - apply-class payload is mapped into ambient g and scored (feature map)
+//! - apply-class then calls `bounded_evolution_step` (E4), fail-closed
 //! Read-class (health / loop status) may proceed without those extra edges.
+//! A `handle_request` return that never calls E4 records `wrap not counted`.
+//! Engine and threshold still run before admit, so this is not E1→E2→E3→E4.
 //! This does not constrain attached model weights.
-//! See docs/LAYER_0_RUNTIME_BOUNDARY.md.
+//! See docs/LAYER_0_RUNTIME_BOUNDARY.md and docs/WRAP_FOUR_EDGES.md.
 //!
 //! Thunder locked in. yoi ⚡
 
@@ -72,6 +75,52 @@ pub enum GateDecision {
     Rejected { reason: String },
 }
 
+/// Phrase recorded when a `handle_request` path does not call E4.
+pub const WRAP_NOT_COUNTED: &str = "wrap not counted";
+
+/// E4 account for one `handle_request`.
+///
+/// `counted` stays false on this tip. Engine and threshold still run before
+/// admit, so E1 then E2 then E3 then E4 is not claimed.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct WrapAccount {
+    pub e4_called: bool,
+    /// True only when E1, E2, E3, and E4 have each fired in that order.
+    pub counted: bool,
+    /// `Some(WRAP_NOT_COUNTED)` when E4 did not run.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub miss: Option<String>,
+}
+
+impl WrapAccount {
+    fn miss() -> Self {
+        Self {
+            e4_called: false,
+            counted: false,
+            miss: Some(WRAP_NOT_COUNTED.into()),
+        }
+    }
+
+    /// E4 ran. The ordered four-edge wrap is still not claimed.
+    fn e4_not_counted() -> Self {
+        Self {
+            e4_called: true,
+            counted: false,
+            miss: None,
+        }
+    }
+}
+
+impl Default for WrapAccount {
+    fn default() -> Self {
+        Self {
+            e4_called: false,
+            counted: false,
+            miss: None,
+        }
+    }
+}
+
 /// Outbound response.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MercyApiResponse {
@@ -88,6 +137,9 @@ pub struct MercyApiResponse {
     /// Hash of the inspect packet recorded on wrap, if any.
     #[serde(default)]
     pub inspect_packet_hash: Option<String>,
+    /// Four-edge account. A missing E4 call is a miss, not a counted wrap.
+    #[serde(default)]
+    pub wrap_account: WrapAccount,
 }
 
 /// High-level mercy-gated API handle.
@@ -165,6 +217,7 @@ impl MercyGatedApi {
             cosmic_loop_ready: loop_ready,
             evidence_hash: None,
             inspect_packet_hash: None,
+            wrap_account: WrapAccount::miss(),
         }
     }
 
@@ -380,26 +433,32 @@ impl MercyGatedApi {
         match self.emit_gate_record(request, resp.accepted, reason) {
             Ok(h) => {
                 if resp.accepted && self.chain_gate(&h).is_err() {
-                    return self.reject(
+                    let account = resp.wrap_account.clone();
+                    let mut rejected = self.reject(
                         "missing or broken evidence chain".into(),
                         "Rejected — evidential face".into(),
                         request.claimed_mercy,
                         resp.gates_checked,
                         resp.cosmic_loop_ready,
                     );
+                    rejected.wrap_account = account;
+                    return rejected;
                 }
                 resp.evidence_hash = Some(h);
                 resp
             }
             Err(e) => {
                 if resp.accepted {
-                    self.reject(
+                    let account = resp.wrap_account.clone();
+                    let mut rejected = self.reject(
                         format!("evidence: {e}"),
                         "Rejected — evidential face".into(),
                         request.claimed_mercy,
                         resp.gates_checked,
                         resp.cosmic_loop_ready,
-                    )
+                    );
+                    rejected.wrap_account = account;
+                    rejected
                 } else {
                     resp
                 }
@@ -483,7 +542,30 @@ impl MercyGatedApi {
             let valence = mercy_tolc_operator_algebra::Valence::new(request.claimed_mercy);
             let _report =
                 mercy_tolc_operator_algebra::map_and_score_payload(&request.payload, valence);
+            // E4 after admit, the existing threshold, and the projector.
+            // `claimed_mercy` is passed through. `min_mercy_threshold` is not written.
+            if !e4_bounded_step_allows(request.claimed_mercy) {
+                let mut breaker =
+                    sovereign_recovery::MercyGatedCircuitBreaker::new("apply-class");
+                breaker.trip(request.claimed_mercy);
+                let reason = "Layer 0 circuit: bounded_evolution_step rejected".to_string();
+                let mut resp = self.reject(
+                    reason.clone(),
+                    "Rejected — sovereign-recovery bounded_evolution_step".into(),
+                    request.claimed_mercy,
+                    gates,
+                    loop_ready,
+                );
+                resp.wrap_account = WrapAccount::e4_not_counted();
+                return self.seal_apply(&request, resp, &reason);
+            }
         }
+
+        let wrap_account = if request.kind.is_apply_class() {
+            WrapAccount::e4_not_counted()
+        } else {
+            WrapAccount::miss()
+        };
 
         let kind_label = match &request.kind {
             ApiRequestKind::HealthCheck => "HealthCheck",
@@ -507,6 +589,7 @@ impl MercyGatedApi {
             cosmic_loop_ready: loop_ready,
             evidence_hash: None,
             inspect_packet_hash: None,
+            wrap_account,
         };
         self.seal_apply(&request, resp, "accept")
     }
@@ -525,6 +608,7 @@ impl MercyGatedApi {
             cosmic_loop_ready: self.is_cosmic_loop_ready(),
             evidence_hash: None,
             inspect_packet_hash: None,
+            wrap_account: WrapAccount::default(),
         }
     }
 }
@@ -567,6 +651,39 @@ fn now_secs() -> u64 {
         .duration_since(UNIX_EPOCH)
         .map(|d| d.as_secs())
         .unwrap_or(0)
+}
+
+/// Call E4. Pending or false is fail-closed.
+/// Does not read or write `min_mercy_threshold`.
+fn e4_bounded_step_allows(mercy_alignment: f64) -> bool {
+    let protocol = sovereign_recovery::SovereignRecoveryProtocol::new();
+    let step = protocol.bounded_evolution_step("handle_request", mercy_alignment);
+    match poll_now(step) {
+        Some(ok) => ok,
+        None => false,
+    }
+}
+
+/// `bounded_evolution_step` does not await. A later `.await` that stays pending fails closed.
+fn poll_now<T>(fut: impl std::future::Future<Output = T>) -> Option<T> {
+    use std::pin::Pin;
+    use std::task::{Context, Poll, RawWaker, RawWakerVTable, Waker};
+
+    unsafe fn clone(data: *const ()) -> RawWaker {
+        RawWaker::new(data, &VTABLE)
+    }
+    unsafe fn wake(_: *const ()) {}
+    unsafe fn wake_by_ref(_: *const ()) {}
+    unsafe fn drop(_: *const ()) {}
+
+    static VTABLE: RawWakerVTable = RawWakerVTable::new(clone, wake, wake_by_ref, drop);
+    let waker = unsafe { Waker::from_raw(RawWaker::new(std::ptr::null(), &VTABLE)) };
+    let mut cx = Context::from_waker(&waker);
+    let mut fut = std::pin::pin!(fut);
+    match Pin::as_mut(&mut fut).poll(&mut cx) {
+        Poll::Ready(value) => Some(value),
+        Poll::Pending => None,
+    }
 }
 
 #[cfg(test)]

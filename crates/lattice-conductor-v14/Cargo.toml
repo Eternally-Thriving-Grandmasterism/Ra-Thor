@@ -16,6 +16,7 @@ tokio = { version = "1", features = ["full"], optional = true }
 axum = { version = "0.7", optional = true }
 mercy-security = { path = "../mercy-security" }
 mercy_tolc_operator_algebra = { path = "../mercy_tolc_operator_algebra" }
+sovereign-recovery = { path = "../sovereign-recovery" }
 sha2 = "0.11"
 
 [features]

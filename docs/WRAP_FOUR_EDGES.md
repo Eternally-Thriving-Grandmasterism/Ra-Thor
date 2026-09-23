@@ -37,6 +37,8 @@ A wrap counts only when every edge fires, in this order.
 
 Law: skip any edge → WRAP did not run. Record that as a miss, not as a pass.
 
+Counted wrap = E1 then E2 then E3 then E4; a path that never calls E4 records a miss (`wrap not counted`). EW2 solved = False.
+
 PATSAGi sits under these gates. A majority cannot flip Reject → Apply.
 
 Human override stays possible. A council vote is not Layer 0.
@@ -53,7 +55,7 @@ E2. Apply-class `handle_request` requires a `CouncilArbitrationEngine`. It rejec
 
 E3. After admit, `handle_request` calls `map_and_score_payload`. That call builds the ambient vector and scores it with `NilpotentSuppressor`. On this tip the returned report is not the Allow or Reject. Medium-or-higher ingest returns before this call. See [`GATE_EVAL.md`](GATE_EVAL.md).
 
-E4. `SovereignRecoveryProtocol::bounded_evolution_step` returns false when `mercy_alignment` is below 0.75. `MercyGatedCircuitBreaker::trip` records a failure and can open the breaker. Neither function is called from `wrap_model_output` or `handle_request`.
+E4. `SovereignRecoveryProtocol::bounded_evolution_step` returns false when `mercy_alignment` is below 0.75. `MercyGatedCircuitBreaker::trip` records a failure and can open the breaker. Apply-class `handle_request` calls `bounded_evolution_step` after admit, the mercy threshold, and the projector, and passes `claimed_mercy` through unchanged. False rejects. `trip` runs only on that rejection and does not write `min_mercy_threshold`. A return before that call does not run E4. The default threshold stays 0.75.
 
 ---
 
@@ -68,8 +70,11 @@ On apply-class, that function currently does this:
 3. `CouncilArbitrationEngine::arbitrate_cosmic_loop_change`. This is E2.
 4. `IngestionScanner::admit_or_block`. This is E1.
 5. `map_and_score_payload`. This is an E3 call. The score is not the decision.
+6. `bounded_evolution_step`. This is E4. False rejects. `trip` runs only on that rejection.
 
-E4 does not run in that function.
+Engine and threshold still run before admit. That order is not E1 → E2 → E3 → E4.
+
+Paths that return before step 6 do not call E4. They record a miss (`wrap not counted`).
 
 One call to `wrap_model_output` does not prove E1 → E2 → E3 → E4. If any edge did not fire, record a miss.
 
