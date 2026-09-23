@@ -29,7 +29,7 @@
     installTitle: 1, installStatus: 1, installCta: 1, demoNote: 1
   };
 
-  var PACK_V = '20260923b';
+  var PACK_V = '20260923c';
 
   var NAV_BY_HREF = {
     '/': 'navHome',
