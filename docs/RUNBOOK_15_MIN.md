@@ -121,6 +121,7 @@ Send a mismatch to [info@Rathor.ai](mailto:info@Rathor.ai), or open a GitHub iss
 |-------------|------|
 | Employ loop | [`EMPLOY.md`](EMPLOY.md) |
 | Wrap a model | [`ADOPT.md`](ADOPT.md) |
+| Four-edge wrap | [`docs/WRAP_FOUR_EDGES.md`](WRAP_FOUR_EDGES.md) |
 | Merge gate | [`TIER_MAP.md`](../TIER_MAP.md) |
 | Claim lock | [`PUBLIC_CLAIM.lock.md`](../PUBLIC_CLAIM.lock.md) |
 
