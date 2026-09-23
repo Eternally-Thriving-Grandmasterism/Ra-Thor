@@ -599,6 +599,7 @@ mod tests {
             cosmic_loop_ready: true,
             evidence_hash: None,
             inspect_packet_hash: None,
+            wrap_account: crate::ra_thor_mercy_gated_api::WrapAccount::default(),
         };
         let handle = wrap.clone();
         let result = apply_steering_proposal(&proposal, Some(&wrap), Some(&handle));
@@ -654,6 +655,7 @@ mod tests {
             cosmic_loop_ready: true,
             evidence_hash: None,
             inspect_packet_hash: None,
+            wrap_account: crate::ra_thor_mercy_gated_api::WrapAccount::default(),
         };
         let mut packet = fixture_packet();
         packet.gate_result = InspectGateResult::Allowed;

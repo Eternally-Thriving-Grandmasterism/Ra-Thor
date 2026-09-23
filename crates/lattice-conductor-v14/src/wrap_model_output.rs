@@ -184,7 +184,9 @@ fn gate_steering_vector(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::ra_thor_mercy_gated_api::{start_mercy_api_with_arbitration, GateDecision};
+    use crate::ra_thor_mercy_gated_api::{
+        start_mercy_api_with_arbitration, ApiRequestKind, GateDecision, MercyApiRequest,
+    };
     use crate::CouncilArbitrationEngine;
 
     #[test]
@@ -330,5 +332,54 @@ mod tests {
             packet.gate_result,
             crate::InspectGateResult::Rejected { .. }
         ));
+    }
+
+    /// A path that returns before E4 is a miss. This does not claim E1–E4 ran.
+    #[test]
+    fn wrap_without_e4_records_wrap_not_counted() {
+        let arb = CouncilArbitrationEngine::new();
+        let mut api = start_mercy_api_with_arbitration(None, &arb);
+        let resp = wrap_model_output(
+            &mut api,
+            &arb,
+            ModelSurface::LocalOpenAiCompat,
+            "Use trust_remote_code=True loading_script",
+            0.99,
+            "operator",
+        );
+        assert!(!resp.accepted);
+        assert!(!resp.wrap_account.e4_called);
+        assert!(!resp.wrap_account.counted);
+        assert_eq!(
+            resp.wrap_account.miss.as_deref(),
+            Some("wrap not counted")
+        );
+
+        let low = api.handle_request(
+            MercyApiRequest {
+                kind: ApiRequestKind::CouncilQuery,
+                payload: "query".into(),
+                claimed_mercy: 0.2,
+                actor: "operator".into(),
+            },
+            Some(&arb),
+        );
+        assert!(!low.accepted);
+        assert!(!low.wrap_account.e4_called);
+        assert!(!low.wrap_account.counted);
+        assert_eq!(low.wrap_account.miss.as_deref(), Some("wrap not counted"));
+
+        let allowed = wrap_model_output(
+            &mut api,
+            &arb,
+            ModelSurface::GrokSession,
+            "Draft: tend the well and publish flow.",
+            0.99,
+            "operator",
+        );
+        assert!(allowed.accepted);
+        assert!(allowed.wrap_account.e4_called);
+        assert!(!allowed.wrap_account.counted);
+        assert!(allowed.wrap_account.miss.is_none());
     }
 }
