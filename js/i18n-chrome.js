@@ -1,10 +1,11 @@
 /* js/i18n-chrome.js
- * Offline chrome-only i18n + per-node dir.
+ * Offline chrome i18n + per-node dir.
  * Workspace 14.15.6 · info@Rathor.ai
- * Long copy (Employ body, Privacy body, FAQ answers)
- * stays English in git until site-lock applies a pack. Missing key → English.
- * Never blank. Never invent METR. Recent Updates lines are chrome.
+ * Visitor essays apply in js/i18n-essay.js (loaded after this file).
+ * Missing key → English. Never blank. Never invent METR.
+ * Recent Updates lines are chrome.
  * dir=rtl only when the applied string for that node is actually RTL.
+ * Family pills and language tabs stay LTR. html[dir] follows chrome only.
  */
 (function (root) {
   'use strict';
@@ -28,7 +29,7 @@
     installTitle: 1, installStatus: 1, installCta: 1, demoNote: 1
   };
 
-  var PACK_V = '20260923a';
+  var PACK_V = '20260923b';
 
   var NAV_BY_HREF = {
     '/': 'navHome',
@@ -274,7 +275,13 @@
     ensureLangSelector();
     var lang = savedLang();
     if (root.translations && root.translations[lang]) applyChromeI18n(lang);
-    else if (root.translations && root.translations.en) applyChromeI18n('en');
+    else if (root.translations && root.translations.en) {
+      applyChromeI18n('en');
+      /* Pack is not on the page yet. Do not replace a saved language with en. */
+      if (lang && lang !== 'en') {
+        try { localStorage.setItem('rathor-lang', lang); } catch (e) {}
+      }
+    }
   }
   document.addEventListener('rathor-nav-ready', bootChrome);
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bootChrome);

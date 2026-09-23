@@ -109,6 +109,7 @@
   function bar(kind) {
     var nav = document.createElement('nav');
     nav.id = kind === 'top' ? 'rt-family-nav' : 'rt-family-footer';
+    nav.setAttribute('dir', 'ltr');
     nav.setAttribute('aria-label', kind === 'top' ? 'Ra-Thor family' : 'Ra-Thor family footer');
     var blur = reduceMotion() ? 'none' : 'blur(8px)';
     nav.style.cssText = kind === 'top'

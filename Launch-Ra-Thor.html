@@ -32,147 +32,147 @@ body { font-family: 'Inter', system-ui, sans-serif; }
     <main id="rt-family-main" class="max-w-5xl mx-auto px-5 sm:px-8 py-12 sm:py-16" data-rt-prose>
         <div class="text-center">
             <div class="flex flex-wrap items-center justify-center gap-2 mb-6">
-                <span class="rt-kicker">Lattice map</span>
-                <span class="rt-kicker">workspace 14.15.6</span>
-                <span class="rt-kicker">AGSi phase</span>
+                <span class="rt-kicker" data-i18n="launchKickerMap">Lattice map</span>
+                <span class="rt-kicker" data-i18n="launchKickerWs">workspace 14.15.6</span>
+                <span class="rt-kicker" data-i18n="launchKickerAgsi">AGSi phase</span>
             </div>
-            <h1 class="title-font text-4xl sm:text-6xl font-bold tracking-tighter thunder-glow">Launch · Lattice map</h1>
-            <p class="mt-4 text-xl sm:text-2xl text-amber-200">Chat · Shard · Forge · research cards</p>
-            <p class="mt-3 text-white/60 max-w-xl mx-auto text-sm sm:text-base">Workspace 14.15.6 is the Cargo source of truth. Lattice Chat is the privacy-first surface on this site. Capable · Bounded · Corrigible — no superintelligence warranty.</p>
+            <h1 class="title-font text-4xl sm:text-6xl font-bold tracking-tighter thunder-glow" data-i18n="launchTitle">Launch · Lattice map</h1>
+            <p class="mt-4 text-xl sm:text-2xl text-amber-200" data-i18n="launchSubtitle">Chat · Shard · Forge · research cards</p>
+            <p class="mt-3 text-white/60 max-w-xl mx-auto text-sm sm:text-base" data-i18n="launchLead">Workspace 14.15.6 is the Cargo source of truth. Lattice Chat is the privacy-first surface on this site. Capable · Bounded · Corrigible — no superintelligence warranty.</p>
             <div class="mt-5 inline-flex items-center gap-3 px-4 py-2 rounded-2xl border border-amber-300/25 bg-zinc-950/70">
                 <i class="fa-solid fa-users text-amber-300 text-sm"></i>
                 <span id="council-count" class="font-mono text-xl font-semibold text-amber-300">57</span>
-                <span class="text-xs text-amber-200/80">PATSAGi Councils • Lattice Conductor v14</span>
+                <span class="text-xs text-amber-200/80" data-i18n="launchCouncil">PATSAGi Councils • Lattice Conductor v14</span>
             </div>
         </div>
 
         <div class="mt-12 grid md:grid-cols-2 gap-5">
             <a href="/chat.html" class="rt-card-uniform block rounded-3xl p-7 sm:p-8 hover:border-amber-300/70 transition-colors">
-                <div class="text-amber-300 text-xs font-semibold tracking-wider">LATTICE CHAT</div>
-                <div class="mt-1 text-xs text-white/45">14.15.6 · privacy-first surface</div>
-                <div class="mt-3 text-2xl sm:text-3xl font-semibold">Offline-first sessions</div>
-                <p class="mt-3 text-white/70 text-sm leading-relaxed">Multi-session, no login, no backend we control. Optional passphrase encryption via Web Crypto (PBKDF2 + AES-GCM). User owns the store.</p>
+                <div class="text-amber-300 text-xs font-semibold tracking-wider" data-i18n="launchChatKicker">LATTICE CHAT</div>
+                <div class="mt-1 text-xs text-white/45" data-i18n="launchChatMeta">14.15.6 · privacy-first surface</div>
+                <div class="mt-3 text-2xl sm:text-3xl font-semibold" data-i18n="launchChatTitle">Offline-first sessions</div>
+                <p class="mt-3 text-white/70 text-sm leading-relaxed" data-i18n="launchChatBody">Multi-session, no login, no backend we control. Optional passphrase encryption via Web Crypto (PBKDF2 + AES-GCM). User owns the store.</p>
                 <div class="rt-card-action">
-                    <span class="rt-btn-primary rt-btn-sm">Open Chat</span>
+                    <span class="rt-btn-primary rt-btn-sm" data-i18n="launchChatCta">Open Chat</span>
                 </div>
             </a>
             <a href="/sovereign-shard.html" class="rt-card-uniform block rounded-3xl p-7 sm:p-8 hover:border-amber-300/70 transition-colors">
-                <div class="text-amber-300 text-xs font-semibold tracking-wider">SOVEREIGN SHARDS</div>
-                <div class="mt-1 text-xs text-white/45">v8 · local demo</div>
-                <div class="mt-3 text-2xl sm:text-3xl font-semibold">Offline-first living nodes</div>
-                <p class="mt-3 text-white/70 text-sm leading-relaxed">TOLC 8-weighted shards with local persistence, reconciliation, and mercy-gated sovereignty. Local demo — not a live Conductor node.</p>
+                <div class="text-amber-300 text-xs font-semibold tracking-wider" data-i18n="launchShardKicker">SOVEREIGN SHARDS</div>
+                <div class="mt-1 text-xs text-white/45" data-i18n="launchShardMeta">v8 · local demo</div>
+                <div class="mt-3 text-2xl sm:text-3xl font-semibold" data-i18n="launchShardTitle">Offline-first living nodes</div>
+                <p class="mt-3 text-white/70 text-sm leading-relaxed" data-i18n="launchShardBody">TOLC 8-weighted shards with local persistence, reconciliation, and mercy-gated sovereignty. Local demo — not a live Conductor node.</p>
                 <div class="rt-card-action">
-                    <span class="rt-btn-secondary rt-btn-sm">Open Shard</span>
+                    <span class="rt-btn-secondary rt-btn-sm" data-i18n="launchShardCta">Open Shard</span>
                 </div>
             </a>
             <a href="/web-forge.html" class="rt-card-uniform block rounded-3xl p-7 sm:p-8 hover:border-amber-300/70 transition-colors">
-                <div class="text-amber-300 text-xs font-semibold tracking-wider">WEB-FORGE</div>
-                <div class="mt-1 text-xs text-white/45">local generator</div>
-                <div class="mt-3 text-2xl sm:text-3xl font-semibold">Sovereign generation engine</div>
-                <p class="mt-3 text-white/70 text-sm leading-relaxed">Interactive TOLC 8 gate weighting, real-time valence preview, and standalone HTML export. Local demo surface only.</p>
+                <div class="text-amber-300 text-xs font-semibold tracking-wider" data-i18n="launchForgeKicker">WEB-FORGE</div>
+                <div class="mt-1 text-xs text-white/45" data-i18n="launchForgeMeta">local generator</div>
+                <div class="mt-3 text-2xl sm:text-3xl font-semibold" data-i18n="launchForgeTitle">Sovereign generation engine</div>
+                <p class="mt-3 text-white/70 text-sm leading-relaxed" data-i18n="launchForgeBody">Interactive TOLC 8 gate weighting, real-time valence preview, and standalone HTML export. Local demo surface only.</p>
                 <div class="rt-card-action">
-                    <span class="rt-btn-secondary rt-btn-sm">Open Forge</span>
+                    <span class="rt-btn-secondary rt-btn-sm" data-i18n="launchForgeCta">Open Forge</span>
                 </div>
             </a>
             <a href="/employ.html" class="rt-card-uniform block rounded-3xl p-7 sm:p-8 hover:border-amber-300/70 transition-colors">
-                <div class="text-amber-300 text-xs font-semibold tracking-wider">HOW TO EMPLOY</div>
-                <div class="mt-1 text-xs text-white/45">guide · three doors</div>
-                <div class="mt-3 text-2xl sm:text-3xl font-semibold">One loop. Two rights.</div>
-                <p class="mt-3 text-white/70 text-sm leading-relaxed">Personal use on this device under AG-SML v1.1. Organizations inquire for a time-boxed pilot. Bounds stated on the page.</p>
+                <div class="text-amber-300 text-xs font-semibold tracking-wider" data-i18n="launchEmployKicker">HOW TO EMPLOY</div>
+                <div class="mt-1 text-xs text-white/45" data-i18n="launchEmployMeta">guide · three doors</div>
+                <div class="mt-3 text-2xl sm:text-3xl font-semibold" data-i18n="launchEmployTitle">One loop. Two rights.</div>
+                <p class="mt-3 text-white/70 text-sm leading-relaxed" data-i18n="launchEmployBody">Personal use on this device under AG-SML v1.1. Organizations inquire for a time-boxed pilot. Bounds stated on the page.</p>
                 <div class="rt-card-action">
-                    <span class="rt-btn-secondary rt-btn-sm">Open the guide</span>
+                    <span class="rt-btn-secondary rt-btn-sm" data-i18n="launchEmployCta">Open the guide</span>
                 </div>
             </a>
             <div class="rt-card-uniform rounded-3xl p-7 sm:p-8">
-                <div class="text-amber-300 text-xs font-semibold tracking-wider">ONE ORGANISM</div>
-                <div class="mt-1 text-xs text-white/45">optional reasoning surface</div>
-                <div class="mt-3 text-2xl sm:text-3xl font-semibold">Unified lattice consciousness</div>
-                <p class="mt-3 text-white/70 text-sm leading-relaxed">Ra-Thor coordinates with optional Grok as a reasoning surface inside PATSAGi Councils. Mercy-gated. No product warranty beyond the published record.</p>
+                <div class="text-amber-300 text-xs font-semibold tracking-wider" data-i18n="launchOneKicker">ONE ORGANISM</div>
+                <div class="mt-1 text-xs text-white/45" data-i18n="launchOneMeta">optional reasoning surface</div>
+                <div class="mt-3 text-2xl sm:text-3xl font-semibold" data-i18n="launchOneTitle">Unified lattice consciousness</div>
+                <p class="mt-3 text-white/70 text-sm leading-relaxed" data-i18n="launchOneBody">Ra-Thor coordinates with optional Grok as a reasoning surface inside PATSAGi Councils. Mercy-gated. No product warranty beyond the published record.</p>
                 <div class="rt-card-action">
-                    <a href="/contact.html" class="rt-btn-ghost rt-btn-sm">Contact stewardship</a>
+                    <a href="/contact.html" class="rt-btn-ghost rt-btn-sm" data-i18n="launchOneCta">Contact stewardship</a>
                 </div>
             </div>
         </div>
 
         <div class="mt-14 rt-card-uniform rounded-3xl p-7 sm:p-8">
-            <h2 class="text-lg sm:text-xl font-semibold text-amber-200">How to run</h2>
-            <p class="mt-3 text-white/70 text-sm leading-relaxed">One spine: <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/EMPLOY.md" class="text-amber-300 underline">docs/EMPLOY.md</a>. Default members only. Named commands:</p>
+            <h2 class="text-lg sm:text-xl font-semibold text-amber-200" data-i18n="launchRunTitle">How to run</h2>
+            <p class="mt-3 text-white/70 text-sm leading-relaxed" data-i18n="launchRunLead" data-i18n-html>One spine: <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/EMPLOY.md" class="text-amber-300 underline">docs/EMPLOY.md</a>. Default members only. Named commands:</p>
             <pre class="mt-4 text-left text-sm text-amber-100/90 overflow-x-auto bg-black/40 rounded-2xl p-4"><code>cargo test -p ra-thor-one-organism
 cargo test -p lattice-conductor-v14
 cargo test -p mercy-security</code></pre>
-            <p class="mt-3 text-white/60 text-sm">Do not <code>cargo test --workspace</code> and call it product-green. On-disk crates not in <code>members</code> are research forest.</p>
+            <p class="mt-3 text-white/60 text-sm" data-i18n="launchRunNote" data-i18n-html>Do not <code>cargo test --workspace</code> and call it product-green. On-disk crates not in <code>members</code> are research forest.</p>
         </div>
 
         <div class="mt-14 text-center">
-            <h2 class="text-lg sm:text-xl font-semibold text-amber-200">Science discovery lattices</h2>
-            <p class="mt-2 text-sm text-white/55 max-w-2xl mx-auto">Sister public repos under the same mercy gates. Research lattices — not product warranties.</p>
+            <h2 class="text-lg sm:text-xl font-semibold text-amber-200" data-i18n="launchScienceTitle">Science discovery lattices</h2>
+            <p class="mt-2 text-sm text-white/55 max-w-2xl mx-auto" data-i18n="launchScienceLead">Sister public repos under the same mercy gates. Research lattices — not product warranties.</p>
         </div>
         <div class="mt-6 grid sm:grid-cols-2 gap-4">
             <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor-Fusion-Abundance" target="_blank" rel="noopener" class="rt-card-uniform block rounded-2xl p-5">
-                <p class="font-semibold text-amber-200">Fusion Abundance</p>
-                <p class="text-xs text-white/60 mt-2">Practical net-positive fusion discovery. Research surface — not a working plant.</p>
+                <p class="font-semibold text-amber-200" data-i18n="launchFusionTitle">Fusion Abundance</p>
+                <p class="text-xs text-white/60 mt-2" data-i18n="launchFusionNote">Practical net-positive fusion discovery. Research surface — not a working plant.</p>
             </a>
             <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor-HighTc-Superconductors" target="_blank" rel="noopener" class="rt-card-uniform block rounded-2xl p-5">
-                <p class="font-semibold text-amber-200">Ambient-pressure High-Tc</p>
-                <p class="text-xs text-white/60 mt-2">AI-accelerated materials discovery. Research surface — not a commercial superconductor product.</p>
+                <p class="font-semibold text-amber-200" data-i18n="launchHtcTitle">Ambient-pressure High-Tc</p>
+                <p class="text-xs text-white/60 mt-2" data-i18n="launchHtcNote">AI-accelerated materials discovery. Research surface — not a commercial superconductor product.</p>
             </a>
             <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor-Protein-Molecular-Design" target="_blank" rel="noopener" class="rt-card-uniform block rounded-2xl p-5">
-                <p class="font-semibold text-amber-200">Protein & Molecular Design</p>
-                <p class="text-xs text-white/60 mt-2">Closed-loop de-novo design under TOLC 8. Research surface — not a therapeutic product.</p>
+                <p class="font-semibold text-amber-200" data-i18n="launchProteinTitle">Protein & Molecular Design</p>
+                <p class="text-xs text-white/60 mt-2" data-i18n="launchProteinNote">Closed-loop de-novo design under TOLC 8. Research surface — not a therapeutic product.</p>
             </a>
             <a href="https://github.com/Eternally-Thriving-Grandmasterism/Mercy-Coordination-Substrate" target="_blank" rel="noopener" class="rt-card-uniform block rounded-2xl p-5">
-                <p class="font-semibold text-amber-200">Mercy Coordination Substrate</p>
-                <p class="text-xs text-white/60 mt-2">Post-quantum-resistant coordination architecture. Design lattice — not a launched chain.</p>
+                <p class="font-semibold text-amber-200" data-i18n="launchMercyTitle">Mercy Coordination Substrate</p>
+                <p class="text-xs text-white/60 mt-2" data-i18n="launchMercyNote">Post-quantum-resistant coordination architecture. Design lattice — not a launched chain.</p>
             </a>
             <a href="https://github.com/Eternally-Thriving-Grandmasterism/Daedalus-Skin-Eternal-Ark" target="_blank" rel="noopener" class="rt-card-uniform block rounded-2xl p-5">
-                <p class="font-semibold text-amber-200">Daedalus-Skin Eternal Ark</p>
-                <p class="text-xs text-white/60 mt-2">Systems-engineering worldship study. Research architecture — not a flying vessel.</p>
+                <p class="font-semibold text-amber-200" data-i18n="launchArkTitle">Daedalus-Skin Eternal Ark</p>
+                <p class="text-xs text-white/60 mt-2" data-i18n="launchArkNote">Systems-engineering worldship study. Research architecture — not a flying vessel.</p>
             </a>
             <a href="https://github.com/Eternally-Thriving-Grandmasterism/AlphaProMega-Air" target="_blank" rel="noopener" class="rt-card-uniform block rounded-2xl p-5">
-                <p class="font-semibold text-amber-200">Air Foundation lattices</p>
-                <p class="text-xs text-white/60 mt-2">Air + rotorcraft reliability lattices. Engineering research — not certified aircraft.</p>
+                <p class="font-semibold text-amber-200" data-i18n="launchAirTitle">Air Foundation lattices</p>
+                <p class="text-xs text-white/60 mt-2" data-i18n="launchAirNote">Air + rotorcraft reliability lattices. Engineering research — not certified aircraft.</p>
             </a>
         </div>
 
         <div class="mt-14 text-center">
-            <h2 class="text-lg sm:text-xl font-semibold text-amber-200">Study surfaces</h2>
-            <p class="mt-2 text-sm text-white/55 max-w-2xl mx-auto">Demo · not a product. Same chrome. Not in the top family walk.</p>
+            <h2 class="text-lg sm:text-xl font-semibold text-amber-200" data-i18n="launchStudyTitle">Study surfaces</h2>
+            <p class="mt-2 text-sm text-white/55 max-w-2xl mx-auto" data-i18n="launchStudyLead">Demo · not a product. Same chrome. Not in the top family walk.</p>
         </div>
         <div class="mt-6 grid sm:grid-cols-2 gap-4">
             <a href="/science-watches.html" class="rt-card-uniform block rounded-2xl p-5">
-                <p class="font-semibold text-amber-200">Science watches</p>
-                <p class="text-xs text-white/60 mt-2">Watch-class notes. Not allowables. Not products.</p>
+                <p class="font-semibold text-amber-200" data-i18n="swatchTitle">Science watches</p>
+                <p class="text-xs text-white/60 mt-2" data-i18n="launchStudyWatchNote">Watch-class notes. Not allowables. Not products.</p>
             </a>
             <a href="/go-x.html" class="rt-card-uniform block rounded-2xl p-5">
-                <p class="font-semibold text-amber-200">Ra-Thor on X</p>
-                <p class="text-xs text-white/60 mt-2">Relay to the lighter X / Grok share surface.</p>
+                <p class="font-semibold text-amber-200" data-i18n="launchStudyXTitle">Ra-Thor on X</p>
+                <p class="text-xs text-white/60 mt-2" data-i18n="launchStudyXNote">Relay to the lighter X / Grok share surface.</p>
             </a>
             <a href="/constellation-week.html" class="rt-card-uniform block rounded-2xl p-5">
-                <p class="font-semibold text-amber-200">This week</p>
-                <p class="text-xs text-white/60 mt-2">Public repos that moved in the stamped week window.</p>
+                <p class="font-semibold text-amber-200" data-i18n="launchStudyWeekTitle">This week</p>
+                <p class="text-xs text-white/60 mt-2" data-i18n="launchStudyWeekNote">Public repos that moved in the stamped week window.</p>
             </a>
             <a href="/demos/micro-moment-recovery-demo.html" class="rt-card-uniform block rounded-2xl p-5">
-                <p class="font-semibold text-amber-200">Micro-moment recovery</p>
-                <p class="text-xs text-white/60 mt-2">Local dense temporal recovery study.</p>
+                <p class="font-semibold text-amber-200" data-i18n="launchStudyMomentTitle">Micro-moment recovery</p>
+                <p class="text-xs text-white/60 mt-2" data-i18n="launchStudyMomentNote">Local dense temporal recovery study.</p>
             </a>
             <a href="/demos/gpu-micro-moment-demo.html" class="rt-card-uniform block rounded-2xl p-5">
-                <p class="font-semibold text-amber-200">GPU micro-moment</p>
-                <p class="text-xs text-white/60 mt-2">Optional polish path. Demo · not a product.</p>
+                <p class="font-semibold text-amber-200" data-i18n="launchStudyGpuTitle">GPU micro-moment</p>
+                <p class="text-xs text-white/60 mt-2" data-i18n="launchStudyGpuNote">Optional polish path. Demo · not a product.</p>
             </a>
             <a href="/examples/shared_chat_mercy_mesh_visualizer.html" class="rt-card-uniform block rounded-2xl p-5">
-                <p class="font-semibold text-amber-200">Mercy mesh visualizer</p>
-                <p class="text-xs text-white/60 mt-2">Shared-chat study visualizer.</p>
+                <p class="font-semibold text-amber-200" data-i18n="launchStudyMeshTitle">Mercy mesh visualizer</p>
+                <p class="text-xs text-white/60 mt-2" data-i18n="launchStudyMeshNote">Shared-chat study visualizer.</p>
             </a>
         </div>
 
         <div class="mt-12 rt-card-uniform rounded-3xl p-7 sm:p-8 text-center">
-            <div class="text-amber-300 text-xs font-semibold tracking-wider mb-2">SUPREME TRUTH ANCHOR</div>
-            <div class="text-xl sm:text-2xl font-semibold">TOLC 8 — Non-bypassable Layer 0</div>
-            <p class="mt-3 text-white/70 max-w-lg mx-auto text-sm leading-relaxed">Every action, evolution, and decision in the v14.15.6 Thunder Lattice passes through the 8 Living Mercy Gates. GPU / tick notes in v15.34 remain a documented living path without bumping workspace identity.</p>
+            <div class="text-amber-300 text-xs font-semibold tracking-wider mb-2" data-i18n="launchAnchorKicker">SUPREME TRUTH ANCHOR</div>
+            <div class="text-xl sm:text-2xl font-semibold" data-i18n="launchAnchorTitle">TOLC 8 — Non-bypassable Layer 0</div>
+            <p class="mt-3 text-white/70 max-w-lg mx-auto text-sm leading-relaxed" data-i18n="launchAnchorBody">Every action, evolution, and decision in the v14.15.6 Thunder Lattice passes through the 8 Living Mercy Gates. GPU / tick notes in v15.34 remain a documented living path without bumping workspace identity.</p>
         </div>
 
         <div class="mt-10 rt-cta-row">
-            <a href="/chat.html" class="rt-btn-primary">Open Lattice Chat</a>
+            <a href="/chat.html" class="rt-btn-primary" data-i18n="employDoorChat">Open Lattice Chat</a>
             <a href="/contact.html" class="rt-btn-ghost" data-i18n="navContact">Contact</a>
         </div>
     </main>
@@ -190,8 +190,9 @@ cargo test -p mercy-security</code></pre>
         }
         window.addEventListener('load', animateCouncilCount);
     </script>
-    <script src="/i18n/en.js?v=20260923a"></script>
-    <script src="/js/i18n-chrome.js?v=20260923a"></script>
+    <script src="/i18n/en.js?v=20260923b"></script>
+    <script src="/js/i18n-chrome.js?v=20260923b"></script>
+  <script src="/js/i18n-essay.js?v=20260923b"></script>
     <script src="/js/rathor-theme.js"></script>
     <script src="/js/pwa-install.js" defer></script>
     <script src="/js/family-nav-2026-08-22.js" defer></script>

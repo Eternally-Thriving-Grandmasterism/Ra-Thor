@@ -257,6 +257,9 @@
   function setText(id, value, html) {
     const el = document.getElementById(id);
     if (!el || value == null) return;
+    /* Pack essay/chrome keys own nodes marked data-i18n. Do not blank or overwrite them. */
+    if (el.hasAttribute('data-i18n') || el.hasAttribute('data-lock-i18n')) return;
+    if (el.querySelector && el.querySelector('[data-i18n], [data-lock-i18n]')) return;
     if (html) el.innerHTML = value;
     else el.textContent = value;
   }
