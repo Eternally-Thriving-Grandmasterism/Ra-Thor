@@ -11,6 +11,25 @@
   var deferredPrompt = window.__rtPwa.ev || null;
   var bannerEl = null;
   var knownInstalled = false;
+  var labelMode = 'install';
+
+  function currentLang() {
+    try { return localStorage.getItem('rathor-lang') || 'en'; } catch (e) { return 'en'; }
+  }
+
+  function packText(key, fallback) {
+    var packs = window.translations || {};
+    var pack = packs[currentLang()] || {};
+    var en = packs.en || {};
+    var val = pack[key];
+    if (val != null && String(val) !== '') return String(val);
+    if (en[key] != null && String(en[key]) !== '') return String(en[key]);
+    return fallback;
+  }
+
+  function installLabel() {
+    return packText('installCta', 'Install Ra-Thor');
+  }
 
   function speak(opts) {
     if (typeof window.rathorSay === 'function') {
@@ -71,12 +90,34 @@
     setTimeout(function () { if (el && el.parentNode) el.parentNode.removeChild(el); }, 280);
   }
 
+  function writeInstallCta(node, label) {
+    if (!node) return;
+    if (node.id === 'rathor-pwa-install-btn') {
+      node.textContent = label;
+      return;
+    }
+    var span = node.querySelector('[data-i18n="installCta"]');
+    if (!span) {
+      node.innerHTML = '<i class="fa-solid fa-download" aria-hidden="true"></i> <span data-i18n="installCta"></span>';
+      span = node.querySelector('[data-i18n="installCta"]');
+    }
+    if (span) span.textContent = label;
+  }
+
   function setButtons(label, disabled) {
+    var usePack = label === 'Install Ra-Thor';
+    if (usePack) {
+      label = installLabel();
+      labelMode = 'install';
+    } else if (label === 'Installed' || label === 'Already installed') {
+      labelMode = 'locked';
+    }
     var nodes = document.querySelectorAll('#rathor-hero-install, #rathor-lattice-install, #rathor-pwa-install-btn, [data-rt-pwa-install]');
     for (var i = 0; i < nodes.length; i++) {
       nodes[i].disabled = !!disabled;
-      if (nodes[i].id === 'rathor-pwa-install-btn') nodes[i].textContent = label;
-      else nodes[i].innerHTML = '<i class="fa-solid fa-download"></i> ' + label;
+      if (usePack) writeInstallCta(nodes[i], label);
+      else if (nodes[i].id === 'rathor-pwa-install-btn') nodes[i].textContent = label;
+      else nodes[i].textContent = label;
     }
     var note = document.getElementById('rathor-pwa-status');
     if (note && !disabled) {
@@ -144,16 +185,21 @@
       '<div class="flex items-start gap-3">' +
       '  <img src="/icons/ra-thor-icon-192.png" alt="" width="48" height="48" class="rounded-xl shrink-0 w-12 h-12 object-cover border border-amber-300/30" />' +
       '  <div class="flex-1 min-w-0">' +
-      '    <p class="text-amber-300 font-semibold text-sm sm:text-base leading-snug">Install Ra-Thor</p>' +
+      '    <p class="text-amber-300 font-semibold text-sm sm:text-base leading-snug" data-i18n="installCta">Install Ra-Thor</p>' +
       '    <p class="text-white/60 text-xs sm:text-sm mt-1 leading-relaxed">Home-screen icon. Offline lattice. No store.</p>' +
       '    <div class="flex flex-wrap gap-2 mt-3">' +
-      '      <button type="button" id="rathor-pwa-install-btn" class="px-4 py-2 rounded-xl bg-amber-400 text-black text-sm font-semibold">Install</button>' +
+      '      <button type="button" id="rathor-pwa-install-btn" class="px-4 py-2 rounded-xl bg-amber-400 text-black text-sm font-semibold"></button>' +
       '      <button type="button" id="rathor-pwa-dismiss-btn" class="px-4 py-2 rounded-xl border border-white/20 text-white/70 text-sm">Not now</button>' +
       '    </div>' +
       '  </div>' +
       '  <button type="button" id="rathor-pwa-close-btn" aria-label="Dismiss" class="text-white/40 text-lg leading-none shrink-0 px-1">×</button>' +
       '</div>';
     document.body.appendChild(bannerEl);
+    var bannerLabel = installLabel();
+    var bannerTitle = bannerEl.querySelector('[data-i18n="installCta"]');
+    if (bannerTitle) bannerTitle.textContent = bannerLabel;
+    var bannerInstall = document.getElementById('rathor-pwa-install-btn');
+    if (bannerInstall) bannerInstall.textContent = bannerLabel;
     speak({
       title: 'Install ready',
       body: 'Chrome can add Ra-Thor to this device. Accept opens the system sheet — no store.',
@@ -280,6 +326,15 @@
       tone: 'ok',
       ms: 3000
     });
+  });
+
+  document.addEventListener('rt-chrome-i18n', function () {
+    if (labelMode !== 'install') return;
+    writeInstallCta(document.getElementById('rathor-hero-install'), installLabel());
+    var extras = document.querySelectorAll('[data-rt-pwa-install]');
+    for (var i = 0; i < extras.length; i++) writeInstallCta(extras[i], installLabel());
+    var bannerBtn = document.getElementById('rathor-pwa-install-btn');
+    if (bannerBtn && !bannerBtn.disabled) bannerBtn.textContent = installLabel();
   });
 
   window.rathorTriggerPWAInstall = triggerInstall;

@@ -1,6 +1,6 @@
 /**
  * Ra-Thor site lock 2026-08-22
- * 2026-09-22: product-path cards locked to destination README claims.
+ * 2026-09-23: product-path cards stay on chrome pack keys. Do not restamp English.
  * Contact: info@Rathor.ai — independent of xAI.
  */
 (function () {
@@ -21,7 +21,7 @@
     try { lang = lang || localStorage.getItem('rathor-lang') || 'en'; } catch (e) { lang = 'en'; }
     if (typeof window.rtApplyChromeI18n === 'function') {
       window.rtApplyChromeI18n(lang);
-      lockPathCards();
+      stampPathCards();
       return;
     }
     var packs = window.translations || {};
@@ -46,7 +46,7 @@
       if (rtl) { faqSection.classList.add('rtl'); faqSection.setAttribute('dir', 'rtl'); }
       else { faqSection.classList.remove('rtl'); faqSection.setAttribute('dir', 'ltr'); }
     }
-    lockPathCards();
+    stampPathCards();
   }
   function expandLangButtons() {
     var sel = document.getElementById('lang-selector');
@@ -65,7 +65,7 @@
     return new Promise(function (resolve) {
       if (!lang) { resolve(); return; }
       var s = document.createElement('script');
-      s.src = '/i18n/' + lang + '.js?v=20260923c';
+      s.src = '/i18n/' + lang + '.js?v=20260923d';
       s.onload = function () { resolve(); };
       s.onerror = function () { resolve(); };
       document.head.appendChild(s);
@@ -112,41 +112,25 @@
       if (el) el.setAttribute('data-i18n', map[id]);
     });
   }
-  function setCard(sel, title, lines) {
+  function stampPair(sel, titleKey, bodyKey) {
     var a = document.querySelector(sel);
     if (!a) return;
     var ps = a.querySelectorAll('p');
-    if (ps[0]) ps[0].textContent = title;
-    if (ps[1]) ps[1].textContent = lines[0];
-    if (lines[1]) {
-      if (ps[2]) ps[2].textContent = lines[1];
-      else {
-        var extra = document.createElement('p');
-        extra.className = 'text-[11px] text-white/55 mt-1';
-        extra.textContent = lines[1];
-        a.appendChild(extra);
-      }
-    }
+    if (ps[0] && !ps[0].getAttribute('data-i18n')) ps[0].setAttribute('data-i18n', titleKey);
+    if (ps[1] && !ps[1].getAttribute('data-i18n')) ps[1].setAttribute('data-i18n', bodyKey);
   }
-  function lockPathCards() {
+  function stampPathCards() {
     var root = document.getElementById('product-paths');
     if (!root) return;
-    setCard('#product-paths a[href*="Powrush-MMO"]', 'Play',
-      ['Powrush-MMO — human game repo (separate). Offline first. Title Online stays grey. Not a lattice crate.']);
-    setCard('#product-paths a[href^="mailto:info@Rathor.ai"]', 'License',
-      ['AG-SML v1.1. Pilot or commercial terms. info@Rathor.ai']);
-    setCard('#product-paths a[href$="/Ra-Thor"]', 'Inspect',
-      ['Ra-Thor monorepo — inspectable research software. Councils, whitepaper, crates.']);
-    setCard('#product-paths a[href="/chat.html"]', 'Use offline',
-      ['Lattice Chat on this device. No login.']);
+    stampPair('#product-paths a[href*="Powrush-MMO"]', 'pathPlayTitle', 'pathPlayBody');
+    stampPair('#product-paths a[href^="mailto:info@Rathor.ai"]', 'pathLicenseTitle', 'pathLicenseBody');
+    stampPair('#product-paths a[href$="/Ra-Thor"]', 'pathInspectTitle', 'pathInspectBody');
+    stampPair('#product-paths a[href="/chat.html"]', 'pathOfflineTitle', 'pathOfflineBody');
     var wrap = document.getElementById('wrap-ew2');
     if (wrap) {
       wrap.setAttribute('target', '_blank');
       wrap.setAttribute('rel', 'noopener noreferrer');
-      setCard('#wrap-ew2', 'WRAP-EW2', [
-        'Operator bench. Not a product. Not a lived-hour client. Not Powrush Title Online. Drafts. No warranty. EW2 is not solved. Independent of xAI. Not a fold of Ra-Thor or Powrush-MMO.',
-        'AG-SML v1.1: personal and research use is free. Organization or product use needs COMMERCIAL_LICENSE.'
-      ]);
+      stampPair('#wrap-ew2', 'pathWrapTitle', 'pathWrapBody');
     }
   }
   ready(function () {
@@ -155,7 +139,7 @@
     var fusion = document.getElementById('fusion-hero');
     if (fusion) fusion.setAttribute('data-i18n', 'fusion');
     wireSessionCards();
-    lockPathCards();
+    stampPathCards();
     expandLangButtons();
     bindLangSelector();
     if (!document.getElementById('living-surfaces')) {
@@ -168,7 +152,7 @@
           '<a href="/chat.html" class="card-hover rt-card-uniform block rounded-2xl p-5"><p class="font-semibold text-amber-100" data-i18n="surfaceChat">Offline Lattice Chat</p><p class="text-xs text-white/60 mt-2" data-i18n="surfaceChatNote">Private sessions on this device. Optional passphrase. No account. No backend we control.</p></a>' +
           '<a href="/Launch-Ra-Thor.html" class="card-hover rt-card-uniform block rounded-2xl p-5"><p class="font-semibold text-amber-100" data-i18n="surfaceMap">Launch map</p><p class="text-xs text-white/60 mt-2" data-i18n="surfaceMapNote">Public map of Chat, Shard, Forge, and research cards.</p></a>' +
           '<a href="/sovereign-shard.html" class="card-hover rt-card-uniform block rounded-2xl p-5"><p class="font-semibold text-amber-100" data-i18n="surfaceShard">Sovereign Shard</p><p class="text-xs text-white/60 mt-2" data-i18n="surfaceShardNote">Local demonstration of the mercy gates on this device.</p></a>' +
-          '<a href="/docs/WHITEPAPER_v4.2.md" target="_blank" rel="noopener" class="card-hover rt-card-uniform block rounded-2xl p-5"><p class="font-semibold text-amber-100">Whitepaper v4.2</p><p class="text-xs text-white/60 mt-2">Living public cover. July architecture essay remains the historical record.</p></a>' +
+          '<a href="/docs/WHITEPAPER_v4.2.md" target="_blank" rel="noopener" class="card-hover rt-card-uniform block rounded-2xl p-5"><p class="font-semibold text-amber-100" data-i18n="homeSurfacePaper">Whitepaper v4.2</p><p class="text-xs text-white/60 mt-2" data-i18n="homeSurfacePaperNote">Living public cover. July architecture essay remains the historical record.</p></a>' +
           '<a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor" target="_blank" rel="noopener" class="card-hover rt-card-uniform block rounded-2xl p-5"><p class="font-semibold text-amber-100" data-i18n="surfaceRepo">Open the monorepo</p><p class="text-xs text-white/60 mt-2" data-i18n="surfaceRepoNote">Source, councils, conductor, and public fixtures.</p></a>' +
           '</div></section>');
       }
@@ -179,7 +163,7 @@
       bindLangSelector();
       hookLanguageSwitch();
       wireSessionCards();
-      lockPathCards();
+      stampPathCards();
       try {
         var savedLang = localStorage.getItem('rathor-lang') || 'en';
         loadPackB(savedLang).then(function () { applyLockI18n(savedLang); });

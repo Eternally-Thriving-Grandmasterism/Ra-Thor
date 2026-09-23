@@ -8,7 +8,7 @@
  * article dir/lang to the applied language. An English copy
  * stays dir=ltr lang=en. Family pills and language tabs stay LTR.
  * Does not set html[dir]. Does not touch COEP or Google Translate.
- * Cache token: 20260923c
+ * Cache token: 20260923d
  */
 (function (root) {
   'use strict';
@@ -153,6 +153,8 @@
     employWrapTitle: 1,
     footerFamilyTitle: 1,
     footerPrivacyTitle: 1,
+    footerTrademarksText: 1,
+    footerTrademarksTitle: 1,
     footerWorkspaceTitle: 1,
     goxNote: 1,
     goxPrimary: 1,
