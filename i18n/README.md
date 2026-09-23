@@ -1,6 +1,6 @@
 # Rathor.ai homepage locale packs
 
-**Cache token:** `20260922b` (`i18n-chrome.js` and packs)  
+**Cache token:** `20260923a` (`i18n-chrome.js` and packs)  
 **Source of truth:** `i18n/en.js`  
 **Contact:** info@Rathor.ai
 
@@ -16,6 +16,7 @@ Offline packs translate **chrome**, not essays. Future copy edits to Employ / Pr
 - recent updates — `weekTitle`, `weekLineWrap`, `weekLineRa`, `weekLinePowrush`, `weekLineResearch`, `weekMore`
 - session cards — titles, subtitles, CTAs (`grok*` `x*` `vibe*` `employCta`)
 - Employ chrome — `employTitle`, `employSubtitle`
+- install chip — `installTitle`, `installStatus`, `installCta`, `demoNote`
 - Contact inquiry — `contactInquiry`
 - Google tab chrome — `gTranslateBtn`, `gTranslateNote`
 
@@ -25,15 +26,15 @@ Offline packs translate **chrome**, not essays. Future copy edits to Employ / Pr
 - Privacy body
 - FAQ answers (`faqA*`) and FAQ questions (`faqQ*`)
 
-Missing key → English. Never blank. Never invent METR. Recent Updates lines are chrome, including `weekLineResearch`. The homepage site-lock still applies FAQ packs after chrome.
+Missing key → English. Never blank. Never invent METR. Recent Updates lines are chrome, including `weekLineResearch`. `i18n-chrome.js` stamps family-nav and Follow labels, and mounts `#lang-selector` when a page has none. Site-lock delegates to that apply when the script is present, so FAQ and Employ / Privacy essays stay English. The family pill row and the language tabs stay left-to-right.
 
 ## Direction
 
 `dir=rtl` only when the **applied string** for that node is actually RTL (`ar` / `fa` / `he` script). English fallback forces `dir=ltr` on that node. If most chrome nodes fell back, `<main>` stays `ltr`. `html[dir]` follows chrome only — not the language code alone. `<article>` / `.rt-prose` stay `dir=ltr lang=en` until a real translation exists. Family pill row stays Home…Privacy left-to-right (do not mirror).
 
-Buttons on `index.html` load `/i18n/{lang}.js?v=20260922b`.
+Buttons on `index.html` load `/i18n/{lang}.js?v=20260923a`.
 
-Service worker precaches `/i18n/*.js`. Offline packs are the product UX. Google Translate is a **new-tab URL** (`js/google-translate-optin.js`) — it does **not** inject `translate.google.com` (COEP `require-corp` would fail a widget). Do not relax COEP on `/chat.html` or worker paths.
+Service worker precaches every `/i18n/*.js` pack plus `/js/i18n-chrome.js`. Script fetches stay network-first. If the network fails, `/i18n/*.js` and `i18n-chrome.js` match the precache with the query string ignored, so `?v=20260923a` still opens offline. Offline packs are the product UX. Google Translate is a **new-tab URL** (`js/google-translate-optin.js`) — it does **not** inject `translate.google.com` (COEP `require-corp` would fail a widget). Do not relax COEP on `/chat.html` or worker paths.
 
 | Code | Language | Notes |
 | --- | --- | --- |

@@ -19,6 +19,11 @@
   }
   function applyLockI18n(lang) {
     try { lang = lang || localStorage.getItem('rathor-lang') || 'en'; } catch (e) { lang = 'en'; }
+    if (typeof window.rtApplyChromeI18n === 'function') {
+      window.rtApplyChromeI18n(lang);
+      lockPathCards();
+      return;
+    }
     var packs = window.translations || {};
     var t = packs[lang] || packs.en;
     var en = packs.en || {};
@@ -60,7 +65,7 @@
     return new Promise(function (resolve) {
       if (!lang) { resolve(); return; }
       var s = document.createElement('script');
-      s.src = '/i18n/' + lang + '.js?v=20260922b';
+      s.src = '/i18n/' + lang + '.js?v=20260923a';
       s.onload = function () { resolve(); };
       s.onerror = function () { resolve(); };
       document.head.appendChild(s);
@@ -175,7 +180,10 @@
       hookLanguageSwitch();
       wireSessionCards();
       lockPathCards();
-      try { applyLockI18n(localStorage.getItem('rathor-lang') || 'en'); } catch (e) { applyLockI18n('en'); }
+      try {
+        var savedLang = localStorage.getItem('rathor-lang') || 'en';
+        loadPackB(savedLang).then(function () { applyLockI18n(savedLang); });
+      } catch (e) { applyLockI18n('en'); }
     });
     bootScript('pwa-install', '/js/pwa-install.js', true);
     bootScript('family-nav-2026-08-22', '/js/family-nav-2026-08-22.js');

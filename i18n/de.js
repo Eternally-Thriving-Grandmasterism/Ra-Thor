@@ -168,6 +168,10 @@ window.translations["de"] = {
   "weekLineWrap": "Öffentliche Forschungsbank, von dieser Startseite verlinkt. Nur Bewertungsentwürfe. EW2 solved = False. Keine Gewähr. Keine AG-SML-Zertifizierung. Keine Cargo- oder Workspace-Faltung. AG-SML v1.1: persönliche und Forschungsnutzung ist frei. Organisations- oder Produktnutzung braucht eine kostenpflichtige COMMERCIAL_LICENSE.",
   "weekLineResearch": "Auch öffentlich (Forschung / kein Produkt): Daedalus, Air, Space-Thriving, Mercy-Coordination, High-Tc, Fusion.",
   "weekMore": "Vollständige Hinweisnotiz →",
-  "employCta": "Einsatzleitfaden öffnen →",
+  "employCta": "Öffnen, wie es eingesetzt wird →",
   "contactInquiry": "Schreiben Sie an info@Rathor.ai",
+  "employTitle": "So wird es eingesetzt",
+  "employSubtitle": "Drei Türen. Eine Schleife. Zwei Rechte. Persönliche Nutzung auf diesem Gerät. Organisationen fragen einen Piloten an.",
+  "gTranslateBtn": "Mit Google übersetzen",
+  "gTranslateNote": "Öffnet Google Übersetzer in einem neuen Tab. Braucht das Netz. Nicht das Offline-Paket.",
 };
