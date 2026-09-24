@@ -166,6 +166,7 @@ window.translations["el"] = {
   "navHome": "Αρχική",
   "navChat": "Συνομιλία",
   "navEmploy": "Εφαρμογή",
+  "navPilot": "Πιλότος",
   "navLaunch": "Εκκίνηση",
   "navMoments": "Στιγμές",
   "navShard": "Θραύσμα",

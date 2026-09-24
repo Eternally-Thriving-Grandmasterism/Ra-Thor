@@ -166,6 +166,7 @@ window.translations["hi"] = {
   "navHome": "मुखपृष्ठ",
   "navChat": "चैट",
   "navEmploy": "उपयोग",
+  "navPilot": "पायलट",
   "navLaunch": "प्रक्षेपण",
   "navMoments": "क्षण",
   "navShard": "शार्ड",

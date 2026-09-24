@@ -166,6 +166,7 @@ window.translations["vi"] = {
   "navHome": "Trang chủ",
   "navChat": "Trò chuyện",
   "navEmploy": "Sử dụng",
+  "navPilot": "Thử nghiệm",
   "navLaunch": "Khởi chạy",
   "navMoments": "Khoảnh khắc",
   "navShard": "Mảnh",

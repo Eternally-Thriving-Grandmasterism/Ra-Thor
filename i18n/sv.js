@@ -166,6 +166,7 @@ window.translations["sv"] = {
   "navHome": "Hem",
   "navChat": "Chatt",
   "navEmploy": "Använd",
+  "navPilot": "Pilot",
   "navLaunch": "Starta",
   "navMoments": "Ögonblick",
   "navShard": "Skärva",

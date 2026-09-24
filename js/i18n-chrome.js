@@ -12,7 +12,7 @@
   if (root.__rtI18nChrome) return;
   root.__rtI18nChrome = true;
 
-  var RTL_RE = /[\u0590-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFF]/
+  var RTL_RE = /[\u0590-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFF]/;
 
   var CHROME = {
     navHome: 1, navChat: 1, navEmploy: 1, navPilot: 1, navLaunch: 1, navMoments: 1,

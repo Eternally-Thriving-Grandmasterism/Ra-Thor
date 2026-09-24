@@ -166,6 +166,7 @@ window.translations["ar"] = {
   "navHome": "الرئيسية",
   "navChat": "الدردشة",
   "navEmploy": "الاستخدام",
+  "navPilot": "تجريبي",
   "navLaunch": "الإطلاق",
   "navMoments": "اللحظات",
   "navShard": "الشظية",

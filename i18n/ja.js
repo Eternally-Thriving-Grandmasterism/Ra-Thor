@@ -166,6 +166,7 @@ window.translations["ja"] = {
   "navHome": "ホーム",
   "navChat": "チャット",
   "navEmploy": "活用",
+  "navPilot": "パイロット",
   "navLaunch": "起動",
   "navMoments": "瞬間",
   "navShard": "シャード",

@@ -166,6 +166,7 @@ window.translations["id"] = {
   "navHome": "Beranda",
   "navChat": "Obrolan",
   "navEmploy": "Pakai",
+  "navPilot": "Uji coba",
   "navLaunch": "Luncurkan",
   "navMoments": "Momen",
   "navShard": "Pecahan",

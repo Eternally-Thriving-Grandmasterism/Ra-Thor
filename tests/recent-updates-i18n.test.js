@@ -34,8 +34,8 @@ assert(weekJson.indexOf('2026-09-08') === -1 && weekJson.indexOf('2026-09-15') =
 assert(chrome.indexOf('weekLineWrap: 1') !== -1, 'chrome must apply weekLineWrap');
 assert(chrome.indexOf('weekLineResearch: 1') !== -1, 'chrome must apply weekLineResearch');
 assert(chrome.indexOf("key === 'weekLineResearch'") === -1, 'weekLineResearch must not stay a long-copy skip');
-assert(home.indexOf('/i18n/en.js?v=20260923f') !== -1, 'homepage pack cache buster must move');
-assert(home.indexOf("s.src = '/i18n/' + lang + '.js?v=20260923f'") !== -1, 'lang tabs must load the new pack token');
+assert(home.indexOf('/i18n/en.js?v=20260924a') !== -1, 'homepage pack cache buster must move');
+assert(home.indexOf("s.src = '/i18n/' + lang + '.js?v=20260924a'") !== -1, 'lang tabs must load the new pack token');
 
 var KEYS = ['weekTitle', 'weekLead', 'weekLineWrap', 'weekLinePowrush', 'weekLineRa', 'weekLineResearch', 'weekMore'];
 var HOME_LANGS = ['en', 'ar', 'es', 'fr', 'nl', 'de', 'zh', 'ja', 'pt', 'ru', 'hi'];

@@ -166,6 +166,7 @@ window.translations["th"] = {
   "navHome": "หน้าแรก",
   "navChat": "แชท",
   "navEmploy": "การใช้งาน",
+  "navPilot": "ไพลอต",
   "navLaunch": "เปิดใช้",
   "navMoments": "ช่วงขณะ",
   "navShard": "เศษ",

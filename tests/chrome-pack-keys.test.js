@@ -22,6 +22,7 @@ assert(KEYS.length >= 40, 'applied chrome key list must stay complete');
 assert(KEYS.indexOf('employTitle') !== -1, 'employTitle must stay applied');
 assert(KEYS.indexOf('gTranslateNote') !== -1, 'gTranslateNote must stay applied');
 assert(KEYS.indexOf('navEmploy') !== -1, 'navEmploy must stay applied');
+assert(KEYS.indexOf('navPilot') !== -1, 'navPilot must stay applied');
 assert(KEYS.indexOf('steward') !== -1, 'steward must be applied chrome');
 assert(KEYS.indexOf('langStoredNote') !== -1, 'lang storage note must be applied chrome');
 assert(KEYS.indexOf('installCta') !== -1, 'installCta must stay applied chrome');
@@ -124,6 +125,7 @@ files.forEach(function (file) {
   if (RTL[lang]) {
     assert(RTL_RE.test(pack.employTitle), lang + ' employTitle must be RTL script');
     assert(RTL_RE.test(pack.navEmploy), lang + ' navEmploy must be RTL script');
+    assert(RTL_RE.test(pack.navPilot), lang + ' navPilot must be RTL script');
     assert(RTL_RE.test(pack.gTranslateNote), lang + ' gTranslateNote must be RTL script');
     assert(RTL_RE.test(pack.pathPlayTitle), lang + ' pathPlayTitle must be RTL script');
     assert(RTL_RE.test(pack.pathWrapBody), lang + ' pathWrapBody must be RTL script');
@@ -138,23 +140,24 @@ files.forEach(function (file) {
   assert(sw.indexOf("'/i18n/" + file + "'") !== -1, 'sw precache must list /i18n/' + file);
 });
 assert(sw.indexOf("'/js/i18n-chrome.js'") !== -1, 'sw precache must list i18n-chrome.js');
+assert(sw.indexOf("'/pilot.html'") !== -1, 'sw precache must list /pilot.html');
 assert(sw.indexOf('ignoreSearch: true') !== -1, 'offline pack loads must ignore the cache query');
 assert(sw.indexOf("pathname.indexOf('/i18n/')") !== -1, 'offline fallback must cover /i18n/');
-assert(sw.indexOf('20260923f') !== -1, 'service worker lock must match the pack token');
-assert(read('js/site-lock-2026-08-22.js').indexOf('20260923f') !== -1, 'site-lock must load the same pack token');
-assert(read('i18n/README.md').indexOf('20260923f') !== -1, 'i18n README must name the cache token');
+assert(sw.indexOf('20260924a') !== -1, 'service worker lock must match the pack token');
+assert(read('js/site-lock-2026-08-22.js').indexOf('20260924a') !== -1, 'site-lock must load the same pack token');
+assert(read('i18n/README.md').indexOf('20260924a') !== -1, 'i18n README must name the cache token');
 assert(chrome.indexOf('rtApplyChromeI18n') !== -1, 'chrome helper must keep apply');
 assert(read('js/site-lock-2026-08-22.js').indexOf('rtApplyChromeI18n') !== -1, 'site-lock must delegate chrome apply');
 
 var pages = [
   'index.html', 'employ.html', 'privacy.html', 'contact.html', 'chat.html',
   'go-x.html', 'Launch-Ra-Thor.html', 'constellation-week.html', 'offline.html',
-  'thanks.html', 'briefing.html', 'science-watches.html'
+  'thanks.html', 'briefing.html', 'science-watches.html', 'pilot.html'
 ];
 pages.forEach(function (page) {
   var html = read(page);
-  assert(html.indexOf('/js/i18n-chrome.js?v=20260923f') !== -1, page + ' must load i18n-chrome at the pack token');
-  assert(html.indexOf('/i18n/en.js?v=20260923f') !== -1, page + ' must load the English pack at the pack token');
+  assert(html.indexOf('/js/i18n-chrome.js?v=20260924a') !== -1, page + ' must load i18n-chrome at the pack token');
+  assert(html.indexOf('/i18n/en.js?v=20260924a') !== -1, page + ' must load the English pack at the pack token');
 });
 var homeHtml = read('index.html');
 PATH_KEYS.forEach(function (key) {
@@ -193,7 +196,7 @@ var essayPages = ['index.html', 'employ.html', 'privacy.html', 'briefing.html', 
 var wired = {};
 essayPages.forEach(function (page) {
   var html = read(page);
-  assert(html.indexOf('/js/i18n-essay.js?v=20260923f') !== -1, page + ' must load i18n-essay at the pack token');
+  assert(html.indexOf('/js/i18n-essay.js?v=20260924a') !== -1, page + ' must load i18n-essay at the pack token');
   var marks = html.match(/data-i18n="([^"]+)"/g) || [];
   marks.forEach(function (raw) {
     var key = raw.slice('data-i18n="'.length, -1);

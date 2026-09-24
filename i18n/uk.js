@@ -166,6 +166,7 @@ window.translations["uk"] = {
   "navHome": "Головна",
   "navChat": "Чат",
   "navEmploy": "Застосування",
+  "navPilot": "Пілот",
   "navLaunch": "Запуск",
   "navMoments": "Моменти",
   "navShard": "Уламок",

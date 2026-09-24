@@ -166,6 +166,7 @@ window.translations["fa"] = {
   "navHome": "خانه",
   "navChat": "گفتگو",
   "navEmploy": "به‌کارگیری",
+  "navPilot": "پایلوت",
   "navLaunch": "آغاز",
   "navMoments": "لحظه‌ها",
   "navShard": "خرده",
