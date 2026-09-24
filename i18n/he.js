@@ -166,6 +166,7 @@ window.translations["he"] = {
   "navHome": "בית",
   "navChat": "צ'אט",
   "navEmploy": "שימוש",
+  "navPilot": "פיילוט",
   "navLaunch": "הפעלה",
   "navMoments": "רגעים",
   "navShard": "שבר",

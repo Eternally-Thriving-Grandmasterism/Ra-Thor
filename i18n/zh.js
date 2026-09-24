@@ -166,6 +166,7 @@ window.translations["zh"] = {
   "navHome": "首页",
   "navChat": "聊天",
   "navEmploy": "运用",
+  "navPilot": "试点",
   "navLaunch": "启动",
   "navMoments": "瞬间",
   "navShard": "碎片",

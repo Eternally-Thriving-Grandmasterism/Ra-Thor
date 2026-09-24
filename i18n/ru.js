@@ -166,6 +166,7 @@ window.translations["ru"] = {
   "navHome": "Главная",
   "navChat": "Чат",
   "navEmploy": "Применение",
+  "navPilot": "Пилот",
   "navLaunch": "Запуск",
   "navMoments": "Моменты",
   "navShard": "Осколок",

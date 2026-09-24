@@ -166,6 +166,7 @@ window.translations["ko"] = {
   "navHome": "홈",
   "navChat": "채팅",
   "navEmploy": "활용",
+  "navPilot": "파일럿",
   "navLaunch": "실행",
   "navMoments": "순간",
   "navShard": "파편",

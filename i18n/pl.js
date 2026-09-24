@@ -166,6 +166,7 @@ window.translations["pl"] = {
   "navHome": "Start",
   "navChat": "Czat",
   "navEmploy": "Stosowanie",
+  "navPilot": "Pilot",
   "navLaunch": "Uruchom",
   "navMoments": "Momenty",
   "navShard": "Odłamek",

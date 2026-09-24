@@ -166,6 +166,7 @@ window.translations["tr"] = {
   "navHome": "Ana sayfa",
   "navChat": "Sohbet",
   "navEmploy": "Kullanım",
+  "navPilot": "Pilot",
   "navLaunch": "Başlat",
   "navMoments": "Anlar",
   "navShard": "Parça",

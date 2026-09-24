@@ -1,6 +1,6 @@
 # Rathor.ai homepage locale packs
 
-**Cache token:** `20260923f` (`i18n-chrome.js`, `i18n-essay.js`, and packs)  
+**Cache token:** `20260924a` (`i18n-chrome.js`, `i18n-essay.js`, and packs)  
 **Source of truth:** `i18n/en.js`  
 **Contact:** info@Rathor.ai
 
@@ -47,9 +47,9 @@ Missing key → English. Never blank. Never invent METR. Recent Updates lines st
 
 `dir=rtl` only when the **applied string** for that node is actually RTL (`ar` / `fa` / `he` script). English fallback forces `dir=ltr lang=en` on that node. If most chrome nodes fell back, `<main>` stays `ltr`. `html[dir]` follows chrome only — not the language code alone, and not the essay. When a pack’s essay string differs from English, that `<article>` / `#faq` / `[data-rt-prose]` takes the applied language (`dir=rtl` only if the applied essay text is RTL script). An English copy keeps `dir=ltr lang=en`. Family pill row stays Home…Privacy left-to-right (do not mirror). Language tabs stay left-to-right.
 
-Buttons on `index.html` load `/i18n/{lang}.js?v=20260923f`. `chat.html` loads the same token.
+Buttons on `index.html` load `/i18n/{lang}.js?v=20260924a`. `chat.html` loads the same token.
 
-Service worker precaches every `/i18n/*.js` pack plus `/js/i18n-chrome.js` and `/js/i18n-essay.js`. Script fetches stay network-first. If the network fails, `/i18n/*.js`, `i18n-chrome.js`, and `i18n-essay.js` match the precache with the query string ignored, so `?v=20260923f` still opens offline. Offline packs are the product UX. Google Translate is a **new-tab URL** (`js/google-translate-optin.js`) — it does **not** inject `translate.google.com` (COEP `require-corp` would fail a widget). Do not relax COEP on `/chat.html` or worker paths.
+Service worker precaches every `/i18n/*.js` pack plus `/js/i18n-chrome.js` and `/js/i18n-essay.js`. Script fetches stay network-first. If the network fails, `/i18n/*.js`, `i18n-chrome.js`, and `i18n-essay.js` match the precache with the query string ignored, so `?v=20260924a` still opens offline. Offline packs are the product UX. Google Translate is a **new-tab URL** (`js/google-translate-optin.js`) — it does **not** inject `translate.google.com` (COEP `require-corp` would fail a widget). Do not relax COEP on `/chat.html` or worker paths.
 
 | Code | Language | Notes |
 | --- | --- | --- |
