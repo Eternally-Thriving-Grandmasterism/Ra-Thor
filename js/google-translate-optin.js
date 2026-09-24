@@ -2,7 +2,8 @@
  * Google Translate = new tab, not a widget.
  * Workspace 14.15.6 · info@Rathor.ai
  * Site COEP require-corp blocks translate.google.com inject.
- * Offline packs remain the default. This link leaves the device.
+ * The Google proxy may fail on this site. Offline packs remain the default.
+ * This link leaves the device. Do not inject a widget. Do not weaken COEP.
  */
 (function () {
   'use strict';
@@ -36,6 +37,19 @@
       '&u=' + encodeURIComponent(u);
   }
 
+  var FAIL_NOTE = 'The Google proxy may fail on this site (COEP).';
+
+  function ensureFailNote() {
+    var wrap = document.getElementById('rt-gtranslate');
+    if (!wrap || document.getElementById('rt-gtranslate-fail')) return;
+    var p = document.createElement('p');
+    p.className = 'rt-gtranslate-note';
+    p.id = 'rt-gtranslate-fail';
+    p.setAttribute('dir', 'ltr');
+    p.textContent = FAIL_NOTE;
+    wrap.appendChild(p);
+  }
+
   function sync() {
     var a = document.getElementById('rt-gtranslate-open');
     var note = document.getElementById('rt-gtranslate-note');
@@ -50,6 +64,7 @@
         'Opens Google Translate in a new tab. Needs the network. Not the offline pack.'
       );
     }
+    ensureFailNote();
   }
 
   function mount() {

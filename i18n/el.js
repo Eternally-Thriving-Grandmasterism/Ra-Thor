@@ -55,6 +55,7 @@ window.translations["el"] = {
   "workRaThor": "Ra-Thor",
   "workRaThorNote": "Κεντρικό μονοαποθετήριο: πύλες ελέους, Συμβούλια PATSAGi, Lattice Conductor, Lattice Chat εκτός σύνδεσης.",
   "workPowrush": "Powrush-MMO",
+  "workPowrushNote": "Ανθρώπινο αποθετήριο παιχνιδιού (ξεχωριστό). Το Dual-repo έζησε την πρώτη ώρα. Όχι crate του lattice. Λογισμικό — όχι ζωντανή υπηρεσία MMO.",
   "workMercyOS": "MercyOS",
   "workMercyOSNote": "Έκφραση λειτουργικού συστήματος του ίδιου πλέγματος με πύλες. Δημόσιος πηγαίος κώδικας. Όχι λειτουργικό για καταναλωτές.",
   "workSubstrate": "Mercy Coordination Substrate",

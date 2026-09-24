@@ -55,6 +55,7 @@ window.translations["th"] = {
   "workRaThor": "Ra-Thor",
   "workRaThorNote": "โมโนรีโปแกน: ประตูความเมตตา สภา PATSAGi, Lattice Conductor, Lattice Chat แบบออฟไลน์",
   "workPowrush": "Powrush-MMO",
+  "workPowrushNote": "ที่เก็บเกมของมนุษย์ (แยกต่างหาก). Dual-repo ใช้ชั่วโมงแรก. ไม่ใช่ crate ของ lattice. ซอฟต์แวร์ — ไม่ใช่บริการ MMO ที่ทำงานอยู่.",
   "workMercyOS": "MercyOS",
   "workMercyOSNote": "การแสดงออกด้านระบบปฏิบัติการของโครงข่ายที่มีประตูเดียวกัน ซอร์สสาธารณะ ไม่ใช่ระบบปฏิบัติการสำหรับผู้บริโภค",
   "workSubstrate": "Mercy Coordination Substrate",

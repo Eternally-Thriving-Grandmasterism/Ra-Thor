@@ -55,6 +55,7 @@ window.translations["es"] = {
   "workRaThor": "Ra-Thor",
   "workRaThorNote": "Monorepositorio núcleo: compuertas de misericordia, Consejos PATSAGi, Lattice Conductor, Lattice Chat sin conexión.",
   "workPowrush": "Powrush-MMO",
+  "workPowrushNote": "Repositorio del juego humano (aparte). Dual-repo vivió la primera hora. No es un crate de la lattice. Software — no es un servicio MMO en vivo.",
   "workMercyOS": "MercyOS",
   "workMercyOSNote": "Expresión de sistema operativo de la misma red con compuertas. Fuente pública. No un SO de consumo.",
   "workSubstrate": "Mercy Coordination Substrate",

@@ -55,6 +55,7 @@ window.translations["ar"] = {
   "workRaThor": "را-ثور",
   "workRaThorNote": "المستودع الأحادي للنواة: بوابات الرحمة، مجالس PATSAGi، Lattice Conductor، Lattice Chat دون اتصال.",
   "workPowrush": "Powrush-MMO",
+  "workPowrushNote": "مستودع اللعبة البشري (منفصل). Dual-repo عاش الساعة الأولى. ليس حزمة lattice. برمجيات — ليست خدمة MMO حيّة.",
   "workMercyOS": "MercyOS",
   "workMercyOSNote": "تعبير نظام تشغيل للشبكة ذات البوابات نفسها. مصدر عام. ليس نظام تشغيل استهلاكياً.",
   "workSubstrate": "Mercy Coordination Substrate",

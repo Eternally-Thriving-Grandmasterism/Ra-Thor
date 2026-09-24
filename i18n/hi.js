@@ -55,6 +55,7 @@ window.translations["hi"] = {
   "workRaThor": "Ra-Thor",
   "workRaThorNote": "\u092e\u0942\u0932 \u092e\u094b\u0928\u094b\u0930\u0947\u092a\u094b: \u0926\u092f\u093e \u0926\u094d\u0935\u093e\u0930, PATSAGi \u092a\u0930\u093f\u0937\u0926\u0947\u0902, Lattice Conductor, \u0911\u092b\u093c\u0932\u093e\u0907\u0928 Lattice Chat\u0964",
   "workPowrush": "Powrush-MMO",
+  "workPowrushNote": "मानव खेल रिपो (अलग)। Dual-repo ने पहला घंटा जिया। lattice का crate नहीं। सॉफ़्टवेयर — जीवित MMO सेवा नहीं।",
   "workMercyOS": "MercyOS",
   "workMercyOSNote": "\u0909\u0938\u0940 \u0926\u094d\u0935\u093e\u0930\u092f\u0941\u0915\u094d\u0924 \u091c\u093e\u0932\u0940 \u0915\u0940 \u0911\u092a\u0930\u0947\u091f\u093f\u0902\u0917-\u0938\u093f\u0938\u094d\u091f\u092e \u0905\u092d\u093f\u0935\u094d\u092f\u0915\u094d\u0924\u093f\u0964 \u0938\u093e\u0930\u094d\u0935\u091c\u0928\u093f\u0915 \u0938\u094d\u0930\u094b\u0924\u0964 \u0909\u092a\u092d\u094b\u0915\u094d\u0924\u093e OS \u0928\u0939\u0940\u0902\u0964",
   "workSubstrate": "Mercy Coordination Substrate",

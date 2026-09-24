@@ -41,6 +41,22 @@ PATH_KEYS.forEach(function (key) {
   assert(KEYS.indexOf(key) !== -1, key + ' must be in the chrome allowlist');
 });
 
+var MAP_KEYS = [
+  'worksTitle', 'worksLead', 'worksFlagships', 'worksCore', 'worksOrg', 'worksRelated',
+  'workRaThor', 'workRaThorNote', 'workPowrush', 'workPowrushNote',
+  'workMercyOS', 'workMercyOSNote', 'workSubstrate', 'workSubstrateNote',
+  'workNexi', 'workNexiNote', 'workEsao', 'workEsaoNote', 'workProxy', 'workProxyNote',
+  'scienceTitle', 'scienceLead',
+  'scienceFusion', 'scienceFusionNote', 'scienceHtc', 'scienceHtcNote',
+  'scienceProtein', 'scienceProteinNote', 'scienceArk', 'scienceArkNote',
+  'scienceAir', 'scienceAirNote', 'scienceRotor', 'scienceRotorNote',
+  'watchTitle', 'watchLead', 'watchPcg', 'watchPcgNote',
+  'watchLattice', 'watchLatticeNote', 'watchPage', 'watchPageNote'
+];
+MAP_KEYS.forEach(function (key) {
+  assert(KEYS.indexOf(key) !== -1, key + ' must be in the chrome allowlist');
+});
+
 var HIRING = {
   ar: 'التوظيف',
   es: 'Empleo',
@@ -88,6 +104,9 @@ assert(en.pathWrapBody.indexOf('COMMERCIAL_LICENSE') !== -1, 'English WRAP card 
 assert(en.pathWrapBody.indexOf('No AG-SML certification') !== -1, 'English WRAP card keeps no AG-SML certification');
 assert(en.langStoredNote.indexOf('rathor.ai') !== -1, 'English language note names this device and the site');
 assert(en.homeSurfacePaper === 'Whitepaper v4.2', 'on-device paper card stays whitepaper v4.2');
+assert(en.workPowrushNote.indexOf('Not a lattice crate') !== -1, 'English Powrush work note keeps not a lattice crate');
+assert(en.workPowrushNote.indexOf('not a live MMO service') !== -1, 'English Powrush work note keeps not a live MMO service');
+assert(en.worksLead.indexOf('not plants, drugs, chains, ships, or certified aircraft') !== -1, 'English works lead keeps the study bound');
 KEYS.forEach(function (key) {
   assert(typeof en[key] === 'string' && en[key].trim() !== '', 'en ' + key + ' must be a non-empty string');
 });
@@ -107,6 +126,10 @@ files.forEach(function (file) {
     assert(pack.employSubtitle !== en.employSubtitle, lang + ' employSubtitle must be translated');
     assert(pack.gTranslateBtn !== en.gTranslateBtn, lang + ' gTranslateBtn must be translated');
     assert(pack.gTranslateNote !== en.gTranslateNote, lang + ' gTranslateNote must be translated');
+    assert(pack.workPowrushNote !== en.workPowrushNote, lang + ' workPowrushNote must be translated');
+    assert(pack.worksTitle !== en.worksTitle, lang + ' worksTitle must be translated');
+    assert(pack.scienceTitle !== en.scienceTitle, lang + ' scienceTitle must be translated');
+    assert(pack.watchTitle !== en.watchTitle, lang + ' watchTitle must be translated');
     assert(pack.pathPlayTitle !== en.pathPlayTitle, lang + ' pathPlayTitle must be translated');
     assert(pack.pathPlayBody !== en.pathPlayBody, lang + ' pathPlayBody must be translated');
     assert(pack.pathLicenseTitle !== en.pathLicenseTitle, lang + ' pathLicenseTitle must be translated');
@@ -131,6 +154,11 @@ files.forEach(function (file) {
     assert(RTL_RE.test(pack.pathWrapBody), lang + ' pathWrapBody must be RTL script');
     assert(RTL_RE.test(pack.steward), lang + ' steward must be RTL script');
     assert(RTL_RE.test(pack.langStoredNote), lang + ' langStoredNote must be RTL script');
+    assert(RTL_RE.test(pack.worksTitle), lang + ' worksTitle must be RTL script');
+    assert(RTL_RE.test(pack.worksLead), lang + ' worksLead must be RTL script');
+    assert(RTL_RE.test(pack.scienceTitle), lang + ' scienceTitle must be RTL script');
+    assert(RTL_RE.test(pack.watchTitle), lang + ' watchTitle must be RTL script');
+    assert(RTL_RE.test(pack.workPowrushNote), lang + ' workPowrushNote must be RTL script');
   }
   assert(pack.weekTitle.indexOf('2026-09-08') === -1, lang + ' must not date Recent Updates');
 });
@@ -147,6 +175,12 @@ assert(sw.indexOf('20260924a') !== -1, 'service worker lock must match the pack 
 assert(read('js/site-lock-2026-08-22.js').indexOf('20260924a') !== -1, 'site-lock must load the same pack token');
 assert(read('i18n/README.md').indexOf('20260924a') !== -1, 'i18n README must name the cache token');
 assert(chrome.indexOf('rtApplyChromeI18n') !== -1, 'chrome helper must keep apply');
+var gt = read('js/google-translate-optin.js');
+assert(gt.indexOf('The Google proxy may fail on this site (COEP).') !== -1, 'Google tab must say the proxy may fail');
+assert(gt.indexOf('translate_a/element.js') === -1, 'Google tab must not inject the widget');
+assert(gt.indexOf('target="_blank"') !== -1, 'Google tab must stay a new tab');
+assert(read('_headers').indexOf('Cross-Origin-Embedder-Policy: require-corp') !== -1, 'COEP require-corp stays');
+assert(read('_headers').indexOf('Cross-Origin-Opener-Policy: same-origin') !== -1, 'COOP same-origin stays');
 assert(read('js/site-lock-2026-08-22.js').indexOf('rtApplyChromeI18n') !== -1, 'site-lock must delegate chrome apply');
 
 var pages = [

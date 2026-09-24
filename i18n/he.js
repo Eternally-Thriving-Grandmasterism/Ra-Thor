@@ -55,6 +55,7 @@ window.translations["he"] = {
   "workRaThor": "Ra-Thor",
   "workRaThorNote": "מונורפו הליבה: שערי הרחמים, מועצות PATSAGi, Lattice Conductor, Lattice Chat לא-מקוון.",
   "workPowrush": "Powrush-MMO",
+  "workPowrushNote": "מאגר משחק אנושי (נפרד). Dual-repo חי את השעה הראשונה. לא crate של ה-lattice. תוכנה — לא שירות MMO חי.",
   "workMercyOS": "MercyOS",
   "workMercyOSNote": "ביטוי מערכת-הפעלה של אותו סריג בשערי רחמים. מקור ציבורי. לא מערכת הפעלה לצרכן.",
   "workSubstrate": "Mercy Coordination Substrate",

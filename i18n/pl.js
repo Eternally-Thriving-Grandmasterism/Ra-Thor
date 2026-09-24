@@ -55,6 +55,7 @@ window.translations["pl"] = {
   "workRaThor": "Ra-Thor",
   "workRaThorNote": "Rdzeniowe monorepozytorium: bramy miłosierdzia, rady PATSAGi, Lattice Conductor, offline Lattice Chat.",
   "workPowrush": "Powrush-MMO",
+  "workPowrushNote": "Ludzkie repo gry (osobne). Dual-repo przeżyło pierwszą godzinę. To nie jest crate lattice. Oprogramowanie — to nie jest działająca usługa MMO.",
   "workMercyOS": "MercyOS",
   "workMercyOSNote": "Wyrażenie tej samej siatki z bramami w postaci systemu operacyjnego. Publiczny kod źródłowy. Nie konsumencki system operacyjny.",
   "workSubstrate": "Mercy Coordination Substrate",
