@@ -1,1 +1,112 @@
-LOAD_FROM_DISK
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Contact — Ra-Thor</title>
+  <meta name="description" content="Official contact for Ra-Thor. Commercial licensing and 2–6 week pilots. info@Rathor.ai">
+  <meta name="theme-color" content="#050505">
+  <link rel="canonical" href="https://rathor.ai/contact.html">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icons/ra-thor-icon-192.png" type="image/png">
+  <link rel="stylesheet" href="/css/rathor-theme.css">
+  <script>
+    (function () {
+      try { document.documentElement.setAttribute('data-theme', localStorage.getItem('rathor-theme') || 'dark'); }
+      catch (e) { document.documentElement.setAttribute('data-theme', 'dark'); }
+    })();
+  </script>
+  <style>
+    body { font-family: Inter, system-ui, sans-serif; }
+    .title-font { font-family: Inter, system-ui, sans-serif; }
+    .thunder-glow { text-shadow: 0 0 40px #ffd700, 0 0 80px #ffaa00; }
+    .card-hover { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+    #license-inquiry-form { text-align: left; }
+    #license-inquiry-form label.rt-field-label, #license-inquiry-form legend { display:block; font-size:0.85rem; font-weight:600; color:var(--rt-gold); margin:0 0 0.4rem; }
+    #license-inquiry-form input[type="text"], #license-inquiry-form input[type="email"], #license-inquiry-form textarea { width:100%; box-sizing:border-box; background:var(--rt-bg-elev); border:1px solid var(--rt-line); color:var(--rt-ink); border-radius:0.85rem; padding:0.7rem 0.9rem; margin-bottom:1rem; font:inherit; }
+    #license-inquiry-form textarea { min-height:7rem; resize:vertical; }
+    #license-inquiry-form fieldset { border:0; margin:0 0 0.25rem; padding:0; }
+    #license-inquiry-form .rt-use-list { display:grid; gap:0.45rem; margin:0 0 1rem; }
+    #license-inquiry-form .rt-use-list label { display:flex; align-items:center; gap:0.55rem; margin:0; color:var(--rt-ink); font-size:0.95rem; }
+    #license-inquiry-form .rt-hp { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); border:0; }
+    #license-inquiry-form .rt-submit-row { display:flex; flex-wrap:wrap; gap:0.75rem 1rem; align-items:center; }
+  </style>
+</head>
+<body class="bg-black text-white overflow-x-hidden">
+  <div class="min-h-screen flex flex-col items-center justify-center relative px-4 sm:px-6 py-12">
+    <div class="max-w-3xl mx-auto text-center z-10 w-full">
+      <p class="rt-page-week"><a href="/constellation-week.html">Full update note →</a></p>
+      <div class="mb-8">
+        <a href="/" class="inline-flex items-center gap-2 text-amber-400 hover:text-amber-300 transition-colors mb-6">← Back to Ra-Thor</a>
+        <h1 class="title-font text-5xl sm:text-6xl font-black tracking-tighter thunder-glow mb-3">Contact Ra-Thor</h1>
+        <p class="text-lg sm:text-xl text-amber-300">Write to info@Rathor.ai</p>
+      </div>
+      <p class="max-w-xl mx-auto text-lg text-white/80 mb-10">Single official point of contact under sole stewardship of <span class="font-semibold text-amber-300">Sherif Samy Botros (@AlphaProMega)</span></p>
+      <div class="card-hover bg-zinc-950 border border-amber-300/30 rounded-3xl p-10 mb-8 max-w-xl mx-auto">
+        <div class="text-6xl mb-6">⚡</div>
+        <h2 class="text-3xl font-semibold mb-2">info@Rathor.ai</h2>
+        <p class="text-amber-400 mb-6">The single eternal official email for all entities</p>
+        <a href="mailto:info@Rathor.ai" class="rt-btn-primary w-full sm:w-auto px-10 py-4 text-lg">Send Email Now</a>
+        <p class="text-xs text-white/50 mt-4">We aim to respond within 48 hours</p>
+      </div>
+      <section id="commercial-inquiry" class="card-hover bg-zinc-950 border border-amber-300/30 rounded-3xl p-8 sm:p-10 mb-10 max-w-xl mx-auto text-left">
+        <h2 class="text-2xl font-semibold text-amber-300 mb-3">AG-SML commercial inquiry</h2>
+        <p class="text-white/80 text-sm leading-relaxed mb-4">Personal / education / modest freelance remains free under AG-SML v1.1. This form is for organization or revenue-generating use. A human replies. There is no instant license key and no public checkout.</p>
+        <p class="text-white/70 text-sm mb-6">Prefer a time-boxed start? See the <a href="/pilot.html" class="text-amber-300 underline">2–6 week pilot</a> page, then use this form.</p>
+        <form id="license-inquiry-form" dir="ltr" method="post" action="#" autocomplete="on">
+          <label class="rt-field-label" for="license-org">Organization name</label>
+          <input id="license-org" name="organization" type="text" autocomplete="organization" required>
+          <label class="rt-field-label" for="license-url">Public site / product URL</label>
+          <input id="license-url" name="url" type="text" inputmode="url" autocomplete="url">
+          <fieldset>
+            <legend>Use</legend>
+            <div class="rt-use-list">
+              <label for="license-use-wrap"><input id="license-use-wrap" type="radio" name="use" value="wrapping a model"> wrapping a model</label>
+              <label for="license-use-ship"><input id="license-use-ship" type="radio" name="use" value="shipping a product"> shipping a product</label>
+              <label for="license-use-eval"><input id="license-use-eval" type="radio" name="use" value="internal eval"> internal eval</label>
+              <label for="license-use-other"><input id="license-use-other" type="radio" name="use" value="other"> other</label>
+            </div>
+          </fieldset>
+          <label class="rt-field-label" for="license-seats">Approx seats or servers</label>
+          <input id="license-seats" name="seats" type="text" inputmode="numeric">
+          <label class="rt-field-label" for="license-email">Reply email</label>
+          <input id="license-email" name="email" type="email" autocomplete="email" required>
+          <label class="rt-field-label" for="license-name">Contact name (optional)</label>
+          <input id="license-name" name="name" type="text" autocomplete="name">
+          <label class="rt-field-label" for="license-message">Message</label>
+          <textarea id="license-message" name="message"></textarea>
+          <div class="rt-hp" aria-hidden="true"><label for="license-hp">Leave blank</label><input id="license-hp" name="rt_hp" type="text" tabindex="-1" autocomplete="off"></div>
+          <div class="rt-submit-row">
+            <button type="submit" class="rt-btn-primary">Open mail to info@Rathor.ai</button>
+            <a href="/privacy.html" class="text-amber-300 underline text-sm">Privacy</a>
+          </div>
+        </form>
+        <p class="text-xs text-white/50 mt-4">Submit opens your mail app to info@Rathor.ai. Nothing is uploaded to rathor.ai.</p>
+      </section>
+      <div class="max-w-xl mx-auto text-left bg-zinc-950/60 border border-white/10 rounded-3xl p-8 mb-10">
+        <h4 class="font-semibold text-amber-300 mb-4">What to include</h4>
+        <ul class="space-y-2 text-white/80 text-sm">
+          <li>• <strong>Commercial licensing or Tier A pilot</strong> — read the <a href="/pilot.html" class="text-amber-300 underline">2–6 week pilot</a> page, then use the form above</li>
+          <li>• <strong>Security reports</strong> — steps to reproduce + potential impact</li>
+          <li>• <strong>Stewardship or partnership</strong> — clear context and proposal</li>
+        </ul>
+        <p class="text-xs text-white/60 mt-4">Subject: <code class="text-amber-200">Ra-Thor Pilot Inquiry — [Org]</code></p>
+      </div>
+      <div class="rt-cta-row">
+        <a href="/" class="rt-btn-ghost">Return home</a>
+        <a href="/pilot.html" class="rt-btn-secondary">2–6 week pilot</a>
+        <a href="/chat.html" class="rt-btn-ghost">Open Lattice Chat</a>
+      </div>
+    </div>
+  </div>
+  <script src="/i18n/en.js?v=20260923f"></script>
+  <script src="/js/i18n-chrome.js?v=20260923f"></script>
+  <script src="/js/i18n-essay.js?v=20260923f"></script>
+  <script src="/js/license-inquiry.js"></script>
+  <script src="/js/week-window.js"></script>
+  <script src="/js/rathor-theme.js"></script>
+  <script src="/js/pwa-install.js" defer></script>
+  <script src="/js/family-nav-2026-08-22.js" defer></script>
+  <script src="/js/site-lock-2026-08-22.js" defer></script>
+</body>
+</html>
