@@ -20,6 +20,7 @@
     { href: '/', label: 'Home' },
     { href: '/chat.html', label: 'Chat' },
     { href: '/employ.html', label: 'Employ' },
+    { href: '/pilot.html', label: 'Pilot' },
     { href: '/Launch-Ra-Thor.html', label: 'Launch' },
     { href: '/micro-moment.html', label: 'Moments' },
     { href: '/sovereign-shard.html', label: 'Shard' },
@@ -68,7 +69,7 @@
       var t = (anchors[i].textContent || '').replace(/\s+/g, ' ').trim();
       if (t) found[t] = true;
     }
-    return !!(found.Home && found.Chat && found.Employ && found.Launch && found.Moments && found.Shard && found.Forge && found.Contact && found.Privacy);
+    return !!(found.Home && found.Chat && found.Employ && found.Pilot && found.Launch && found.Moments && found.Shard && found.Forge && found.Contact && found.Privacy);
   }
 
   function retireLocalFamilyNavs() {
@@ -221,6 +222,7 @@
               '<a href="/">Home</a>' +
               '<a href="/chat.html">Lattice Chat</a>' +
               '<a href="/employ.html">How to employ</a>' +
+              '<a href="/pilot.html">Pilot</a>' +
               '<a href="/Launch-Ra-Thor.html">Launch map</a>' +
               '<a href="/micro-moment.html">Micro-moments</a>' +
               '<a href="/sovereign-shard.html">Sovereign Shard</a>' +
