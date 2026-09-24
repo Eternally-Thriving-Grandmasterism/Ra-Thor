@@ -52,7 +52,7 @@
     chatReplyEmpty: 1, chatReplyFallback: 1
   };
 
-  var PACK_V = '20260923e';
+  var PACK_V = '20260923f';
 
   var NAV_BY_HREF = {
     '/': 'navHome',

@@ -65,7 +65,7 @@
     return new Promise(function (resolve) {
       if (!lang) { resolve(); return; }
       var s = document.createElement('script');
-      s.src = '/i18n/' + lang + '.js?v=20260923e';
+      s.src = '/i18n/' + lang + '.js?v=20260923f';
       s.onload = function () { resolve(); };
       s.onerror = function () { resolve(); };
       document.head.appendChild(s);

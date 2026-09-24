@@ -140,9 +140,9 @@ files.forEach(function (file) {
 assert(sw.indexOf("'/js/i18n-chrome.js'") !== -1, 'sw precache must list i18n-chrome.js');
 assert(sw.indexOf('ignoreSearch: true') !== -1, 'offline pack loads must ignore the cache query');
 assert(sw.indexOf("pathname.indexOf('/i18n/')") !== -1, 'offline fallback must cover /i18n/');
-assert(sw.indexOf('20260923e') !== -1, 'service worker lock must match the pack token');
-assert(read('js/site-lock-2026-08-22.js').indexOf('20260923e') !== -1, 'site-lock must load the same pack token');
-assert(read('i18n/README.md').indexOf('20260923e') !== -1, 'i18n README must name the cache token');
+assert(sw.indexOf('20260923f') !== -1, 'service worker lock must match the pack token');
+assert(read('js/site-lock-2026-08-22.js').indexOf('20260923f') !== -1, 'site-lock must load the same pack token');
+assert(read('i18n/README.md').indexOf('20260923f') !== -1, 'i18n README must name the cache token');
 assert(chrome.indexOf('rtApplyChromeI18n') !== -1, 'chrome helper must keep apply');
 assert(read('js/site-lock-2026-08-22.js').indexOf('rtApplyChromeI18n') !== -1, 'site-lock must delegate chrome apply');
 
@@ -153,8 +153,8 @@ var pages = [
 ];
 pages.forEach(function (page) {
   var html = read(page);
-  assert(html.indexOf('/js/i18n-chrome.js?v=20260923e') !== -1, page + ' must load i18n-chrome at the pack token');
-  assert(html.indexOf('/i18n/en.js?v=20260923e') !== -1, page + ' must load the English pack at the pack token');
+  assert(html.indexOf('/js/i18n-chrome.js?v=20260923f') !== -1, page + ' must load i18n-chrome at the pack token');
+  assert(html.indexOf('/i18n/en.js?v=20260923f') !== -1, page + ' must load the English pack at the pack token');
 });
 var homeHtml = read('index.html');
 PATH_KEYS.forEach(function (key) {
@@ -193,7 +193,7 @@ var essayPages = ['index.html', 'employ.html', 'privacy.html', 'briefing.html', 
 var wired = {};
 essayPages.forEach(function (page) {
   var html = read(page);
-  assert(html.indexOf('/js/i18n-essay.js?v=20260923e') !== -1, page + ' must load i18n-essay at the pack token');
+  assert(html.indexOf('/js/i18n-essay.js?v=20260923f') !== -1, page + ' must load i18n-essay at the pack token');
   var marks = html.match(/data-i18n="([^"]+)"/g) || [];
   marks.forEach(function (raw) {
     var key = raw.slice('data-i18n="'.length, -1);
@@ -303,8 +303,14 @@ files.forEach(function (file) {
   if (lang === 'en') return;
   var pack = loadPack(lang);
   CHAT_KEYS.forEach(function (key) {
-    assert(pack[key] === en[key], lang + ' ' + key + ' stays the English source this seat');
+    assert(pack[key] !== en[key], lang + ' ' + key + ' must be translated');
+    if (RTL[lang]) {
+      assert(RTL_RE.test(pack[key]), lang + ' ' + key + ' must be RTL script');
+    }
   });
+  assert(pack.chatReplyPowrush.indexOf('inspect ≠ METR') !== -1, lang + ' canned Powrush line keeps inspect ≠ METR');
+  assert(pack.chatReplyPowrush.indexOf('EW2 solved = True') === -1, lang + ' canned replies must not solve EW2');
+  assert(pack.chatSubtitle.indexOf('14.15.6') !== -1, lang + ' chat subtitle keeps workspace 14.15.6');
 });
 
 function claimFaults(text) {

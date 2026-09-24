@@ -254,9 +254,9 @@ body { font-family: 'Inter', system-ui, sans-serif; }
       </div>
     </div>
   </footer>
-  <script src="/i18n/en.js?v=20260923e"></script>
-  <script src="/js/i18n-chrome.js?v=20260923e"></script>
-  <script src="/js/i18n-essay.js?v=20260923e"></script>
+  <script src="/i18n/en.js?v=20260923f"></script>
+  <script src="/js/i18n-chrome.js?v=20260923f"></script>
+  <script src="/js/i18n-essay.js?v=20260923f"></script>
   <script src="/js/week-window.js"></script>
   <script src="/js/rathor-theme.js"></script>
   <script src="/js/pwa-install.js"></script>
@@ -300,7 +300,7 @@ body { font-family: 'Inter', system-ui, sans-serif; }
       return new Promise((resolve, reject) => {
         if (window.translations[lang]) { resolve(lang); return; }
         const s = document.createElement('script');
-        s.src = '/i18n/' + lang + '.js?v=20260923e';
+        s.src = '/i18n/' + lang + '.js?v=20260923f';
         s.onload = () => resolve(lang);
         s.onerror = () => reject(new Error('Failed to load i18n/' + lang + '.js'));
         document.head.appendChild(s);
