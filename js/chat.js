@@ -71,6 +71,7 @@
   let llmLoading = false;
   let llmReady = false;
   let llmSupported = false;
+  let llmProbed = false;
   let llmModelId = 'Llama-3.2-1B-Instruct-q4f16_1-MLC';
 
   let backendEnabled = false;
@@ -100,37 +101,76 @@ Do not invent METR numbers, certifications, or a finished MMO. Powrush-MMO is a 
 Contact: info@Rathor.ai
 License: AG-SML v1.1 (personal / research). Organizations license.`;
 
+  var CHAT_LANG_NAMES = {
+    en: 'English', ar: 'العربية', es: 'Español', fr: 'Français',
+    nl: 'Nederlands', de: 'Deutsch', zh: '简体中文', ja: '日本語',
+    pt: 'Português', ru: 'Русский', hi: 'हिन्दी', it: 'Italiano',
+    ko: '한국어', uk: 'Українська', pl: 'Polski', tr: 'Türkçe',
+    vi: 'Tiếng Việt', id: 'Bahasa Indonesia', sv: 'Svenska', th: 'ไทย',
+    el: 'Ελληνικά', fa: 'فارسی', he: 'עברית'
+  };
+
+  function chatLang() {
+    try { return localStorage.getItem('rathor-lang') || ''; } catch (e) { return ''; }
+  }
+
+  function chatStr(key) {
+    var lang = chatLang() || 'en';
+    var packs = (typeof window !== 'undefined' && window.translations) || {};
+    var pack = packs[lang] || packs.en || {};
+    var en = packs.en || {};
+    var val = pack[key];
+    if (val != null && String(val).trim() !== '') return String(val);
+    val = en[key];
+    if (val != null && String(val).trim() !== '') return String(val);
+    return '';
+  }
+
+  function replyInClause() {
+    var lang = chatLang();
+    if (!lang) return '';
+    var name = CHAT_LANG_NAMES[lang] || lang;
+    return 'Reply in ' + name + '.';
+  }
+
+  function systemPreamble() {
+    var line = replyInClause();
+    if (!line) return SYSTEM_PROMPT;
+    return SYSTEM_PROMPT.replace(/\s*$/, '') + '\n\n' + line + '\n';
+  }
+
+  function applyChatSurfaceDir() {
+    var sample = chatStr('chatSpeak') || chatStr('chatReplyHello');
+    var decided = (typeof window.rtChatSurfaceDir === 'function')
+      ? window.rtChatSurfaceDir(sample, chatLang() || 'en')
+      : { dir: 'ltr', lang: 'en' };
+    [chatMessages, chatInput].forEach(function (el) {
+      if (!el) return;
+      el.setAttribute('dir', decided.dir);
+      el.setAttribute('lang', decided.lang);
+    });
+    var family = document.getElementById('rt-family-nav');
+    if (family) family.setAttribute('dir', 'ltr');
+    var tabs = document.getElementById('lang-selector');
+    if (tabs) tabs.setAttribute('dir', 'ltr');
+  }
+
   const LOCAL_KNOWLEDGE = [
-    { q: /hello|hi|hey|greetings|salam|hola|bonjour|hallo|ciao|namaste/i,
-      a: "Thunder locked in, Mate. ⚡️ Offline Mercy Thunder is ready. How may the lattice serve you today?" },
-    { q: /who are you|what is ra-?thor|what is rathor|introduce yourself/i,
-      a: "I am the Lattice Chat surface of Ra-Thor (workspace 14.15.6) — inspectable research software. The lattice is the gates. I am the optional sampler. Outputs are drafts. All responses stay on your device. No data is collected. Independent of xAI. Contact info@Rathor.ai." },
-    { q: /tolc|mercy gate|gates|ethics|guardrails/i,
-      a: "TOLC 8 Living Mercy Gates are non-bypassable:\n• Truth\n• Order\n• Love\n• Compassion (Zero-Harm)\n• Service\n• Abundance\n• Joy\n• Cosmic Harmony\n\nValence floor ≥ 0.999. These gates cannot be turned off." },
-    { q: /privacy|data|track|collect|login|account|encrypt|passphrase|lock/i,
-      a: "Zero personal data leaves your browser. Sessions live only in localStorage. You can optionally enable Passphrase Encryption (AES-GCM) via the lock button for maximum privacy. Forgetting the passphrase makes the data unrecoverable." },
-    { q: /offline|network|internet|api|server|cloud/i,
-      a: "This core is fully offline-first. The fast responder always works. Local Backend Bridge lets you point at your own Ollama / LM Studio server. WebLLM is the pure-browser option." },
-    { q: /local llm|webllm|on-?device|enable llm|load model|android|phone|mobile/i,
-      a: "WebLLM uses WebGPU (best on desktop). Local Backend Bridge connects to any OpenAI-compatible server you run (Ollama recommended). On phones the safest high-quality path is still **Copy Context**." },
-    { q: /ollama|local server|backend|localhost|lm studio|localai/i,
-      a: "Use the **Local Server** button. Point it at your Ollama (default http://localhost:11434/v1) or any OpenAI-compatible endpoint. Model name example: llama3.2, mistral, qwen2.5. Streaming is supported." },
-    { q: /document|upload|inject|file|context injection|rag/i,
-      a: "Use the document button (file icon) next to the mic to upload .txt, .md, .json or .csv files. Their content is injected into the conversation context for Local Server / WebLLM / Copy Context. Everything stays on your device." },
-    { q: /search|find message|look for/i,
-      a: "Use the Search box in the session controls to filter messages in the current session." },
-    { q: /license|commercial|agsml|pay|cost|pricing|free/i,
-      a: "Personal / research use is free under AG-SML v1.1. Organizations license. Contact info@Rathor.ai." },
-    { q: /powrush|mmo|agsi|demonstration|whitepaper/i,
-      a: "Powrush-MMO is a separate repo (human game). Combined AGSi stays SURMISE. Outputs are drafts. inspect ≠ METR. Independent of xAI." },
-    { q: /copy|clipboard|bridge|export|share with|paste into|other llm|claude|gemini|chatgpt|grok/i,
-      a: "Use **Copy Context** — it builds a clean system prompt + your full history (and any injected documents) so you can paste it into Grok, Claude, Gemini, ChatGPT, or any other model." },
-    { q: /help|commands|what can you|features|how to use/i,
-      a: "You can chat offline, manage multiple sessions, search messages, upload documents into context, use Local Server (Ollama), enable WebLLM, speak with the mic, hear replies, Copy Context to any public LLM, and optionally encrypt the entire session store with a passphrase. Everything stays under your control." },
-    { q: /thank|thanks|appreciate|grateful/i,
-      a: "You’re welcome, Mate. ⚡️ Mercy and truth remain available whenever you return." },
-    { q: /bye|goodbye|see you|farewell|exit/i,
-      a: "Until next time. ⚡️ May the lattice serve you with clarity and care." }
+    { q: /hello|hi|hey|greetings|salam|hola|bonjour|hallo|ciao|namaste/i, k: 'chatReplyHello' },
+    { q: /who are you|what is ra-?thor|what is rathor|introduce yourself/i, k: 'chatReplyWho' },
+    { q: /tolc|mercy gate|gates|ethics|guardrails/i, k: 'chatReplyTolc' },
+    { q: /privacy|data|track|collect|login|account|encrypt|passphrase|lock/i, k: 'chatReplyPrivacy' },
+    { q: /offline|network|internet|api|server|cloud/i, k: 'chatReplyOffline' },
+    { q: /local llm|webllm|on-?device|enable llm|load model|android|phone|mobile/i, k: 'chatReplyLocal' },
+    { q: /ollama|local server|backend|localhost|lm studio|localai/i, k: 'chatReplyOllama' },
+    { q: /document|upload|inject|file|context injection|rag/i, k: 'chatReplyDoc' },
+    { q: /search|find message|look for/i, k: 'chatReplySearch' },
+    { q: /license|commercial|agsml|pay|cost|pricing|free/i, k: 'chatReplyLicense' },
+    { q: /powrush|mmo|agsi|demonstration|whitepaper/i, k: 'chatReplyPowrush' },
+    { q: /copy|clipboard|bridge|export|share with|paste into|other llm|claude|gemini|chatgpt|grok/i, k: 'chatReplyCopy' },
+    { q: /help|commands|what can you|features|how to use/i, k: 'chatReplyHelp' },
+    { q: /thank|thanks|appreciate|grateful/i, k: 'chatReplyThanks' },
+    { q: /bye|goodbye|see you|farewell|exit/i, k: 'chatReplyBye' }
   ];
 
   // ─── Crypto helpers (Web Crypto only) ─────────────────────────────────────
@@ -410,13 +450,13 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     if (!activePathBadge) return;
     activePathBadge.classList.remove('active-backend', 'active-webllm');
     if (backendEnabled) {
-      activePathBadge.textContent = 'Local Server';
+      activePathBadge.textContent = chatStr('chatPathServer');
       activePathBadge.classList.add('active-backend');
     } else if (llmReady) {
       activePathBadge.textContent = 'WebLLM';
       activePathBadge.classList.add('active-webllm');
     } else {
-      activePathBadge.textContent = 'Fast Responder';
+      activePathBadge.textContent = chatStr('chatPathFast');
     }
   }
 
@@ -551,7 +591,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     const q = (filter || '').trim().toLowerCase();
 
     if (hist.length === 0) {
-      addMessage("Offline Mercy Thunder ready. ⚡️ TOLC 8 gates active.\n\nFast local responder is active. For stronger power: connect a Local Server (Ollama) or enable WebLLM on desktop, or use **Copy Context**.\n\nYou can also upload documents and optionally encrypt the session store.", 'rathor', false);
+      addMessage(chatStr('chatReplyEmpty'), 'rathor', false);
       updateSessionMeta();
       return;
     }
@@ -658,7 +698,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     if (/\b(kill|murder|harm|attack|weapon|bomb|exploit|hack into|steal|dox|swat|suicide|self[- ]?harm)\b/.test(lower)) {
       return {
         allowed: false,
-        response: "Mercy Gate Compassion (Zero-Harm) engaged. I cannot assist with harm. How else may the lattice serve you with truth and care?"
+        response: chatStr('chatReplyMercy')
       };
     }
     return { allowed: true };
@@ -669,15 +709,10 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     if (!gate.allowed) return gate.response;
 
     for (const entry of LOCAL_KNOWLEDGE) {
-      if (entry.q.test(userText)) return entry.a;
+      if (entry.q.test(userText)) return chatStr(entry.k);
     }
 
-    return "Thunder received. ⚡️ Fast offline responder active.\n\n" +
-           "For stronger generative power:\n" +
-           "• Connect a **Local Server** (Ollama / LM Studio)\n" +
-           "• Enable **WebLLM** on supported desktops\n" +
-           "• Or use **Copy Context** (works everywhere)\n\n" +
-           "You can also upload documents and optionally encrypt the session store.";
+    return chatStr('chatReplyFallback');
   }
 
   // ─── Local Backend ────────────────────────────────────────────────────────
@@ -694,7 +729,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     if (localLlmStatus) {
       localLlmStatus.textContent = connected
         ? `Local Server active (${backendConfig.model})`
-        : (llmReady ? 'WebLLM active' : 'Fast responder active (default)');
+        : (llmReady ? 'WebLLM active' : chatStr('chatStatusDefault'));
     }
   }
 
@@ -721,7 +756,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     if (!backendEnabled) return null;
 
     const hist = getHistory();
-    const messages = [{ role: 'system', content: SYSTEM_PROMPT + getDocumentContext() }];
+    const messages = [{ role: 'system', content: systemPreamble() + getDocumentContext() }];
     hist.slice(-14).forEach(m => {
       messages.push({ role: m.role === 'user' ? 'user' : 'assistant', content: m.text });
     });
@@ -784,7 +819,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     if (!localLlmBtn || !localLlmStatus) return;
     if (state === 'unsupported') {
       localLlmBtn.disabled = true;
-      localLlmBtn.innerHTML = '<i class="fa-solid fa-microchip"></i> Not available';
+      localLlmBtn.innerHTML = '<i class="fa-solid fa-microchip"></i> ' + chatStr('chatNotAvailable');
       localLlmBtn.classList.remove('llm-ready');
       if (!backendEnabled) localLlmStatus.textContent = extra || 'Not supported on this device';
       if (localLlmProgress) localLlmProgress.style.width = '0%';
@@ -809,7 +844,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
       localLlmBtn.disabled = false;
       localLlmBtn.innerHTML = '<i class="fa-solid fa-microchip"></i> WebLLM';
       localLlmBtn.classList.remove('llm-ready');
-      if (!backendEnabled) localLlmStatus.textContent = 'Fast responder active (default)';
+      if (!backendEnabled) localLlmStatus.textContent = chatStr('chatStatusDefault');
       if (localLlmProgress) localLlmProgress.style.width = '0%';
     }
     updatePathBadge();
@@ -848,7 +883,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
   async function generateWithLocalLLM(userText) {
     if (!llmEngine || !llmReady) return null;
     const hist = getHistory();
-    const messages = [{ role: 'system', content: SYSTEM_PROMPT + getDocumentContext() }];
+    const messages = [{ role: 'system', content: systemPreamble() + getDocumentContext() }];
     hist.slice(-10).forEach(m => {
       messages.push({ role: m.role === 'user' ? 'user' : 'assistant', content: m.text });
     });
@@ -1005,11 +1040,15 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     const hist = s ? s.history : [];
     const lines = [
       SYSTEM_PROMPT.trim(),
+    ];
+    var reply = replyInClause();
+    if (reply) lines.push('', reply);
+    lines.push(
       '',
       'You are continuing a conversation that began on the Ra-Thor offline Lattice Chat (rathor.ai/chat.html).',
       '',
       'Conversation history (generated on-device):'
-    ];
+    );
     hist.forEach(m => lines.push(`${m.role === 'user' ? 'Human' : 'Ra-Thor'}: ${m.text}`));
     if (injectedDocs.length > 0) {
       lines.push('', '--- Injected Documents ---');
@@ -1132,6 +1171,18 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     });
   });
 
+  document.addEventListener('rt-chrome-i18n', function () {
+    applyChatSurfaceDir();
+    updatePathBadge();
+    setBackendUI(backendEnabled);
+    if (!llmProbed || llmLoading) return;
+    if (!llmSupported) {
+      var cap = detectLocalLlmSupport();
+      updateLlmUI('unsupported', cap.reason);
+    } else if (llmReady) updateLlmUI('ready');
+    else updateLlmUI('idle');
+  });
+
   // ─── Init ─────────────────────────────────────────────────────────────────
   window.addEventListener('DOMContentLoaded', async () => {
     loadSettings();
@@ -1150,8 +1201,10 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
 
     const cap = detectLocalLlmSupport();
     llmSupported = cap.supported;
+    llmProbed = true;
     if (!llmSupported) updateLlmUI('unsupported', cap.reason);
     else updateLlmUI('idle');
+    applyChatSurfaceDir();
 
     if (backendSettings) backendSettings.classList.add('hidden');
     setBackendUI(false);

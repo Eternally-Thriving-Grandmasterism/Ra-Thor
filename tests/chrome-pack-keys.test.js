@@ -140,9 +140,9 @@ files.forEach(function (file) {
 assert(sw.indexOf("'/js/i18n-chrome.js'") !== -1, 'sw precache must list i18n-chrome.js');
 assert(sw.indexOf('ignoreSearch: true') !== -1, 'offline pack loads must ignore the cache query');
 assert(sw.indexOf("pathname.indexOf('/i18n/')") !== -1, 'offline fallback must cover /i18n/');
-assert(sw.indexOf('20260923d') !== -1, 'service worker lock must match the pack token');
-assert(read('js/site-lock-2026-08-22.js').indexOf('20260923d') !== -1, 'site-lock must load the same pack token');
-assert(read('i18n/README.md').indexOf('20260923d') !== -1, 'i18n README must name the cache token');
+assert(sw.indexOf('20260923e') !== -1, 'service worker lock must match the pack token');
+assert(read('js/site-lock-2026-08-22.js').indexOf('20260923e') !== -1, 'site-lock must load the same pack token');
+assert(read('i18n/README.md').indexOf('20260923e') !== -1, 'i18n README must name the cache token');
 assert(chrome.indexOf('rtApplyChromeI18n') !== -1, 'chrome helper must keep apply');
 assert(read('js/site-lock-2026-08-22.js').indexOf('rtApplyChromeI18n') !== -1, 'site-lock must delegate chrome apply');
 
@@ -153,8 +153,8 @@ var pages = [
 ];
 pages.forEach(function (page) {
   var html = read(page);
-  assert(html.indexOf('/js/i18n-chrome.js?v=20260923d') !== -1, page + ' must load i18n-chrome at the pack token');
-  assert(html.indexOf('/i18n/en.js?v=20260923d') !== -1, page + ' must load the English pack at the pack token');
+  assert(html.indexOf('/js/i18n-chrome.js?v=20260923e') !== -1, page + ' must load i18n-chrome at the pack token');
+  assert(html.indexOf('/i18n/en.js?v=20260923e') !== -1, page + ' must load the English pack at the pack token');
 });
 var homeHtml = read('index.html');
 PATH_KEYS.forEach(function (key) {
@@ -193,7 +193,7 @@ var essayPages = ['index.html', 'employ.html', 'privacy.html', 'briefing.html', 
 var wired = {};
 essayPages.forEach(function (page) {
   var html = read(page);
-  assert(html.indexOf('/js/i18n-essay.js?v=20260923d') !== -1, page + ' must load i18n-essay at the pack token');
+  assert(html.indexOf('/js/i18n-essay.js?v=20260923e') !== -1, page + ' must load i18n-essay at the pack token');
   var marks = html.match(/data-i18n="([^"]+)"/g) || [];
   marks.forEach(function (raw) {
     var key = raw.slice('data-i18n="'.length, -1);
@@ -211,6 +211,101 @@ assert(essayJs.indexOf("getElementById('lang-selector')") !== -1, 'essay apply m
 assert(read('sw.js').indexOf("'/js/i18n-essay.js'") !== -1, 'sw precache must list i18n-essay.js');
 assert(read('i18n/README.md').indexOf('Operator documents') !== -1, 'readme must keep operator docs in English');
 assert(read('i18n/README.md').indexOf('faqA8') !== -1, 'readme must keep the faqA8 lock');
+
+var CHAT_KEYS = [
+  'chatTitle', 'chatSubtitle', 'chatOfflineMercy', 'chatPathFast', 'chatPathServer',
+  'chatLocalIntel', 'chatStatusDefault', 'chatNotAvailable', 'chatLocalNote',
+  'chatSearch', 'chatSpeak', 'chatSend', 'chatSessionFoot',
+  'chatBridgeTitle', 'chatBridgeBody', 'chatCopyTitle', 'chatCopyContext',
+  'chatOpenGrok', 'chatOpenX',
+  'chatReplyHello', 'chatReplyWho', 'chatReplyTolc', 'chatReplyPrivacy',
+  'chatReplyOffline', 'chatReplyLocal', 'chatReplyOllama', 'chatReplyDoc',
+  'chatReplySearch', 'chatReplyLicense', 'chatReplyPowrush', 'chatReplyCopy',
+  'chatReplyHelp', 'chatReplyThanks', 'chatReplyBye', 'chatReplyMercy',
+  'chatReplyEmpty', 'chatReplyFallback'
+];
+CHAT_KEYS.forEach(function (key) {
+  assert(KEYS.indexOf(key) !== -1, key + ' must be in the chrome allowlist');
+  assert(ESSAY.indexOf(key) === -1, key + ' must not be an essay key');
+});
+assert(en.chatTitle === 'Lattice Chat ⚡️', 'English chat title stays Lattice Chat');
+assert(en.chatSubtitle.indexOf('14.15.6') !== -1, 'English chat subtitle keeps workspace 14.15.6');
+assert(en.chatOfflineMercy === 'Offline Mercy Thunder', 'English offline mercy label');
+assert(en.chatPathFast === 'Fast Responder', 'English path badge stays Fast Responder');
+assert(en.chatPathServer === 'Local Server', 'English local server label');
+assert(en.chatLocalIntel === 'Local Intelligence', 'English local intelligence label');
+assert(en.chatNotAvailable === 'Not available', 'English WebLLM unavailable label');
+assert(en.chatSpeak === 'Speak your truth…', 'English composer placeholder');
+assert(en.chatSend === 'Send', 'English send label');
+assert(en.chatSearch === 'Search…', 'English search placeholder');
+assert(en.chatCopyContext === 'Copy Context for any LLM', 'English copy-context label');
+assert(en.chatCopyTitle === 'Copy Context', 'English copy-context title');
+assert(en.chatOpenGrok === 'Open Grok Demo', 'English Open Grok label');
+assert(en.chatOpenX === 'Open X Demo', 'English Open X label');
+assert(en.chatBridgeTitle === 'Bridge to any cloud LLM', 'English bridge title');
+assert(en.chatSessionFoot.indexOf('No backend we control') !== -1, 'English session footer');
+assert(en.chatReplyHello.indexOf('Thunder locked in, Mate') !== -1, 'English hello keeps Thunder locked in, Mate');
+assert(en.chatReplyPowrush.indexOf('inspect ≠ METR') !== -1, 'canned Powrush line keeps inspect ≠ METR');
+assert(en.chatReplyPowrush.indexOf('EW2 solved = True') === -1, 'canned replies must not solve EW2');
+assert(en.chatStatusDefault === 'Fast responder active (default)', 'English default status');
+
+var chatHtml = read('chat.html');
+var chatJs = read('js/chat.js');
+CHAT_KEYS.forEach(function (key) {
+  if (key.indexOf('chatReply') === 0 || key === 'chatNotAvailable') return;
+  assert(chatHtml.indexOf('data-i18n="' + key + '"') !== -1, 'chat.html must mark ' + key);
+});
+assert(chatHtml.indexOf('data-i18n-attr="placeholder"') !== -1, 'chat placeholders must use data-i18n-attr');
+assert(chatJs.indexOf('chatStr(') !== -1, 'chat.js must read pack strings');
+assert(chatJs.indexOf('Thunder locked in') === -1, 'canned hello must come from the pack, not a chat.js literal');
+assert(chatJs.indexOf("'chatReplyHello'") !== -1, 'hello canned line must use chatReplyHello');
+assert(chatJs.indexOf("'chatReplyFallback'") !== -1, 'fallback canned line must use chatReplyFallback');
+assert(chatJs.indexOf("'chatNotAvailable'") !== -1, 'Not available must be read from the pack');
+assert(chatJs.indexOf('Reply in ') !== -1, 'preamble may include Reply in {language}');
+assert(chatJs.indexOf('systemPreamble()') !== -1, 'copy context and model calls must use the preamble');
+assert(chatJs.indexOf('generateLocalResponse') !== -1, 'fast responder must stay');
+var responder = chatJs.slice(chatJs.indexOf('function generateLocalResponse'), chatJs.indexOf('function setBackendUI'));
+assert(responder.indexOf('replyInClause') === -1, 'Fast Responder must not become a translator');
+assert(responder.indexOf('Reply in ') === -1, 'canned responder must not append Reply in');
+assert(chatJs.indexOf("getElementById('rt-family-nav')") !== -1, 'chat dir apply must keep the family row');
+assert(chatJs.indexOf("getElementById('lang-selector')") !== -1, 'chat dir apply must keep language tabs');
+assert(chatJs.indexOf('chat-messages') !== -1 && chatJs.indexOf('chatInput') !== -1, 'transcript and input take surface dir');
+assert(chatJs.indexOf('ceo@acitygames.com') === -1, 'chat.js must not print ceo@acitygames.com');
+assert(chatHtml.indexOf('ceo@acitygames.com') === -1, 'chat.html must not print ceo@acitygames.com');
+assert(read('i18n/README.md').indexOf('does not speak 23 languages') !== -1, 'readme must not claim a 23-language responder');
+
+var chromeSandbox = {
+  document: {
+    readyState: 'loading',
+    addEventListener: function () {},
+    documentElement: { setAttribute: function () {} },
+    body: null,
+    getElementById: function () { return null; },
+    querySelector: function () { return null; },
+    querySelectorAll: function () { return []; }
+  }
+};
+chromeSandbox.window = chromeSandbox;
+vm.createContext(chromeSandbox);
+vm.runInContext(chrome, chromeSandbox, { filename: 'i18n-chrome.js' });
+assert(typeof chromeSandbox.rtChatSurfaceDir === 'function', 'chrome must export chat surface dir');
+var enDir = chromeSandbox.rtChatSurfaceDir(en.chatSpeak, 'ar');
+assert(enDir.dir === 'ltr' && enDir.lang === 'en', 'English chat copy stays ltr even when rathor-lang is ar');
+var arDir = chromeSandbox.rtChatSurfaceDir('مرحبا', 'ar');
+assert(arDir.dir === 'rtl' && arDir.lang === 'ar', 'Arabic script on the chat surface is rtl');
+var faDir = chromeSandbox.rtChatSurfaceDir('سلام', 'fa');
+assert(faDir.dir === 'rtl' && faDir.lang === 'fa', 'Persian script on the chat surface is rtl');
+var heDir = chromeSandbox.rtChatSurfaceDir('שלום', 'he');
+assert(heDir.dir === 'rtl' && heDir.lang === 'he', 'Hebrew script on the chat surface is rtl');
+
+files.forEach(function (file) {
+  var lang = file.replace(/\.js$/, '');
+  if (lang === 'en') return;
+  var pack = loadPack(lang);
+  CHAT_KEYS.forEach(function (key) {
+    assert(pack[key] === en[key], lang + ' ' + key + ' stays the English source this seat');
+  });
+});
 
 function claimFaults(text) {
   var faults = [];
