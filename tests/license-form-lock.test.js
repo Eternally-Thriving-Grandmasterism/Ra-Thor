@@ -118,7 +118,8 @@ assert(linkBlock.indexOf("{ href: '/sovereign-shard.html', label: 'Shard' }") !=
 assert(linkBlock.indexOf("{ href: '/web-forge.html', label: 'Forge' }") !== -1, 'family walk must keep Forge');
 assert(linkBlock.indexOf("{ href: '/contact.html', label: 'Contact' }") !== -1, 'family walk must keep Contact');
 assert(linkBlock.indexOf("{ href: '/privacy.html', label: 'Privacy' }") !== -1, 'family walk must keep Privacy');
-assert((linkBlock.match(/href:/g) || []).length === 9, 'family walk must stay nine destinations');
+assert((linkBlock.match(/href:/g) || []).length === 10, 'family walk is nine destinations plus Pilot');
+assert(linkBlock.indexOf("{ href: '/pilot.html', label: 'Pilot' }") !== -1, 'family walk must include Pilot');
 assert(linkBlock.indexOf('license') === -1, 'family walk must not grow a license page');
 
 assert(contactHtml.indexOf('inspect ≠ METR') === -1, 'contact form must not invent METR copy');

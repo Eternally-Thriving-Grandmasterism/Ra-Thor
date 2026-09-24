@@ -190,7 +190,8 @@ assert(briefingHtml.indexOf('fonts.googleapis') === -1, 'briefing.html must not 
 assert(briefingHtml.indexOf('we will house the working class') === -1, 'briefing.html must not promise to house the working class');
 assert(briefingHtml.indexOf('Ra-Thor ships fusion') === -1, 'briefing.html must not claim Ra-Thor ships fusion');
 var familyLinkBlock = familyNav.slice(familyNav.indexOf('var LINKS = ['), familyNav.indexOf('];', familyNav.indexOf('var LINKS = [')) + 2);
-assert((familyLinkBlock.match(/href:/g) || []).length === 9, 'family walk must stay nine destinations after PILOT-SEQ-1');
+assert((familyLinkBlock.match(/href:/g) || []).length === 10, 'family walk is nine destinations plus Pilot after Employ');
+assert(familyLinkBlock.indexOf("{ href: '/pilot.html', label: 'Pilot' }") !== -1, 'family walk must include Pilot after PILOT-NAV-POLISH');
 assert(familyLinkBlock.indexOf("{ href: '/briefing.html'") === -1, 'family walk must not grow a briefing tab');
 
 var commercialBrief = fs.readFileSync(path.join(root, 'docs/PUBLIC_COMMERCIAL_BRIEF.md'), 'utf8');
