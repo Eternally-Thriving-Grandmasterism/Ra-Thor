@@ -1,0 +1,30 @@
+name: apply-pilot-chrome-sw
+on:
+  workflow_dispatch:
+  push:
+    branches: [grokbot/pilot-chrome-sw-20260924]
+    paths:
+      - scripts/apply-pilot-chrome-sw.cjs
+      - .github/workflows/apply-pilot-chrome-sw.yml
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: grokbot/pilot-chrome-sw-20260924
+      - name: Apply PILOT-CHROME-SW edits
+        run: node scripts/apply-pilot-chrome-sw.cjs
+      - name: Commit and push
+        run: |
+          git config user.name "grokbot"
+          git config user.email "info@Rathor.ai"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "PILOT-CHROME-SW: navPilot chrome + LOCK 20260924a (Actions apply)"
+            git push origin HEAD:grokbot/pilot-chrome-sw-20260924
+          fi
