@@ -12,10 +12,10 @@
   if (root.__rtI18nChrome) return;
   root.__rtI18nChrome = true;
 
-  var RTL_RE = /[\u0590-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFF]/;
+  var RTL_RE = /[\u0590-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFF]/
 
   var CHROME = {
-    navHome: 1, navChat: 1, navEmploy: 1, navLaunch: 1, navMoments: 1,
+    navHome: 1, navChat: 1, navEmploy: 1, navPilot: 1, navLaunch: 1, navMoments: 1,
     navShard: 1, navForge: 1, navContact: 1, navPrivacy: 1,
     followTitle: 1, followX: 1, followLinkedIn: 1, followFacebook: 1,
     headline: 1, fusion: 1, kicker: 1,
@@ -52,13 +52,14 @@
     chatReplyEmpty: 1, chatReplyFallback: 1
   };
 
-  var PACK_V = '20260923f';
+  var PACK_V = '20260924a';
 
   var NAV_BY_HREF = {
     '/': 'navHome',
     '/index.html': 'navHome',
     '/chat.html': 'navChat',
     '/employ.html': 'navEmploy',
+    '/pilot.html': 'navPilot',
     '/Launch-Ra-Thor.html': 'navLaunch',
     '/micro-moment.html': 'navMoments',
     '/sovereign-shard.html': 'navShard',
