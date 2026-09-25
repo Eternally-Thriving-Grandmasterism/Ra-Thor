@@ -55,6 +55,7 @@ window.translations["vi"] = {
   "workRaThor": "Ra-Thor",
   "workRaThorNote": "Monorepo lõi: cổng lòng thương, Hội đồng PATSAGi, Lattice Conductor, Lattice Chat ngoại tuyến.",
   "workPowrush": "Powrush-MMO",
+  "workPowrushNote": "Kho trò chơi của con người (riêng). Dual-repo đã sống giờ đầu. Không phải crate của lattice. Phần mềm — không phải dịch vụ MMO đang chạy.",
   "workMercyOS": "MercyOS",
   "workMercyOSNote": "Biểu hiện hệ điều hành của cùng một lưới có cổng. Mã nguồn công khai. Không phải hệ điều hành tiêu dùng.",
   "workSubstrate": "Mercy Coordination Substrate",

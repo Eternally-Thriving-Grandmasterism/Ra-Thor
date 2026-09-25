@@ -55,6 +55,7 @@ window.translations["ja"] = {
   "workRaThor": "Ra-Thor",
   "workRaThorNote": "\u6838\u30e2\u30ce\u30ec\u30dd\u3002\u6148\u60b2\u30b2\u30fc\u30c8\u3001PATSAGi \u8a55\u8b70\u4f1a\u3001Lattice Conductor\u3001\u30aa\u30d5\u30e9\u30a4\u30f3 Lattice Chat\u3002",
   "workPowrush": "Powrush-MMO",
+  "workPowrushNote": "人間のゲームリポジトリ（別）。Dual-repo は最初の1時間を生きた。lattice の crate ではない。ソフトウェア — 稼働中の MMO サービスではありません。",
   "workMercyOS": "MercyOS",
   "workMercyOSNote": "\u540c\u3058\u30b2\u30fc\u30c8\u683c\u5b50\u306e OS \u8868\u73fe\u3002\u516c\u958b\u30bd\u30fc\u30b9\u3002\u6d88\u8cbb\u8005\u5411\u3051 OS \u3067\u306f\u306a\u3044\u3002",
   "workSubstrate": "Mercy Coordination Substrate",

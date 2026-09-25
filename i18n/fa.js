@@ -55,6 +55,7 @@ window.translations["fa"] = {
   "workRaThor": "Ra-Thor",
   "workRaThorNote": "مونوریپوی هسته: دروازه‌های مهر، شوراهای PATSAGi، Lattice Conductor، Lattice Chat آفلاین.",
   "workPowrush": "Powrush-MMO",
+  "workPowrushNote": "مخزن بازی انسانی (جدا). Dual-repo ساعت نخست را زیست. یک crate از lattice نیست. نرم‌افزار — سرویس زندهٔ MMO نیست.",
   "workMercyOS": "MercyOS",
   "workMercyOSNote": "بیان سیستم‌عاملی همان بافته‌ی دروازه‌دار. منبع عمومی. سیستم‌عامل مصرف‌کننده نیست.",
   "workSubstrate": "Mercy Coordination Substrate",

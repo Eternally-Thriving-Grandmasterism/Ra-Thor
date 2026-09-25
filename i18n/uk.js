@@ -55,6 +55,7 @@ window.translations["uk"] = {
   "workRaThor": "Ra-Thor",
   "workRaThorNote": "Ядровий монорепозиторій: брами милості, ради PATSAGi, Lattice Conductor, офлайн Lattice Chat.",
   "workPowrush": "Powrush-MMO",
+  "workPowrushNote": "Людський ігровий репозиторій (окремий). Dual-repo прожив першу годину. Не crate ґратки. Програма — не живий сервіс MMO.",
   "workMercyOS": "MercyOS",
   "workMercyOSNote": "Вираження тієї самої ґратки з брамами у формі операційної системи. Публічний вихідний код. Не споживча ОС.",
   "workSubstrate": "Mercy Coordination Substrate",

@@ -55,6 +55,7 @@ window.translations["de"] = {
   "workRaThor": "Ra-Thor",
   "workRaThorNote": "Kern-Monorepo: Barmherzigkeitstore, PATSAGi-R\u00e4te, Lattice Conductor, Lattice Chat offline.",
   "workPowrush": "Powrush-MMO",
+  "workPowrushNote": "Menschliches Spiel-Repo (getrennt). Dual-repo hat die erste Stunde gelebt. Kein Lattice-Crate. Software — kein laufender MMO-Dienst.",
   "workMercyOS": "MercyOS",
   "workMercyOSNote": "Betriebssystem-Ausdruck desselben gegatterten Gitters. \u00d6ffentlicher Quellcode. Kein Verbraucher-OS.",
   "workSubstrate": "Mercy Coordination Substrate",

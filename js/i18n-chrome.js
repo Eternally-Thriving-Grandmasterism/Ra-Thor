@@ -49,7 +49,17 @@
     chatReplyOffline: 1, chatReplyLocal: 1, chatReplyOllama: 1, chatReplyDoc: 1,
     chatReplySearch: 1, chatReplyLicense: 1, chatReplyPowrush: 1, chatReplyCopy: 1,
     chatReplyHelp: 1, chatReplyThanks: 1, chatReplyBye: 1, chatReplyMercy: 1,
-    chatReplyEmpty: 1, chatReplyFallback: 1
+    chatReplyEmpty: 1, chatReplyFallback: 1,
+    worksTitle: 1, worksLead: 1, worksFlagships: 1, worksCore: 1, worksOrg: 1, worksRelated: 1,
+    workRaThor: 1, workRaThorNote: 1, workPowrush: 1, workPowrushNote: 1,
+    workMercyOS: 1, workMercyOSNote: 1, workSubstrate: 1, workSubstrateNote: 1,
+    workNexi: 1, workNexiNote: 1, workEsao: 1, workEsaoNote: 1, workProxy: 1, workProxyNote: 1,
+    scienceTitle: 1, scienceLead: 1,
+    scienceFusion: 1, scienceFusionNote: 1, scienceHtc: 1, scienceHtcNote: 1,
+    scienceProtein: 1, scienceProteinNote: 1, scienceArk: 1, scienceArkNote: 1,
+    scienceAir: 1, scienceAirNote: 1, scienceRotor: 1, scienceRotorNote: 1,
+    watchTitle: 1, watchLead: 1, watchPcg: 1, watchPcgNote: 1,
+    watchLattice: 1, watchLatticeNote: 1, watchPage: 1, watchPageNote: 1
   };
 
   var PACK_V = '20260924a';

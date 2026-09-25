@@ -55,6 +55,7 @@ window.translations["it"] = {
   "workRaThor": "Ra-Thor",
   "workRaThorNote": "Monorepo nucleo: cancelli di misericordia, Consigli PATSAGi, Lattice Conductor, Lattice Chat offline.",
   "workPowrush": "Powrush-MMO",
+  "workPowrushNote": "Repo di gioco umano (separato). Dual-repo ha vissuto la prima ora. Non è un crate del lattice. Software — non un servizio MMO dal vivo.",
   "workMercyOS": "MercyOS",
   "workMercyOSNote": "Espressione di sistema operativo della stessa rete con cancelli. Sorgente pubblica. Non un OS di consumo.",
   "workSubstrate": "Mercy Coordination Substrate",

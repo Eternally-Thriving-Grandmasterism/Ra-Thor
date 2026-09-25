@@ -55,6 +55,7 @@ window.translations["sv"] = {
   "workRaThor": "Ra-Thor",
   "workRaThorNote": "Kärnmonorepo: barmhärtighetsgrindar, PATSAGi-råden, Lattice Conductor, Lattice Chat offline.",
   "workPowrush": "Powrush-MMO",
+  "workPowrushNote": "Mänskligt spelarkiv (separat). Dual-repo levde den första timmen. Inte en lattice-crate. Programvara — inte en live-MMO-tjänst.",
   "workMercyOS": "MercyOS",
   "workMercyOSNote": "Operativsystemets uttryck av samma grindade gitter. Offentlig källa. Inte ett konsument-OS.",
   "workSubstrate": "Mercy Coordination Substrate",

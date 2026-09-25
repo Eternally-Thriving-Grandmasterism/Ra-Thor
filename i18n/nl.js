@@ -55,6 +55,7 @@ window.translations["nl"] = {
   "workRaThor": "Ra-Thor",
   "workRaThorNote": "Kernmonorepo: barmhartigheidspoorten, PATSAGi-Raden, Lattice Conductor, Lattice Chat offline.",
   "workPowrush": "Powrush-MMO",
+  "workPowrushNote": "Menselijke game-repo (apart). Dual-repo beleefde het eerste uur. Geen lattice-crate. Software — geen live MMO-dienst.",
   "workMercyOS": "MercyOS",
   "workMercyOSNote": "Besturingssysteem-uitdrukking van hetzelfde gepoorte lattice. Openbare broncode. Geen consumenten-OS.",
   "workSubstrate": "Mercy Coordination Substrate",

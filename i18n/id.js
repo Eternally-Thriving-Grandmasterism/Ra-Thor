@@ -55,6 +55,7 @@ window.translations["id"] = {
   "workRaThor": "Ra-Thor",
   "workRaThorNote": "Monorepo inti: gerbang belas kasih, Dewan PATSAGi, Lattice Conductor, Lattice Chat luring.",
   "workPowrush": "Powrush-MMO",
+  "workPowrushNote": "Repositori permainan manusia (terpisah). Dual-repo menjalani jam pertama. Bukan crate lattice. Perangkat lunak — bukan layanan MMO yang hidup.",
   "workMercyOS": "MercyOS",
   "workMercyOSNote": "Wujud sistem operasi dari kisi bergerbang yang sama. Sumber publik. Bukan sistem operasi konsumen.",
   "workSubstrate": "Mercy Coordination Substrate",

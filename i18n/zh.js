@@ -55,6 +55,7 @@ window.translations["zh"] = {
   "workRaThor": "Ra-Thor",
   "workRaThorNote": "核心单体仓库：慈悲门、PATSAGi 议会、Lattice Conductor、离线 Lattice Chat。",
   "workPowrush": "Powrush-MMO",
+  "workPowrushNote": "人类游戏仓库（独立）。双仓库度过了第一个小时。不是 lattice crate。软件 — 不是在线 MMO 服务。",
   "workMercyOS": "MercyOS",
   "workMercyOSNote": "同一门控晶格的操作系统表达。公开源码。不是消费级操作系统。",
   "workSubstrate": "Mercy Coordination Substrate",

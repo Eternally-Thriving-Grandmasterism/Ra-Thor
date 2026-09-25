@@ -55,6 +55,7 @@ window.translations["tr"] = {
   "workRaThor": "Ra-Thor",
   "workRaThorNote": "Çekirdek monorepo: merhamet kapıları, PATSAGi Konseyleri, Lattice Conductor, çevrimdışı Lattice Chat.",
   "workPowrush": "Powrush-MMO",
+  "workPowrushNote": "İnsan oyunu deposu (ayrı). Dual-repo ilk saati yaşadı. Bir lattice crate değildir. Yazılım — canlı bir MMO hizmeti değil.",
   "workMercyOS": "MercyOS",
   "workMercyOSNote": "Aynı kapılı örgünün işletim sistemi ifadesi. Kamuya açık kaynak. Bir tüketici işletim sistemi değildir.",
   "workSubstrate": "Mercy Coordination Substrate",

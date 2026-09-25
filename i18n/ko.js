@@ -55,6 +55,7 @@ window.translations["ko"] = {
   "workRaThor": "Ra-Thor",
   "workRaThorNote": "핵심 모노레포. 자비 게이트, PATSAGi 평의회, Lattice Conductor, 오프라인 Lattice Chat.",
   "workPowrush": "Powrush-MMO",
+  "workPowrushNote": "인간 게임 저장소(별도). Dual-repo가 첫 시간을 살았다. lattice crate가 아닙니다. 소프트웨어 — 가동 중인 MMO 서비스가 아닙니다.",
   "workMercyOS": "MercyOS",
   "workMercyOSNote": "같은 게이트 격자의 운영체제 표현. 공개 소스. 소비자용 OS가 아닙니다.",
   "workSubstrate": "Mercy Coordination Substrate",
