@@ -74,6 +74,7 @@
     .webllm-row-meta a { color: #93c5fd; text-decoration: underline; }
     .webllm-tier { font-size: 0.68rem; color: rgba(252, 211, 77, 0.85); margin: 0.65rem 0 0; }
     .webllm-consent, .webllm-row-note { font-size: 0.72rem; color: rgba(255,255,255,0.72); margin: 0.4rem 0 0; line-height: 1.4; }
+    .local-preset-on { border-color: rgba(34, 211, 238, 0.9); color: #cffafe; background: rgba(8, 47, 73, 0.55); }
     .webllm-consent .ctrl-btn { margin: 0.35rem 0.3rem 0 0; }
     #net-mode button[aria-pressed="true"] { border-color: #fcd34d; color: #fff; background: rgba(252, 211, 77, 0.16); }
     #search-input { background: #0a0a0a; border: 1px solid rgba(252, 211, 77, 0.3); color: #fde68a; border-radius: 0.6rem; padding: 0.3rem 0.55rem; font-size: 0.75rem; width: 110px; }
@@ -169,6 +170,13 @@
         <p id="webllm-other-note" class="text-[10px] text-white/40 mt-1 leading-snug">Any other model: Local Server (Ollama).</p>
       </div>
       <div id="backend-settings" class="hidden mt-2 pt-2 border-t border-amber-400/15">
+        <div id="local-server-presets" class="flex flex-wrap gap-1.5 mb-1.5" role="group" aria-label="Local server presets">
+          <button type="button" class="ctrl-btn text-xs px-2 border-cyan-400/40 text-cyan-100" data-preset="ollama" aria-pressed="false">Ollama</button>
+          <button type="button" class="ctrl-btn text-xs px-2 border-cyan-400/40 text-cyan-100" data-preset="lmstudio" aria-pressed="false">LM Studio</button>
+          <button type="button" class="ctrl-btn text-xs px-2 border-cyan-400/40 text-cyan-100" data-preset="llamacpp" aria-pressed="false">llama.cpp</button>
+          <button type="button" class="ctrl-btn text-xs px-2 border-cyan-400/40 text-cyan-100" data-preset="vllm" aria-pressed="false">vLLM</button>
+        </div>
+        <p id="local-server-preset-note" class="text-[10px] text-white/40 mb-2 leading-snug">Pick a preset, then Connect. You can edit both fields.</p>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
           <div>
             <label class="block text-cyan-200/80 mb-1">Endpoint</label>
