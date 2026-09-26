@@ -79,8 +79,10 @@
 
   let store = { activeId: null, sessions: {} };
   let voiceSettings = { enabled: true, pitch: 1.0, rate: 1.0, volume: 1.0 };
-  let cryptoKey = null;          // CryptoKey held in memory only
+  let cryptoKey = null;          // AES-GCM key, memory only, while this page is open
+  let cryptoSalt = null;         // same PBKDF2 salt, same lifetime as cryptoKey
   let isEncrypted = false;
+  let saveQueue = Promise.resolve();
 
   let llmEngine = null;
   let llmLoading = false;
@@ -273,6 +275,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
   ];
 
   // ─── Crypto helpers (Web Crypto only) ─────────────────────────────────────
+  /* chat-encrypt-pure */
   function bufToBase64(buf) {
     return btoa(String.fromCharCode(...new Uint8Array(buf)));
   }
@@ -318,6 +321,74 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     return JSON.parse(new TextDecoder().decode(decrypted));
   }
 
+  function encryptionFlagValue() {
+    return '1';
+  }
+
+  // Held key + the same salt. Fresh 12-byte IV. version 1.
+  async function sealStore(key, salt, dataObj) {
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const encoded = new TextEncoder().encode(JSON.stringify(dataObj));
+    const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, encoded);
+    return {
+      encrypted: true,
+      version: 1,
+      salt: bufToBase64(salt),
+      iv: bufToBase64(iv),
+      data: bufToBase64(ciphertext)
+    };
+  }
+
+  async function beginPassphraseLock(passphrase, dataObj) {
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const key = await deriveKey(passphrase, salt);
+    const envelope = await sealStore(key, salt, dataObj);
+    return {
+      envelope: envelope,
+      body: JSON.stringify(envelope),
+      flag: encryptionFlagValue(),
+      isEncrypted: true,
+      cryptoKey: key,
+      cryptoSalt: salt
+    };
+  }
+
+  async function openLockedEnvelope(passphrase, envelope) {
+    const opened = await decryptStore(passphrase, envelope);
+    const salt = base64ToBuf(envelope.salt);
+    const key = await deriveKey(passphrase, salt);
+    return {
+      store: opened,
+      isEncrypted: true,
+      cryptoKey: key,
+      cryptoSalt: salt
+    };
+  }
+
+  async function payloadForSave(lock, storeObj) {
+    if (lock && lock.isEncrypted) {
+      if (!lock.cryptoKey || !lock.cryptoSalt) {
+        return { refused: true, plaintext: false, body: null, envelope: null };
+      }
+      const envelope = await sealStore(lock.cryptoKey, lock.cryptoSalt, storeObj);
+      return { refused: false, plaintext: false, body: JSON.stringify(envelope), envelope: envelope };
+    }
+    return { refused: false, plaintext: true, body: JSON.stringify(storeObj), envelope: null };
+  }
+
+  function plaintextDespiteFlag(flagRaw, storeRaw) {
+    if (flagRaw !== encryptionFlagValue()) return false;
+    if (!storeRaw) return false;
+    try {
+      const parsed = JSON.parse(storeRaw);
+      if (parsed && parsed.encrypted === true) return false;
+      return !!(parsed && parsed.sessions);
+    } catch (e) {
+      return false;
+    }
+  }
+  /* chat-encrypt-pure-end */
+
   // ─── Store load / save with encryption support ────────────────────────────
   function isStoreEncrypted() {
     try {
@@ -340,9 +411,11 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
       if (parsed && parsed.encrypted === true) {
         if (!passphrase) return false; // needs unlock
         try {
-          store = await decryptStore(passphrase, parsed);
-          cryptoKey = await deriveKey(passphrase, base64ToBuf(parsed.salt)); // keep for future saves
-          isEncrypted = true;
+          const opened = await openLockedEnvelope(passphrase, parsed);
+          store = opened.store;
+          cryptoKey = opened.cryptoKey;
+          cryptoSalt = opened.cryptoSalt;
+          isEncrypted = opened.isEncrypted === true;
           return true;
         } catch (err) {
           console.warn('[Ra-Thor] decrypt failed', err);
@@ -350,11 +423,12 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
         }
       }
 
-      // Plain store
+      // Plain store. A lock flag alone is not the passphrase, so this stays plaintext.
       if (parsed && parsed.sessions) {
         store = parsed;
         isEncrypted = false;
         cryptoKey = null;
+        cryptoSalt = null;
       }
     } catch (e) {
       console.warn('[Ra-Thor] loadStore error', e);
@@ -376,31 +450,29 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     };
   }
 
-  async function saveStore() {
+  function saveStore() {
+    saveQueue = saveQueue.then(persistStoreBody, persistStoreBody);
+  }
+
+  async function persistStoreBody() {
     try {
-      if (isEncrypted && cryptoKey) {
-        // Re-encrypt with the current in-memory key material is not directly possible
-        // without the original passphrase. For simplicity and safety we keep the
-        // encrypted envelope approach: user must re-enter passphrase to change encryption state.
-        // Here we just save the current plain structure only if not encrypted.
-        // When encrypted we require the passphrase again only on enable/disable.
-        // For ongoing saves while unlocked we store plaintext in memory and write encrypted only on explicit lock.
-        // Practical approach: while unlocked we keep a temporary plain write,
-        // and the encrypt button creates a new encrypted envelope.
-        localStorage.setItem(STORE_KEY, JSON.stringify(store));
-      } else {
-        localStorage.setItem(STORE_KEY, JSON.stringify(store));
+      const result = await payloadForSave(
+        { isEncrypted: isEncrypted, cryptoKey: cryptoKey, cryptoSalt: cryptoSalt },
+        store
+      );
+      if (!result || result.refused || result.body == null) {
+        console.warn('[Ra-Thor] refusing plaintext save while encryption is on');
+        return;
       }
+      localStorage.setItem(STORE_KEY, result.body);
     } catch (e) {
       console.warn('[Ra-Thor] localStorage write failed', e);
     }
   }
 
-  // Simplified practical encryption flow for reliability:
-  // - Encrypt button creates an encrypted envelope and replaces the store
-  // - On next load the unlock modal appears
-  // - After unlock the store is decrypted into memory and subsequent saves are plaintext until the user encrypts again
-  // This is the safest UX for a pure-browser tool without a persistent keyring.
+  // The held key and salt stay in memory for this page. Every save while the
+  // lock is on writes a new version:1 envelope (same salt, fresh IV).
+  // Plaintext is written only when the lock is off. This card has no turn-off control.
 
   async function enableEncryption() {
     const pass = prompt('Choose a strong passphrase to encrypt all sessions.\n\nWARNING: If you forget this passphrase the data cannot be recovered.');
@@ -415,14 +487,18 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     }
 
     try {
-      const envelope = await encryptStore(pass, store);
-      localStorage.setItem(STORE_KEY, JSON.stringify(envelope));
-      isEncrypted = true;
-      cryptoKey = null; // force re-unlock next time
+      const begun = await beginPassphraseLock(pass, store);
+      cryptoKey = begun.cryptoKey;
+      cryptoSalt = begun.cryptoSalt;
+      isEncrypted = begun.isEncrypted === true;
+      localStorage.setItem(STORE_KEY, begun.body);
+      localStorage.setItem(ENCRYPT_FLAG, begun.flag);
       addMessage('Session store is now encrypted with your passphrase. ⚡️ On the next page load you will be asked to unlock it.\n\nRemember: forgetting the passphrase makes the data unrecoverable.', 'rathor');
     } catch (err) {
       console.error('[Ra-Thor encrypt]', err);
-      addMessage('Encryption failed. Your current sessions remain unencrypted.', 'rathor');
+      if (!isEncrypted) {
+        addMessage('Encryption failed. Your current sessions remain unencrypted.', 'rathor');
+      }
     }
   }
 
@@ -434,13 +510,21 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     if (success) {
       if (unlockOverlay) unlockOverlay.classList.remove('active');
       if (unlockError) unlockError.classList.add('hidden');
-      isEncrypted = false; // now unlocked in memory
       refreshSessionSelect();
       renderHistory();
       addMessage('Lattice unlocked. ⚡️ Sessions are available for this browser session.', 'rathor');
     } else {
       if (unlockError) unlockError.classList.remove('hidden');
     }
+  }
+
+  function warnIfPlaintextUnderFlag() {
+    var flagRaw = null;
+    var storeRaw = null;
+    try { flagRaw = localStorage.getItem(ENCRYPT_FLAG); } catch (e) { flagRaw = null; }
+    try { storeRaw = localStorage.getItem(STORE_KEY); } catch (e) { storeRaw = null; }
+    if (!plaintextDespiteFlag(flagRaw, storeRaw)) return;
+    addMessage(chatLabel('chatEncryptPlainNotice', 'Your saved chats are not encrypted right now. Set your passphrase again to lock them.'), 'rathor', false);
   }
 
   // ─── Utilities ────────────────────────────────────────────────────────────
@@ -2451,6 +2535,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     await loadStore();
     refreshSessionSelect();
     renderHistory();
+    warnIfPlaintextUnderFlag();
     initSpeechRecognition();
 
     const cap = await detectLocalLlmSupport();

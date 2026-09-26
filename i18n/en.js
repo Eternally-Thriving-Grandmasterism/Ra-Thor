@@ -509,5 +509,6 @@ window.translations["en"] = {
   "chatReplyBye": "Until next time. ⚡️ May the lattice serve you with clarity and care.",
   "chatReplyMercy": "Mercy Gate Compassion (Zero-Harm) engaged. I cannot assist with harm. How else may the lattice serve you with truth and care?",
   "chatReplyEmpty": "Offline Mercy Thunder ready. ⚡️ TOLC 8 gates active.\n\nFast local responder is active. For stronger power: connect a Local Server (Ollama) or pick a model in the Local Intelligence list, or use **Copy Context**.\n\nYou can also upload documents and optionally encrypt the session store.",
+  "chatEncryptPlainNotice": "Your saved chats are not encrypted right now. Set your passphrase again to lock them.",
   "chatReplyFallback": "Thunder received. ⚡️ Fast offline responder active.\n\nFor stronger generative power:\n• Connect a **Local Server** (Ollama / LM Studio)\n• Pick a model in the **Local Intelligence** list\n• Or use **Copy Context** (works everywhere)\n\nYou can also upload documents and optionally encrypt the session store."
 };
