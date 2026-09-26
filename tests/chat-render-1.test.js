@@ -150,6 +150,7 @@ assert(add.indexOf('msgDiv.rawText = text') !== -1, 'addMessage stores raw text 
 assert(add.indexOf('escapeHtml(relativeTime(timestamp))') !== -1, 'message meta escapes interpolated text');
 assert(add.indexOf('innerText') === -1, 'Copy must not read innerText');
 assert(add.indexOf('msgDiv.rawText') !== -1, 'Copy reads the stored raw text');
+assert(add.indexOf('const btn = e.currentTarget') < add.indexOf('copyText(currentText)'), 'Copy keeps the button before the clipboard promise');
 assert(add.indexOf('renderText(text)') !== -1, 'addMessage renders through renderText');
 
 var fin = chat.slice(chat.indexOf('function finalizeStreamingMessage('), chat.indexOf('function renderHistory('));

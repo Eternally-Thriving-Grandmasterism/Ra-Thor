@@ -684,9 +684,9 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
 
     meta.querySelector('.msg-copy').addEventListener('click', (e) => {
       e.stopPropagation();
+      const btn = e.currentTarget;
       const currentText = msgDiv.rawText != null ? String(msgDiv.rawText) : '';
       copyText(currentText).then(() => {
-        const btn = e.currentTarget;
         btn.innerHTML = '<i class="fa-solid fa-check"></i>';
         setTimeout(() => { btn.innerHTML = '<i class="fa-regular fa-copy"></i>'; }, 1200);
       });
