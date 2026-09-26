@@ -499,7 +499,7 @@ window.translations["en"] = {
   "chatReplyOffline": "This core is fully offline-first. The fast responder always works. Local Backend Bridge lets you point at your own Ollama / LM Studio server. WebLLM is the pure-browser option.",
   "chatReplyLocal": "WebLLM uses WebGPU (best on desktop). Local Backend Bridge connects to any OpenAI-compatible server you run (Ollama recommended). On phones the safest high-quality path is still **Copy Context**.",
   "chatReplyOllama": "Use the **Local Server** button. Point it at your Ollama (default http://localhost:11434/v1) or any OpenAI-compatible endpoint. Model name example: llama3.2, mistral, qwen2.5. Streaming is supported.",
-  "chatReplyDoc": "Use the document button (file icon) next to the mic to upload .txt, .md, .json or .csv files. Their content is injected into the conversation context for Local Server / WebLLM / Copy Context. Everything stays on your device.",
+  "chatReplyDoc": "Use the document button (file icon) next to the mic to upload .txt, .md, .json or .csv files. Their content is injected into the conversation context for Local Server / WebLLM / Copy Context. Document text stays in this browser unless you connect a Local Server or an online provider, which then receives it with your messages.",
   "chatReplySearch": "Use the Search box in the session controls to filter messages in the current session.",
   "chatReplyLicense": "Personal / research use is free under AG-SML v1.1. Organizations license. Contact info@Rathor.ai.",
   "chatReplyPowrush": "Powrush-MMO is a separate repo (human game). Combined AGSi stays SURMISE. Outputs are drafts. inspect ≠ METR. Independent of xAI.",

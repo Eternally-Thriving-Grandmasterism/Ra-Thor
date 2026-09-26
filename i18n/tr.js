@@ -483,7 +483,7 @@ window.translations["tr"] = {
   "chatReplyOffline": "Bu çekirdek önce çevrimdışıdır. Hızlı yanıtlayıcı her zaman çalışır. Yerel backend köprüsü kendi Ollama / LM Studio sunucunuza işaret eder. WebLLM salt tarayıcı seçeneğidir.",
   "chatReplyLocal": "WebLLM, WebGPU kullanır (masaüstünde daha iyi). Yerel backend köprüsü çalıştırdığınız herhangi bir OpenAI uyumlu sunucuya bağlanır (Ollama önerilir). Telefonda güvenli nitelikli yol hâlâ **Bağlamı kopyala**.",
   "chatReplyOllama": "**Yerel sunucu** düğmesini kullanın. Ollama'nıza (varsayılan http://localhost:11434/v1) ya da başka bir OpenAI uyumlu uca yöneltin. Model örneği: llama3.2, mistral, qwen2.5. Akış desteklenir.",
-  "chatReplyDoc": "Mikrofonun yanındaki belge düğmesiyle (dosya simgesi) .txt, .md, .json veya .csv yükleyin. İçerik, Yerel sunucu / WebLLM / Bağlamı kopyala için bağlama girer. Her şey cihazınızda kalır.",
+  "chatReplyDoc": "Mikrofonun yanındaki belge düğmesiyle (dosya simgesi) .txt, .md, .json veya .csv yükleyin. İçerik, Yerel sunucu / WebLLM / Bağlamı kopyala için bağlama girer. Belge metni, yerel bir sunucuya veya çevrimiçi bir sağlayıcıya bağlanmadığınız sürece bu tarayıcıda kalır; bağlandığınızda onu iletilerinizle birlikte o alır.",
   "chatReplySearch": "Geçerli oturumdaki iletileri süzmek için oturum denetimlerindeki Ara kutusunu kullanın.",
   "chatReplyLicense": "Kişisel ve araştırma kullanımı AG-SML v1.1 altında ücretsizdir. Kuruluşlar lisans alır. İletişim info@Rathor.ai.",
   "chatReplyPowrush": "Powrush-MMO ayrı bir depodur (insan oyunu). Combined AGSi stays SURMISE. Çıktılar taslaktır. inspect ≠ METR. xAI'den bağımsız.",

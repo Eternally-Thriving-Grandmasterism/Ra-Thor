@@ -483,7 +483,7 @@ window.translations["pl"] = {
   "chatReplyOffline": "Ten rdzeń jest najpierw offline. Szybki odpowiadacz zawsze działa. Most lokalnego backendu wskazuje Twój serwer Ollama / LM Studio. WebLLM to opcja czystej przeglądarki.",
   "chatReplyLocal": "WebLLM używa WebGPU (najlepiej na komputerze). Most lokalnego backendu łączy się z dowolnym serwerem zgodnym z OpenAI, który uruchamiasz (zalecane Ollama). Na telefonie bezpieczna ścieżka jakości to nadal **Kopiuj kontekst**.",
   "chatReplyOllama": "Użyj przycisku **Serwer lokalny**. Wskaż swoje Ollama (domyślnie http://localhost:11434/v1) albo inny punkt zgodny z OpenAI. Przykład modelu: llama3.2, mistral, qwen2.5. Strumień jest obsługiwany.",
-  "chatReplyDoc": "Użyj przycisku dokumentu (ikona pliku) obok mikrofonu, aby wgrać pliki .txt, .md, .json lub .csv. Treść wchodzi w kontekst dla Serwer lokalny / WebLLM / Kopiuj kontekst. Wszystko zostaje na urządzeniu.",
+  "chatReplyDoc": "Użyj przycisku dokumentu (ikona pliku) obok mikrofonu, aby wgrać pliki .txt, .md, .json lub .csv. Treść wchodzi w kontekst dla Serwer lokalny / WebLLM / Kopiuj kontekst. Tekst dokumentu zostaje w tej przeglądarce, chyba że połączysz serwer lokalny lub dostawcę online, który wtedy otrzymuje go wraz z twoimi wiadomościami.",
   "chatReplySearch": "Użyj pola Szukaj w sterowaniu sesją, aby filtrować wiadomości bieżącej sesji.",
   "chatReplyLicense": "Użytek osobisty i badawczy jest wolny w ramach AG-SML v1.1. Organizacje biorą licencję. Kontakt info@Rathor.ai.",
   "chatReplyPowrush": "Powrush-MMO to osobne repozytorium (gra ludzka). Combined AGSi stays SURMISE. Wyniki to szkice. inspect ≠ METR. Niezależne od xAI.",

@@ -483,7 +483,7 @@ window.translations["vi"] = {
   "chatReplyOffline": "Lõi này ưu tiên ngoại tuyến. Bộ trả lời nhanh luôn chạy. Cầu backend cục bộ trỏ tới máy chủ Ollama / LM Studio của bạn. WebLLM là lựa chọn trình duyệt thuần.",
   "chatReplyLocal": "WebLLM dùng WebGPU (tốt nhất trên máy tính). Cầu backend cục bộ nối tới máy chủ tương thích OpenAI mà bạn chạy (nên dùng Ollama). Trên điện thoại, đường an toàn chất lượng vẫn là **Sao chép ngữ cảnh**.",
   "chatReplyOllama": "Dùng nút **Máy chủ cục bộ**. Trỏ tới Ollama của bạn (mặc định http://localhost:11434/v1) hoặc điểm cuối tương thích OpenAI khác. Ví dụ mô hình: llama3.2, mistral, qwen2.5. Có hỗ trợ luồng.",
-  "chatReplyDoc": "Dùng nút tài liệu (biểu tượng tệp) cạnh mic để tải tệp .txt, .md, .json hoặc .csv. Nội dung được đưa vào ngữ cảnh cho Máy chủ cục bộ / WebLLM / Sao chép ngữ cảnh. Mọi thứ ở lại trên thiết bị.",
+  "chatReplyDoc": "Dùng nút tài liệu (biểu tượng tệp) cạnh mic để tải tệp .txt, .md, .json hoặc .csv. Nội dung được đưa vào ngữ cảnh cho Máy chủ cục bộ / WebLLM / Sao chép ngữ cảnh. Văn bản tài liệu ở lại trong trình duyệt này, trừ khi bạn kết nối Máy chủ cục bộ hoặc một nhà cung cấp trực tuyến, lúc đó bên đó nhận văn bản đó cùng với tin nhắn của bạn.",
   "chatReplySearch": "Dùng ô Tìm trong điều khiển phiên để lọc tin nhắn của phiên hiện tại.",
   "chatReplyLicense": "Dùng cá nhân và nghiên cứu được miễn phí theo AG-SML v1.1. Tổ chức thì cấp phép. Liên hệ info@Rathor.ai.",
   "chatReplyPowrush": "Powrush-MMO là một kho riêng (trò chơi của con người). Combined AGSi stays SURMISE. Đầu ra là bản nháp. inspect ≠ METR. Độc lập với xAI.",
