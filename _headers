@@ -1,7 +1,7 @@
 # _headers
 # COOP + COEP only on /chat.html (WebLLM on that document).
 # Catch-all /* sets neither. Marketing pages stay fetchable.
-# Pages path match ignores query strings, so /chat.html covers /chat.html?…
+# Cloudflare Pages path match ignores query strings, so /chat.html covers /chat.html?…
 # A second /chat.html?* rule is omitted: duplicate header values are joined
 # with a comma, which would break require-corp.
 # Contact: info@Rathor.ai
