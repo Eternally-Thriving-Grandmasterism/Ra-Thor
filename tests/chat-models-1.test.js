@@ -2,6 +2,7 @@
 var fs = require('fs');
 var path = require('path');
 var crypto = require('crypto');
+var vm = require('vm');
 
 var root = path.join(__dirname, '..');
 
@@ -108,7 +109,11 @@ assert(chat.indexOf("const WEBLLM_MODEL_KEY = 'rathor-webllm-model-v1'") !== -1,
 assert(chat.indexOf('hasModelInCache') !== -1, 'cache badge must call hasModelInCache');
 assert(chat.indexOf('deleteModelAllInfoInCache') !== -1, 'delete must call deleteModelAllInfoInCache');
 assert(chat.indexOf('engine.unload') !== -1, 'switching or deleting must unload the engine');
-assert(chat.indexOf('chatWebllmDeleteConfirm') !== -1, 'delete must ask for confirmation');
+assert(chat.indexOf('window.confirm') === -1, 'chat must not call window.confirm');
+var rowFlow = chat.slice(chat.indexOf('/* chat-models-1-pure */'), chat.indexOf('async function generateWithLocalLLM'));
+assert(rowFlow.indexOf('confirm(') === -1, 'model rows must not call confirm');
+assert(chat.indexOf("const WEBLLM_DEFAULT_BASE = 'Llama-3.2-1B-Instruct'") !== -1, 'Gemma must not become the default');
+assert(chat.indexOf('gemma-2-2b-it') !== -1, 'gemma stays in the curated list');
 
 var promptMarker = 'const SYSTEM_PROMPT = `';
 var promptAt = chat.indexOf(promptMarker);
@@ -154,7 +159,81 @@ assert(chat.indexOf("{ text: 'MIT'") !== -1, 'Phi must link MIT');
 
 assert(chat.indexOf("chatLabel('chatWebllmThirdParty'") !== -1, 'third-party line falls back when the pack key is missing');
 assert(chat.indexOf("chatLabel('chatWebllmFirstDownload'") !== -1, 'download line falls back when the pack key is missing');
-assert(chat.indexOf("chatLabel('chatWebllmDownloaded'") !== -1, 'downloaded badge falls back when the pack key is missing');
-assert(chat.indexOf("chatLabel('chatWebllmNotDownloaded'") !== -1, 'not-downloaded badge falls back when the pack key is missing');
+assert(html.indexOf('Offline only is on. Models already on this device still work.') !== -1, 'offline-only note must be on the page');
+assert(html.indexOf('This switch applies to Lattice Chat models only.') !== -1, 'net mode scope must be on the page');
+assert(chat.indexOf('rathor-net-mode-v1') !== -1, 'net mode key must be rathor-net-mode-v1');
+assert(chat.indexOf("Offline only: Lattice Chat won't download models or contact any server except your own machine.") !== -1, 'offline-only sentence must be exact');
+assert(chat.indexOf('Not on this device') !== -1, 'absent badge text');
+assert(chat.indexOf('Partly downloaded') !== -1, 'partial badge text');
+assert(chat.indexOf('On this device · works offline') !== -1, 'ready badge text');
+assert(chat.indexOf('Download needs a connection.') !== -1, 'offline connection note');
+assert(chat.indexOf('caches.keys') !== -1, 'partial detection must read Cache API names');
+assert(chat.indexOf("indexOf('webllm')") !== -1, 'partial detection must look at webllm caches');
+
+var downloadFn = chat.slice(chat.indexOf('async function startWebllmDownload'), chat.indexOf('async function loadWebllmModel'));
+assert(downloadFn.indexOf('webllmDownloadAllowed') !== -1, 'download function must consult the guard');
+assert(downloadFn.indexOf('.reload(') === -1, 'download function must not reload before the guard returns');
+assert(downloadFn.indexOf('if (!webllmDownloadAllowed') < downloadFn.indexOf('loadWebllmModel'), 'guard must run before load');
+var connectFn = chat.slice(chat.indexOf('async function connectBackend'), chat.indexOf('function disconnectBackend'));
+assert(connectFn.indexOf('localServerEndpointAllowed') !== -1 && connectFn.indexOf('localServerEndpointAllowed') < connectFn.indexOf('fetch('), 'Local Server must check loopback before fetch');
+
+var pure = chat.slice(chat.indexOf('/* chat-models-1-pure */'), chat.indexOf('/* chat-models-1-pure-end */'));
+var store = {};
+var sandbox = {
+  URL: URL,
+  localStorage: {
+    getItem: function (key) { return Object.prototype.hasOwnProperty.call(store, key) ? store[key] : null; },
+    setItem: function (key, value) { store[key] = String(value); }
+  }
+};
+vm.createContext(sandbox);
+vm.runInContext(pure + '\nthis.api = { readNetMode: readNetMode, writeNetMode: writeNetMode, webllmRowTransition: webllmRowTransition, webllmDownloadAllowed: webllmDownloadAllowed, localServerEndpointAllowed: localServerEndpointAllowed, webllmBadgeLabel: webllmBadgeLabel, webllmActionLabel: webllmActionLabel };', sandbox);
+var api = sandbox.api;
+assert(api.readNetMode() === 'network-on', 'default net mode is network-on');
+assert(api.writeNetMode('offline-only') === 'offline-only', 'write offline-only');
+assert(api.readNetMode() === 'offline-only', 'net mode persists in localStorage');
+assert(store['rathor-net-mode-v1'] === 'offline-only', 'persisted value is offline-only');
+assert(api.writeNetMode('network-on') === 'network-on', 'write network-on');
+assert(api.readNetMode() === 'network-on', 'network-on persists');
+
+assert(api.webllmDownloadAllowed('offline-only', true) === false, 'offline only blocks download');
+assert(api.webllmDownloadAllowed('network-on', false) === false, 'no connection blocks download');
+assert(api.webllmDownloadAllowed('network-on', true) === true, 'network on allows download');
+assert(api.localServerEndpointAllowed('offline-only', 'http://localhost:11434/v1') === true, 'localhost allowed offline');
+assert(api.localServerEndpointAllowed('offline-only', 'http://127.0.0.1:11434/v1') === true, '127.0.0.1 allowed offline');
+assert(api.localServerEndpointAllowed('offline-only', 'http://[::1]:11434/v1') === true, '[::1] allowed offline');
+assert(api.localServerEndpointAllowed('offline-only', 'https://example.com/v1') === false, 'non-loopback refused offline');
+assert(api.localServerEndpointAllowed('network-on', 'https://example.com/v1') === true, 'network on keeps any Local Server endpoint');
+
+var absent = { phase: 'absent', consent: null };
+var tap1 = api.webllmRowTransition(absent, 'tap-download', { offlineOnly: false, onLine: true });
+assert(tap1.effect === null, 'tap 1 must not download');
+assert(tap1.row.consent === 'download', 'tap 1 shows download consent');
+assert(tap1.row.phase === 'absent', 'tap 1 leaves the model off the device');
+var blockedTap = api.webllmRowTransition(absent, 'tap-download', { offlineOnly: true, onLine: true });
+assert(blockedTap.row.consent === null && blockedTap.effect === null, 'offline only does not open download consent');
+var tap2 = api.webllmRowTransition(tap1.row, 'confirm-download', { offlineOnly: false, onLine: true });
+assert(tap2.effect === 'download', 'tap 2 downloads');
+assert(tap2.row.phase === 'downloading', 'tap 2 moves the row to downloading');
+assert(tap2.row.consent === null, 'tap 2 closes consent');
+var stopped = api.webllmRowTransition(tap2.row, 'stop', {});
+assert(stopped.effect === 'stop' && stopped.row.phase === 'partial', 'stop leaves partly downloaded');
+var delTap = api.webllmRowTransition({ phase: 'ready', consent: null }, 'tap-delete', {});
+assert(delTap.effect === null && delTap.row.consent === 'delete', 'delete tap asks before removing');
+assert(delTap.row.phase === 'ready', 'delete tap does not remove yet');
+var delGone = api.webllmRowTransition({ phase: 'ready', consent: null }, 'confirm-delete', {});
+assert(delGone.effect === null, 'confirm delete without the delete consent does nothing');
+var delOk = api.webllmRowTransition(delTap.row, 'confirm-delete', {});
+assert(delOk.effect === 'delete' && delOk.row.phase === 'absent', 'confirm delete clears the row');
+var partialDel = api.webllmRowTransition({ phase: 'partial', consent: null }, 'confirm-delete', {});
+assert(partialDel.effect === null, 'partial delete also needs its own confirm');
+assert(api.webllmBadgeLabel('absent') === 'Not on this device');
+assert(api.webllmBadgeLabel('partial') === 'Partly downloaded');
+assert(api.webllmBadgeLabel('ready') === 'On this device · works offline');
+assert(api.webllmBadgeLabel('downloading', 40) === 'Downloading 40%');
+assert(api.webllmActionLabel('absent') === 'Download');
+assert(api.webllmActionLabel('downloading') === 'Stop');
+assert(api.webllmActionLabel('partial') === 'Delete');
+assert(api.webllmActionLabel('ready') === 'Delete');
 
 console.log('CHAT-MODELS-1 checks passed');
