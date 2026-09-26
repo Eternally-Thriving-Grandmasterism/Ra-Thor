@@ -483,7 +483,7 @@ window.translations["ko"] = {
   "chatReplyOffline": "이 핵심은 오프라인이 먼저입니다. 빠른 응답은 항상 동작합니다. 로컬 백엔드 다리는 당신의 Ollama / LM Studio 서버를 가리킵니다. WebLLM은 순수 브라우저 선택입니다.",
   "chatReplyLocal": "WebLLM은 WebGPU를 씁니다 (데스크톱이 더 낫습니다). 로컬 백엔드 다리는 당신이 실행하는 OpenAI 호환 서버에 연결됩니다 (Ollama 권장). 휴대전화에서 안전하고 품질 있는 길은 여전히 **맥락 복사**입니다.",
   "chatReplyOllama": "**로컬 서버** 버튼을 쓰세요. Ollama(기본값 http://localhost:11434/v1) 또는 다른 OpenAI 호환 끝점을 가리키세요. 모델 이름 예: llama3.2, mistral, qwen2.5. 스트리밍을 지원합니다.",
-  "chatReplyDoc": "마이크 옆 문서 버튼(파일 아이콘)으로 .txt, .md, .json 또는 .csv를 올리세요. 내용은 로컬 서버 / WebLLM / 맥락 복사의 대화 맥락에 들어갑니다. 모든 것은 기기에 남습니다.",
+  "chatReplyDoc": "마이크 옆 문서 버튼(파일 아이콘)으로 .txt, .md, .json 또는 .csv를 올리세요. 내용은 로컬 서버 / WebLLM / 맥락 복사의 대화 맥락에 들어갑니다. 로컬 서버나 온라인 제공자에 연결하지 않는 한 문서 텍스트는 이 브라우저에 남고, 연결하면 그쪽이 메시지와 함께 받습니다.",
   "chatReplySearch": "세션 제어의 검색 상자로 현재 세션의 메시지를 거르세요.",
   "chatReplyLicense": "개인과 연구 사용은 AG-SML v1.1에서 무료입니다. 조직은 라이선스가 필요합니다. 연락처 info@Rathor.ai.",
   "chatReplyPowrush": "Powrush-MMO는 별도 저장소입니다 (인간의 게임). Combined AGSi stays SURMISE. 출력은 초안입니다. inspect ≠ METR. xAI와 무관합니다.",

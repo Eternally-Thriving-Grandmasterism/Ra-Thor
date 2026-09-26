@@ -483,7 +483,7 @@ window.translations["id"] = {
   "chatReplyOffline": "Inti ini mengutamakan luring. Penjawab cepat selalu bekerja. Jembatan backend lokal menunjuk ke server Ollama / LM Studio Anda. WebLLM adalah opsi peramban murni.",
   "chatReplyLocal": "WebLLM memakai WebGPU (terbaik di desktop). Jembatan backend lokal tersambung ke server kompatibel OpenAI yang Anda jalankan (Ollama disarankan). Di ponsel, jalur aman yang bermutu tetap **Salin konteks**.",
   "chatReplyOllama": "Pakai tombol **Server lokal**. Arahkan ke Ollama Anda (bawaan http://localhost:11434/v1) atau titik ujung kompatibel OpenAI lain. Contoh model: llama3.2, mistral, qwen2.5. Streaming didukung.",
-  "chatReplyDoc": "Pakai tombol dokumen (ikon berkas) di samping mikrofon untuk mengunggah berkas .txt, .md, .json, atau .csv. Isinya masuk konteks untuk Server lokal / WebLLM / Salin konteks. Semuanya tinggal di perangkat Anda.",
+  "chatReplyDoc": "Pakai tombol dokumen (ikon berkas) di samping mikrofon untuk mengunggah berkas .txt, .md, .json, atau .csv. Isinya masuk konteks untuk Server lokal / WebLLM / Salin konteks. Teks dokumen tetap di peramban ini kecuali Anda menghubungkan server lokal atau penyedia daring, yang kemudian menerimanya bersama pesan Anda.",
   "chatReplySearch": "Pakai kotak Cari di kendali sesi untuk menyaring pesan pada sesi saat ini.",
   "chatReplyLicense": "Pemakaian pribadi dan riset gratis di bawah AG-SML v1.1. Organisasi berlisensi. Kontak info@Rathor.ai.",
   "chatReplyPowrush": "Powrush-MMO adalah repo terpisah (permainan manusia). Combined AGSi stays SURMISE. Keluaran adalah draf. inspect ≠ METR. Independen dari xAI.",

@@ -483,7 +483,7 @@ window.translations["zh"] = {
   "chatReplyOffline": "这个核心离线优先。快速应答始终可用。本地后端桥指向你自己的 Ollama / LM Studio 服务器。WebLLM 是纯浏览器选项。",
   "chatReplyLocal": "WebLLM 使用 WebGPU（桌面更好）。本地后端桥连接到你运行的任何 OpenAI 兼容服务器（建议 Ollama）。在手机上，稳妥的高质量路径仍是**复制上下文**。",
   "chatReplyOllama": "使用**本地服务器**按钮。指向你的 Ollama（默认 http://localhost:11434/v1）或任何 OpenAI 兼容端点。模型名示例：llama3.2、mistral、qwen2.5。支持流式输出。",
-  "chatReplyDoc": "用麦克风旁的文档按钮（文件图标）上传 .txt、.md、.json 或 .csv。内容会注入本地服务器 / WebLLM / 复制上下文的对话上下文。一切留在你的设备上。",
+  "chatReplyDoc": "用麦克风旁的文档按钮（文件图标）上传 .txt、.md、.json 或 .csv。内容会注入本地服务器 / WebLLM / 复制上下文的对话上下文。文档文字留在这个浏览器里，除非连接本地服务器或在线提供方，那时由它连同你的消息一起收到这些文字。",
   "chatReplySearch": "用会话控件里的搜索框过滤当前会话的消息。",
   "chatReplyLicense": "个人与研究使用在 AG-SML v1.1 下免费。组织需要许可。联系 info@Rathor.ai。",
   "chatReplyPowrush": "Powrush-MMO 是单独的仓库（人类游戏）。Combined AGSi stays SURMISE。输出是草稿。inspect ≠ METR。独立于 xAI。",
