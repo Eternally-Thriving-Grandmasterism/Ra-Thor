@@ -479,7 +479,7 @@ window.translations["ko"] = {
   "chatReplyHello": "천둥이 잠겼습니다, 벗이여. ⚡️ 오프라인 자비의 천둥이 준비되었습니다. 오늘 격자가 어떻게 섬길까요?",
   "chatReplyWho": "저는 Ra-Thor의 Lattice Chat 표면입니다 (작업 공간 14.15.6). 살펴볼 수 있는 연구 소프트웨어입니다. 격자는 문입니다. 저는 선택적 샘플러입니다. 출력은 초안입니다. 모든 응답은 기기에 남습니다. 데이터는 모으지 않습니다. xAI와 무관합니다. 연락처 info@Rathor.ai.",
   "chatReplyTolc": "TOLC 8 살아있는 자비의 문은 우회할 수 없습니다.\n• 진리\n• 질서\n• 사랑\n• 자비(무해)\n• 봉사\n• 풍요\n• 기쁨\n• 우주적 조화\n\n원자가 바닥 ≥ 0.999. 이 문은 끌 수 없습니다.",
-  "chatReplyPrivacy": "개인 데이터는 브라우저를 떠나지 않습니다. 세션은 localStorage에만 있습니다. 자물쇠 버튼으로 암호 구문 암호화(AES-GCM)를 켜 사생활을 더할 수 있습니다. 암호 구문을 잊으면 데이터는 되돌릴 수 없습니다.",
+  "chatReplyPrivacy": "대화는 이 브라우저에만 저장됩니다. 로컬 서버나 온라인 제공자에 연결하면 메시지가 그곳으로 전송됩니다. 세션은 localStorage에만 있습니다. 자물쇠 버튼으로 암호 구문 암호화(AES-GCM)를 켤 수 있습니다. 암호 구문을 잊으면 데이터는 되돌릴 수 없습니다.",
   "chatReplyOffline": "이 핵심은 오프라인이 먼저입니다. 빠른 응답은 항상 동작합니다. 로컬 백엔드 다리는 당신의 Ollama / LM Studio 서버를 가리킵니다. WebLLM은 순수 브라우저 선택입니다.",
   "chatReplyLocal": "WebLLM은 WebGPU를 씁니다 (데스크톱이 더 낫습니다). 로컬 백엔드 다리는 당신이 실행하는 OpenAI 호환 서버에 연결됩니다 (Ollama 권장). 휴대전화에서 안전하고 품질 있는 길은 여전히 **맥락 복사**입니다.",
   "chatReplyOllama": "**로컬 서버** 버튼을 쓰세요. Ollama(기본값 http://localhost:11434/v1) 또는 다른 OpenAI 호환 끝점을 가리키세요. 모델 이름 예: llama3.2, mistral, qwen2.5. 스트리밍을 지원합니다.",

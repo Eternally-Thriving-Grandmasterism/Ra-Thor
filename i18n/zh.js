@@ -479,7 +479,7 @@ window.translations["zh"] = {
   "chatReplyHello": "雷鸣已锁定，朋友。⚡️ 离线慈悲雷鸣已就绪。格点今天如何为你服务？",
   "chatReplyWho": "我是 Ra-Thor 的 Lattice Chat 表面（工作区 14.15.6）——可检视的研究软件。格点是门。我是可选的采样器。输出是草稿。所有回复留在你的设备上。不收集数据。独立于 xAI。联系 info@Rathor.ai。",
   "chatReplyTolc": "TOLC 8 活慈悲之门不可绕过：\n• 真理\n• 秩序\n• 爱\n• 慈悲（零伤害）\n• 服务\n• 丰盛\n• 喜悦\n• 宇宙和谐\n\n价态下限 ≥ 0.999。这些门不能关闭。",
-  "chatReplyPrivacy": "没有个人数据离开你的浏览器。会话只存在于 localStorage。你可以用锁按钮开启口令加密（AES-GCM）以加强隐私。忘记口令后数据无法恢复。",
+  "chatReplyPrivacy": "对话只保存在这个浏览器里。如果连接本地服务器或在线提供方，你的消息会发到那里。会话只存在于 localStorage。你可以用锁按钮开启口令加密（AES-GCM）。忘记口令后数据无法恢复。",
   "chatReplyOffline": "这个核心离线优先。快速应答始终可用。本地后端桥指向你自己的 Ollama / LM Studio 服务器。WebLLM 是纯浏览器选项。",
   "chatReplyLocal": "WebLLM 使用 WebGPU（桌面更好）。本地后端桥连接到你运行的任何 OpenAI 兼容服务器（建议 Ollama）。在手机上，稳妥的高质量路径仍是**复制上下文**。",
   "chatReplyOllama": "使用**本地服务器**按钮。指向你的 Ollama（默认 http://localhost:11434/v1）或任何 OpenAI 兼容端点。模型名示例：llama3.2、mistral、qwen2.5。支持流式输出。",

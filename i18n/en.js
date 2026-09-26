@@ -495,7 +495,7 @@ window.translations["en"] = {
   "chatReplyHello": "Thunder locked in, Mate. ⚡️ Offline Mercy Thunder is ready. How may the lattice serve you today?",
   "chatReplyWho": "I am the Lattice Chat surface of Ra-Thor (workspace 14.15.6) — inspectable research software. The lattice is the gates. I am the optional sampler. Outputs are drafts. All responses stay on your device. No data is collected. Independent of xAI. Contact info@Rathor.ai.",
   "chatReplyTolc": "TOLC 8 Living Mercy Gates are non-bypassable:\n• Truth\n• Order\n• Love\n• Compassion (Zero-Harm)\n• Service\n• Abundance\n• Joy\n• Cosmic Harmony\n\nValence floor ≥ 0.999. These gates cannot be turned off.",
-  "chatReplyPrivacy": "Zero personal data leaves your browser. Sessions live only in localStorage. You can optionally enable Passphrase Encryption (AES-GCM) via the lock button for maximum privacy. Forgetting the passphrase makes the data unrecoverable.",
+  "chatReplyPrivacy": "Chats are saved only in this browser. If you connect a Local Server or an online provider, your messages are sent there. Sessions live only in localStorage. You can optionally enable Passphrase Encryption (AES-GCM) via the lock button. Forgetting the passphrase makes the data unrecoverable.",
   "chatReplyOffline": "This core is fully offline-first. The fast responder always works. Local Backend Bridge lets you point at your own Ollama / LM Studio server. WebLLM is the pure-browser option.",
   "chatReplyLocal": "WebLLM uses WebGPU (best on desktop). Local Backend Bridge connects to any OpenAI-compatible server you run (Ollama recommended). On phones the safest high-quality path is still **Copy Context**.",
   "chatReplyOllama": "Use the **Local Server** button. Point it at your Ollama (default http://localhost:11434/v1) or any OpenAI-compatible endpoint. Model name example: llama3.2, mistral, qwen2.5. Streaming is supported.",
@@ -509,5 +509,6 @@ window.translations["en"] = {
   "chatReplyBye": "Until next time. ⚡️ May the lattice serve you with clarity and care.",
   "chatReplyMercy": "Mercy Gate Compassion (Zero-Harm) engaged. I cannot assist with harm. How else may the lattice serve you with truth and care?",
   "chatReplyEmpty": "Offline Mercy Thunder ready. ⚡️ TOLC 8 gates active.\n\nFast local responder is active. For stronger power: connect a Local Server (Ollama) or pick a model in the Local Intelligence list, or use **Copy Context**.\n\nYou can also upload documents and optionally encrypt the session store.",
+  "chatEncryptPlainNotice": "Your saved chats are not encrypted right now. Set your passphrase again to lock them.",
   "chatReplyFallback": "Thunder received. ⚡️ Fast offline responder active.\n\nFor stronger generative power:\n• Connect a **Local Server** (Ollama / LM Studio)\n• Pick a model in the **Local Intelligence** list\n• Or use **Copy Context** (works everywhere)\n\nYou can also upload documents and optionally encrypt the session store."
 };
