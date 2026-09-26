@@ -405,12 +405,12 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
   async function enableEncryption() {
     const pass = prompt('Choose a strong passphrase to encrypt all sessions.\n\nWARNING: If you forget this passphrase the data cannot be recovered.');
     if (!pass || pass.length < 6) {
-      addMessage('Encryption cancelled or passphrase too short (min 6 characters).', 'rathor');
+      addNotice('Encryption cancelled or passphrase too short (min 6 characters).');
       return;
     }
     const confirmPass = prompt('Confirm passphrase:');
     if (pass !== confirmPass) {
-      addMessage('Passphrases did not match. Encryption cancelled.', 'rathor');
+      addNotice('Passphrases did not match. Encryption cancelled.');
       return;
     }
 
@@ -419,10 +419,10 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
       localStorage.setItem(STORE_KEY, JSON.stringify(envelope));
       isEncrypted = true;
       cryptoKey = null; // force re-unlock next time
-      addMessage('Session store is now encrypted with your passphrase. ⚡️ On the next page load you will be asked to unlock it.\n\nRemember: forgetting the passphrase makes the data unrecoverable.', 'rathor');
+      addNotice('Session store is now encrypted with your passphrase. ⚡️ On the next page load you will be asked to unlock it.\n\nRemember: forgetting the passphrase makes the data unrecoverable.');
     } catch (err) {
       console.error('[Ra-Thor encrypt]', err);
-      addMessage('Encryption failed. Your current sessions remain unencrypted.', 'rathor');
+      addNotice('Encryption failed. Your current sessions remain unencrypted.');
     }
   }
 
@@ -437,7 +437,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
       isEncrypted = false; // now unlocked in memory
       refreshSessionSelect();
       renderHistory();
-      addMessage('Lattice unlocked. ⚡️ Sessions are available for this browser session.', 'rathor');
+      addNotice('Lattice unlocked. ⚡️ Sessions are available for this browser session.');
     } else {
       if (unlockError) unlockError.classList.remove('hidden');
     }
@@ -621,13 +621,13 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     reader.onload = (e) => {
       const content = e.target.result;
       if (!content || content.length > 120000) {
-        addMessage('Document too large or empty (max ~120k characters for safety).', 'rathor');
+        addNotice('Document too large or empty (max ~120k characters for safety).');
         return;
       }
       const id = 'doc_' + Date.now().toString(36);
       injectedDocs.push({ id, name: file.name, content });
       renderDocsBar();
-      addMessage(`Document “${file.name}” injected into context. ⚡️ It will be included in Local Server / WebLLM / Copy Context calls.`, 'rathor');
+      addNotice(`Document “${file.name}” injected into context. ⚡️ It will be included in Local Server / WebLLM / Copy Context calls.`);
     };
     reader.readAsText(file);
   }
@@ -659,7 +659,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
   }
 
   // ─── Message rendering ────────────────────────────────────────────────────
-  function addMessage(text, sender = 'rathor', persist = true, ts = null, isStreaming = false) {
+  function addMessage(text, sender = 'rathor', persist = true, ts = null, isStreaming = false, extra = null) {
     if (!chatMessages) return null;
 
     const timestamp = ts || Date.now();
@@ -699,10 +699,19 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
 
     if (persist && !isStreaming) {
       const hist = getHistory();
-      hist.push({ role: sender, text, ts: timestamp });
+      var entry = { role: sender, text: text, ts: timestamp };
+      if (extra && extra.notice) entry.notice = true;
+      if (extra && extra.finishReason != null) {
+        var marked = turnWithFinish(text, extra.finishReason);
+        if (marked.cutOff) entry.cutOff = true;
+      }
+      if (extra && extra.cutOff) entry.cutOff = true;
+      hist.push(entry);
       setHistory(hist);
       updateSessionMeta();
     }
+
+    if (msgDiv && extra && (extra.cutOff || extra.finishReason === 'length')) appendCutOffLine(msgDiv);
 
     if (sender === 'rathor' && voiceSettings.enabled && !isStreaming) {
       setTimeout(() => speak(text.replace(/\n/g, ' ')), 180);
@@ -711,15 +720,30 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     return { msgDiv, textDiv };
   }
 
-  function finalizeStreamingMessage(msgDiv, textDiv, finalText) {
+  function addNotice(text) {
+    return addMessage(text, 'rathor', true, null, false, { notice: true });
+  }
+
+  function appendCutOffLine(msgDiv) {
+    if (!msgDiv || msgDiv.querySelector('.reply-cut-off')) return;
+    var line = document.createElement('p');
+    line.className = 'reply-cut-off';
+    line.textContent = chatLabel('chatReplyCutOff', 'Reply stopped at the length limit.');
+    msgDiv.appendChild(line);
+  }
+
+  function finalizeStreamingMessage(msgDiv, textDiv, finalText, finishReason) {
     if (!msgDiv || !textDiv) return;
     msgDiv.classList.remove('streaming');
     msgDiv.rawText = finalText;
     textDiv.innerHTML = renderText(finalText);
     const hist = getHistory();
-    hist.push({ role: 'rathor', text: finalText, ts: Date.now() });
+    var entry = turnWithFinish(finalText, finishReason);
+    entry.ts = Date.now();
+    hist.push(entry);
     setHistory(hist);
     updateSessionMeta();
+    if (entry.cutOff) appendCutOffLine(msgDiv);
     if (voiceSettings.enabled) {
       setTimeout(() => speak(finalText.replace(/\n/g, ' ')), 120);
     }
@@ -740,7 +764,8 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     let shown = 0;
     hist.forEach(m => {
       if (!q || (m.text || '').toLowerCase().includes(q)) {
-        addMessage(m.text, m.role, false, m.ts);
+        var rendered = addMessage(m.text, m.role, false, m.ts);
+        if (rendered && m.cutOff) appendCutOffLine(rendered.msgDiv);
         shown++;
       }
     });
@@ -791,7 +816,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     saveStore();
     refreshSessionSelect();
     renderHistory();
-    addMessage(`New session “${finalName}” started. ⚡️`, 'rathor');
+    addNotice(`New session “${finalName}” started. ⚡️`);
   }
 
   function switchSession(id) {
@@ -916,34 +941,215 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
       if (backendStatus) {
         backendStatus.textContent = chatLabel('chatNetLoopbackOnly', 'Offline only allows a server on this machine (localhost, 127.0.0.1, or [::1]).');
       }
-      addMessage(chatLabel('chatNetLoopbackOnly', 'Offline only allows a server on this machine (localhost, 127.0.0.1, or [::1]).'), 'rathor');
+      addNotice(chatLabel('chatNetLoopbackOnly', 'Offline only allows a server on this machine (localhost, 127.0.0.1, or [::1]).'));
       return;
     }
     try {
       const res = await fetch(endpoint + '/models', { method: 'GET', signal: AbortSignal.timeout(4000) });
       if (!res.ok) throw new Error('Endpoint returned ' + res.status);
       setBackendUI(true);
-      addMessage(`Local Server connected. ⚡️ Endpoint: ${endpoint}\nModel: ${backendConfig.model}\nStreaming enabled. TOLC 8 system prompt will be injected.`, 'rathor');
+      addNotice(`Local Server connected. ⚡️ Endpoint: ${endpoint}\nModel: ${backendConfig.model}\nStreaming enabled. TOLC 8 system prompt will be injected.`);
     } catch (err) {
       setBackendUI(false);
-      addMessage(`Could not reach Local Server at ${endpoint}.\n\nMake sure Ollama (or LM Studio) is running and the endpoint + model name are correct.`, 'rathor');
+      addNotice(`Could not reach Local Server at ${endpoint}.\n\nMake sure Ollama (or LM Studio) is running and the endpoint + model name are correct.`);
     }
   }
 
   function disconnectBackend() {
     setBackendUI(false);
-    addMessage('Local Server disconnected. Falling back to fast responder / WebLLM.', 'rathor');
+    addNotice('Local Server disconnected. Falling back to fast responder / WebLLM.');
+  }
+
+  /* chat-reply-budget-pure */
+  // REPLY-BUDGET-1. max_tokens = clamp(ctx - ceil(promptChars/3) - 8*messageCount - 64, 256, ceiling).
+  // ceiling is 2048. When contextTokens is unknown, max_tokens is that ceiling (Local Server).
+  // room below 256 does not send. Never invent a 4096 context.
+  function positiveContextTokens(value) {
+    var n = value;
+    if (n && typeof n === 'object') n = n.context_window_size;
+    if (typeof n === 'number' && n > 0 && n !== Infinity) return n;
+    return null;
+  }
+
+  // Source order for a loaded WebLLM 0.2.85 model:
+  // 1. context_window_size on the chat config the engine stored at reload
+  //    (mlc-chat-config.json, then the model record overrides, then ChatOptions).
+  // 2. context_window_size set in ChatOptions at load, when that config is missing.
+  // 3. Fallback: the prebuilt model record (top-level, else overrides.context_window_size).
+  function contextTokensFromSources(usedConfig, chatOption, prebuiltRecord) {
+    var used = positiveContextTokens(usedConfig);
+    if (used) return used;
+    var option = positiveContextTokens(chatOption);
+    if (option) return option;
+    if (prebuiltRecord && typeof prebuiltRecord === 'object') {
+      var top = positiveContextTokens(prebuiltRecord.context_window_size);
+      if (top) return top;
+      var over = prebuiltRecord.overrides;
+      if (over && typeof over === 'object') {
+        var fromOver = positiveContextTokens(over.context_window_size);
+        if (fromOver) return fromOver;
+      }
+    }
+    return null;
+  }
+
+  function replyTokenBudget(input) {
+    var promptChars = Number(input && input.promptChars) || 0;
+    var messageCount = Number(input && input.messageCount) || 0;
+    var ceiling = (input && typeof input.ceiling === 'number' && input.ceiling > 0) ? input.ceiling : 2048;
+    var floor = 256;
+    var estimate = Math.ceil(promptChars / 3) + (8 * messageCount) + 64;
+    var known = input && typeof input.contextTokens === 'number' && input.contextTokens > 0;
+    if (!known) {
+      return { send: true, maxTokens: ceiling, contextTokens: null, estimate: estimate, room: null };
+    }
+    var room = input.contextTokens - estimate;
+    if (room < floor) {
+      return { send: false, maxTokens: 0, contextTokens: input.contextTokens, estimate: estimate, room: room };
+    }
+    var maxTokens = room > ceiling ? ceiling : room;
+    return { send: true, maxTokens: maxTokens, contextTokens: input.contextTokens, estimate: estimate, room: room };
+  }
+
+  function promptCharsOfMessages(messages) {
+    var n = 0;
+    var list = messages || [];
+    for (var i = 0; i < list.length; i++) {
+      var item = list[i];
+      if (!item) continue;
+      var content = item.content != null ? item.content : item.text;
+      n += String(content == null ? '' : content).length;
+    }
+    return n;
+  }
+
+  function modelMessagesFromHistory(systemContent, history, limit) {
+    var messages = [{ role: 'system', content: String(systemContent == null ? '' : systemContent) }];
+    var list = [];
+    var src = history || [];
+    for (var i = 0; i < src.length; i++) {
+      var m = src[i];
+      if (!m || m.notice) continue;
+      var text = m.text != null ? m.text : (m.content != null ? m.content : '');
+      if (!text) continue;
+      list.push({ role: m.role === 'user' ? 'user' : 'assistant', content: String(text) });
+    }
+    if (typeof limit === 'number' && limit >= 0 && list.length > limit) {
+      list = list.slice(list.length - limit);
+    }
+    for (var j = 0; j < list.length; j++) messages.push(list[j]);
+    return messages;
+  }
+
+  function planReply(systemContent, history, limit, contextTokens) {
+    var messages = modelMessagesFromHistory(systemContent, history, limit);
+    var promptChars = promptCharsOfMessages(messages);
+    var budget = replyTokenBudget({
+      contextTokens: contextTokens,
+      promptChars: promptChars,
+      messageCount: messages.length,
+      ceiling: 2048
+    });
+    return { messages: messages, promptChars: promptChars, messageCount: messages.length, budget: budget };
+  }
+
+  function choiceFinishReason(choice) {
+    if (!choice || choice.finish_reason == null || choice.finish_reason === '') return null;
+    return String(choice.finish_reason);
+  }
+
+  function turnWithFinish(text, finishReason) {
+    var entry = { role: 'rathor', text: String(text == null ? '' : text) };
+    if (finishReason === 'length') entry.cutOff = true;
+    return entry;
+  }
+  /* chat-reply-budget-pure-end */
+
+  function logReplyBudget(info) {
+    try { console.info('[Ra-Thor reply-budget] ' + JSON.stringify(info)); } catch (e) {}
+  }
+
+  // WebLLM 0.2.85 stores the chat config it actually used on
+  // engine.loadedModelIdToChatConfig (mlc-chat-config.json merged with the model
+  // record overrides and any ChatOptions passed to reload). The running pipeline
+  // copies that context_window_size onto contextWindowSize. Fall back to the
+  // prebuilt model record. Do not assume 4096.
+  function readLoadedContextTokens(engine, modelId) {
+    var used = null;
+    var fromOption = null;
+    try {
+      var cfgMap = engine && engine.loadedModelIdToChatConfig;
+      var cfg = cfgMap && typeof cfgMap.get === 'function' ? cfgMap.get(modelId) : null;
+      if (cfg && typeof cfg.context_window_size === 'number') used = cfg.context_window_size;
+    } catch (e) {}
+    try {
+      var pipes = engine && engine.loadedModelIdToPipeline;
+      var pipe = pipes && typeof pipes.get === 'function' ? pipes.get(modelId) : null;
+      if (!(used > 0) && pipe && typeof pipe.contextWindowSize === 'number') used = pipe.contextWindowSize;
+    } catch (e2) {}
+    return contextTokensFromSources(used, fromOption, prebuiltRecordForModel(modelId));
+  }
+
+  function prebuiltRecordForModel(modelId) {
+    for (var i = 0; i < webllmOptions.length; i++) {
+      if (webllmOptions[i].id === modelId) return webllmOptions[i].rec || null;
+    }
+    var list = (webllmModule && webllmModule.prebuiltAppConfig && webllmModule.prebuiltAppConfig.model_list) || [];
+    for (var j = 0; j < list.length; j++) {
+      if (list[j] && list[j].model_id === modelId) return list[j];
+    }
+    return null;
+  }
+
+  function completionTokensOf(engine, modelId, usage) {
+    if (usage && typeof usage.completion_tokens === 'number') return usage.completion_tokens;
+    try {
+      var pipes = engine && engine.loadedModelIdToPipeline;
+      var pipe = pipes && typeof pipes.get === 'function' ? pipes.get(modelId) : null;
+      if (pipe && typeof pipe.getCurRoundDecodingTotalTokens === 'function') {
+        return pipe.getCurRoundDecodingTotalTokens();
+      }
+    } catch (e) {}
+    return null;
+  }
+
+  function applyChoicePayload(parsed, state) {
+    var choice = parsed && parsed.choices && parsed.choices[0];
+    var reason = choiceFinishReason(choice);
+    if (reason) state.finishReason = reason;
+    if (parsed && parsed.usage && typeof parsed.usage.completion_tokens === 'number') {
+      state.completionTokens = parsed.usage.completion_tokens;
+    }
+    if (choice || (parsed && parsed.usage)) state.parsed = true;
+    var delta = choice && choice.delta && choice.delta.content;
+    var message = choice && choice.message && choice.message.content;
+    if (delta) state.full += delta;
+    else if (message && !state.sawDelta) state.full += message;
+    if (delta) state.sawDelta = true;
+    return state;
   }
 
   async function generateWithBackend(userText) {
     if (!backendEnabled) return null;
+    if (typeof userText !== 'string') return null;
 
     const hist = getHistory();
-    const messages = [{ role: 'system', content: systemPreamble() + getDocumentContext() }];
-    hist.slice(-14).forEach(m => {
-      messages.push({ role: m.role === 'user' ? 'user' : 'assistant', content: m.text });
+    const plan = planReply(systemPreamble() + getDocumentContext(), hist, 14, null);
+    const messages = plan.messages;
+    const budget = plan.budget;
+    logReplyBudget({
+      path: 'local-server',
+      contextTokens: null,
+      max_tokens: budget.maxTokens,
+      promptChars: plan.promptChars,
+      messageCount: plan.messageCount,
+      send: budget.send,
+      ceiling: 2048
     });
-    messages.push({ role: 'user', content: userText });
+    if (!budget.send) {
+      addNotice(chatLabel('chatContextFull', 'Context is full. Start a new chat or remove documents to continue.'));
+      return '';
+    }
 
     const endpoint = backendConfig.endpoint.replace(/\/$/, '') + '/chat/completions';
 
@@ -955,7 +1161,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
           model: backendConfig.model,
           messages,
           temperature: 0.7,
-          max_tokens: 900,
+          max_tokens: budget.maxTokens,
           stream: true
         })
       });
@@ -963,34 +1169,55 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
 
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
-      let full = '';
+      var state = { full: '', finishReason: null, completionTokens: null, sawDelta: false, parsed: false };
       let buffer = '';
+      var raw = '';
       const { msgDiv, textDiv } = addMessage('', 'rathor', false, null, true);
 
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        buffer += decoder.decode(value, { stream: true });
+        var piece = decoder.decode(value, { stream: true });
+        raw += piece;
+        buffer += piece;
         const lines = buffer.split('\n');
         buffer = lines.pop() || '';
         for (const line of lines) {
           const trimmed = line.trim();
-          if (!trimmed || !trimmed.startsWith('data:')) continue;
-          const data = trimmed.slice(5).trim();
-          if (data === '[DONE]') continue;
+          if (!trimmed) continue;
+          var data = trimmed;
+          if (trimmed.startsWith('data:')) data = trimmed.slice(5).trim();
+          if (!data || data === '[DONE]') continue;
+          if (data.charAt(0) !== '{') continue;
           try {
-            const parsed = JSON.parse(data);
-            const delta = parsed.choices?.[0]?.delta?.content || '';
-            if (delta) {
-              full += delta;
-              msgDiv.rawText = full;
-              textDiv.innerHTML = renderText(full);
+            applyChoicePayload(JSON.parse(data), state);
+            if (state.full && msgDiv && textDiv) {
+              msgDiv.rawText = state.full;
+              textDiv.innerHTML = renderText(state.full);
               chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'auto' });
             }
           } catch (e) {}
         }
       }
-      finalizeStreamingMessage(msgDiv, textDiv, full.trim() || '(empty response)');
+      var leftover = buffer.trim();
+      if (leftover) {
+        var tail = leftover.indexOf('data:') === 0 ? leftover.slice(5).trim() : leftover;
+        if (tail && tail !== '[DONE]' && tail.charAt(0) === '{') {
+          try { applyChoicePayload(JSON.parse(tail), state); } catch (e2) {}
+        }
+      }
+      if (!state.parsed && raw.trim().charAt(0) === '{') {
+        try { applyChoicePayload(JSON.parse(raw), state); } catch (e3) {}
+      }
+      var full = state.full;
+      finalizeStreamingMessage(msgDiv, textDiv, full.trim() || '(empty response)', state.finishReason);
+      logReplyBudget({
+        path: 'local-server',
+        finish_reason: state.finishReason,
+        completion_tokens: state.completionTokens,
+        chars: full.length,
+        cutOff: state.finishReason === 'length'
+      });
       return full.trim();
     } catch (err) {
       console.error('[Ra-Thor Backend]', err);
@@ -1805,7 +2032,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
         rt.phase = 'ready';
         try { localStorage.setItem(WEBLLM_MODEL_KEY, base); } catch (e) {}
         updateLlmUI('ready');
-        addMessage('WebLLM loaded (' + opt.id + '). ⚡️ Generation now runs entirely in the browser.', 'rathor');
+        addNotice('WebLLM loaded (' + opt.id + '). ⚡️ Generation now runs entirely in the browser.');
       } else {
         llmReady = false;
         llmEngine = null;
@@ -1822,7 +2049,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
       llmEngine = null;
       rt.phase = (await modelFilesCached(opt.rec)) ? 'partial' : 'absent';
       updateLlmUI('error', 'Load failed');
-      addMessage('WebLLM failed to load. Use Local Server or **Copy Context**.', 'rathor');
+      addNotice('WebLLM failed to load. Use Local Server or **Copy Context**.');
     }
     renderWebllmRows();
   }
@@ -2059,34 +2286,91 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
 
   async function generateWithLocalLLM(userText) {
     if (!llmEngine || !llmReady) return null;
+    if (typeof userText !== 'string') return null;
     const hist = getHistory();
-    const messages = [{ role: 'system', content: systemPreamble() + getDocumentContext() }];
-    hist.slice(-10).forEach(m => {
-      messages.push({ role: m.role === 'user' ? 'user' : 'assistant', content: m.text });
+    const contextTokens = readLoadedContextTokens(llmEngine, llmModelId);
+    const plan = planReply(systemPreamble() + getDocumentContext(), hist, 10, contextTokens);
+    const messages = plan.messages;
+    const budget = plan.budget;
+    logReplyBudget({
+      path: 'webllm',
+      modelId: llmModelId,
+      contextTokens: contextTokens,
+      max_tokens: budget.maxTokens,
+      promptChars: plan.promptChars,
+      messageCount: plan.messageCount,
+      send: budget.send,
+      ceiling: 2048
     });
-    messages.push({ role: 'user', content: userText });
+    if (!budget.send) {
+      addNotice(chatLabel('chatContextFull', 'Context is full. Start a new chat or remove documents to continue.'));
+      return '';
+    }
 
+    var msgDiv = null;
+    var textDiv = null;
     try {
       const stream = await llmEngine.chat.completions.create({
-        messages, temperature: 0.7, max_tokens: 500, stream: true
+        messages, temperature: 0.7, max_tokens: budget.maxTokens, stream: true
       });
       let full = '';
-      const { msgDiv, textDiv } = addMessage('', 'rathor', false, null, true);
+      var finishReason = null;
+      var usage = null;
+      const opened = addMessage('', 'rathor', false, null, true);
+      msgDiv = opened && opened.msgDiv;
+      textDiv = opened && opened.textDiv;
       for await (const chunk of stream) {
-        const delta = chunk.choices?.[0]?.delta?.content || '';
+        const choice = chunk && chunk.choices && chunk.choices[0];
+        var reason = choiceFinishReason(choice);
+        if (reason) finishReason = reason;
+        if (chunk && chunk.usage) usage = chunk.usage;
+        const delta = (choice && choice.delta && choice.delta.content) || '';
         if (delta) {
           full += delta;
-          msgDiv.rawText = full;
-          textDiv.innerHTML = renderText(full);
-          chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'auto' });
+          if (msgDiv && textDiv) {
+            msgDiv.rawText = full;
+            textDiv.innerHTML = renderText(full);
+            chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'auto' });
+          }
         }
       }
-      finalizeStreamingMessage(msgDiv, textDiv, full.trim() || '(empty)');
+      var completionTokens = completionTokensOf(llmEngine, llmModelId, usage);
+      finalizeStreamingMessage(msgDiv, textDiv, full.trim() || '(empty)', finishReason);
+      logReplyBudget({
+        path: 'webllm',
+        modelId: llmModelId,
+        finish_reason: finishReason,
+        completion_tokens: completionTokens,
+        chars: full.length,
+        cutOff: finishReason === 'length',
+        max_tokens: budget.maxTokens,
+        contextTokens: contextTokens
+      });
       return full.trim();
     } catch (err) {
       try {
-        const reply = await llmEngine.chat.completions.create({ messages, temperature: 0.7, max_tokens: 500 });
-        return reply.choices?.[0]?.message?.content?.trim() || null;
+        const reply = await llmEngine.chat.completions.create({ messages, temperature: 0.7, max_tokens: budget.maxTokens });
+        const choice = reply && reply.choices && reply.choices[0];
+        var nonStreamReason = choiceFinishReason(choice);
+        const text = ((choice && choice.message && choice.message.content) || '').trim();
+        var tokens = completionTokensOf(llmEngine, llmModelId, reply && reply.usage);
+        logReplyBudget({
+          path: 'webllm-nonstream',
+          modelId: llmModelId,
+          finish_reason: nonStreamReason,
+          completion_tokens: tokens,
+          chars: text.length,
+          cutOff: nonStreamReason === 'length',
+          max_tokens: budget.maxTokens,
+          contextTokens: contextTokens
+        });
+        if (!text) return null;
+        if (msgDiv && textDiv) {
+          finalizeStreamingMessage(msgDiv, textDiv, text, nonStreamReason);
+        } else {
+          addMessage(text, 'rathor', true, null, false, { finishReason: nonStreamReason });
+        }
+        return text;
       } catch (e2) {
         return null;
       }
@@ -2122,7 +2406,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
   }
 
   function toggleMic() {
-    if (!recognition) { addMessage('Speech recognition is not available in this browser.', 'rathor'); return; }
+    if (!recognition) { addNotice('Speech recognition is not available in this browser.'); return; }
     if (isListening) recognition.stop();
     else { try { recognition.start(); } catch (e) {} }
   }
@@ -2191,7 +2475,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
           saveStore();
           refreshSessionSelect();
           renderHistory();
-          addMessage('Full session backup restored.', 'rathor');
+          addNotice('Full session backup restored.');
           return;
         }
         if (Array.isArray(data.history)) {
@@ -2202,12 +2486,12 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
           saveStore();
           refreshSessionSelect();
           renderHistory();
-          addMessage(`Session “${name}” imported.`, 'rathor');
+          addNotice(`Session “${name}” imported.`);
         } else {
-          addMessage('Import failed — unrecognised format.', 'rathor');
+          addNotice('Import failed — unrecognised format.');
         }
       } catch (err) {
-        addMessage('Import failed — could not parse JSON.', 'rathor');
+        addNotice('Import failed — could not parse JSON.');
       }
     };
     reader.readAsText(file);
@@ -2227,7 +2511,10 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
       '',
       'Conversation history (generated on-device):'
     );
-    hist.forEach(m => lines.push(`${m.role === 'user' ? 'Human' : 'Ra-Thor'}: ${m.text}`));
+    hist.forEach(m => {
+      if (!m || m.notice) return;
+      lines.push(`${m.role === 'user' ? 'Human' : 'Ra-Thor'}: ${m.text}`);
+    });
     if (injectedDocs.length > 0) {
       lines.push('', '--- Injected Documents ---');
       injectedDocs.forEach(d => { lines.push(`### ${d.name}`); lines.push(d.content); lines.push(''); });
@@ -2239,7 +2526,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
 
   function copyContext() {
     copyText(buildContextPrompt()).then(() => {
-      addMessage('Context copied. ⚡️ Paste it into any public LLM to continue with full generative power.', 'rathor');
+      addNotice('Context copied. ⚡️ Paste it into any public LLM to continue with full generative power.');
     });
   }
 

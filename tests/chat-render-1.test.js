@@ -36,8 +36,9 @@ var sw = read('sw.js');
 assert(chat.indexOf('<think>') === -1, 'chat.js must not gain a think tag');
 assert(chat.indexOf('window.confirm') === -1, 'chat.js must not call window.confirm');
 assert(chat.indexOf("./vendor/web-llm/0.2.85/index.js") !== -1, 'WebLLM pin stays 0.2.85');
-assert(chat.indexOf('max_tokens: 500') !== -1, 'WebLLM max_tokens stays 500');
-assert(chat.indexOf('max_tokens: 900') !== -1, 'Local Server max_tokens stays 900');
+assert(chat.indexOf('max_tokens: budget.maxTokens') !== -1, 'completions use the reply budget');
+assert(chat.indexOf('max_tokens: 500') === -1, 'WebLLM no longer hard-codes max_tokens 500');
+assert(chat.indexOf('max_tokens: 900') === -1, 'Local Server no longer hard-codes max_tokens 900');
 assert(sw.indexOf("var LOCK = '20260924a';") !== -1, 'service worker LOCK stays 20260924a');
 
 var promptMarker = 'const SYSTEM_PROMPT = `';
