@@ -66,6 +66,12 @@ assert(enableFn.indexOf('addMessage(') !== -1, 'confirm still goes through addMe
 var keySet = enableFn.indexOf('cryptoKey = begun.cryptoKey');
 var confirmAt = enableFn.indexOf('Session store is now encrypted');
 assert(keySet !== -1 && confirmAt > keySet, 'the held key is set before the confirm message');
+var lockedEnable = enableFn.indexOf('if (isEncrypted && !cryptoKey) return;');
+var promptAt = enableFn.indexOf('prompt(');
+assert(lockedEnable !== -1 && lockedEnable < promptAt, 'enable while locked must not write');
+var enableRefuse = enableFn.indexOf('refuseSaveOverEnvelope');
+var enableWrite = enableFn.indexOf('localStorage.setItem(STORE_KEY');
+assert(enableRefuse !== -1 && enableRefuse < keySet && keySet < enableWrite, 'enable checks the envelope before it keeps a new key or writes');
 
 var unlockStart = chat.indexOf('async function tryUnlock');
 var unlockEnd = chat.indexOf('function warnIfPlaintextUnderFlag');
@@ -212,6 +218,11 @@ function main() {
     assert(kept === lockedRaw, 'the refused save leaves the envelope in place');
     assert(kept.indexOf('"sessions"') === -1, 'the refused save does not replace the envelope with a session store');
     assert(api.refuseSaveOverEnvelope({ cryptoKey: null }, JSON.stringify(storeObj)) === false, 'a plain store is not blocked by the envelope backstop');
+    var enableKept = lockedRaw;
+    if (!api.refuseSaveOverEnvelope({ isEncrypted: true, cryptoKey: null }, lockedRaw)) {
+      enableKept = JSON.stringify({ activeId: 'empty', sessions: {} });
+    }
+    assert(enableKept === lockedRaw, 'enable direct write leaves the envelope in place when no key is held');
     assert(api.flagAfterUnlock(null) === '1', 'unlock of an older envelope sets ENCRYPT_FLAG');
     assert(api.flagAfterUnlock('') === '1', 'an empty flag becomes 1 after unlock');
     assert(api.flagAfterUnlock('1') === '1', 'an existing flag stays 1');

@@ -499,6 +499,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
   // Plaintext is written only when the lock is off. This card has no turn-off control.
 
   async function enableEncryption() {
+    if (isEncrypted && !cryptoKey) return;
     const pass = prompt('Choose a strong passphrase to encrypt all sessions.\n\nWARNING: If you forget this passphrase the data cannot be recovered.');
     if (!pass || pass.length < 6) {
       addMessage('Encryption cancelled or passphrase too short (min 6 characters).', 'rathor');
@@ -512,6 +513,12 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
 
     try {
       const begun = await beginPassphraseLock(pass, store);
+      var storedRaw = null;
+      try { storedRaw = localStorage.getItem(STORE_KEY); } catch (e) { storedRaw = null; }
+      if (refuseSaveOverEnvelope({ cryptoKey: cryptoKey }, storedRaw)) {
+        console.warn('[Ra-Thor] refusing plaintext save while encryption is on');
+        return;
+      }
       cryptoKey = begun.cryptoKey;
       cryptoSalt = begun.cryptoSalt;
       isEncrypted = begun.isEncrypted === true;
