@@ -84,7 +84,9 @@ var warnAt = init.indexOf('warnIfPlaintextUnderFlag()');
 assert(encBranch !== -1 && loadAt > encBranch && warnAt > loadAt, 'plaintext notice runs only after a plain load');
 
 assert(en.indexOf('"chatEncryptPlainNotice": "Your saved chats are not encrypted right now. Set your passphrase again to lock them."') !== -1, 'en.js notice key');
-assert(en.indexOf('"chatReplyPrivacy": "Zero personal data leaves your browser.') !== -1, 'privacy reply string stays');
+assert(en.indexOf('Zero personal data leaves your browser') === -1, 'en.js drops the zero-personal-data browser claim');
+assert(en.indexOf('for maximum privacy') === -1, 'en.js drops for maximum privacy');
+assert(en.indexOf('Chats are saved only in this browser. If you connect a Local Server or an online provider, your messages are sent there.') !== -1, 'chat privacy reply uses the approved wording');
 
 var sandbox = {
   crypto: globalThis.crypto,
