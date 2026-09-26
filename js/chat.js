@@ -63,6 +63,8 @@
   const backendConnectBtn= document.getElementById('backend-connect-btn');
   const backendDisconnectBtn = document.getElementById('backend-disconnect-btn');
   const backendStatus    = document.getElementById('backend-status');
+  const localServerPresetsEl = document.getElementById('local-server-presets');
+  const localServerPresetNote = document.getElementById('local-server-preset-note');
   const activePathBadge  = document.getElementById('active-path-badge');
   const unlockOverlay    = document.getElementById('unlock-overlay');
   const unlockPassphrase = document.getElementById('unlock-passphrase');
@@ -823,6 +825,40 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
   }
 
   // ─── Local Backend ────────────────────────────────────────────────────────
+  function renderLocalServerPresets() {
+    if (localServerPresetsEl) {
+      localServerPresetsEl.setAttribute('aria-label', chatLabel('chatPresetGroup', 'Local server presets'));
+      var presets = localServerPresets();
+      for (var i = 0; i < presets.length; i++) {
+        var preset = presets[i];
+        var btn = localServerPresetsEl.querySelector('[data-preset="' + preset.id + '"]');
+        if (!btn) continue;
+        btn.textContent = chatLabel(preset.labelKey, preset.label);
+      }
+    }
+    if (localServerPresetNote) {
+      localServerPresetNote.textContent = chatLabel('chatPresetNote', 'Pick a preset, then Connect. You can edit both fields.');
+    }
+  }
+
+  function selectLocalServerPreset(presetId) {
+    var filled = fillFromLocalServerPreset(presetId, {
+      endpoint: backendEndpoint ? backendEndpoint.value : '',
+      model: backendModel ? backendModel.value : '',
+      connected: backendEnabled
+    });
+    if (!filled.applied) return;
+    if (backendEndpoint) backendEndpoint.value = filled.endpoint;
+    if (backendModel) backendModel.value = filled.model;
+    if (!localServerPresetsEl) return;
+    var buttons = localServerPresetsEl.querySelectorAll('[data-preset]');
+    for (var i = 0; i < buttons.length; i++) {
+      var on = buttons[i].getAttribute('data-preset') === presetId;
+      buttons[i].setAttribute('aria-pressed', on ? 'true' : 'false');
+      buttons[i].classList.toggle('local-preset-on', on);
+    }
+  }
+
   function setBackendUI(connected) {
     backendEnabled = connected;
     if (backendConnectBtn) backendConnectBtn.classList.toggle('hidden', connected);
@@ -1331,6 +1367,37 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
       lines.push('Safari may evict downloaded models when storage is low.');
     }
     return lines;
+  }
+
+  /* connect-local-presets */
+  function localServerPresets() {
+    return [
+      { id: 'ollama', labelKey: 'chatPresetOllama', label: 'Ollama', endpoint: 'http://localhost:11434/v1', model: 'llama3.2' },
+      { id: 'lmstudio', labelKey: 'chatPresetLmStudio', label: 'LM Studio', endpoint: 'http://localhost:1234/v1', model: 'local-model' },
+      { id: 'llamacpp', labelKey: 'chatPresetLlamaCpp', label: 'llama.cpp', endpoint: 'http://localhost:8080/v1', model: 'llama' },
+      { id: 'vllm', labelKey: 'chatPresetVllm', label: 'vLLM', endpoint: 'http://localhost:8000/v1', model: 'default' }
+    ];
+  }
+
+  function fillFromLocalServerPreset(presetId, fields) {
+    var list = localServerPresets();
+    var found = null;
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].id === presetId) found = list[i];
+    }
+    var endpoint = fields && fields.endpoint != null ? fields.endpoint : '';
+    var model = fields && fields.model != null ? fields.model : '';
+    var connected = !!(fields && fields.connected);
+    if (!found) {
+      return { endpoint: endpoint, model: model, connected: connected, applied: false, effect: null };
+    }
+    return {
+      endpoint: found.endpoint,
+      model: found.model,
+      connected: connected,
+      applied: true,
+      effect: null
+    };
   }
   /* chat-models-1-pure-end */
 
@@ -2274,6 +2341,13 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
   if (localBackendBtn) localBackendBtn.addEventListener('click', () => {
     if (backendSettings) backendSettings.classList.toggle('hidden');
   });
+  if (localServerPresetsEl) {
+    localServerPresetsEl.addEventListener('click', function (ev) {
+      var btn = ev.target.closest ? ev.target.closest('[data-preset]') : null;
+      if (!btn) return;
+      selectLocalServerPreset(btn.getAttribute('data-preset'));
+    });
+  }
   if (backendConnectBtn) backendConnectBtn.addEventListener('click', connectBackend);
   if (backendDisconnectBtn) backendDisconnectBtn.addEventListener('click', disconnectBackend);
   if (encryptBtn) encryptBtn.addEventListener('click', enableEncryption);
@@ -2314,6 +2388,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
   document.addEventListener('rt-chrome-i18n', async function () {
     applyChatSurfaceDir();
     applyWebllmStaticCopy();
+    renderLocalServerPresets();
     renderNetMode();
     renderWebllmRows();
     updatePathBadge();
@@ -2329,6 +2404,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
   // ─── Init ─────────────────────────────────────────────────────────────────
   window.addEventListener('DOMContentLoaded', async () => {
     loadSettings();
+    renderLocalServerPresets();
     renderNetMode();
 
     // Check if store is encrypted
