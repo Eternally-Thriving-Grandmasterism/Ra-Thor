@@ -477,7 +477,7 @@ window.translations["id"] = {
   "chatOpenGrok": "Buka demo Grok",
   "chatOpenX": "Buka demo X",
   "chatReplyHello": "Guntur terkunci, sobat. ⚡️ Guntur Belas Kasih luring siap. Bagaimana lattice boleh melayani Anda hari ini?",
-  "chatReplyWho": "Saya permukaan Lattice Chat dari Ra-Thor (ruang kerja 14.15.6) — perangkat lunak riset yang dapat diperiksa. Lattice adalah gerbang. Saya penyampel opsional. Keluaran adalah draf. Semua jawaban tinggal di perangkat Anda. Tidak ada data yang dikumpulkan. Independen dari xAI. Kontak info@Rathor.ai.",
+  "chatReplyWho": "Saya permukaan Lattice Chat dari Ra-Thor (ruang kerja 14.15.6) — perangkat lunak riset yang dapat diperiksa. Lattice adalah gerbang. Saya penyampel opsional. Keluaran adalah draf. Jawaban dibuat di peramban ini kecuali Anda menghubungkan server lokal atau penyedia daring, yang kemudian menerima pesan Anda. Tidak ada data yang dikumpulkan. Independen dari xAI. Kontak info@Rathor.ai.",
   "chatReplyTolc": "Gerbang Belas Kasih Hidup TOLC 8 tidak dapat dilewati:\n• Kebenaran\n• Keteraturan\n• Kasih\n• Welas asih (nol bahaya)\n• Pelayanan\n• Kelimpahan\n• Sukacita\n• Keharmonisan kosmis\n\nLantai valensi ≥ 0.999. Gerbang ini tidak dapat dimatikan.",
   "chatReplyPrivacy": "Obrolan disimpan hanya di peramban ini. Jika Anda menghubungkan server lokal atau penyedia daring, pesan Anda dikirim ke sana. Sesi hanya hidup di localStorage. Anda dapat menyalakan enkripsi frasa sandi (AES-GCM) lewat tombol gembok. Lupa frasa sandi membuat data tidak dapat dipulihkan.",
   "chatReplyOffline": "Inti ini mengutamakan luring. Penjawab cepat selalu bekerja. Jembatan backend lokal menunjuk ke server Ollama / LM Studio Anda. WebLLM adalah opsi peramban murni.",

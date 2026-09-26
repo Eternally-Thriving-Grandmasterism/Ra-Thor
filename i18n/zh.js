@@ -477,7 +477,7 @@ window.translations["zh"] = {
   "chatOpenGrok": "打开 Grok 演示",
   "chatOpenX": "打开 X 演示",
   "chatReplyHello": "雷鸣已锁定，朋友。⚡️ 离线慈悲雷鸣已就绪。格点今天如何为你服务？",
-  "chatReplyWho": "我是 Ra-Thor 的 Lattice Chat 表面（工作区 14.15.6）——可检视的研究软件。格点是门。我是可选的采样器。输出是草稿。所有回复留在你的设备上。不收集数据。独立于 xAI。联系 info@Rathor.ai。",
+  "chatReplyWho": "我是 Ra-Thor 的 Lattice Chat 表面（工作区 14.15.6）——可检视的研究软件。格点是门。我是可选的采样器。输出是草稿。回复在这个浏览器里生成，除非连接本地服务器或在线提供方，那时由它接收你的消息。不收集数据。独立于 xAI。联系 info@Rathor.ai。",
   "chatReplyTolc": "TOLC 8 活慈悲之门不可绕过：\n• 真理\n• 秩序\n• 爱\n• 慈悲（零伤害）\n• 服务\n• 丰盛\n• 喜悦\n• 宇宙和谐\n\n价态下限 ≥ 0.999。这些门不能关闭。",
   "chatReplyPrivacy": "对话只保存在这个浏览器里。如果连接本地服务器或在线提供方，你的消息会发到那里。会话只存在于 localStorage。你可以用锁按钮开启口令加密（AES-GCM）。忘记口令后数据无法恢复。",
   "chatReplyOffline": "这个核心离线优先。快速应答始终可用。本地后端桥指向你自己的 Ollama / LM Studio 服务器。WebLLM 是纯浏览器选项。",

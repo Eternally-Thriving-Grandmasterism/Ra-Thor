@@ -477,7 +477,7 @@ window.translations["pl"] = {
   "chatOpenGrok": "Otwórz demo Grok",
   "chatOpenX": "Otwórz demo X",
   "chatReplyHello": "Grom zablokowany, przyjacielu. ⚡️ Offline Grom Miłosierdzia jest gotowy. Jak lattice może Ci dziś służyć?",
-  "chatReplyWho": "Jestem powierzchnią Lattice Chat Ra-Thor (przestrzeń robocza 14.15.6) — oprogramowaniem badawczym do wglądu. Lattice to bramy. Ja jestem opcjonalnym samplerem. Wyniki to szkice. Wszystkie odpowiedzi zostają na Twoim urządzeniu. Danych nie zbieramy. Niezależne od xAI. Kontakt info@Rathor.ai.",
+  "chatReplyWho": "Jestem powierzchnią Lattice Chat Ra-Thor (przestrzeń robocza 14.15.6) — oprogramowaniem badawczym do wglądu. Lattice to bramy. Ja jestem opcjonalnym samplerem. Wyniki to szkice. Odpowiedzi powstają w tej przeglądarce, chyba że połączysz serwer lokalny lub dostawcę online, który wtedy odbiera twoje wiadomości. Danych nie zbieramy. Niezależne od xAI. Kontakt info@Rathor.ai.",
   "chatReplyTolc": "Bramy Żywego Miłosierdzia TOLC 8 są nie do obejścia:\n• Prawda\n• Porządek\n• Miłość\n• Współczucie (zero szkody)\n• Służba\n• Obfitość\n• Radość\n• Kosmiczna harmonia\n\nPróg walencji ≥ 0.999. Tych bram nie da się wyłączyć.",
   "chatReplyPrivacy": "Czaty są zapisywane tylko w tej przeglądarce. Jeśli połączysz serwer lokalny lub dostawcę online, twoje wiadomości są tam wysyłane. Sesje żyją tylko w localStorage. Możesz włączyć szyfrowanie hasłem-zdaniem (AES-GCM) kłódką. Zapomnienie hasła czyni dane nie do odzyskania.",
   "chatReplyOffline": "Ten rdzeń jest najpierw offline. Szybki odpowiadacz zawsze działa. Most lokalnego backendu wskazuje Twój serwer Ollama / LM Studio. WebLLM to opcja czystej przeglądarki.",
