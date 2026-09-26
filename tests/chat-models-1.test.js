@@ -137,7 +137,8 @@ assert(chat.indexOf("chatStr('chatPathFast')") !== -1, 'path badge stays the fas
 assert(html.indexOf('Lattice Chat v14.18.x — offline-first multi-session store on your device. Workspace 14.15.6. Optional Web Crypto passphrase (PBKDF2 + AES-GCM). Capable · Bounded · Corrigible. Zero collection.') !== -1, 'chat meta string must stay');
 assert(html.indexOf('v14.18.x • workspace 14.15.6 • TOLC 8 • family bar shared') !== -1, 'chat subtitle must stay');
 assert(html.indexOf('Third-party models under their own licenses. Not made by Ra-Thor. Not reviewed or endorsed by their authors.') !== -1, 'third-party line must be on the page');
-assert(html.indexOf('The first download of each model comes from Hugging Face and needs the network. After that it runs in this browser.') !== -1, 'download line must be on the page');
+assert(html.indexOf("The first download of each model comes from Hugging Face and GitHub (raw.githubusercontent.com, which serves the model's code file) and needs the network. After that it runs in this browser.") !== -1, 'download line must name Hugging Face and GitHub');
+assert(chat.indexOf("The first download of each model comes from Hugging Face and GitHub (raw.githubusercontent.com, which serves the model's code file) and needs the network. After that it runs in this browser.") !== -1, 'download fallback must name Hugging Face and GitHub');
 assert(html.indexOf('Any other model: Local Server (Ollama).') !== -1, 'other models must point at Local Server (Ollama)');
 assert(html.indexOf('Built with Llama') === -1, 'Built with Llama is rendered from the selected model, not a page-wide claim');
 assert(chat.indexOf('Built with Llama') !== -1, 'Llama models must show Built with Llama');
@@ -187,7 +188,7 @@ var sandbox = {
   }
 };
 vm.createContext(sandbox);
-vm.runInContext(pure + '\nthis.api = { readNetMode: readNetMode, writeNetMode: writeNetMode, webllmRowTransition: webllmRowTransition, webllmDownloadAllowed: webllmDownloadAllowed, localServerEndpointAllowed: localServerEndpointAllowed, webllmBadgeLabel: webllmBadgeLabel, webllmActionLabel: webllmActionLabel };', sandbox);
+vm.runInContext(pure + '\nthis.api = { readNetMode: readNetMode, writeNetMode: writeNetMode, webllmRowTransition: webllmRowTransition, webllmDownloadAllowed: webllmDownloadAllowed, localServerEndpointAllowed: localServerEndpointAllowed, webllmBadgeLabel: webllmBadgeLabel, webllmActionLabel: webllmActionLabel, absoluteScriptUrl: absoluteScriptUrl, modelCacheUrlPrefix: modelCacheUrlPrefix, requestMatchesModel: requestMatchesModel, purgeOwnedModelEntries: purgeOwnedModelEntries, modelFilesRemain: modelFilesRemain, phaseAfterLocalDelete: phaseAfterLocalDelete, tensorManifestDownloadBytes: tensorManifestDownloadBytes, formatByteMegabytes: formatByteMegabytes, downloadConsentText: downloadConsentText, deleteConsentText: deleteConsentText, isWebllmOwnedCache: isWebllmOwnedCache };', sandbox);
 var api = sandbox.api;
 assert(api.readNetMode() === 'network-on', 'default net mode is network-on');
 assert(api.writeNetMode('offline-only') === 'offline-only', 'write offline-only');
@@ -235,5 +236,84 @@ assert(api.webllmActionLabel('absent') === 'Download');
 assert(api.webllmActionLabel('downloading') === 'Stop');
 assert(api.webllmActionLabel('partial') === 'Delete');
 assert(api.webllmActionLabel('ready') === 'Delete');
+
+var modelId = 'SmolLM2-360M-Instruct-q4f32_1-MLC';
+var modelUrl = 'https://huggingface.co/mlc-ai/' + modelId;
+var siblingUrl = 'https://huggingface.co/mlc-ai/' + modelId + '-1k';
+var prefix = api.modelCacheUrlPrefix(modelUrl);
+var siblingPrefix = api.modelCacheUrlPrefix(siblingUrl);
+var leftover = prefix + 'tensor-cache.json';
+var siblingEntry = siblingPrefix + 'tensor-cache.json';
+assert(siblingEntry.indexOf(modelId) !== -1, 'a prefix sibling URL still contains the shorter model id');
+assert(api.requestMatchesModel(siblingEntry, modelUrl, null) === false, 'URL boundary must not match a prefix sibling');
+assert(api.requestMatchesModel(leftover, modelUrl, null) === true, 'tensor-cache.json under the model URL is that model');
+var stores = {
+  'webllm/model': [leftover, siblingEntry],
+  'webllm/script': [leftover],
+  'rathor-core-20260924a': [leftover]
+};
+var phase = api.phaseAfterLocalDelete(stores, modelUrl, null);
+assert(phase === 'absent', 'delete clears the leftover tensor-cache.json');
+assert(api.webllmBadgeLabel(phase) === 'Not on this device', 'delete badge is Not on this device');
+var after = api.purgeOwnedModelEntries(stores, modelUrl, null);
+assert(after['webllm/model'].indexOf(leftover) === -1, 'owned cache drops this model');
+assert(after['webllm/model'].indexOf(siblingEntry) !== -1, 'deleting one id leaves the prefix sibling');
+assert(after['webllm/script'][0] === leftover, 'the script cache is not a model cache');
+assert(after['rathor-core-20260924a'][0] === leftover, 'a cache this page does not own stays untouched');
+assert(api.modelFilesRemain(after, modelUrl, null) === false, 'no owned entry remains for the deleted model');
+assert(api.isWebllmOwnedCache('webllm/model') === true, 'webllm/model is owned');
+assert(api.isWebllmOwnedCache('webllm/script') === false, 'the script cache is not swept as model data');
+assert(api.isWebllmOwnedCache('tvmjs') === false, 'tvmjs is not this page or web-llm model cache');
+
+var manifestBytes = api.tensorManifestDownloadBytes({
+  records: [{ dataPath: 'params_shard_0.bin', nbytes: 203614080, records: [{ nbytes: 1 }] }]
+});
+assert(manifestBytes === 203614080, 'download bytes sum the manifest shard records');
+assert(api.formatByteMegabytes(manifestBytes) === '203.6 MB', '203614080 bytes is 203.6 MB');
+assert(api.downloadConsentText('SmolLM2-360M-Instruct', null).indexOf('Download size') === -1, 'no download size without a manifest sum');
+assert(api.downloadConsentText('SmolLM2-360M-Instruct', manifestBytes).indexOf('Download size: 203.6 MB') !== -1, 'confirm shows the summed size');
+assert(api.downloadConsentText('SmolLM2-360M-Instruct', null).indexOf('Hugging Face and GitHub') !== -1, 'confirm names both hosts');
+assert(api.deleteConsentText('SmolLM2-360M-Instruct', null).indexOf('frees about') === -1, 'delete omits a size it did not sum');
+assert(api.deleteConsentText('SmolLM2-360M-Instruct', manifestBytes).indexOf('This frees about 203.6 MB') !== -1, 'delete can quote a summed size');
+assert(chat.indexOf('203.6') === -1, 'chat.js must not hand-type the SmolLM2 download size');
+assert(chat.indexOf('GPU memory needed: about ') !== -1, 'vram is labeled as GPU memory');
+assert(chat.indexOf('Small models can give wrong or inappropriate replies.') !== -1, 'smallest model row carries the reply note');
+
+assert(chat.indexOf("const WEBLLM_SCRIPT_CACHE = 'webllm/script'") !== -1, 'vendor script uses the webllm/script cache');
+assert(api.absoluteScriptUrl('https://rathor.ai/js/chat.js?v=20260924a', './vendor/web-llm/0.2.85/index.js') === 'https://rathor.ai/js/vendor/web-llm/0.2.85/index.js', 'script URL is absolute and has no query');
+function activateWouldDelete(key) {
+  var LOCK = '20260924a';
+  return key.indexOf(LOCK) === -1 && key.indexOf('rathor-models') === -1 && key.indexOf('rathor-queue') === -1 && key.indexOf('webllm') === -1;
+}
+assert(activateWouldDelete('webllm/script') === false, 'webllm/script survives the activate keep list');
+assert(sw.indexOf('req.destination === \'script\'') !== -1, 'script requests have a fetch fallback');
+var scriptHandler = sw.slice(sw.indexOf("req.destination === 'script'"), sw.indexOf('event.respondWith(', sw.indexOf("req.destination === 'script'") + 80));
+assert(scriptHandler.indexOf('caches.match(req)') !== -1, 'script fallback uses caches.match across caches');
+assert(chat.indexOf('navigator.serviceWorker.ready') !== -1, 'download waits for the service worker when one is registered');
+assert(chat.indexOf('cache.add(WEBLLM_SCRIPT_URL)') !== -1, 'download stores the vendored script');
+var downloadFn2 = chat.slice(chat.indexOf('async function startWebllmDownload'), chat.indexOf('async function loadWebllmModel'));
+assert(downloadFn2.indexOf('cacheVendoredWebllmScript') !== -1 && downloadFn2.indexOf('cacheVendoredWebllmScript') < downloadFn2.indexOf('loadWebllmModel'), 'script cache runs when a download starts');
+
+var deleteFn = chat.slice(chat.indexOf('async function deleteWebllmModel'), chat.indexOf('async function useWebllmModel'));
+assert(deleteFn.indexOf("readNetMode() !== 'offline-only'") !== -1, 'offline-only delete skips the network helper');
+assert(deleteFn.indexOf("readNetMode() !== 'offline-only'") < deleteFn.indexOf('deleteModelAllInfoInCache'), 'the network delete is inside the online branch');
+assert(deleteFn.indexOf('purgeModelLeftovers') !== -1, 'delete removes leftover cache entries');
+assert(deleteFn.indexOf('fetch(') === -1, 'delete does not fetch');
+assert(chat.indexOf('stopWebllmDownload') !== -1 && chat.indexOf('Download cancelled.') !== -1, 'offline only stops an in-progress download and says so');
+assert(chat.indexOf('webllmPicker') !== -1 && chat.indexOf('scrollIntoView') !== -1, 'the WebLLM button focuses the picker');
+
+assert(chat.indexOf('https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/blob/a10cc1512eabd3dde888204e902eca88bddb4951/README.md') !== -1, 'SmolLM2 license link is a pinned README');
+assert(chat.indexOf('https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/blob/7ae557604adf67be50417f59c2c2f167def9a775/LICENSE') !== -1, 'Qwen 0.5B license is pinned');
+assert(chat.indexOf('https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct/blob/989aa7980e4cf806f80c7fef2b1adb7bc71aa306/LICENSE') !== -1, 'Qwen 1.5B license is pinned');
+assert(chat.indexOf('https://github.com/meta-llama/llama-models/blob/8d29d93fa5700a60532e0061a02ffa89d0acd3fc/models/llama3_2/LICENSE') !== -1, 'Llama license is pinned');
+assert(chat.indexOf('https://github.com/meta-llama/llama-models/blob/8d29d93fa5700a60532e0061a02ffa89d0acd3fc/models/llama3_2/USE_POLICY.md') !== -1, 'Llama use policy is pinned');
+assert(chat.indexOf('https://huggingface.co/microsoft/Phi-3.5-mini-instruct/blob/2fe192450127e6a83f7441aef6e3ca586c338b77/LICENSE') !== -1, 'Phi license is pinned');
+assert(chat.indexOf('https://ai.google.dev/gemma/terms') !== -1, 'Gemma terms stay on the page that has no revision');
+assert(chat.indexOf('/blob/main/') === -1, 'license links must not float on blob/main');
+assert(chat.indexOf('/resolve/main/LICENSE') === -1, 'license links must use blob, not resolve');
+
+var en = read('i18n/en.js');
+assert(en.indexOf('pick a model in the Local Intelligence list') !== -1, 'English greeting points at the model list');
+assert(en.indexOf('enable WebLLM on desktop') === -1, 'English greeting must not say desktop-only');
 
 console.log('CHAT-MODELS-1 checks passed');

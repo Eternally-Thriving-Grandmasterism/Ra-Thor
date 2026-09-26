@@ -89,9 +89,16 @@
   let webllmShaderF16 = false;
   let webllmOptions = [];
   let webllmRowRuntime = {};
+  let webllmDownloadCancelled = false;
 
   const WEBLLM_MODEL_KEY = 'rathor-webllm-model-v1';
   const WEBLLM_VENDOR = './vendor/web-llm/0.2.85/index.js';
+  // Same-origin script cache. The name contains "webllm", so sw.js activate keeps it.
+  const WEBLLM_SCRIPT_CACHE = 'webllm/script';
+  const WEBLLM_SCRIPT_URL = absoluteScriptUrl(
+    (document.currentScript && document.currentScript.src) || new URL('/js/chat.js', location.href).href,
+    WEBLLM_VENDOR
+  );
   const WEBLLM_DEFAULT_BASE = 'Llama-3.2-1B-Instruct';
   // Curated order. Quantization is chosen from the pinned prebuiltAppConfig.
   // q4f32_1 is used only when the WebGPU adapter lacks shader-f16.
@@ -100,21 +107,22 @@
       base: 'SmolLM2-360M-Instruct',
       q4f16: 'SmolLM2-360M-Instruct-q4f16_1-MLC',
       q4f32: 'SmolLM2-360M-Instruct-q4f32_1-MLC',
-      links: [{ text: 'Apache-2.0', href: 'https://www.apache.org/licenses/LICENSE-2.0' }]
+      links: [{ text: 'Apache-2.0', href: 'https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/blob/a10cc1512eabd3dde888204e902eca88bddb4951/README.md' }],
+      smallReplyNote: true
     },
     {
       base: 'Qwen2.5-0.5B-Instruct',
       q4f16: 'Qwen2.5-0.5B-Instruct-q4f16_1-MLC',
       q4f32: 'Qwen2.5-0.5B-Instruct-q4f32_1-MLC',
-      links: [{ text: 'Apache-2.0', href: 'https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/blob/main/LICENSE' }]
+      links: [{ text: 'Apache-2.0', href: 'https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/blob/7ae557604adf67be50417f59c2c2f167def9a775/LICENSE' }]
     },
     {
       base: 'Llama-3.2-1B-Instruct',
       q4f16: 'Llama-3.2-1B-Instruct-q4f16_1-MLC',
       q4f32: 'Llama-3.2-1B-Instruct-q4f32_1-MLC',
       links: [
-        { text: 'Llama 3.2 Community License', href: 'https://github.com/meta-llama/llama-models/blob/main/models/llama3_2/LICENSE' },
-        { text: 'Acceptable Use Policy', href: 'https://github.com/meta-llama/llama-models/blob/main/models/llama3_2/USE_POLICY.md' }
+        { text: 'Llama 3.2 Community License', href: 'https://github.com/meta-llama/llama-models/blob/8d29d93fa5700a60532e0061a02ffa89d0acd3fc/models/llama3_2/LICENSE' },
+        { text: 'Acceptable Use Policy', href: 'https://github.com/meta-llama/llama-models/blob/8d29d93fa5700a60532e0061a02ffa89d0acd3fc/models/llama3_2/USE_POLICY.md' }
       ],
       builtWithLlama: true
     },
@@ -122,7 +130,7 @@
       base: 'Qwen2.5-1.5B-Instruct',
       q4f16: 'Qwen2.5-1.5B-Instruct-q4f16_1-MLC',
       q4f32: 'Qwen2.5-1.5B-Instruct-q4f32_1-MLC',
-      links: [{ text: 'Apache-2.0', href: 'https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct/blob/main/LICENSE' }]
+      links: [{ text: 'Apache-2.0', href: 'https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct/blob/989aa7980e4cf806f80c7fef2b1adb7bc71aa306/LICENSE' }]
     },
     {
       base: 'gemma-2-2b-it',
@@ -138,8 +146,8 @@
       q4f16: 'Llama-3.2-3B-Instruct-q4f16_1-MLC',
       q4f32: 'Llama-3.2-3B-Instruct-q4f32_1-MLC',
       links: [
-        { text: 'Llama 3.2 Community License', href: 'https://github.com/meta-llama/llama-models/blob/main/models/llama3_2/LICENSE' },
-        { text: 'Acceptable Use Policy', href: 'https://github.com/meta-llama/llama-models/blob/main/models/llama3_2/USE_POLICY.md' }
+        { text: 'Llama 3.2 Community License', href: 'https://github.com/meta-llama/llama-models/blob/8d29d93fa5700a60532e0061a02ffa89d0acd3fc/models/llama3_2/LICENSE' },
+        { text: 'Acceptable Use Policy', href: 'https://github.com/meta-llama/llama-models/blob/8d29d93fa5700a60532e0061a02ffa89d0acd3fc/models/llama3_2/USE_POLICY.md' }
       ],
       builtWithLlama: true
     },
@@ -147,7 +155,7 @@
       base: 'Phi-3.5-mini-instruct',
       q4f16: 'Phi-3.5-mini-instruct-q4f16_1-MLC',
       q4f32: 'Phi-3.5-mini-instruct-q4f32_1-MLC',
-      links: [{ text: 'MIT', href: 'https://huggingface.co/microsoft/Phi-3.5-mini-instruct/resolve/main/LICENSE' }]
+      links: [{ text: 'MIT', href: 'https://huggingface.co/microsoft/Phi-3.5-mini-instruct/blob/2fe192450127e6a83f7441aef6e3ca586c338b77/LICENSE' }]
     }
   ];
 
@@ -945,7 +953,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
       webllmThirdParty.textContent = chatLabel('chatWebllmThirdParty', 'Third-party models under their own licenses. Not made by Ra-Thor. Not reviewed or endorsed by their authors.');
     }
     if (webllmDownloadNote) {
-      webllmDownloadNote.textContent = chatLabel('chatWebllmFirstDownload', 'The first download of each model comes from Hugging Face and needs the network. After that it runs in this browser.');
+      webllmDownloadNote.textContent = chatLabel('chatWebllmFirstDownload', "The first download of each model comes from Hugging Face and GitHub (raw.githubusercontent.com, which serves the model's code file) and needs the network. After that it runs in this browser.");
     }
     if (webllmOtherNote) {
       webllmOtherNote.textContent = chatLabel('chatWebllmOtherModel', 'Any other model: Local Server (Ollama).');
@@ -1049,6 +1057,95 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     }
     return { row: next, effect: null };
   }
+
+  function absoluteScriptUrl(scriptSrc, relativePath) {
+    var abs = new URL(relativePath, scriptSrc).href;
+    return abs.split('#')[0].split('?')[0];
+  }
+
+  function modelCacheUrlPrefix(modelUrl) {
+    var url = String(modelUrl || '');
+    if (!url) return '';
+    if (url.charAt(url.length - 1) !== '/') url += '/';
+    if (!/.+\/resolve\/.+\//.test(url)) url += 'resolve/main/';
+    try { return new URL(url).href; } catch (e) { return url; }
+  }
+
+  function isWebllmOwnedCache(name) {
+    if (String(name).indexOf('webllm') === -1) return false;
+    return name === 'webllm/model' || name === 'webllm/wasm' || name === 'webllm/config';
+  }
+
+  function requestMatchesModel(requestUrl, modelUrl, modelLib) {
+    var url = String(requestUrl || '');
+    if (!url) return false;
+    var prefix = modelCacheUrlPrefix(modelUrl);
+    if (prefix && url.indexOf(prefix) !== -1) return true;
+    if (modelLib && url === String(modelLib)) return true;
+    return false;
+  }
+
+  function purgeOwnedModelEntries(stores, modelUrl, modelLib) {
+    var next = {};
+    Object.keys(stores || {}).forEach(function (name) {
+      var urls = (stores[name] || []).slice();
+      if (isWebllmOwnedCache(name)) {
+        urls = urls.filter(function (url) { return !requestMatchesModel(url, modelUrl, modelLib); });
+      }
+      next[name] = urls;
+    });
+    return next;
+  }
+
+  function modelFilesRemain(stores, modelUrl, modelLib) {
+    var names = Object.keys(stores || {});
+    for (var i = 0; i < names.length; i++) {
+      if (!isWebllmOwnedCache(names[i])) continue;
+      var urls = stores[names[i]] || [];
+      for (var r = 0; r < urls.length; r++) {
+        if (requestMatchesModel(urls[r], modelUrl, modelLib)) return true;
+      }
+    }
+    return false;
+  }
+
+  function phaseAfterLocalDelete(stores, modelUrl, modelLib) {
+    var next = purgeOwnedModelEntries(stores, modelUrl, modelLib);
+    return modelFilesRemain(next, modelUrl, modelLib) ? 'partial' : 'absent';
+  }
+
+  function tensorManifestDownloadBytes(manifest) {
+    var records = manifest && manifest.records;
+    if (!records || !records.length) return null;
+    var sum = 0;
+    for (var i = 0; i < records.length; i++) {
+      var n = records[i] && records[i].nbytes;
+      if (typeof n !== 'number' || n !== Math.floor(n) || n < 0) return null;
+      sum += n;
+    }
+    return sum > 0 ? sum : null;
+  }
+
+  function formatByteMegabytes(bytes) {
+    if (typeof bytes !== 'number' || bytes <= 0) return '';
+    var mb = Math.round((bytes / 1000000) * 10) / 10;
+    var text = mb === Math.round(mb) ? String(Math.round(mb)) : mb.toFixed(1);
+    return text + ' MB';
+  }
+
+  function downloadConsentText(base, bytes) {
+    var text = 'Download ' + base + ' from Hugging Face and GitHub to this device?';
+    var size = formatByteMegabytes(bytes);
+    if (size) text += ' Download size: ' + size + '.';
+    return text;
+  }
+
+  function deleteConsentText(base, bytes) {
+    var text = 'Delete ' + base + ' from this device?';
+    var size = formatByteMegabytes(bytes);
+    if (size) text += ' This frees about ' + size + '.';
+    return text;
+  }
   /* chat-models-1-pure-end */
 
   function readStoredModelBase() {
@@ -1068,7 +1165,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
 
   function ensureRowRuntime(base) {
     if (!webllmRowRuntime[base]) {
-      webllmRowRuntime[base] = { phase: 'absent', consent: null, progress: 0, downloading: false };
+      webllmRowRuntime[base] = { phase: 'absent', consent: null, progress: 0, downloading: false, downloadBytes: null };
     }
     return webllmRowRuntime[base];
   }
@@ -1079,9 +1176,9 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     return WEBLLM_DEFAULT_BASE;
   }
 
-  function modelSizeLabel(rec) {
+  function modelGpuMemoryLabel(rec) {
     var mb = rec && rec.vram_required_MB;
-    return (typeof mb === 'number') ? (mb + ' MB') : '';
+    return (typeof mb === 'number') ? ('GPU memory needed: about ' + mb + ' MB') : '';
   }
 
   function renderNetMode() {
@@ -1099,30 +1196,48 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
         ? chatLabel('chatNetOfflineLine', "Offline only: Lattice Chat won't download models or contact any server except your own machine.")
         : chatLabel('chatNetOnLine', 'Network on. A download starts only after you confirm it.');
     }
-    if (netModeOfflineNote) netModeOfflineNote.classList.toggle('hidden', mode !== 'offline-only');
+    if (netModeOfflineNote) {
+      netModeOfflineNote.classList.toggle('hidden', mode !== 'offline-only');
+      netModeOfflineNote.textContent = (mode === 'offline-only' && webllmDownloadCancelled)
+        ? 'Offline only is on. Download cancelled. Models already on this device still work.'
+        : 'Offline only is on. Models already on this device still work.';
+    }
   }
 
   async function modelFilesCached(rec) {
     if (!rec || typeof caches === 'undefined' || !caches.keys) return false;
     var names;
     try { names = await caches.keys(); } catch (e) { return false; }
-    var needles = [];
-    if (rec.model_id) needles.push(rec.model_id);
-    if (rec.model) needles.push(String(rec.model).replace(/\/+$/, ''));
     for (var i = 0; i < names.length; i++) {
-      if (String(names[i]).indexOf('webllm') === -1) continue;
+      if (!isWebllmOwnedCache(names[i])) continue;
       var cache;
       try { cache = await caches.open(names[i]); } catch (e) { continue; }
       var reqs = [];
       try { reqs = await cache.keys(); } catch (e) { reqs = []; }
       for (var r = 0; r < reqs.length; r++) {
         var url = reqs[r] && reqs[r].url ? reqs[r].url : '';
-        for (var n = 0; n < needles.length; n++) {
-          if (needles[n] && url.indexOf(needles[n]) !== -1) return true;
-        }
+        if (requestMatchesModel(url, rec.model, rec.model_lib)) return true;
       }
     }
     return false;
+  }
+
+  async function purgeModelLeftovers(rec) {
+    if (!rec || typeof caches === 'undefined' || !caches.keys) return;
+    var names;
+    try { names = await caches.keys(); } catch (e) { return; }
+    for (var i = 0; i < names.length; i++) {
+      if (!isWebllmOwnedCache(names[i])) continue;
+      var cache;
+      try { cache = await caches.open(names[i]); } catch (e) { continue; }
+      var reqs = [];
+      try { reqs = await cache.keys(); } catch (e) { reqs = []; }
+      for (var r = 0; r < reqs.length; r++) {
+        var url = reqs[r] && reqs[r].url ? reqs[r].url : '';
+        if (!requestMatchesModel(url, rec.model, rec.model_lib)) continue;
+        try { await cache.delete(reqs[r]); } catch (e2) {}
+      }
+    }
   }
 
   async function refreshRowPhase(opt) {
@@ -1153,7 +1268,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
       var base = opt.entry.base;
       var rt = ensureRowRuntime(base);
       var phase = rt.downloading ? 'downloading' : rt.phase;
-      var size = modelSizeLabel(opt.rec);
+      var gpu = modelGpuMemoryLabel(opt.rec);
       var row = document.createElement('div');
       row.className = 'webllm-row' + (active === base ? ' webllm-row-active' : '');
       row.setAttribute('data-base', base);
@@ -1167,9 +1282,9 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
       name.textContent = base;
       var meta = document.createElement('p');
       meta.className = 'webllm-row-meta';
-      if (size) meta.appendChild(document.createTextNode(size));
+      if (gpu) meta.appendChild(document.createTextNode(gpu));
       (opt.entry.links || []).forEach(function (link, i) {
-        meta.appendChild(document.createTextNode(i === 0 && size ? ' · ' : (i ? ' · ' : '')));
+        meta.appendChild(document.createTextNode(i === 0 && gpu ? ' · ' : (i ? ' · ' : '')));
         var a = document.createElement('a');
         a.href = link.href;
         a.target = '_blank';
@@ -1215,6 +1330,13 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
       }
       row.appendChild(top);
 
+      if (opt.entry.smallReplyNote) {
+        var small = document.createElement('p');
+        small.className = 'webllm-row-note';
+        small.textContent = 'Small models can give wrong or inappropriate replies.';
+        row.appendChild(small);
+      }
+
       if (!online && phase !== 'ready') {
         var need = document.createElement('p');
         need.className = 'webllm-row-note';
@@ -1227,8 +1349,8 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
         consent.className = 'webllm-consent';
         var ask = document.createElement('p');
         ask.textContent = rt.consent === 'download'
-          ? ('Download ' + base + ' (' + size + ') from Hugging Face to this device?')
-          : ('Delete ' + base + ' from this device? This frees about ' + size + '.');
+          ? downloadConsentText(base, rt.downloadBytes)
+          : deleteConsentText(base, rt.downloadBytes);
         consent.appendChild(ask);
         var yes = document.createElement('button');
         yes.type = 'button';
@@ -1267,8 +1389,59 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     });
   }
 
+  async function waitForServiceWorkerReady() {
+    if (typeof navigator === 'undefined' || !navigator.serviceWorker || !navigator.serviceWorker.ready) return;
+    try {
+      var reg = navigator.serviceWorker.getRegistration ? await navigator.serviceWorker.getRegistration() : null;
+      if (!reg && !navigator.serviceWorker.controller) return;
+      await navigator.serviceWorker.ready;
+    } catch (e) {}
+  }
+
+  async function cacheVendoredWebllmScript() {
+    if (typeof caches === 'undefined' || !caches.open || !WEBLLM_SCRIPT_URL) return;
+    await waitForServiceWorkerReady();
+    try {
+      var cache = await caches.open(WEBLLM_SCRIPT_CACHE);
+      await cache.add(WEBLLM_SCRIPT_URL);
+    } catch (err) {
+      console.error('[Ra-Thor WebLLM] script cache', err);
+    }
+  }
+
+  async function fetchTensorDownloadBytes(rec) {
+    if (!webllmDownloadAllowed(readNetMode(), typeof navigator === 'undefined' || navigator.onLine !== false)) return null;
+    var prefix = modelCacheUrlPrefix(rec && rec.model);
+    if (!prefix || typeof fetch !== 'function') return null;
+    try {
+      var res = await fetch(new URL('tensor-cache.json', prefix).href);
+      if (!res || !res.ok) return null;
+      return tensorManifestDownloadBytes(await res.json());
+    } catch (e) {
+      return null;
+    }
+  }
+
+  async function cachedTensorDownloadBytes(rec) {
+    if (typeof caches === 'undefined' || !caches.keys || !caches.open) return null;
+    var prefix = modelCacheUrlPrefix(rec && rec.model);
+    if (!prefix) return null;
+    var names;
+    try { names = await caches.keys(); } catch (e) { return null; }
+    if (names.indexOf('webllm/model') === -1) return null;
+    try {
+      var cache = await caches.open('webllm/model');
+      var hit = await cache.match(new URL('tensor-cache.json', prefix).href);
+      if (!hit) return null;
+      return tensorManifestDownloadBytes(await hit.json());
+    } catch (e2) {
+      return null;
+    }
+  }
+
   async function startWebllmDownload(base) {
     if (!webllmDownloadAllowed(readNetMode(), navigator.onLine !== false)) return;
+    await cacheVendoredWebllmScript();
     await loadWebllmModel(base, true);
   }
 
@@ -1353,18 +1526,24 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
 
   async function deleteWebllmModel(base) {
     var opt = optionByBase(base);
-    if (!opt || !webllmModule) return;
+    if (!opt) return;
     if ((llmEngine || llmReady || llmLoading) && llmModelId === opt.id) await unloadWebllmEngine();
-    try {
-      await webllmModule.deleteModelAllInfoInCache(opt.id);
-    } catch (err) {
-      console.error('[Ra-Thor WebLLM] delete', err);
+    if (readNetMode() !== 'offline-only' && webllmModule && webllmModule.deleteModelAllInfoInCache) {
+      try {
+        await webllmModule.deleteModelAllInfoInCache(opt.id);
+      } catch (err) {
+        console.error('[Ra-Thor WebLLM] delete', err);
+      }
+    }
+    try { await purgeModelLeftovers(opt.rec); } catch (err2) {
+      console.error('[Ra-Thor WebLLM] delete leftovers', err2);
     }
     var rt = ensureRowRuntime(base);
     rt.downloading = false;
     rt.consent = null;
     rt.progress = 0;
-    rt.phase = 'absent';
+    rt.downloadBytes = null;
+    await refreshRowPhase(opt);
     renderWebllmRows();
   }
 
@@ -1393,6 +1572,18 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
       ctx
     );
     rt.consent = result.row.consent;
+    if (action === 'tap-download' && result.row.consent === 'download') {
+      var opt = optionByBase(base);
+      rt.downloadBytes = opt ? await fetchTensorDownloadBytes(opt.rec) : null;
+      renderWebllmRows();
+      return;
+    }
+    if (action === 'tap-delete' && result.row.consent === 'delete') {
+      var delOpt = optionByBase(base);
+      if (rt.downloadBytes == null && delOpt) rt.downloadBytes = await cachedTensorDownloadBytes(delOpt.rec);
+      renderWebllmRows();
+      return;
+    }
     if (result.effect === 'download') {
       await startWebllmDownload(base);
       return;
@@ -1725,12 +1916,33 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
       if (rt && rt.phase === 'ready' && !rt.consent) onWebllmRowAction(base, 'use');
     });
   }
+  if (localLlmBtn) localLlmBtn.addEventListener('click', function () {
+    if (!webllmPicker || webllmPicker.classList.contains('hidden')) return;
+    var row = webllmPicker.querySelector('.webllm-row-active') || webllmPicker;
+    if (row.scrollIntoView) row.scrollIntoView({ block: 'nearest' });
+    var focusBtn = row.querySelector ? row.querySelector('button:not([disabled])') : null;
+    if (!focusBtn) focusBtn = webllmPicker.querySelector('button:not([disabled])');
+    if (focusBtn && focusBtn.focus) focusBtn.focus();
+  });
   if (netModeOfflineBtn) netModeOfflineBtn.addEventListener('click', function () {
+    var stopping = Object.keys(webllmRowRuntime).filter(function (base) {
+      var rowState = webllmRowRuntime[base];
+      return rowState && rowState.downloading;
+    });
     writeNetMode('offline-only');
-    renderNetMode();
-    renderWebllmRows();
+    webllmDownloadCancelled = stopping.length > 0;
+    if (!stopping.length) {
+      renderNetMode();
+      renderWebllmRows();
+      return;
+    }
+    Promise.all(stopping.map(function (base) { return stopWebllmDownload(base); })).then(function () {
+      if (localLlmStatus) localLlmStatus.textContent = 'Download cancelled.';
+      renderNetMode();
+    });
   });
   if (netModeNetworkBtn) netModeNetworkBtn.addEventListener('click', function () {
+    webllmDownloadCancelled = false;
     writeNetMode('network-on');
     renderNetMode();
     renderWebllmRows();
