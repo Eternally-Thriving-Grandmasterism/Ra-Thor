@@ -86,6 +86,8 @@ No claim of full malware coverage; Tier A admission conscience only.
 
 ---
 
+Misses page: [`WHITEHAT_WHAT_IT_MISSES.md`](WHITEHAT_WHAT_IT_MISSES.md).
+
 ## What Tier A does **not** replace
 
 - Full antivirus / EDR  
