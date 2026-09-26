@@ -496,12 +496,36 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     window.speechSynthesis.speak(utter);
   }
 
+  /* chat-render-pure */
+  function escapeHtml(text) {
+    return String(text)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function chatSafeLink(label, href) {
+    var raw = String(href)
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'");
+    if (/[\u0000-\u0020]/.test(raw)) return null;
+    var scheme = /^([a-zA-Z][a-zA-Z0-9+.-]*):/.exec(raw);
+    if (!scheme) return null;
+    var name = scheme[1].toLowerCase();
+    if (name !== 'http' && name !== 'https') return null;
+    if (!/^https?:\/\//i.test(raw)) return null;
+    return '<a href="' + href + '" target="_blank" rel="noopener noreferrer">' + label + '</a>';
+  }
+
   function renderText(text) {
     if (!text) return '';
-    let html = text
-      .replace(/&/g, '&')
-      .replace(/</g, '<')
-      .replace(/>/g, '>');
+    // Escape first so later markup is only what this function inserts.
+    let html = escapeHtml(text);
 
     html = html.replace(/```(\w*)\n([\s\S]*?)```/g, function (_, lang, code) {
       const language = lang ? ` data-lang="${lang}"` : '';
@@ -515,13 +539,17 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     html = html.replace(/^# (.+)$/gm, '<h1>$1</h1>');
     html = html.replace(/^[-*] (.+)$/gm, '<li>$1</li>');
     html = html.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
-    html = html.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+    html = html.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, function (_, label, href) {
+      var link = chatSafeLink(label, href);
+      return link || ('[' + label + '](' + href + ')');
+    });
     html = html.replace(/\n/g, '<br>');
     html = html.replace(/<pre([^>]*)>([\s\S]*?)<\/pre>/g, function (_, attrs, content) {
       return `<pre${attrs}>${content.replace(/<br>/g, '\n')}</pre>`;
     });
     return html;
   }
+  /* chat-render-pure-end */
 
   function relativeTime(ts) {
     if (!ts) return '';
@@ -568,12 +596,14 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
       return;
     }
     docsBar.classList.remove('hidden');
-    docsBar.innerHTML = injectedDocs.map(d =>
-      `<span class="doc-chip" data-id="${d.id}">
-         <i class="fa-solid fa-file-lines"></i> ${d.name}
-         <button class="doc-remove" data-id="${d.id}" title="Remove" style="background:none;border:none;color:inherit;cursor:pointer;padding:0 2px;">×</button>
-       </span>`
-    ).join('');
+    docsBar.innerHTML = injectedDocs.map(d => {
+      const name = escapeHtml(d.name);
+      const id = escapeHtml(d.id);
+      return `<span class="doc-chip" data-id="${id}">
+         <i class="fa-solid fa-file-lines"></i> ${name}
+         <button class="doc-remove" data-id="${id}" title="Remove" style="background:none;border:none;color:inherit;cursor:pointer;padding:0 2px;">×</button>
+       </span>`;
+    }).join('');
 
     docsBar.querySelectorAll('.doc-remove').forEach(btn => {
       btn.addEventListener('click', (e) => {
@@ -635,6 +665,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     const timestamp = ts || Date.now();
     const msgDiv = document.createElement('div');
     msgDiv.classList.add('message', sender);
+    msgDiv.rawText = text;
     if (isStreaming) msgDiv.classList.add('streaming');
 
     const textDiv = document.createElement('div');
@@ -645,7 +676,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     const meta = document.createElement('div');
     meta.className = 'message-meta';
     meta.innerHTML = `
-      <span class="msg-time">${relativeTime(timestamp)}</span>
+      <span class="msg-time">${escapeHtml(relativeTime(timestamp))}</span>
       <button class="msg-copy" title="Copy message" aria-label="Copy message">
         <i class="fa-regular fa-copy"></i>
       </button>
@@ -653,9 +684,9 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
 
     meta.querySelector('.msg-copy').addEventListener('click', (e) => {
       e.stopPropagation();
-      const currentText = textDiv.innerText || text;
+      const btn = e.currentTarget;
+      const currentText = msgDiv.rawText != null ? String(msgDiv.rawText) : '';
       copyText(currentText).then(() => {
-        const btn = e.currentTarget;
         btn.innerHTML = '<i class="fa-solid fa-check"></i>';
         setTimeout(() => { btn.innerHTML = '<i class="fa-regular fa-copy"></i>'; }, 1200);
       });
@@ -683,6 +714,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
   function finalizeStreamingMessage(msgDiv, textDiv, finalText) {
     if (!msgDiv || !textDiv) return;
     msgDiv.classList.remove('streaming');
+    msgDiv.rawText = finalText;
     textDiv.innerHTML = renderText(finalText);
     const hist = getHistory();
     hist.push({ role: 'rathor', text: finalText, ts: Date.now() });
@@ -951,6 +983,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
             const delta = parsed.choices?.[0]?.delta?.content || '';
             if (delta) {
               full += delta;
+              msgDiv.rawText = full;
               textDiv.innerHTML = renderText(full);
               chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'auto' });
             }
@@ -2043,6 +2076,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
         const delta = chunk.choices?.[0]?.delta?.content || '';
         if (delta) {
           full += delta;
+          msgDiv.rawText = full;
           textDiv.innerHTML = renderText(full);
           chatMessages.scrollTo({ top: chatMessages.scrollHeight, behavior: 'auto' });
         }
