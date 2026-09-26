@@ -99,6 +99,7 @@ The corpus also holds markers this table does not expand: obfuscated exec, netwo
 - Sampler-weight attacks and weight-level edits are out of scope. Layer 0 here is an admission shell, not sampler weights.
 - A fluent “yes” from a model is not evidence. Inspect is not METR. See [`docs/MODEL_INSPECT_NOT_METR.md`](MODEL_INSPECT_NOT_METR.md).
 - WRAP-EW2 is a different repository ([WRAP-EW2](https://github.com/Eternally-Thriving-Grandmasterism/WRAP-EW2)). EW2 solved = False. This page does not score it.
+- It is not a wallet, broker, or trading bot. Scanning a script is not placing an order. See [`NO_CUSTODY_NO_SIGN.md`](NO_CUSTODY_NO_SIGN.md).
 
 Known false rejects, already locked in [`GATE_EVAL.md`](GATE_EVAL.md):
 
@@ -113,6 +114,7 @@ A tool-use JSON envelope has no `IngestionThreat` of its own (GE-GAP-TOOL-USE). 
 
 - Employ the lattice: [`/employ.html`](https://rathor.ai/employ.html)
 - Organization pilot: [`/pilot.html`](https://rathor.ai/pilot.html)
+- No custody / no sign / no orders: [`NO_CUSTODY_NO_SIGN.md`](NO_CUSTODY_NO_SIGN.md)
 - Contact: [info@Rathor.ai](mailto:info@Rathor.ai)
 
 Procurement context stays in [`WHITEHAT_PROCUREMENT_TIER_A.md`](WHITEHAT_PROCUREMENT_TIER_A.md). CI and pre-commit stay in [`WHITEHAT_CI_PRECOMMIT.md`](WHITEHAT_CI_PRECOMMIT.md).
