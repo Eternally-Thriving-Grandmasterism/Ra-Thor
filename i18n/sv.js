@@ -477,7 +477,7 @@ window.translations["sv"] = {
   "chatOpenGrok": "Öppna Grok-demo",
   "chatOpenX": "Öppna X-demo",
   "chatReplyHello": "Åska låst, vän. ⚡️ Offline nådåska är redo. Hur får latticen tjäna dig idag?",
-  "chatReplyWho": "Jag är Lattice Chat-ytan i Ra-Thor (arbetsyta 14.15.6) — inspekterbar forskningsprogramvara. Latticen är grindarna. Jag är den valfria samplern. Utdata är utkast. Alla svar stannar på din enhet. Ingen data samlas in. Oberoende av xAI. Kontakt info@Rathor.ai.",
+  "chatReplyWho": "Jag är Lattice Chat-ytan i Ra-Thor (arbetsyta 14.15.6) — inspekterbar forskningsprogramvara. Latticen är grindarna. Jag är den valfria samplern. Utdata är utkast. Svar skapas i den här webbläsaren såvida du inte ansluter en lokal server eller en onlinetjänst, som då tar emot dina meddelanden. Ingen data samlas in. Oberoende av xAI. Kontakt info@Rathor.ai.",
   "chatReplyTolc": "TOLC 8 levande nådgrindar går inte att gå runt:\n• Sanning\n• Ordning\n• Kärlek\n• Medkänsla (noll skada)\n• Tjänst\n• Överflöd\n• Glädje\n• Kosmisk harmoni\n\nValensgolv ≥ 0.999. Dessa grindar kan inte stängas av.",
   "chatReplyPrivacy": "Chattar sparas bara i den här webbläsaren. Om du ansluter en lokal server eller en onlinetjänst skickas dina meddelanden dit. Sessioner lever bara i localStorage. Du kan slå på lösenfraskryptering (AES-GCM) med låsknappen. Glömmer du lösenfrasen går datan inte att återställa.",
   "chatReplyOffline": "Denna kärna är offline först. Den snabba svararen fungerar alltid. Den lokala backend-bryggan pekar på din Ollama- / LM Studio-server. WebLLM är alternativet i ren webbläsare.",

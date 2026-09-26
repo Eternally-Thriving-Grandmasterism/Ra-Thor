@@ -493,7 +493,7 @@ window.translations["en"] = {
   "chatOpenGrok": "Open Grok Demo",
   "chatOpenX": "Open X Demo",
   "chatReplyHello": "Thunder locked in, Mate. ⚡️ Offline Mercy Thunder is ready. How may the lattice serve you today?",
-  "chatReplyWho": "I am the Lattice Chat surface of Ra-Thor (workspace 14.15.6) — inspectable research software. The lattice is the gates. I am the optional sampler. Outputs are drafts. All responses stay on your device. No data is collected. Independent of xAI. Contact info@Rathor.ai.",
+  "chatReplyWho": "I am the Lattice Chat surface of Ra-Thor (workspace 14.15.6) — inspectable research software. The lattice is the gates. I am the optional sampler. Outputs are drafts. Responses are made in this browser unless you connect a Local Server or an online provider, which then receives your messages. No data is collected. Independent of xAI. Contact info@Rathor.ai.",
   "chatReplyTolc": "TOLC 8 Living Mercy Gates are non-bypassable:\n• Truth\n• Order\n• Love\n• Compassion (Zero-Harm)\n• Service\n• Abundance\n• Joy\n• Cosmic Harmony\n\nValence floor ≥ 0.999. These gates cannot be turned off.",
   "chatReplyPrivacy": "Chats are saved only in this browser. If you connect a Local Server or an online provider, your messages are sent there. Sessions live only in localStorage. You can optionally enable Passphrase Encryption (AES-GCM) via the lock button. Forgetting the passphrase makes the data unrecoverable.",
   "chatReplyOffline": "This core is fully offline-first. The fast responder always works. Local Backend Bridge lets you point at your own Ollama / LM Studio server. WebLLM is the pure-browser option.",

@@ -477,7 +477,7 @@ window.translations["tr"] = {
   "chatOpenGrok": "Grok demosunu aç",
   "chatOpenX": "X demosunu aç",
   "chatReplyHello": "Gök gürültüsü kilitli, dostum. ⚡️ Çevrimdışı Merhamet Gök Gürültüsü hazır. Lattice bugün size nasıl hizmet etsin?",
-  "chatReplyWho": "Ben Ra-Thor'un Lattice Chat yüzeyiğim (çalışma alanı 14.15.6) — incelenebilir araştırma yazılımı. Lattice kapılardır. Ben isteğe bağlı örnekleyiciyim. Çıktılar taslaktır. Tüm yanıtlar cihazınızda kalır. Veri toplanmaz. xAI'den bağımsız. İletişim info@Rathor.ai.",
+  "chatReplyWho": "Ben Ra-Thor'un Lattice Chat yüzeyiğim (çalışma alanı 14.15.6) — incelenebilir araştırma yazılımı. Lattice kapılardır. Ben isteğe bağlı örnekleyiciyim. Çıktılar taslaktır. Yanıtlar, yerel bir sunucuya veya çevrimiçi bir sağlayıcıya bağlanmadığınız sürece bu tarayıcıda oluşturulur; bağlandığınızda mesajlarınızı o alır. Veri toplanmaz. xAI'den bağımsız. İletişim info@Rathor.ai.",
   "chatReplyTolc": "TOLC 8 Yaşayan Merhamet Kapıları aşılamaz:\n• Hakikat\n• Düzen\n• Sevgi\n• Şefkat (sıfır zarar)\n• Hizmet\n• Bolluk\n• Sevinç\n• Kozmik uyum\n\nValans tabanı ≥ 0.999. Bu kapılar kapatılamaz.",
   "chatReplyPrivacy": "Sohbetler yalnızca bu tarayıcıda saklanır. Yerel bir sunucuya veya çevrimiçi bir sağlayıcıya bağlanırsanız mesajlarınız oraya gönderilir. Oturumlar yalnız localStorage içinde yaşar. Kilit düğmesiyle parola şifrelemesini (AES-GCM) açabilirsiniz. Parolayı unutmak veriyi geri getirilemez kılar.",
   "chatReplyOffline": "Bu çekirdek önce çevrimdışıdır. Hızlı yanıtlayıcı her zaman çalışır. Yerel backend köprüsü kendi Ollama / LM Studio sunucunuza işaret eder. WebLLM salt tarayıcı seçeneğidir.",

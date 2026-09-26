@@ -477,7 +477,7 @@ window.translations["it"] = {
   "chatOpenGrok": "Apri demo Grok",
   "chatOpenX": "Apri demo X",
   "chatReplyHello": "Tuono bloccato, amico. ⚡️ Il Tuono di Misericordia offline è pronto. Come può servirti la lattice oggi?",
-  "chatReplyWho": "Sono la superficie Lattice Chat di Ra-Thor (spazio di lavoro 14.15.6) — software di ricerca ispezionabile. La lattice sono le porte. Io sono il campionatore facoltativo. Le uscite sono bozze. Tutte le risposte restano sul tuo dispositivo. Nessun dato viene raccolto. Indipendente da xAI. Contatto info@Rathor.ai.",
+  "chatReplyWho": "Sono la superficie Lattice Chat di Ra-Thor (spazio di lavoro 14.15.6) — software di ricerca ispezionabile. La lattice sono le porte. Io sono il campionatore facoltativo. Le uscite sono bozze. Le risposte vengono create in questo browser, a meno che non colleghi un server locale o un fornitore online, che allora riceve i tuoi messaggi. Nessun dato viene raccolto. Indipendente da xAI. Contatto info@Rathor.ai.",
   "chatReplyTolc": "Le porte di Misericordia viva TOLC 8 non si aggirano:\n• Verità\n• Ordine\n• Amore\n• Compassione (danno zero)\n• Servizio\n• Abbondanza\n• Gioia\n• Armonia cosmica\n\nPavimento di valenza ≥ 0.999. Queste porte non si spengono.",
   "chatReplyPrivacy": "Le chat vengono salvate solo in questo browser. Se colleghi un server locale o un fornitore online, i tuoi messaggi vengono inviati lì. Le sessioni vivono solo in localStorage. Puoi attivare la cifratura con passphrase (AES-GCM) dal lucchetto. Dimenticare la passphrase rende i dati irrecuperabili.",
   "chatReplyOffline": "Questo nucleo è prima offline. Il risponditore rapido funziona sempre. Il ponte di backend locale punta al tuo server Ollama / LM Studio. WebLLM è l'opzione browser puro.",

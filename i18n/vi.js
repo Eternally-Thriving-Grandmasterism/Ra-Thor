@@ -477,7 +477,7 @@ window.translations["vi"] = {
   "chatOpenGrok": "Mở bản demo Grok",
   "chatOpenX": "Mở bản demo X",
   "chatReplyHello": "Sấm đã khóa, bạn. ⚡️ Sấm Lòng thương ngoại tuyến đã sẵn sàng. Lattice có thể phục vụ bạn thế nào hôm nay?",
-  "chatReplyWho": "Tôi là bề mặt Lattice Chat của Ra-Thor (không gian làm việc 14.15.6) — phần mềm nghiên cứu có thể kiểm tra. Lattice là các cổng. Tôi là bộ lấy mẫu tùy chọn. Đầu ra là bản nháp. Mọi câu trả lời ở lại trên thiết bị của bạn. Không thu thập dữ liệu. Độc lập với xAI. Liên hệ info@Rathor.ai.",
+  "chatReplyWho": "Tôi là bề mặt Lattice Chat của Ra-Thor (không gian làm việc 14.15.6) — phần mềm nghiên cứu có thể kiểm tra. Lattice là các cổng. Tôi là bộ lấy mẫu tùy chọn. Đầu ra là bản nháp. Câu trả lời được tạo trong trình duyệt này, trừ khi bạn kết nối Máy chủ cục bộ hoặc một nhà cung cấp trực tuyến, lúc đó bên đó nhận tin nhắn của bạn. Không thu thập dữ liệu. Độc lập với xAI. Liên hệ info@Rathor.ai.",
   "chatReplyTolc": "Các Cổng Lòng thương sống TOLC 8 không thể đi vòng:\n• Chân lý\n• Trật tự\n• Tình yêu\n• Lòng trắc ẩn (không gây hại)\n• Phụng sự\n• Sung túc\n• Niềm vui\n• Hài hòa vũ trụ\n\nSàn hóa trị ≥ 0.999. Không tắt được các cổng này.",
   "chatReplyPrivacy": "Cuộc trò chuyện chỉ được lưu trong trình duyệt này. Nếu bạn kết nối Máy chủ cục bộ hoặc một nhà cung cấp trực tuyến, tin nhắn của bạn được gửi đến đó. Phiên chỉ sống trong localStorage. Bạn có thể bật mã hóa cụm mật khẩu (AES-GCM) bằng nút khóa. Quên cụm mật khẩu thì dữ liệu không lấy lại được.",
   "chatReplyOffline": "Lõi này ưu tiên ngoại tuyến. Bộ trả lời nhanh luôn chạy. Cầu backend cục bộ trỏ tới máy chủ Ollama / LM Studio của bạn. WebLLM là lựa chọn trình duyệt thuần.",

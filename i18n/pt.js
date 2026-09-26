@@ -477,7 +477,7 @@ window.translations["pt"] = {
   "chatOpenGrok": "Abrir demo do Grok",
   "chatOpenX": "Abrir demo do X",
   "chatReplyHello": "Trovão travado, amigo. ⚡️ O Trovão de Misericórdia offline está pronto. Como pode a lattice servi-lo hoje?",
-  "chatReplyWho": "Sou a superfície Lattice Chat de Ra-Thor (espaço de trabalho 14.15.6) — software de investigação inspecionável. A lattice são as portas. Eu sou o amostrador opcional. As saídas são rascunhos. Todas as respostas ficam no seu dispositivo. Não se recolhem dados. Independente da xAI. Contacto info@Rathor.ai.",
+  "chatReplyWho": "Sou a superfície Lattice Chat de Ra-Thor (espaço de trabalho 14.15.6) — software de investigação inspecionável. A lattice são as portas. Eu sou o amostrador opcional. As saídas são rascunhos. As respostas são geradas neste navegador, a menos que ligue um servidor local ou um fornecedor online, que então recebe as suas mensagens. Não se recolhem dados. Independente da xAI. Contacto info@Rathor.ai.",
   "chatReplyTolc": "As portas de Misericórdia viva TOLC 8 não se contornam:\n• Verdade\n• Ordem\n• Amor\n• Compaixão (dano zero)\n• Serviço\n• Abundância\n• Alegria\n• Harmonia cósmica\n\nPiso de valência ≥ 0.999. Estas portas não se desligam.",
   "chatReplyPrivacy": "As conversas ficam guardadas só neste navegador. Se ligar um servidor local ou um fornecedor online, as suas mensagens são enviadas para lá. As sessões vivem só em localStorage. Pode ativar a cifragem por frase-passe (AES-GCM) no cadeado. Esquecer a frase-passe torna os dados irrecuperáveis.",
   "chatReplyOffline": "Este núcleo é primeiro offline. O respondedor rápido funciona sempre. A ponte de backend local aponta para o seu servidor Ollama / LM Studio. WebLLM é a opção de navegador puro.",
