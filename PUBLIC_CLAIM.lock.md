@@ -5,6 +5,7 @@
 W3 stamp 2026-09-13  
 W1 stamp 2026-09-15 (Follow + inspect/Layer 0 one-liners)  
 Employ-loop stamp 2026-09-15 (loop restored; AG-SML v1.1 living grant)
+No-custody stamp 2026-09-26
 **Contact:** info@Rathor.ai
 
 Ra-Thor is **inspectable research software** from Autonomicity Games Inc.
@@ -20,6 +21,7 @@ Ra-Thor is **inspectable research software** from Autonomicity Games Inc.
 - **Controlled Cosmic Loop is bound.** Binding after *uncontrolled* self-redesign stays **OPEN**. Do not claim Layer 0 survives a system that redesigns Layer 0. See [`docs/BINDING_AFTER_REDESIGN.md`](docs/BINDING_AFTER_REDESIGN.md).
 - **Inspect ≠ METR.** Keyword ingest and wrap tests are an admission shell, not a time-horizon lab. See [`docs/MODEL_INSPECT_NOT_METR.md`](docs/MODEL_INSPECT_NOT_METR.md).
 - **Layer 0 is a shell**, not sampler weights. Enforced on lattice apply-class that crosses `handle_request`. See [`docs/LAYER_0_RUNTIME_BOUNDARY.md`](docs/LAYER_0_RUNTIME_BOUNDARY.md).
+- **No custody, no sign, no orders.** Ra-Thor does not hold funds or keys, does not sign transactions, and does not place trades. A human remains the signer. See [`docs/NO_CUSTODY_NO_SIGN.md`](docs/NO_CUSTODY_NO_SIGN.md).
 
 ### Follow (steward)
 
