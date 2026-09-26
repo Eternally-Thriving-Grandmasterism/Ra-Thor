@@ -354,9 +354,12 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
   }
 
   async function openLockedEnvelope(passphrase, envelope) {
-    const opened = await decryptStore(passphrase, envelope);
     const salt = base64ToBuf(envelope.salt);
+    const iv = base64ToBuf(envelope.iv);
+    const data = base64ToBuf(envelope.data);
     const key = await deriveKey(passphrase, salt);
+    const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv }, key, data);
+    const opened = JSON.parse(new TextDecoder().decode(decrypted));
     return {
       store: opened,
       isEncrypted: true,
@@ -386,6 +389,21 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     } catch (e) {
       return false;
     }
+  }
+
+  function refuseSaveOverEnvelope(lock, storedRaw) {
+    if (lock && lock.cryptoKey) return false;
+    if (!storedRaw) return false;
+    try {
+      const parsed = JSON.parse(storedRaw);
+      return !!(parsed && parsed.encrypted === true);
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function flagAfterUnlock(flagRaw) {
+    return flagRaw === encryptionFlagValue() ? flagRaw : encryptionFlagValue();
   }
   /* chat-encrypt-pure-end */
 
@@ -456,6 +474,12 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
 
   async function persistStoreBody() {
     try {
+      var storedRaw = null;
+      try { storedRaw = localStorage.getItem(STORE_KEY); } catch (e) { storedRaw = null; }
+      if (refuseSaveOverEnvelope({ cryptoKey: cryptoKey }, storedRaw)) {
+        console.warn('[Ra-Thor] refusing plaintext save while encryption is on');
+        return;
+      }
       const result = await payloadForSave(
         { isEncrypted: isEncrypted, cryptoKey: cryptoKey, cryptoSalt: cryptoSalt },
         store
@@ -508,8 +532,14 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
 
     const success = await loadStore(pass);
     if (success) {
+      try {
+        var heldFlag = localStorage.getItem(ENCRYPT_FLAG);
+        var nextFlag = flagAfterUnlock(heldFlag);
+        if (heldFlag !== nextFlag) localStorage.setItem(ENCRYPT_FLAG, nextFlag);
+      } catch (e) {}
       if (unlockOverlay) unlockOverlay.classList.remove('active');
       if (unlockError) unlockError.classList.add('hidden');
+      setLockedAppInert(false);
       refreshSessionSelect();
       renderHistory();
       addMessage('Lattice unlocked. ⚡️ Sessions are available for this browser session.', 'rathor');
@@ -2519,6 +2549,13 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     else if (webllmPickerReady) updateLlmUI('idle');
   });
 
+  function setLockedAppInert(locked) {
+    var app = document.querySelector('main');
+    if (!app) return;
+    if (locked) app.setAttribute('inert', '');
+    else app.removeAttribute('inert');
+  }
+
   // ─── Init ─────────────────────────────────────────────────────────────────
   window.addEventListener('DOMContentLoaded', async () => {
     loadSettings();
@@ -2527,7 +2564,11 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
 
     // Check if store is encrypted
     if (isStoreEncrypted()) {
+      isEncrypted = true;
+      cryptoKey = null;
+      cryptoSalt = null;
       if (unlockOverlay) unlockOverlay.classList.add('active');
+      setLockedAppInert(true);
       // Wait for user to unlock — do not load plain store
       return;
     }

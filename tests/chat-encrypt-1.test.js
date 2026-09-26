@@ -50,6 +50,9 @@ assert(saveStart !== -1 && saveEnd > saveStart, 'saveStore must sit ahead of ena
 var saveFn = chat.slice(saveStart, saveEnd);
 assert(saveFn.indexOf('payloadForSave') !== -1, 'saveStore must seal through payloadForSave');
 assert(saveFn.indexOf('JSON.stringify(store)') === -1, 'saveStore must not write the plain store itself');
+var refuseAt = saveFn.indexOf('refuseSaveOverEnvelope');
+var writeAt = saveFn.indexOf('localStorage.setItem(STORE_KEY');
+assert(refuseAt !== -1 && writeAt > refuseAt, 'an envelope on disk is checked before any write');
 
 var enableStart = chat.indexOf('async function enableEncryption');
 var enableEnd = chat.indexOf('async function tryUnlock');
@@ -70,6 +73,14 @@ assert(unlockStart !== -1 && unlockEnd > unlockStart, 'tryUnlock must exist');
 var unlockFn = chat.slice(unlockStart, unlockEnd);
 assert(unlockFn.indexOf('isEncrypted = false') === -1, 'unlock must keep the store encrypted');
 assert(unlockFn.indexOf('loadStore(pass)') !== -1, 'unlock still loads with the passphrase');
+assert(unlockFn.indexOf('flagAfterUnlock') !== -1, 'unlock sets the flag for an older envelope');
+assert(unlockFn.indexOf('localStorage.setItem(ENCRYPT_FLAG, nextFlag)') !== -1, 'unlock writes ENCRYPT_FLAG');
+assert(unlockFn.indexOf('setLockedAppInert(false)') !== -1, 'unlock removes inert from the app');
+var loadFn = chat.slice(chat.indexOf('async function loadStore'), chat.indexOf('function createDefaultSession'));
+var failAt = loadFn.indexOf("console.warn('[Ra-Thor] decrypt failed'");
+assert(failAt !== -1, 'a wrong passphrase still fails inside loadStore');
+var failSlice = loadFn.slice(failAt, loadFn.indexOf('return false;', failAt));
+assert(failSlice.indexOf('isEncrypted') === -1, 'a wrong passphrase must not reset isEncrypted');
 
 var warn = chat.slice(unlockEnd, chat.indexOf('function uid()'));
 assert(warn.indexOf("chatLabel('chatEncryptPlainNotice'") !== -1, 'notice goes through chatLabel');
@@ -82,6 +93,14 @@ var encBranch = init.indexOf('if (isStoreEncrypted())');
 var loadAt = init.indexOf('await loadStore()');
 var warnAt = init.indexOf('warnIfPlaintextUnderFlag()');
 assert(encBranch !== -1 && loadAt > encBranch && warnAt > loadAt, 'plaintext notice runs only after a plain load');
+var lockedLoad = init.slice(encBranch, loadAt);
+assert(lockedLoad.indexOf('isEncrypted = true') !== -1, 'a locked load sets isEncrypted');
+assert(lockedLoad.indexOf('cryptoKey = null') !== -1, 'a locked load leaves the key null');
+assert(lockedLoad.indexOf('cryptoSalt = null') !== -1, 'a locked load leaves the salt null');
+assert(lockedLoad.indexOf('setLockedAppInert(true)') !== -1, 'the app behind the passphrase screen is inert');
+var encSet = lockedLoad.indexOf('isEncrypted = true');
+var encReturn = lockedLoad.indexOf('return;');
+assert(encSet !== -1 && encReturn > encSet, 'isEncrypted is set before the locked return');
 
 assert(en.indexOf('"chatEncryptPlainNotice": "Your saved chats are not encrypted right now. Set your passphrase again to lock them."') !== -1, 'en.js notice key');
 assert(en.indexOf('Zero personal data leaves your browser') === -1, 'en.js drops the zero-personal-data browser claim');
@@ -100,7 +119,7 @@ var sandbox = {
 };
 vm.createContext(sandbox);
 vm.runInContext(
-  pure + '\nthis.api = { encryptStore: encryptStore, decryptStore: decryptStore, beginPassphraseLock: beginPassphraseLock, openLockedEnvelope: openLockedEnvelope, payloadForSave: payloadForSave, plaintextDespiteFlag: plaintextDespiteFlag, encryptionFlagValue: encryptionFlagValue, base64ToBuf: base64ToBuf };',
+  pure + '\nthis.api = { encryptStore: encryptStore, decryptStore: decryptStore, beginPassphraseLock: beginPassphraseLock, openLockedEnvelope: openLockedEnvelope, payloadForSave: payloadForSave, plaintextDespiteFlag: plaintextDespiteFlag, encryptionFlagValue: encryptionFlagValue, base64ToBuf: base64ToBuf, refuseSaveOverEnvelope: refuseSaveOverEnvelope, flagAfterUnlock: flagAfterUnlock };',
   sandbox
 );
 var api = sandbox.api;
@@ -119,8 +138,11 @@ var storeObj = {
   }
 };
 
+var sealed = null;
+
 function main() {
   return api.encryptStore(pass, storeObj).then(function (envelope) {
+    sealed = envelope;
     assert(envelope.encrypted === true, 'encryptStore sets encrypted');
     assert(envelope.version === 1, 'encryptStore version is 1');
     assert(api.base64ToBuf(envelope.iv).length === 12, 'encryptStore IV is 12 bytes');
@@ -183,6 +205,16 @@ function main() {
     return api.payloadForSave({ isEncrypted: true, cryptoKey: null, cryptoSalt: null }, storeObj);
   }).then(function (refused) {
     assert(refused.refused === true && refused.body == null && refused.plaintext === false, 'a lock without a key must not write plaintext');
+    var lockedRaw = JSON.stringify(sealed);
+    assert(api.refuseSaveOverEnvelope({ cryptoKey: null, isEncrypted: false }, lockedRaw) === true, 'a save while locked (encrypted store, no key) must not write');
+    var kept = lockedRaw;
+    if (!api.refuseSaveOverEnvelope({ cryptoKey: null, isEncrypted: false }, lockedRaw)) kept = JSON.stringify(storeObj);
+    assert(kept === lockedRaw, 'the refused save leaves the envelope in place');
+    assert(kept.indexOf('"sessions"') === -1, 'the refused save does not replace the envelope with a session store');
+    assert(api.refuseSaveOverEnvelope({ cryptoKey: null }, JSON.stringify(storeObj)) === false, 'a plain store is not blocked by the envelope backstop');
+    assert(api.flagAfterUnlock(null) === '1', 'unlock of an older envelope sets ENCRYPT_FLAG');
+    assert(api.flagAfterUnlock('') === '1', 'an empty flag becomes 1 after unlock');
+    assert(api.flagAfterUnlock('1') === '1', 'an existing flag stays 1');
     assert(api.encryptionFlagValue() === '1', 'flag value is 1');
     assert(api.plaintextDespiteFlag('1', JSON.stringify(storeObj)) === true, 'flag plus plaintext store asks for a notice');
     assert(api.plaintextDespiteFlag('1', JSON.stringify({ encrypted: true, version: 1, salt: 'aa', iv: 'bb', data: 'cc' })) === false, 'flag plus envelope is not a plaintext notice');
