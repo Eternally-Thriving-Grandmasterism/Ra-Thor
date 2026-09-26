@@ -44,6 +44,15 @@
   const localBackendBtn  = document.getElementById('local-backend-btn');
   const localLlmStatus   = document.getElementById('local-llm-status');
   const localLlmProgress = document.getElementById('local-llm-progress');
+  const webllmPicker      = document.getElementById('webllm-picker');
+  const webllmSelect      = document.getElementById('webllm-model-select');
+  const webllmSize        = document.getElementById('webllm-size');
+  const webllmCacheBadge  = document.getElementById('webllm-cache-badge');
+  const webllmDeleteBtn   = document.getElementById('webllm-delete-btn');
+  const webllmLicense     = document.getElementById('webllm-license');
+  const webllmThirdParty  = document.getElementById('webllm-third-party');
+  const webllmDownloadNote = document.getElementById('webllm-download-note');
+  const webllmOtherNote   = document.getElementById('webllm-other-note');
   const backendSettings  = document.getElementById('backend-settings');
   const backendEndpoint  = document.getElementById('backend-endpoint');
   const backendModel     = document.getElementById('backend-model');
@@ -73,6 +82,72 @@
   let llmSupported = false;
   let llmProbed = false;
   let llmModelId = 'Llama-3.2-1B-Instruct-q4f16_1-MLC';
+  let llmLoadToken = 0;
+  let webllmModule = null;
+  let webllmPickerReady = false;
+  let webllmShaderF16 = false;
+  let webllmOptions = [];
+
+  const WEBLLM_MODEL_KEY = 'rathor-webllm-model-v1';
+  const WEBLLM_VENDOR = './vendor/web-llm/0.2.85/index.js';
+  const WEBLLM_DEFAULT_BASE = 'Llama-3.2-1B-Instruct';
+  // Curated order. Quantization is chosen from the pinned prebuiltAppConfig.
+  // q4f32_1 is used only when the WebGPU adapter lacks shader-f16.
+  const WEBLLM_CURATED = [
+    {
+      base: 'SmolLM2-360M-Instruct',
+      q4f16: 'SmolLM2-360M-Instruct-q4f16_1-MLC',
+      q4f32: 'SmolLM2-360M-Instruct-q4f32_1-MLC',
+      links: [{ text: 'Apache-2.0', href: 'https://www.apache.org/licenses/LICENSE-2.0' }]
+    },
+    {
+      base: 'Qwen2.5-0.5B-Instruct',
+      q4f16: 'Qwen2.5-0.5B-Instruct-q4f16_1-MLC',
+      q4f32: 'Qwen2.5-0.5B-Instruct-q4f32_1-MLC',
+      links: [{ text: 'Apache-2.0', href: 'https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/blob/main/LICENSE' }]
+    },
+    {
+      base: 'Llama-3.2-1B-Instruct',
+      q4f16: 'Llama-3.2-1B-Instruct-q4f16_1-MLC',
+      q4f32: 'Llama-3.2-1B-Instruct-q4f32_1-MLC',
+      links: [
+        { text: 'Llama 3.2 Community License', href: 'https://github.com/meta-llama/llama-models/blob/main/models/llama3_2/LICENSE' },
+        { text: 'Acceptable Use Policy', href: 'https://github.com/meta-llama/llama-models/blob/main/models/llama3_2/USE_POLICY.md' }
+      ],
+      builtWithLlama: true
+    },
+    {
+      base: 'Qwen2.5-1.5B-Instruct',
+      q4f16: 'Qwen2.5-1.5B-Instruct-q4f16_1-MLC',
+      q4f32: 'Qwen2.5-1.5B-Instruct-q4f32_1-MLC',
+      links: [{ text: 'Apache-2.0', href: 'https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct/blob/main/LICENSE' }]
+    },
+    {
+      base: 'gemma-2-2b-it',
+      q4f16: 'gemma-2-2b-it-q4f16_1-MLC',
+      q4f32: 'gemma-2-2b-it-q4f32_1-MLC',
+      links: [
+        { text: 'Gemma Terms of Use', href: 'https://ai.google.dev/gemma/terms' },
+        { text: 'Prohibited Use Policy', href: 'https://ai.google.dev/gemma/prohibited_use_policy' }
+      ]
+    },
+    {
+      base: 'Llama-3.2-3B-Instruct',
+      q4f16: 'Llama-3.2-3B-Instruct-q4f16_1-MLC',
+      q4f32: 'Llama-3.2-3B-Instruct-q4f32_1-MLC',
+      links: [
+        { text: 'Llama 3.2 Community License', href: 'https://github.com/meta-llama/llama-models/blob/main/models/llama3_2/LICENSE' },
+        { text: 'Acceptable Use Policy', href: 'https://github.com/meta-llama/llama-models/blob/main/models/llama3_2/USE_POLICY.md' }
+      ],
+      builtWithLlama: true
+    },
+    {
+      base: 'Phi-3.5-mini-instruct',
+      q4f16: 'Phi-3.5-mini-instruct-q4f16_1-MLC',
+      q4f32: 'Phi-3.5-mini-instruct-q4f32_1-MLC',
+      links: [{ text: 'MIT', href: 'https://huggingface.co/microsoft/Phi-3.5-mini-instruct/resolve/main/LICENSE' }]
+    }
+  ];
 
   let backendEnabled = false;
   let backendConfig = { endpoint: 'http://localhost:11434/v1', model: 'llama3.2' };
@@ -124,6 +199,11 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     val = en[key];
     if (val != null && String(val).trim() !== '') return String(val);
     return '';
+  }
+
+  function chatLabel(key, fallback) {
+    var val = chatStr(key);
+    return val || fallback;
   }
 
   function replyInClause() {
@@ -850,28 +930,205 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     updatePathBadge();
   }
 
+  function applyWebllmStaticCopy() {
+    if (webllmThirdParty) {
+      webllmThirdParty.textContent = chatLabel('chatWebllmThirdParty', 'Third-party models under their own licenses. Not made by Ra-Thor. Not reviewed or endorsed by their authors.');
+    }
+    if (webllmDownloadNote) {
+      webllmDownloadNote.textContent = chatLabel('chatWebllmFirstDownload', 'The first download of each model comes from Hugging Face and needs the network. After that it runs in this browser.');
+    }
+    if (webllmOtherNote) {
+      webllmOtherNote.textContent = chatLabel('chatWebllmOtherModel', 'Any other model: Local Server (Ollama).');
+    }
+    if (webllmDeleteBtn) webllmDeleteBtn.textContent = chatLabel('chatWebllmDelete', 'Delete');
+  }
+
+  function readStoredModelBase() {
+    try { return localStorage.getItem(WEBLLM_MODEL_KEY) || ''; } catch (e) { return ''; }
+  }
+
+  function quantIdFor(entry) {
+    return webllmShaderF16 ? entry.q4f16 : entry.q4f32;
+  }
+
+  function selectedWebllmOption() {
+    return webllmOptions.find(function (opt) { return opt.id === llmModelId; }) || null;
+  }
+
+  function renderWebllmLicense(entry) {
+    if (!webllmLicense) return;
+    webllmLicense.replaceChildren();
+    if (!entry) return;
+    (entry.links || []).forEach(function (link, i) {
+      if (i) webllmLicense.appendChild(document.createTextNode(' · '));
+      var a = document.createElement('a');
+      a.href = link.href;
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.textContent = link.text;
+      webllmLicense.appendChild(a);
+    });
+    if (entry.builtWithLlama) {
+      webllmLicense.appendChild(document.createTextNode(' · Built with Llama'));
+    }
+  }
+
+  function applySelectedBase(base) {
+    var opt = webllmOptions.find(function (item) { return item.entry.base === base; });
+    if (!opt) return;
+    llmModelId = opt.id;
+    try { localStorage.setItem(WEBLLM_MODEL_KEY, opt.entry.base); } catch (e) {}
+    if (webllmSelect && webllmSelect.value !== opt.entry.base) webllmSelect.value = opt.entry.base;
+    if (webllmSize) {
+      var mb = opt.rec.vram_required_MB;
+      webllmSize.textContent = (typeof mb === 'number') ? (mb + ' MB') : '';
+    }
+    renderWebllmLicense(opt.entry);
+  }
+
+  async function refreshModelCacheBadge() {
+    if (!webllmCacheBadge || !webllmModule || !llmModelId) return;
+    try {
+      var has = await webllmModule.hasModelInCache(llmModelId);
+      webllmCacheBadge.textContent = has
+        ? chatLabel('chatWebllmDownloaded', 'Downloaded')
+        : chatLabel('chatWebllmNotDownloaded', 'Not downloaded');
+    } catch (e) {
+      webllmCacheBadge.textContent = chatLabel('chatWebllmNotDownloaded', 'Not downloaded');
+    }
+  }
+
+  async function unloadLocalEngine() {
+    llmLoadToken += 1;
+    var engine = llmEngine;
+    llmEngine = null;
+    llmReady = false;
+    llmLoading = false;
+    if (engine && typeof engine.unload === 'function') {
+      try { await engine.unload(); } catch (err) {
+        console.error('[Ra-Thor WebLLM] unload', err);
+      }
+    }
+    updateLlmUI('idle');
+  }
+
+  async function onWebllmModelChange(base) {
+    var prev = llmModelId;
+    applySelectedBase(base);
+    if (prev && llmModelId && prev !== llmModelId && (llmEngine || llmReady || llmLoading)) {
+      await unloadLocalEngine();
+      await enableLocalLLM();
+    }
+    await refreshModelCacheBadge();
+  }
+
+  async function deleteCachedWebllmModel() {
+    var id = llmModelId;
+    if (!id || !webllmModule) return;
+    if (!confirm(chatLabel('chatWebllmDeleteConfirm', 'Delete this model from the browser cache?'))) return;
+    if (llmEngine || llmReady || llmLoading) await unloadLocalEngine();
+    await webllmModule.deleteModelAllInfoInCache(id);
+    await refreshModelCacheBadge();
+  }
+
+  async function initWebllmPicker() {
+    if (!webllmPicker) {
+      webllmPickerReady = true;
+      return false;
+    }
+    webllmPicker.classList.remove('hidden');
+    applyWebllmStaticCopy();
+    webllmShaderF16 = false;
+    try {
+      var adapter = await navigator.gpu.requestAdapter();
+      webllmShaderF16 = !!(adapter && adapter.features && adapter.features.has('shader-f16'));
+    } catch (e) {
+      webllmShaderF16 = false;
+    }
+    try {
+      webllmModule = webllmModule || await import(WEBLLM_VENDOR);
+    } catch (err) {
+      console.error('[Ra-Thor WebLLM]', err);
+      webllmPickerReady = true;
+      updateLlmUI('error', 'Load failed');
+      return false;
+    }
+    var byId = new Map();
+    var list = (webllmModule.prebuiltAppConfig && webllmModule.prebuiltAppConfig.model_list) || [];
+    list.forEach(function (rec) {
+      if (rec && rec.model_id) byId.set(rec.model_id, rec);
+    });
+    webllmOptions = [];
+    WEBLLM_CURATED.forEach(function (entry) {
+      var id = quantIdFor(entry);
+      var rec = byId.get(id);
+      if (!rec) return;
+      webllmOptions.push({ entry: entry, id: id, rec: rec });
+    });
+    if (webllmSelect) {
+      webllmSelect.replaceChildren();
+      webllmOptions.forEach(function (opt) {
+        var el = document.createElement('option');
+        el.value = opt.entry.base;
+        var label = opt.id;
+        if (typeof opt.rec.vram_required_MB === 'number') label += ' · ' + opt.rec.vram_required_MB + ' MB';
+        el.textContent = label;
+        webllmSelect.appendChild(el);
+      });
+      webllmSelect.addEventListener('change', function () {
+        onWebllmModelChange(webllmSelect.value);
+      });
+    }
+    var stored = readStoredModelBase();
+    var base = stored;
+    if (!webllmOptions.some(function (opt) { return opt.entry.base === base; })) base = WEBLLM_DEFAULT_BASE;
+    if (!webllmOptions.some(function (opt) { return opt.entry.base === base; }) && webllmOptions[0]) {
+      base = webllmOptions[0].entry.base;
+    }
+    applySelectedBase(base);
+    webllmPickerReady = true;
+    await refreshModelCacheBadge();
+    return true;
+  }
+
   async function enableLocalLLM() {
-    if (llmReady) { addMessage('WebLLM is already loaded and ready. ⚡️', 'rathor'); return; }
+    if (!webllmPickerReady) return;
+    if (llmReady && llmEngine) { addMessage('WebLLM is already loaded and ready. ⚡️', 'rathor'); return; }
     if (llmLoading) return;
     if (!llmSupported) {
       addMessage('WebLLM is not available on this device. Use Local Server (Ollama) or **Copy Context**.', 'rathor');
       return;
     }
+    if (!llmModelId) return;
+    var modelId = llmModelId;
+    var token = llmLoadToken;
     llmLoading = true;
     updateLlmUI('loading', 'Starting…');
     try {
-      const webllm = await import('https://esm.run/@mlc-ai/web-llm');
+      var webllm = webllmModule || await import(WEBLLM_VENDOR);
+      webllmModule = webllm;
+      if (token !== llmLoadToken) return;
       const initProgressCallback = (report) => {
+        if (token !== llmLoadToken) return;
         const pct = Math.round((report.progress || 0) * 100);
         if (localLlmProgress) localLlmProgress.style.width = Math.max(5, pct) + '%';
         if (localLlmStatus) localLlmStatus.textContent = report.text || `Loading… ${pct}%`;
       };
-      llmEngine = await webllm.CreateMLCEngine(llmModelId, { initProgressCallback });
+      var engine = await webllm.CreateMLCEngine(modelId, { initProgressCallback });
+      if (token !== llmLoadToken) {
+        if (engine && typeof engine.unload === 'function') {
+          try { await engine.unload(); } catch (e) {}
+        }
+        return;
+      }
+      llmEngine = engine;
       llmReady = true;
       llmLoading = false;
       updateLlmUI('ready');
       addMessage(`WebLLM loaded (${llmModelId}). ⚡️ Generation now runs entirely in the browser.`, 'rathor');
+      refreshModelCacheBadge();
     } catch (err) {
+      if (token !== llmLoadToken) return;
       llmLoading = false;
       llmReady = false;
       llmEngine = null;
@@ -1131,6 +1388,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
   if (copyBtn) copyBtn.addEventListener('click', copyContext);
   if (copyBtnAlt) copyBtnAlt.addEventListener('click', copyContext);
   if (localLlmBtn) localLlmBtn.addEventListener('click', () => enableLocalLLM());
+  if (webllmDeleteBtn) webllmDeleteBtn.addEventListener('click', () => deleteCachedWebllmModel());
   if (localBackendBtn) localBackendBtn.addEventListener('click', () => {
     if (backendSettings) backendSettings.classList.toggle('hidden');
   });
@@ -1173,6 +1431,10 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
 
   document.addEventListener('rt-chrome-i18n', function () {
     applyChatSurfaceDir();
+    applyWebllmStaticCopy();
+    if (webllmModule) refreshModelCacheBadge();
+    var picked = selectedWebllmOption();
+    if (picked) renderWebllmLicense(picked.entry);
     updatePathBadge();
     setBackendUI(backendEnabled);
     if (!llmProbed || llmLoading) return;
@@ -1180,7 +1442,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
       var cap = detectLocalLlmSupport();
       updateLlmUI('unsupported', cap.reason);
     } else if (llmReady) updateLlmUI('ready');
-    else updateLlmUI('idle');
+    else if (webllmPickerReady) updateLlmUI('idle');
   });
 
   // ─── Init ─────────────────────────────────────────────────────────────────
@@ -1203,7 +1465,11 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     llmSupported = cap.supported;
     llmProbed = true;
     if (!llmSupported) updateLlmUI('unsupported', cap.reason);
-    else updateLlmUI('idle');
+    else {
+      if (localLlmBtn) localLlmBtn.disabled = true;
+      var pickerOk = await initWebllmPicker();
+      if (pickerOk && !llmReady && !llmLoading) updateLlmUI('idle');
+    }
     applyChatSurfaceDir();
 
     if (backendSettings) backendSettings.classList.add('hidden');

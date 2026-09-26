@@ -64,6 +64,9 @@
     #doc-btn { background: #0f172a; color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.4); }
     #send-btn { background: #fbbf24; color: #000; }
     #session-select { background: #0a0a0a; border: 1px solid rgba(252, 211, 77, 0.35); color: #fcd34d; border-radius: 0.7rem; padding: 0.35rem 0.5rem; font-size: 0.78rem; max-width: 120px; }
+    #webllm-model-select { width: 100%; background: #0a0a0a; border: 1px solid rgba(252, 211, 77, 0.35); color: #fcd34d; border-radius: 0.7rem; padding: 0.35rem 0.5rem; font-size: 0.72rem; }
+    .webllm-badge { font-size: 0.62rem; padding: 0.12rem 0.4rem; border-radius: 999px; border: 1px solid rgba(252, 211, 77, 0.35); color: #fde68a; }
+    #webllm-license a { color: #93c5fd; text-decoration: underline; }
     #search-input { background: #0a0a0a; border: 1px solid rgba(252, 211, 77, 0.3); color: #fde68a; border-radius: 0.6rem; padding: 0.3rem 0.55rem; font-size: 0.75rem; width: 110px; }
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 50; align-items: center; justify-content: center; padding: 1rem; }
     .modal-overlay.active { display: flex; }
@@ -136,6 +139,19 @@
           <button id="local-llm-btn" class="ctrl-btn border-amber-400/50 text-amber-200 shrink-0"><i class="fa-solid fa-microchip"></i> WebLLM</button>
           <button id="local-backend-btn" class="ctrl-btn border-cyan-400/50 text-cyan-200 shrink-0"><i class="fa-solid fa-server"></i> <span data-i18n="chatPathServer">Local Server</span></button>
         </div>
+      </div>
+      <div id="webllm-picker" class="hidden mt-2 pt-2 border-t border-amber-400/15">
+        <label for="webllm-model-select" class="block text-[10px] text-white/50 mb-1">Model</label>
+        <select id="webllm-model-select"></select>
+        <div class="flex flex-wrap items-center gap-1.5 mt-1.5">
+          <span id="webllm-size" class="text-[10px] text-white/60"></span>
+          <span id="webllm-cache-badge" class="webllm-badge"></span>
+          <button type="button" id="webllm-delete-btn" class="ctrl-btn text-xs px-2">Delete</button>
+        </div>
+        <p id="webllm-license" class="text-[10px] text-white/55 mt-1.5 leading-snug"></p>
+        <p id="webllm-third-party" class="text-[10px] text-white/40 mt-1.5 leading-snug">Third-party models under their own licenses. Not made by Ra-Thor. Not reviewed or endorsed by their authors.</p>
+        <p id="webllm-download-note" class="text-[10px] text-white/40 mt-1 leading-snug">The first download of each model comes from Hugging Face and needs the network. After that it runs in this browser.</p>
+        <p id="webllm-other-note" class="text-[10px] text-white/40 mt-1 leading-snug">Any other model: Local Server (Ollama).</p>
       </div>
       <div id="backend-settings" class="hidden mt-2 pt-2 border-t border-amber-400/15">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
