@@ -1,8 +1,11 @@
 # _headers
-# COOP + COEP for SharedArrayBuffer + OPFS Web Worker
-# Applies to the entire site (including all /agentic/ paths)
+# COOP + COEP only on /chat.html (WebLLM on that document).
+# Catch-all /* sets neither. Marketing pages stay fetchable.
+# Cloudflare Pages path match ignores query strings, so /chat.html covers /chat.html?…
+# A second /chat.html?* rule is omitted: duplicate header values are joined
+# with a comma, which would break require-corp.
+# Contact: info@Rathor.ai
 
-# Global headers for SAB
-/*
+/chat.html
   Cross-Origin-Opener-Policy: same-origin
   Cross-Origin-Embedder-Policy: require-corp

@@ -1,14 +1,16 @@
 /* js/google-translate-optin.js
  * Google Translate = new tab, not a widget.
  * Workspace 14.15.6 · info@Rathor.ai
- * Site COEP require-corp blocks translate.google.com inject.
- * The Google proxy may fail on this site. Offline packs remain the default.
- * This link leaves the device. Do not inject a widget. Do not weaken COEP.
+ * Offline packs stay the default. This link leaves the device.
+ * Do not inject a widget. Do not inject a translate.google.com script.
+ * Do not remove COEP from /chat.html.
  */
 (function () {
   'use strict';
   if (window.__rtGTranslate) return;
   window.__rtGTranslate = true;
+
+  var TL_KEY = 'rathor-gtranslate-tl';
 
   function pack(key, fallback) {
     var lang = currentLang();
@@ -23,31 +25,41 @@
     try { return localStorage.getItem('rathor-lang') || 'en'; } catch (e) { return 'en'; }
   }
 
-  function pagePath() {
+  function rememberTl(lang) {
+    if (!lang || lang === 'en') return;
+    try { localStorage.setItem(TL_KEY, lang); } catch (e) {}
+  }
+
+  function storedTl() {
+    try {
+      var saved = localStorage.getItem(TL_KEY) || '';
+      if (saved && saved !== 'en') return saved;
+    } catch (e) {}
+    return '';
+  }
+
+  function pageUrl() {
     var p = location.pathname || '/';
-    if (p === '/index.html' || p === '') p = '/';
-    return p;
+    if (p === '/index.html' || p === '' || p === '/chat.html') p = '/';
+    return 'https://rathor.ai' + p;
   }
 
   function googleHref(lang) {
     lang = lang || currentLang() || 'en';
-    var u = 'https://rathor.ai' + pagePath();
-    return 'https://translate.google.com/translate?sl=en&tl=' +
-      encodeURIComponent(lang) +
-      '&u=' + encodeURIComponent(u);
-  }
-
-  var FAIL_NOTE = 'The Google proxy may fail on this site (COEP).';
-
-  function ensureFailNote() {
-    var wrap = document.getElementById('rt-gtranslate');
-    if (!wrap || document.getElementById('rt-gtranslate-fail')) return;
-    var p = document.createElement('p');
-    p.className = 'rt-gtranslate-note';
-    p.id = 'rt-gtranslate-fail';
-    p.setAttribute('dir', 'ltr');
-    p.textContent = FAIL_NOTE;
-    wrap.appendChild(p);
+    var u = encodeURIComponent(pageUrl());
+    if (lang !== 'en') {
+      rememberTl(lang);
+      return 'https://translate.google.com/translate?sl=en&tl=' +
+        encodeURIComponent(lang) +
+        '&u=' + u;
+    }
+    var saved = storedTl();
+    if (saved) {
+      return 'https://translate.google.com/translate?sl=en&tl=' +
+        encodeURIComponent(saved) +
+        '&u=' + u;
+    }
+    return 'https://translate.google.com/website?sl=en&u=' + u;
   }
 
   function sync() {
@@ -64,7 +76,6 @@
         'Opens Google Translate in a new tab. Needs the network. Not the offline pack.'
       );
     }
-    ensureFailNote();
   }
 
   function mount() {

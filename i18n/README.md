@@ -49,7 +49,9 @@ Missing key → English. Never blank. Never invent METR. Recent Updates lines st
 
 Buttons on `index.html` load `/i18n/{lang}.js?v=20260924a`. `chat.html` loads the same token.
 
-Service worker precaches every `/i18n/*.js` pack plus `/js/i18n-chrome.js` and `/js/i18n-essay.js`. Script fetches stay network-first. If the network fails, `/i18n/*.js`, `i18n-chrome.js`, and `i18n-essay.js` match the precache with the query string ignored, so `?v=20260924a` still opens offline. Offline packs are the product UX. Google Translate is a **new-tab URL** (`js/google-translate-optin.js`) — it does **not** inject `translate.google.com` (COEP `require-corp` would fail a widget). Do not relax COEP on `/chat.html` or worker paths.
+Service worker precaches every `/i18n/*.js` pack plus `/js/i18n-chrome.js` and `/js/i18n-essay.js`. Script fetches stay network-first. If the network fails, `/i18n/*.js`, `i18n-chrome.js`, and `i18n-essay.js` match the precache with the query string ignored, so `?v=20260924a` still opens offline.
+
+Google Translate is a new tab (`js/google-translate-optin.js`). `_headers` scopes COEP to `/chat.html` on hosts that apply `_headers` (Cloudflare Pages). Live rathor.ai is GitHub Pages and serves no COOP/COEP today. Marketing pages are fetchable by Google. Offline packs remain the default.
 
 | Code | Language | Notes |
 | --- | --- | --- |
