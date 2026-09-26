@@ -1,9 +1,9 @@
 [package]
 name = "mercy-security"
-version = "14.15.5"
+version = "14.15.6"
 edition = "2021"
 description = "Ra-Thor White-Hat AGSi Defense — Containment, multi-layer dataset/model ingestion scanning, autonomous action governor, secret isolation. Counters July 2026 OpenAI/Hugging Face autonomous agent breach class."
-license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
+license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
 authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
 
 [dependencies]
