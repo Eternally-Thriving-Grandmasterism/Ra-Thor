@@ -72,6 +72,7 @@
     .webllm-row-name { font-size: 0.78rem; color: #fde68a; margin: 0; }
     .webllm-row-meta { font-size: 0.68rem; color: rgba(255,255,255,0.62); line-height: 1.45; margin: 0.15rem 0 0; }
     .webllm-row-meta a { color: #93c5fd; text-decoration: underline; }
+    .webllm-tier { font-size: 0.68rem; color: rgba(252, 211, 77, 0.85); margin: 0.65rem 0 0; }
     .webllm-consent, .webllm-row-note { font-size: 0.72rem; color: rgba(255,255,255,0.72); margin: 0.4rem 0 0; line-height: 1.4; }
     .webllm-consent .ctrl-btn { margin: 0.35rem 0.3rem 0 0; }
     #net-mode button[aria-pressed="true"] { border-color: #fcd34d; color: #fff; background: rgba(252, 211, 77, 0.16); }
@@ -144,7 +145,7 @@
           <p id="local-llm-status" class="text-[11px] text-white/50 mt-0.5 truncate" data-i18n="chatStatusDefault">Fast responder active (default)</p>
         </div>
         <div class="flex gap-1.5">
-          <button id="local-llm-btn" class="ctrl-btn border-amber-400/50 text-amber-200 shrink-0"><i class="fa-solid fa-microchip"></i> WebLLM</button>
+          <button id="local-llm-btn" type="button" class="ctrl-btn border-amber-400/50 text-amber-200 shrink-0" disabled aria-disabled="true" data-llm-action="none" title="The model list is not on this page."><i class="fa-solid fa-microchip"></i> Models list unavailable</button>
           <button id="local-backend-btn" class="ctrl-btn border-cyan-400/50 text-cyan-200 shrink-0"><i class="fa-solid fa-server"></i> <span data-i18n="chatPathServer">Local Server</span></button>
         </div>
       </div>
@@ -164,6 +165,7 @@
         <div id="webllm-rows"></div>
         <p id="webllm-third-party" class="text-[10px] text-white/40 mt-1.5 leading-snug">Third-party models under their own licenses. Not made by Ra-Thor. Not reviewed or endorsed by their authors.</p>
         <p id="webllm-download-note" class="text-[10px] text-white/40 mt-1 leading-snug">The first download of each model comes from Hugging Face and GitHub (raw.githubusercontent.com, which serves the model's code file) and needs the network. After that it runs in this browser.</p>
+        <p id="webllm-size-fetch-note" class="text-[10px] text-white/40 mt-1 leading-snug">A small size file is fetched to show the download size.</p>
         <p id="webllm-other-note" class="text-[10px] text-white/40 mt-1 leading-snug">Any other model: Local Server (Ollama).</p>
       </div>
       <div id="backend-settings" class="hidden mt-2 pt-2 border-t border-amber-400/15">

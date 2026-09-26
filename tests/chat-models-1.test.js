@@ -359,6 +359,8 @@ var iphone = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit
 var android = 'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36';
 var ipad = 'Mozilla/5.0 (iPad; CPU OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1';
 var desktop = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+var macDesktop = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15';
+var SAFARI_EVICT = 'Safari may evict downloaded models when storage is low.';
 
 var PHONE_BASES = ['SmolLM2-360M-Instruct', 'Qwen2.5-0.5B-Instruct', 'Llama-3.2-1B-Instruct'];
 function rowsFor(shaderF16, phonePath) {
@@ -408,15 +410,29 @@ function probeSupport(nav) {
   var phoneF32 = rowsFor(false, true);
   assert(phoneF16.join('|') === PHONE_BASES.join('|'), 'shader-f16 phone picker lists the three smallest bases: ' + phoneF16.join(', '));
   assert(phoneF32.join('|') === PHONE_BASES.join('|'), 'q4f32 phone picker lists the three smallest bases: ' + phoneF32.join(', '));
-  var notes = api.phoneCapNotes(true);
-  assert(notes.length === 2 && notes[0].indexOf('Copy Context works everywhere.') !== -1, 'phone path shows the may-not-run line');
-  assert(notes[1] === 'Safari may evict downloaded models when storage is low.', 'phone path shows the storage line');
+  var notes = api.phoneCapNotes(true, iphone, 5);
+  assert(notes.length === 2 && notes[0].indexOf('Copy Context works everywhere.') !== -1, 'iPhone shows the may-not-run line');
+  assert(notes[1] === SAFARI_EVICT, 'iPhone shows the Safari storage line');
   assert(notes[0].toLowerCase().indexOf('supported') === -1, 'the may-not-run line does not say supported');
+  var ipadNotes = api.phoneCapNotes(true, ipad, 5);
+  assert(ipadNotes.length === 2 && ipadNotes[1] === SAFARI_EVICT, 'iPad shows the Safari storage line');
+  var macTouchNotes = api.phoneCapNotes(true, macDesktop, 5);
+  assert(macTouchNotes.length === 2 && macTouchNotes[1] === SAFARI_EVICT, 'Macintosh with touch points shows the Safari storage line');
+  var macPlainNotes = api.phoneCapNotes(true, macDesktop, 0);
+  assert(macPlainNotes.length === 1 && macPlainNotes[0].indexOf('may not run on this device') !== -1, 'Macintosh without touch points keeps the may-not-run line');
+  assert(macPlainNotes.join('\n').indexOf(SAFARI_EVICT) === -1, 'Macintosh without touch points omits the Safari storage line');
+  var androidNotes = api.phoneCapNotes(true, android, 5);
+  assert(androidNotes.length === 1 && androidNotes[0].indexOf('may not run on this device') !== -1, 'Android with an adapter shows only the may-not-run line');
+  assert(androidNotes.join('\n').indexOf(SAFARI_EVICT) === -1, 'Android does not show the Safari storage line');
+  assert(chat.indexOf('phoneCapNotes(webllmPhonePath, phoneUa, phoneTouchPoints)') !== -1, 'the picker passes the user agent and touch points into the storage line');
+  assert(chat.indexOf('navigator.maxTouchPoints') !== -1, 'Macintosh touch detection reads maxTouchPoints');
   var overCap = api.rememberedModelPlan('gemma-2-2b-it', phoneF16, 'Llama-3.2-1B-Instruct');
   assert(overCap.active === 'Llama-3.2-1B-Instruct', 'a remembered model above the cap uses the default on a phone');
   assert(overCap.stored === 'gemma-2-2b-it' && overCap.writeDefault === false, 'a remembered model above the cap keeps its stored key');
   var underCap = api.rememberedModelPlan('SmolLM2-360M-Instruct', phoneF16, 'Llama-3.2-1B-Instruct');
   assert(underCap.active === 'SmolLM2-360M-Instruct' && underCap.writeDefault === false, 'a remembered model under the cap stays selected');
+  var emptyPlan = api.rememberedModelPlan('', phoneF16, 'Llama-3.2-1B-Instruct');
+  assert(emptyPlan.active === '' && emptyPlan.stored === '' && emptyPlan.writeDefault === false, 'an empty stored key highlights no row and is not rewritten');
   var tapAgain = api.webllmRowTransition({ phase: 'absent', consent: null }, 'tap-download', { offlineOnly: false, onLine: true });
   var confirmAgain = api.webllmRowTransition(tapAgain.row, 'confirm-download', { offlineOnly: false, onLine: true });
   assert(tapAgain.effect === null && tapAgain.row.consent === 'download', 'two-tap download still asks on the first tap');
