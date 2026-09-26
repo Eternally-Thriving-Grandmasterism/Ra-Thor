@@ -600,11 +600,20 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
       '\n--- End Documents ---\n';
   }
 
-  function detectLocalLlmSupport() {
+  // A phone user agent stays on the desktop block unless requestAdapter returns an adapter.
+  async function detectLocalLlmSupport() {
     if (!navigator.gpu) return { supported: false, reason: 'WebGPU not available in this browser' };
     const ua = navigator.userAgent || '';
     if (/Android|iPhone|iPad|iPod|Mobile/i.test(ua)) {
-      return { supported: false, reason: 'Local LLM currently works best on desktop.' };
+      var adapter = null;
+      try {
+        adapter = await navigator.gpu.requestAdapter();
+      } catch (e) {
+        adapter = null;
+      }
+      if (!adapter) {
+        return { supported: false, reason: 'Local LLM currently works best on desktop.' };
+      }
     }
     return { supported: true, reason: null };
   }
@@ -1989,7 +1998,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     });
   });
 
-  document.addEventListener('rt-chrome-i18n', function () {
+  document.addEventListener('rt-chrome-i18n', async function () {
     applyChatSurfaceDir();
     applyWebllmStaticCopy();
     renderNetMode();
@@ -1998,7 +2007,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     setBackendUI(backendEnabled);
     if (!llmProbed || llmLoading) return;
     if (!llmSupported) {
-      var cap = detectLocalLlmSupport();
+      var cap = await detectLocalLlmSupport();
       updateLlmUI('unsupported', cap.reason);
     } else if (llmReady) updateLlmUI('ready');
     else if (webllmPickerReady) updateLlmUI('idle');
@@ -2021,7 +2030,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     renderHistory();
     initSpeechRecognition();
 
-    const cap = detectLocalLlmSupport();
+    const cap = await detectLocalLlmSupport();
     llmSupported = cap.supported;
     llmProbed = true;
     if (!llmSupported) updateLlmUI('unsupported', cap.reason);

@@ -126,6 +126,20 @@ assert(Buffer.byteLength(prompt, 'utf8') === 840, 'SYSTEM_PROMPT byte length cha
 
 assert(chat.indexOf("if (!navigator.gpu) return { supported: false, reason: 'WebGPU not available in this browser' };") !== -1, 'WebGPU gate must stay');
 assert(chat.indexOf('/Android|iPhone|iPad|iPod|Mobile/i.test(ua)') !== -1, 'mobile UA block must stay');
+assert(chat.indexOf('async function detectLocalLlmSupport()') !== -1, 'support probe must be async');
+assert((chat.match(/await detectLocalLlmSupport\(\)/g) || []).length === 2, 'init and i18n refresh both await the probe');
+var detectStart = chat.indexOf('async function detectLocalLlmSupport()');
+var detectEnd = chat.indexOf('function addMessage(', detectStart);
+assert(detectStart !== -1 && detectEnd > detectStart, 'detectLocalLlmSupport must be extractable');
+var detectSrc = chat.slice(detectStart, detectEnd);
+assert(detectSrc.indexOf('/Android|iPhone|iPad|iPod|Mobile/i.test(ua)') < detectSrc.indexOf('requestAdapter()'), 'requestAdapter runs only after the phone UA test');
+assert(detectSrc.indexOf('requestAdapter()') < detectSrc.indexOf('Local LLM currently works best on desktop.'), 'a null adapter still returns the phone block text');
+assert(detectSrc.indexOf("return { supported: true, reason: null };") > detectSrc.indexOf('if (!adapter)'), 'a non-null adapter leaves the phone block');
+var bootAt = chat.indexOf('const cap = await detectLocalLlmSupport();');
+var boot = chat.slice(bootAt, chat.indexOf('applyChatSurfaceDir();', bootAt));
+assert(boot.indexOf("if (!llmSupported) updateLlmUI('unsupported', cap.reason);") !== -1, 'a blocked probe still prints its reason');
+assert(boot.indexOf('initWebllmPicker()') > boot.indexOf('if (!llmSupported)'), 'a supported probe opens the picker');
+assert(chat.indexOf("webllmPicker.classList.remove('hidden')") !== -1, 'picker init shows the list');
 assert(chat.indexOf('function generateLocalResponse') !== -1, 'fast responder must stay');
 var send = chat.slice(chat.indexOf('async function sendMessage'), chat.indexOf('function exportSession'));
 assert(send.indexOf('if (backendEnabled)') !== -1, 'local server stays ahead of WebLLM');
@@ -316,4 +330,85 @@ var en = read('i18n/en.js');
 assert(en.indexOf('pick a model in the Local Intelligence list') !== -1, 'English greeting points at the model list');
 assert(en.indexOf('enable WebLLM on desktop') === -1, 'English greeting must not say desktop-only');
 
-console.log('CHAT-MODELS-1 checks passed');
+var PHONE_BLOCK = 'Local LLM currently works best on desktop.';
+var WEBGPU_BLOCK = 'WebGPU not available in this browser';
+var iphone = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1';
+var android = 'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36';
+var ipad = 'Mozilla/5.0 (iPad; CPU OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1';
+var desktop = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+
+function probeSupport(nav) {
+  var box = { navigator: nav };
+  vm.createContext(box);
+  vm.runInContext(detectSrc + '\nthis.go = detectLocalLlmSupport;', box);
+  return box.go();
+}
+
+(async function () {
+  var phoneCalls = 0;
+  var adapterArgCount = -1;
+  var lifted = await probeSupport({
+    userAgent: iphone,
+    gpu: {
+      requestAdapter: function () {
+        phoneCalls += 1;
+        adapterArgCount = arguments.length;
+        return Promise.resolve({ name: 'mock-adapter' });
+      }
+    }
+  });
+  assert(phoneCalls === 1, 'phone UA with navigator.gpu asks for an adapter once');
+  assert(adapterArgCount === 0, 'requestAdapter is called with no arguments');
+  assert(lifted.supported === true, 'phone UA with a non-null adapter is not UA-blocked');
+  assert(lifted.reason === null, 'phone UA with a non-null adapter has no block text');
+
+  var androidLift = await probeSupport({
+    userAgent: android,
+    gpu: { requestAdapter: function () { return Promise.resolve({ name: 'mock-adapter' }); } }
+  });
+  assert(androidLift.supported === true && androidLift.reason === null, 'Android UA with a non-null adapter is not UA-blocked');
+
+  var noGpu = await probeSupport({ userAgent: iphone });
+  assert(noGpu.supported === false, 'phone UA with no navigator.gpu stays blocked');
+  assert(noGpu.reason === WEBGPU_BLOCK, 'phone UA with no navigator.gpu keeps the WebGPU block text');
+
+  var nullAdapter = await probeSupport({
+    userAgent: iphone,
+    gpu: { requestAdapter: function () { return Promise.resolve(null); } }
+  });
+  assert(nullAdapter.supported === false, 'phone UA with a null adapter stays blocked');
+  assert(nullAdapter.reason === PHONE_BLOCK, 'phone UA with a null adapter keeps the desktop block text');
+
+  var ipadNull = await probeSupport({
+    userAgent: ipad,
+    gpu: { requestAdapter: function () { return Promise.resolve(null); } }
+  });
+  assert(ipadNull.supported === false && ipadNull.reason === PHONE_BLOCK, 'iPad UA with a null adapter keeps the desktop block text');
+
+  var rejected = await probeSupport({
+    userAgent: android,
+    gpu: { requestAdapter: function () { return Promise.reject(new Error('no adapter')); } }
+  });
+  assert(rejected.supported === false && rejected.reason === PHONE_BLOCK, 'a failed adapter request keeps the phone block text');
+
+  var desktopCalls = 0;
+  var desk = await probeSupport({
+    userAgent: desktop,
+    gpu: {
+      requestAdapter: function () {
+        desktopCalls += 1;
+        return Promise.resolve(null);
+      }
+    }
+  });
+  assert(desktopCalls === 0, 'desktop probe does not call requestAdapter');
+  assert(desk.supported === true && desk.reason === null, 'desktop with navigator.gpu stays available');
+
+  var deskNoGpu = await probeSupport({ userAgent: desktop });
+  assert(deskNoGpu.supported === false && deskNoGpu.reason === WEBGPU_BLOCK, 'desktop without WebGPU keeps the WebGPU block text');
+
+  console.log('CHAT-MODELS-1 checks passed');
+})().catch(function (err) {
+  console.error(err);
+  process.exit(1);
+});
