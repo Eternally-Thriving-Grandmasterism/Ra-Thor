@@ -1,9 +1,9 @@
-//! # Mercy-Security — White-Hat AGSi Defense (v14.15.5)
+//! # Mercy-Security — White-Hat AGSi Defense (v14.15.6)
 //!
 //! Domain profiles: education · research · enterprise · creative · robotics · biomedical
 //! Physical actuation + wet-lab synthesis hard-refuse under HarmRefusalPolicy.
 //! Medium+ ingestion blocks feed UnifiedAgentSurface isolation + fleet signals.
-//! TOLC 8 + PATSAGi | AG-SML v1.0 | Contact: info@Rathor.ai
+//! TOLC 8 + PATSAGi | AG-SML v1.1 | Contact: info@Rathor.ai
 
 mod decision_record;
 mod domain_profiles;

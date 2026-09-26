@@ -33,7 +33,7 @@ fn print_usage() {
            2  usage / I/O / oversized payload\n\
          \n\
          Policy: Medium+ is blocked for unattended paths. Oversized > 4 MiB fails.\n\
-         Contact: info@Rathor.ai | AG-SML v1.0"
+         Contact: info@Rathor.ai | AG-SML v1.1"
     );
 }
 
