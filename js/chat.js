@@ -48,6 +48,7 @@
   const webllmRows        = document.getElementById('webllm-rows');
   const webllmThirdParty  = document.getElementById('webllm-third-party');
   const webllmDownloadNote = document.getElementById('webllm-download-note');
+  const webllmSizeFetchNote = document.getElementById('webllm-size-fetch-note');
   const webllmOtherNote   = document.getElementById('webllm-other-note');
   const netModeOfflineBtn = document.getElementById('net-mode-offline');
   const netModeNetworkBtn = document.getElementById('net-mode-network');
@@ -90,6 +91,7 @@
   let webllmOptions = [];
   let webllmRowRuntime = {};
   let webllmDownloadCancelled = false;
+  let llmUiState = 'idle';
 
   const WEBLLM_MODEL_KEY = 'rathor-webllm-model-v1';
   const WEBLLM_VENDOR = './vendor/web-llm/0.2.85/index.js';
@@ -915,6 +917,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
   // ─── WebLLM ───────────────────────────────────────────────────────────────
   function updateLlmUI(state, extra = '') {
     if (!localLlmBtn || !localLlmStatus) return;
+    llmUiState = state || 'idle';
     if (state === 'unsupported') {
       localLlmBtn.disabled = true;
       localLlmBtn.innerHTML = '<i class="fa-solid fa-microchip"></i> ' + chatStr('chatNotAvailable');
@@ -945,6 +948,26 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
       if (!backendEnabled) localLlmStatus.textContent = chatStr('chatStatusDefault');
       if (localLlmProgress) localLlmProgress.style.width = '0%';
     }
+    var pickerHidden = !webllmPicker || webllmPicker.classList.contains('hidden');
+    var header = headerLlmButtonState({
+      pickerPresent: !!webllmPicker,
+      pickerHidden: pickerHidden,
+      uiState: llmUiState
+    });
+    if (header.action === 'none') {
+      localLlmBtn.disabled = true;
+      if (pickerHidden && state !== 'unsupported' && state !== 'loading') {
+        localLlmBtn.innerHTML = '<i class="fa-solid fa-microchip"></i> ' + header.label;
+      }
+    }
+    if (header.action === 'retry') {
+      localLlmBtn.disabled = false;
+      localLlmBtn.innerHTML = '<i class="fa-solid fa-microchip"></i> ' + header.label;
+      localLlmBtn.classList.remove('llm-ready');
+    }
+    localLlmBtn.setAttribute('data-llm-action', header.action);
+    localLlmBtn.setAttribute('aria-disabled', localLlmBtn.disabled ? 'true' : 'false');
+    localLlmBtn.title = header.title;
     updatePathBadge();
   }
 
@@ -954,6 +977,9 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     }
     if (webllmDownloadNote) {
       webllmDownloadNote.textContent = chatLabel('chatWebllmFirstDownload', "The first download of each model comes from Hugging Face and GitHub (raw.githubusercontent.com, which serves the model's code file) and needs the network. After that it runs in this browser.");
+    }
+    if (webllmSizeFetchNote) {
+      webllmSizeFetchNote.textContent = chatLabel('chatWebllmSizeFetch', 'A small size file is fetched to show the download size.');
     }
     if (webllmOtherNote) {
       webllmOtherNote.textContent = chatLabel('chatWebllmOtherModel', 'Any other model: Local Server (Ollama).');
@@ -1030,6 +1056,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
         next.consent = null;
         return { row: next, effect: null };
       }
+      if (ctx && ctx.heavyBlocked) return { row: next, effect: null };
       next.consent = null;
       next.phase = 'downloading';
       return { row: next, effect: 'download' };
@@ -1053,6 +1080,16 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     }
     if (action === 'use') {
       if (phase !== 'ready') return { row: next, effect: null };
+      if (ctx && ctx.heavy) {
+        next.consent = 'heavy-use';
+        return { row: next, effect: null };
+      }
+      return { row: next, effect: 'use' };
+    }
+    if (action === 'confirm-heavy-use') {
+      if (consent !== 'heavy-use') return { row: next, effect: null };
+      if (ctx && ctx.heavyBlocked) return { row: next, effect: null };
+      next.consent = null;
       return { row: next, effect: 'use' };
     }
     return { row: next, effect: null };
@@ -1137,7 +1174,94 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     var text = 'Download ' + base + ' from Hugging Face and GitHub to this device?';
     var size = formatByteMegabytes(bytes);
     if (size) text += ' Download size: ' + size + '.';
+    text += ' A small size file is fetched to show the download size.';
     return text;
+  }
+
+  // Tiers follow the selected record's pinned vram_required_MB.
+  // Light is below 1200 MB. Heavy starts at 3000 MB. Mid is the span between.
+  function webllmTierFromVram(vramMb) {
+    if (typeof vramMb !== 'number' || !(vramMb > 0)) return '';
+    if (vramMb < 1200) return 'Light';
+    if (vramMb < 3000) return 'Mid';
+    return 'Heavy';
+  }
+
+  function heavyGateRequired(tier) {
+    return tier === 'Heavy';
+  }
+
+  function formatStorageQuota(bytes) {
+    if (typeof bytes !== 'number' || !(bytes > 0)) return '';
+    if (bytes >= 1000000000) {
+      var gb = Math.round((bytes / 1000000000) * 10) / 10;
+      var text = gb === Math.round(gb) ? String(Math.round(gb)) : gb.toFixed(1);
+      return text + ' GB';
+    }
+    return formatByteMegabytes(bytes);
+  }
+
+  function adapterLimitsLabel(limits) {
+    if (!limits || typeof limits.maxBufferSize !== 'number' || !(limits.maxBufferSize > 0)) return '';
+    var text = 'GPU buffer limit: ' + formatByteMegabytes(limits.maxBufferSize);
+    if (typeof limits.maxStorageBufferBindingSize === 'number' && limits.maxStorageBufferBindingSize > 0) {
+      text += '. GPU storage buffer limit: ' + formatByteMegabytes(limits.maxStorageBufferBindingSize);
+    }
+    return text;
+  }
+
+  function storageTotalLabel(estimate) {
+    if (!estimate || typeof estimate.quota !== 'number' || !(estimate.quota > 0)) return '';
+    var shown = formatStorageQuota(estimate.quota);
+    return shown ? ('Storage total: ' + shown) : '';
+  }
+
+  function heavyGateDecision(input) {
+    var tier = input && input.tier;
+    if (!heavyGateRequired(tier)) return { required: false, allow: true, note: '' };
+    var limitsLabel = adapterLimitsLabel(input && input.limits);
+    var totalLabel = storageTotalLabel(input && input.estimate);
+    var parts = [];
+    parts.push(limitsLabel || 'GPU adapter limits are unavailable.');
+    parts.push(totalLabel || 'Storage total is unavailable.');
+    var allow = !!limitsLabel;
+    var need = input && input.needBytes;
+    var estimate = input && input.estimate;
+    if (allow && input && input.purpose === 'download' && typeof need === 'number' && need > 0 && estimate && typeof estimate.quota === 'number') {
+      var usage = typeof estimate.usage === 'number' && estimate.usage > 0 ? estimate.usage : 0;
+      if (estimate.quota - usage < need) {
+        allow = false;
+        parts.push('Not enough storage for this download.');
+      }
+    }
+    return { required: true, allow: allow, note: parts.join(' ') };
+  }
+
+  function storedModelAfterDelete(stored, deletedBase) {
+    if (stored && stored === deletedBase) return '';
+    return stored || '';
+  }
+
+  function headerLlmButtonState(input) {
+    var ui = input && input.uiState ? input.uiState : 'idle';
+    var present = !!(input && input.pickerPresent);
+    var hidden = !present || !!(input && input.pickerHidden);
+    if (ui === 'loading') {
+      return { disabled: true, label: 'Loading…', action: 'none', title: 'The model list is loading.' };
+    }
+    if (ui === 'unsupported') {
+      return { disabled: true, label: 'Not available', action: 'none', title: 'The model list is not available on this device.' };
+    }
+    if (ui === 'error') {
+      return { disabled: false, label: 'Try again', action: 'retry', title: 'Try loading the model list again.' };
+    }
+    if (hidden) {
+      return { disabled: true, label: 'Models list unavailable', action: 'none', title: 'The model list is not on this page.' };
+    }
+    if (ui === 'ready') {
+      return { disabled: false, label: 'WebLLM Ready', action: 'focus', title: 'Show the model list.' };
+    }
+    return { disabled: false, label: 'WebLLM', action: 'focus', title: 'Show the model list.' };
   }
 
   function deleteConsentText(base, bytes) {
@@ -1165,15 +1289,9 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
 
   function ensureRowRuntime(base) {
     if (!webllmRowRuntime[base]) {
-      webllmRowRuntime[base] = { phase: 'absent', consent: null, progress: 0, downloading: false, downloadBytes: null };
+      webllmRowRuntime[base] = { phase: 'absent', consent: null, progress: 0, downloading: false, downloadBytes: null, heavyNote: '', heavyAllow: true };
     }
     return webllmRowRuntime[base];
-  }
-
-  function activeModelBase() {
-    var stored = readStoredModelBase();
-    if (stored && optionByBase(stored)) return stored;
-    return WEBLLM_DEFAULT_BASE;
   }
 
   function modelGpuMemoryLabel(rec) {
@@ -1260,18 +1378,28 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
 
   function renderWebllmRows() {
     if (!webllmRows) return;
-    var active = activeModelBase();
+    var active = readStoredModelBase();
     var downloadBlocked = !webllmDownloadAllowed(readNetMode(), typeof navigator === 'undefined' || navigator.onLine !== false);
     var online = typeof navigator === 'undefined' || navigator.onLine !== false;
     webllmRows.replaceChildren();
+    var lastTier = '';
     webllmOptions.forEach(function (opt) {
       var base = opt.entry.base;
       var rt = ensureRowRuntime(base);
       var phase = rt.downloading ? 'downloading' : rt.phase;
       var gpu = modelGpuMemoryLabel(opt.rec);
+      var tier = webllmTierFromVram(opt.rec && opt.rec.vram_required_MB);
+      if (tier && tier !== lastTier) {
+        var heading = document.createElement('p');
+        heading.className = 'webllm-tier';
+        heading.textContent = tier;
+        webllmRows.appendChild(heading);
+        lastTier = tier;
+      }
       var row = document.createElement('div');
       row.className = 'webllm-row' + (active === base ? ' webllm-row-active' : '');
       row.setAttribute('data-base', base);
+      if (tier) row.setAttribute('data-tier', tier);
 
       var top = document.createElement('div');
       top.className = 'webllm-row-top';
@@ -1283,15 +1411,20 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
       var meta = document.createElement('p');
       meta.className = 'webllm-row-meta';
       if (gpu) meta.appendChild(document.createTextNode(gpu));
-      (opt.entry.links || []).forEach(function (link, i) {
-        meta.appendChild(document.createTextNode(i === 0 && gpu ? ' · ' : (i ? ' · ' : '')));
-        var a = document.createElement('a');
-        a.href = link.href;
-        a.target = '_blank';
-        a.rel = 'noopener';
-        a.textContent = link.text;
-        meta.appendChild(a);
-      });
+      if (tier) meta.appendChild(document.createTextNode((gpu ? ' · ' : '') + tier));
+      var links = opt.entry.links || [];
+      if (links.length) {
+        meta.appendChild(document.createTextNode((gpu || tier) ? ' · License: ' : 'License: '));
+        links.forEach(function (link, i) {
+          if (i) meta.appendChild(document.createTextNode(' · '));
+          var a = document.createElement('a');
+          a.href = link.href;
+          a.target = '_blank';
+          a.rel = 'noopener';
+          a.textContent = link.text;
+          meta.appendChild(a);
+        });
+      }
       if (opt.entry.builtWithLlama) meta.appendChild(document.createTextNode(' · Built with Llama'));
       copy.appendChild(name);
       copy.appendChild(meta);
@@ -1344,19 +1477,36 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
         row.appendChild(need);
       }
 
-      if (rt.consent === 'download' || rt.consent === 'delete') {
+      if (rt.consent === 'download' || rt.consent === 'delete' || rt.consent === 'heavy-use') {
         var consent = document.createElement('div');
         consent.className = 'webllm-consent';
         var ask = document.createElement('p');
-        ask.textContent = rt.consent === 'download'
-          ? downloadConsentText(base, rt.downloadBytes)
-          : deleteConsentText(base, rt.downloadBytes);
+        if (rt.consent === 'download') ask.textContent = downloadConsentText(base, rt.downloadBytes);
+        else if (rt.consent === 'heavy-use') ask.textContent = 'Use ' + base + ' on this device?';
+        else ask.textContent = deleteConsentText(base, rt.downloadBytes);
         consent.appendChild(ask);
+        if ((rt.consent === 'download' || rt.consent === 'heavy-use') && tier === 'Heavy' && rt.heavyNote) {
+          var gateNote = document.createElement('p');
+          gateNote.className = 'webllm-row-note';
+          gateNote.textContent = rt.heavyNote;
+          consent.appendChild(gateNote);
+        }
         var yes = document.createElement('button');
         yes.type = 'button';
         yes.className = 'ctrl-btn text-xs px-2';
-        yes.textContent = rt.consent === 'download' ? 'Confirm download' : 'Confirm delete';
-        yes.setAttribute('data-act', rt.consent === 'download' ? 'confirm-download' : 'confirm-delete');
+        if (rt.consent === 'download') {
+          yes.textContent = 'Confirm download';
+          yes.setAttribute('data-act', 'confirm-download');
+        } else if (rt.consent === 'heavy-use') {
+          yes.textContent = 'Confirm use';
+          yes.setAttribute('data-act', 'confirm-heavy-use');
+        } else {
+          yes.textContent = 'Confirm delete';
+          yes.setAttribute('data-act', 'confirm-delete');
+        }
+        if ((rt.consent === 'download' || rt.consent === 'heavy-use') && tier === 'Heavy' && rt.heavyAllow === false) {
+          yes.disabled = true;
+        }
         var no = document.createElement('button');
         no.type = 'button';
         no.className = 'ctrl-btn text-xs px-2';
@@ -1538,6 +1688,11 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     try { await purgeModelLeftovers(opt.rec); } catch (err2) {
       console.error('[Ra-Thor WebLLM] delete leftovers', err2);
     }
+    try {
+      if (storedModelAfterDelete(localStorage.getItem(WEBLLM_MODEL_KEY), base) === '') {
+        localStorage.removeItem(WEBLLM_MODEL_KEY);
+      }
+    } catch (e3) {}
     var rt = ensureRowRuntime(base);
     rt.downloading = false;
     rt.consent = null;
@@ -1560,11 +1715,54 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     await loadWebllmModel(base, false);
   }
 
+  async function readHeavyGate(tier, purpose, needBytes) {
+    var limits = null;
+    var estimate = null;
+    try {
+      if (navigator.gpu && navigator.gpu.requestAdapter) {
+        var adapter = await navigator.gpu.requestAdapter();
+        limits = adapter && adapter.limits ? adapter.limits : null;
+      }
+    } catch (e) { limits = null; }
+    try {
+      if (navigator.storage && typeof navigator.storage.estimate === 'function') {
+        estimate = await navigator.storage.estimate();
+      }
+    } catch (e2) { estimate = null; }
+    return heavyGateDecision({
+      tier: tier,
+      limits: limits,
+      estimate: estimate,
+      needBytes: needBytes,
+      purpose: purpose
+    });
+  }
+
+  async function persistOriginStorage() {
+    try {
+      if (navigator.storage && typeof navigator.storage.persist === 'function') {
+        await navigator.storage.persist();
+      }
+    } catch (e) {}
+  }
+
   async function onWebllmRowAction(base, action) {
+    var opt = optionByBase(base);
+    var tier = webllmTierFromVram(opt && opt.rec ? opt.rec.vram_required_MB : null);
     var rt = ensureRowRuntime(base);
+    var heavy = heavyGateRequired(tier);
+    var heavyBlocked = false;
+    if (heavy && (action === 'confirm-download' || action === 'confirm-heavy-use')) {
+      var gateNow = await readHeavyGate(tier, action === 'confirm-download' ? 'download' : 'use', rt.downloadBytes);
+      rt.heavyNote = gateNow.note;
+      rt.heavyAllow = gateNow.allow;
+      heavyBlocked = !gateNow.allow;
+    }
     var ctx = {
       offlineOnly: readNetMode() === 'offline-only',
-      onLine: navigator.onLine !== false
+      onLine: navigator.onLine !== false,
+      heavy: heavy,
+      heavyBlocked: heavyBlocked
     };
     var result = webllmRowTransition(
       { phase: rt.downloading ? 'downloading' : rt.phase, consent: rt.consent },
@@ -1573,8 +1771,25 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     );
     rt.consent = result.row.consent;
     if (action === 'tap-download' && result.row.consent === 'download') {
-      var opt = optionByBase(base);
+      // tensor-cache.json stays before Confirm so the consent line can show the summed size.
+      // The picker states that this small size file is fetched.
       rt.downloadBytes = opt ? await fetchTensorDownloadBytes(opt.rec) : null;
+      if (heavy) {
+        var dlGate = await readHeavyGate(tier, 'download', rt.downloadBytes);
+        rt.heavyNote = dlGate.note;
+        rt.heavyAllow = dlGate.allow;
+      } else {
+        rt.heavyNote = '';
+        rt.heavyAllow = true;
+      }
+      renderWebllmRows();
+      return;
+    }
+    if (action === 'use' && result.row.consent === 'heavy-use') {
+      var useGate = await readHeavyGate(tier, 'use', null);
+      rt.heavyNote = useGate.note;
+      rt.heavyAllow = useGate.allow;
+      rt.consent = 'heavy-use';
       renderWebllmRows();
       return;
     }
@@ -1585,6 +1800,14 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
       return;
     }
     if (result.effect === 'download') {
+      if (heavy) {
+        if (heavyBlocked) {
+          rt.consent = 'download';
+          renderWebllmRows();
+          return;
+        }
+        await persistOriginStorage();
+      }
       await startWebllmDownload(base);
       return;
     }
@@ -1597,6 +1820,14 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
       return;
     }
     if (result.effect === 'use') {
+      if (heavy) {
+        if (heavyBlocked) {
+          rt.consent = 'heavy-use';
+          renderWebllmRows();
+          return;
+        }
+        await persistOriginStorage();
+      }
       await useWebllmModel(base);
       return;
     }
@@ -1623,6 +1854,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
       webllmModule = webllmModule || await import(WEBLLM_VENDOR);
     } catch (err) {
       console.error('[Ra-Thor WebLLM]', err);
+      webllmPicker.classList.add('hidden');
       webllmPickerReady = true;
       updateLlmUI('error', 'Load failed');
       return false;
@@ -1641,6 +1873,12 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     });
     if (!readStoredModelBase()) {
       try { localStorage.setItem(WEBLLM_MODEL_KEY, WEBLLM_DEFAULT_BASE); } catch (e) {}
+    }
+    if (!webllmOptions.length) {
+      webllmPicker.classList.add('hidden');
+      webllmPickerReady = true;
+      updateLlmUI('error', 'Load failed');
+      return false;
     }
     for (var i = 0; i < webllmOptions.length; i++) {
       await refreshRowPhase(webllmOptions[i]);
@@ -1917,7 +2155,23 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     });
   }
   if (localLlmBtn) localLlmBtn.addEventListener('click', function () {
-    if (!webllmPicker || webllmPicker.classList.contains('hidden')) return;
+    var hidden = !webllmPicker || webllmPicker.classList.contains('hidden');
+    var header = headerLlmButtonState({
+      pickerPresent: !!webllmPicker,
+      pickerHidden: hidden,
+      uiState: llmUiState
+    });
+    if (header.action === 'retry') {
+      if (!llmSupported) return;
+      initWebllmPicker().then(function (ok) {
+        if (llmReady || llmLoading) return;
+        if (ok) updateLlmUI('idle');
+        else if (!webllmPicker) updateLlmUI('idle');
+        else updateLlmUI('error', 'Load failed');
+      });
+      return;
+    }
+    if (header.action !== 'focus' || hidden) return;
     var row = webllmPicker.querySelector('.webllm-row-active') || webllmPicker;
     if (row.scrollIntoView) row.scrollIntoView({ block: 'nearest' });
     var focusBtn = row.querySelector ? row.querySelector('button:not([disabled])') : null;
@@ -2028,7 +2282,11 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     else {
       if (localLlmBtn) localLlmBtn.disabled = true;
       var pickerOk = await initWebllmPicker();
-      if (pickerOk && !llmReady && !llmLoading) updateLlmUI('idle');
+      if (!llmReady && !llmLoading) {
+        if (pickerOk) updateLlmUI('idle');
+        else if (!webllmPicker) updateLlmUI('idle');
+        else updateLlmUI('error', 'Load failed');
+      }
     }
     applyChatSurfaceDir();
 
