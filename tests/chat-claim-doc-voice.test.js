@@ -1,4 +1,5 @@
-/* CLAIM-DOC-VOICE-1: chatReplyDoc and the voice line name where document text and speech go. */
+/* CLAIM-DOC-VOICE-1: chatReplyDoc and the voice line name where document text and speech go.
+   CLAIM-TTS-1: the TTS label must not call read-aloud offline. */
 var fs = require('fs');
 var path = require('path');
 var vm = require('vm');
@@ -26,6 +27,9 @@ var NEW_DOC = 'Document text stays in this browser unless you connect a Local Se
 var OLD_DOC = 'Everything stays on your device.';
 var DOC_PREFIX = 'Use the document button (file icon) next to the mic to upload .txt, .md, .json or .csv files. Their content is injected into the conversation context for Local Server / WebLLM / Copy Context. ';
 var NEW_VOICE = "Uses your browser's built-in speech service. Some browsers, such as Chrome, send your voice to their own servers to recognize it.";
+var NEW_TTS_SENTENCE = 'Some read-aloud voices are online too, and receive the text they read.';
+var NEW_TTS_LABEL = 'Enable read-aloud (TTS)';
+var OLD_TTS_LABEL = 'Enable offline speech';
 
 var en = loadPack('en');
 assert(typeof en.chatReplyDoc === 'string', 'en chatReplyDoc must stay defined');
@@ -81,6 +85,9 @@ assert(voiceStart !== -1 && voiceEnd > voiceStart, 'voice settings block must ex
 var voiceBlock = html.slice(voiceStart, voiceEnd);
 assert(voiceBlock.indexOf('Stays on your device.') === -1, 'voice block still says Stays on your device.');
 assert(voiceBlock.indexOf(NEW_VOICE) !== -1, 'voice block must use the corrected speech line');
+assert(voiceBlock.indexOf(NEW_VOICE + ' ' + NEW_TTS_SENTENCE) !== -1, 'read-aloud sentence must follow the recognition sentence');
+assert(voiceBlock.indexOf(NEW_TTS_LABEL) !== -1, 'voice block must use Enable read-aloud (TTS)');
+assert(voiceBlock.indexOf(OLD_TTS_LABEL) === -1, 'voice block still says Enable offline speech');
 assert(voiceBlock.indexOf('data-i18n') === -1, 'voice block stays hardcoded; it had no data-i18n pattern');
 
 console.log('chat-claim-doc-voice ok');
