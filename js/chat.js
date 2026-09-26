@@ -49,6 +49,8 @@
   const webllmThirdParty  = document.getElementById('webllm-third-party');
   const webllmDownloadNote = document.getElementById('webllm-download-note');
   const webllmOtherNote   = document.getElementById('webllm-other-note');
+  const webllmPhoneMayNotRun = document.getElementById('webllm-phone-may-not-run');
+  const webllmPhoneStorage = document.getElementById('webllm-phone-storage');
   const netModeOfflineBtn = document.getElementById('net-mode-offline');
   const netModeNetworkBtn = document.getElementById('net-mode-network');
   const netConnection     = document.getElementById('net-connection');
@@ -86,6 +88,7 @@
   let llmLoadToken = 0;
   let webllmModule = null;
   let webllmPickerReady = false;
+  let webllmPhonePath = false;
   let webllmShaderF16 = false;
   let webllmOptions = [];
   let webllmRowRuntime = {};
@@ -100,6 +103,8 @@
     WEBLLM_VENDOR
   );
   const WEBLLM_DEFAULT_BASE = 'Llama-3.2-1B-Instruct';
+  // Phone picker rows stay at or under this cap. The curated list itself stays seven.
+  const PHONE_MAX_VRAM_MB = 1200;
   // Curated order. Quantization is chosen from the pinned prebuiltAppConfig.
   // q4f32_1 is used only when the WebGPU adapter lacks shader-f16.
   const WEBLLM_CURATED = [
@@ -600,11 +605,21 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
       '\n--- End Documents ---\n';
   }
 
-  function detectLocalLlmSupport() {
+  // A phone user agent stays on the desktop block unless requestAdapter returns an adapter.
+  async function detectLocalLlmSupport() {
     if (!navigator.gpu) return { supported: false, reason: 'WebGPU not available in this browser' };
     const ua = navigator.userAgent || '';
     if (/Android|iPhone|iPad|iPod|Mobile/i.test(ua)) {
-      return { supported: false, reason: 'Local LLM currently works best on desktop.' };
+      var adapter = null;
+      try {
+        adapter = await navigator.gpu.requestAdapter();
+      } catch (e) {
+        adapter = null;
+      }
+      if (!adapter) {
+        return { supported: false, reason: 'Local LLM currently works best on desktop.' };
+      }
+      return { supported: true, reason: null, phone: true };
     }
     return { supported: true, reason: null };
   }
@@ -958,6 +973,15 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     if (webllmOtherNote) {
       webllmOtherNote.textContent = chatLabel('chatWebllmOtherModel', 'Any other model: Local Server (Ollama).');
     }
+    var phoneLines = phoneCapNotes(webllmPhonePath);
+    if (webllmPhoneMayNotRun) {
+      webllmPhoneMayNotRun.textContent = phoneLines[0] ? chatLabel('chatPhoneMayNotRun', phoneLines[0]) : '';
+      webllmPhoneMayNotRun.classList.toggle('hidden', !phoneLines[0]);
+    }
+    if (webllmPhoneStorage) {
+      webllmPhoneStorage.textContent = phoneLines[1] ? chatLabel('chatPhoneStorageEvict', phoneLines[1]) : '';
+      webllmPhoneStorage.classList.toggle('hidden', !phoneLines[1]);
+    }
   }
 
   /* chat-models-1-pure */
@@ -1146,6 +1170,32 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     if (size) text += ' This frees about ' + size + '.';
     return text;
   }
+
+  function keepCuratedRowOnPhone(phonePath, vramMb, maxVramMb) {
+    if (!phonePath) return true;
+    return typeof vramMb === 'number' && vramMb <= maxVramMb;
+  }
+
+  function listedModelBase(stored, listedBases, defaultBase) {
+    if (stored && listedBases.indexOf(stored) !== -1) return stored;
+    return defaultBase;
+  }
+
+  function rememberedModelPlan(stored, listedBases, defaultBase) {
+    return {
+      active: listedModelBase(stored, listedBases, defaultBase),
+      stored: stored || '',
+      writeDefault: !stored
+    };
+  }
+
+  function phoneCapNotes(phonePath) {
+    if (!phonePath) return [];
+    return [
+      'This model may not run on this device. Copy Context works everywhere.',
+      'Safari may evict downloaded models when storage is low.'
+    ];
+  }
   /* chat-models-1-pure-end */
 
   function readStoredModelBase() {
@@ -1172,8 +1222,9 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
 
   function activeModelBase() {
     var stored = readStoredModelBase();
-    if (stored && optionByBase(stored)) return stored;
-    return WEBLLM_DEFAULT_BASE;
+    var bases = [];
+    for (var i = 0; i < webllmOptions.length; i++) bases.push(webllmOptions[i].entry.base);
+    return rememberedModelPlan(stored, bases, WEBLLM_DEFAULT_BASE).active;
   }
 
   function modelGpuMemoryLabel(rec) {
@@ -1637,9 +1688,13 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
       var id = quantIdFor(entry);
       var rec = byId.get(id);
       if (!rec) return;
+      if (!keepCuratedRowOnPhone(webllmPhonePath, rec.vram_required_MB, PHONE_MAX_VRAM_MB)) return;
       webllmOptions.push({ entry: entry, id: id, rec: rec });
     });
-    if (!readStoredModelBase()) {
+    var listedBases = [];
+    for (var b = 0; b < webllmOptions.length; b++) listedBases.push(webllmOptions[b].entry.base);
+    var plan = rememberedModelPlan(readStoredModelBase(), listedBases, WEBLLM_DEFAULT_BASE);
+    if (plan.writeDefault) {
       try { localStorage.setItem(WEBLLM_MODEL_KEY, WEBLLM_DEFAULT_BASE); } catch (e) {}
     }
     for (var i = 0; i < webllmOptions.length; i++) {
@@ -1989,7 +2044,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     });
   });
 
-  document.addEventListener('rt-chrome-i18n', function () {
+  document.addEventListener('rt-chrome-i18n', async function () {
     applyChatSurfaceDir();
     applyWebllmStaticCopy();
     renderNetMode();
@@ -1998,7 +2053,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     setBackendUI(backendEnabled);
     if (!llmProbed || llmLoading) return;
     if (!llmSupported) {
-      var cap = detectLocalLlmSupport();
+      var cap = await detectLocalLlmSupport();
       updateLlmUI('unsupported', cap.reason);
     } else if (llmReady) updateLlmUI('ready');
     else if (webllmPickerReady) updateLlmUI('idle');
@@ -2021,8 +2076,9 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     renderHistory();
     initSpeechRecognition();
 
-    const cap = detectLocalLlmSupport();
+    const cap = await detectLocalLlmSupport();
     llmSupported = cap.supported;
+    webllmPhonePath = cap.phone === true;
     llmProbed = true;
     if (!llmSupported) updateLlmUI('unsupported', cap.reason);
     else {

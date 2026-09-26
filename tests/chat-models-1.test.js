@@ -87,17 +87,29 @@ assert(chat.indexOf("let llmModelId = 'Llama-3.2-1B-Instruct-q4f16_1-MLC'") !== 
 var pickerIds = curated.match(/'[A-Za-z0-9._-]+-MLC'/g).map(function (token) {
   return token.slice(1, -1);
 });
+var curatedEntries = [];
+var entryRe = /base: '([^']+)'[\s\S]*?q4f16: '([^']+)'[\s\S]*?q4f32: '([^']+)'/g;
+var entryMatch;
+while ((entryMatch = entryRe.exec(curated))) {
+  curatedEntries.push({ base: entryMatch[1], q4f16: entryMatch[2], q4f32: entryMatch[3] });
+}
+assert(curatedEntries.length === 7, 'curated list stays seven bases');
+var capMatch = chat.match(/const PHONE_MAX_VRAM_MB = ([0-9.]+);/);
+assert(capMatch, 'PHONE_MAX_VRAM_MB must be a named constant');
+var phoneMaxVram = Number(capMatch[1]);
 assert(pickerIds.length === 14, 'picker must name q4f16_1 and q4f32_1 for each curated model');
 var configIds = {};
 var idRe = /model_id:\s*"([^"]+)"/g;
 var idMatch;
 while ((idMatch = idRe.exec(vendor))) configIds[idMatch[1]] = true;
+var vramById = {};
 pickerIds.forEach(function (id) {
   assert(configIds[id], 'picker id missing from pinned prebuiltAppConfig: ' + id);
   var at = vendor.indexOf('model_id: "' + id + '"');
   var slice = vendor.slice(at, at + 500);
   var vram = slice.match(/vram_required_MB:\s*([0-9.]+)/);
   assert(vram, 'vram_required_MB missing for ' + id);
+  vramById[id] = Number(vram[1]);
   assert(chat.indexOf(vram[1]) === -1, 'chat.js must not hand-type vram ' + vram[1] + ' for ' + id);
   console.log(id + ' vram_required_MB=' + vram[1]);
 });
@@ -126,6 +138,29 @@ assert(Buffer.byteLength(prompt, 'utf8') === 840, 'SYSTEM_PROMPT byte length cha
 
 assert(chat.indexOf("if (!navigator.gpu) return { supported: false, reason: 'WebGPU not available in this browser' };") !== -1, 'WebGPU gate must stay');
 assert(chat.indexOf('/Android|iPhone|iPad|iPod|Mobile/i.test(ua)') !== -1, 'mobile UA block must stay');
+assert(chat.indexOf('async function detectLocalLlmSupport()') !== -1, 'support probe must be async');
+assert((chat.match(/await detectLocalLlmSupport\(\)/g) || []).length === 2, 'init and i18n refresh both await the probe');
+var detectStart = chat.indexOf('async function detectLocalLlmSupport()');
+var detectEnd = chat.indexOf('function addMessage(', detectStart);
+assert(detectStart !== -1 && detectEnd > detectStart, 'detectLocalLlmSupport must be extractable');
+var detectSrc = chat.slice(detectStart, detectEnd);
+assert(detectSrc.indexOf('/Android|iPhone|iPad|iPod|Mobile/i.test(ua)') < detectSrc.indexOf('requestAdapter()'), 'requestAdapter runs only after the phone UA test');
+assert(detectSrc.indexOf('requestAdapter()') < detectSrc.indexOf('Local LLM currently works best on desktop.'), 'a null adapter still returns the phone block text');
+assert(detectSrc.indexOf("return { supported: true, reason: null };") > detectSrc.indexOf('if (!adapter)'), 'a non-null adapter leaves the phone block');
+var bootAt = chat.indexOf('const cap = await detectLocalLlmSupport();');
+var boot = chat.slice(bootAt, chat.indexOf('applyChatSurfaceDir();', bootAt));
+assert(boot.indexOf("if (!llmSupported) updateLlmUI('unsupported', cap.reason);") !== -1, 'a blocked probe still prints its reason');
+assert(boot.indexOf('initWebllmPicker()') > boot.indexOf('if (!llmSupported)'), 'a supported probe opens the picker');
+assert(chat.indexOf("webllmPicker.classList.remove('hidden')") !== -1, 'picker init shows the list');
+var initSrc = chat.slice(chat.indexOf('async function initWebllmPicker'), chat.indexOf('async function generateWithLocalLLM'));
+assert(initSrc.indexOf('keepCuratedRowOnPhone(webllmPhonePath, rec.vram_required_MB, PHONE_MAX_VRAM_MB)') !== -1, 'phone path filters rows with PHONE_MAX_VRAM_MB');
+assert(initSrc.indexOf('rememberedModelPlan(') !== -1, 'init plans the remembered model against the listed rows');
+assert(initSrc.indexOf('if (plan.writeDefault)') !== -1, 'init writes the model key only when none is stored');
+assert(initSrc.indexOf('deleteModelAllInfoInCache') === -1, 'opening the picker does not delete a model cache');
+assert(initSrc.indexOf('removeItem') === -1, 'opening the picker does not clear the stored model key');
+assert(chat.indexOf('webllmPhonePath = cap.phone === true') !== -1, 'the row cap runs only when an adapter lifts the phone block');
+assert(html.indexOf('id="webllm-phone-may-not-run" class="hidden') !== -1, 'the may-not-run line starts hidden');
+assert(html.indexOf('id="webllm-phone-storage" class="hidden') !== -1, 'the storage line starts hidden');
 assert(chat.indexOf('function generateLocalResponse') !== -1, 'fast responder must stay');
 var send = chat.slice(chat.indexOf('async function sendMessage'), chat.indexOf('function exportSession'));
 assert(send.indexOf('if (backendEnabled)') !== -1, 'local server stays ahead of WebLLM');
@@ -188,7 +223,7 @@ var sandbox = {
   }
 };
 vm.createContext(sandbox);
-vm.runInContext(pure + '\nthis.api = { readNetMode: readNetMode, writeNetMode: writeNetMode, webllmRowTransition: webllmRowTransition, webllmDownloadAllowed: webllmDownloadAllowed, localServerEndpointAllowed: localServerEndpointAllowed, webllmBadgeLabel: webllmBadgeLabel, webllmActionLabel: webllmActionLabel, absoluteScriptUrl: absoluteScriptUrl, modelCacheUrlPrefix: modelCacheUrlPrefix, requestMatchesModel: requestMatchesModel, purgeOwnedModelEntries: purgeOwnedModelEntries, modelFilesRemain: modelFilesRemain, phaseAfterLocalDelete: phaseAfterLocalDelete, tensorManifestDownloadBytes: tensorManifestDownloadBytes, formatByteMegabytes: formatByteMegabytes, downloadConsentText: downloadConsentText, deleteConsentText: deleteConsentText, isWebllmOwnedCache: isWebllmOwnedCache };', sandbox);
+vm.runInContext(pure + '\nthis.api = { readNetMode: readNetMode, writeNetMode: writeNetMode, webllmRowTransition: webllmRowTransition, webllmDownloadAllowed: webllmDownloadAllowed, localServerEndpointAllowed: localServerEndpointAllowed, webllmBadgeLabel: webllmBadgeLabel, webllmActionLabel: webllmActionLabel, absoluteScriptUrl: absoluteScriptUrl, modelCacheUrlPrefix: modelCacheUrlPrefix, requestMatchesModel: requestMatchesModel, purgeOwnedModelEntries: purgeOwnedModelEntries, modelFilesRemain: modelFilesRemain, phaseAfterLocalDelete: phaseAfterLocalDelete, tensorManifestDownloadBytes: tensorManifestDownloadBytes, formatByteMegabytes: formatByteMegabytes, downloadConsentText: downloadConsentText, deleteConsentText: deleteConsentText, isWebllmOwnedCache: isWebllmOwnedCache, keepCuratedRowOnPhone: keepCuratedRowOnPhone, listedModelBase: listedModelBase, rememberedModelPlan: rememberedModelPlan, phoneCapNotes: phoneCapNotes };', sandbox);
 var api = sandbox.api;
 assert(api.readNetMode() === 'network-on', 'default net mode is network-on');
 assert(api.writeNetMode('offline-only') === 'offline-only', 'write offline-only');
@@ -315,5 +350,131 @@ assert(chat.indexOf('/resolve/main/LICENSE') === -1, 'license links must use blo
 var en = read('i18n/en.js');
 assert(en.indexOf('pick a model in the Local Intelligence list') !== -1, 'English greeting points at the model list');
 assert(en.indexOf('enable WebLLM on desktop') === -1, 'English greeting must not say desktop-only');
+assert(en.indexOf('"chatPhoneMayNotRun": "This model may not run on this device. Copy Context works everywhere."') !== -1, 'English pack has the may-not-run line');
+assert(en.indexOf('"chatPhoneStorageEvict": "Safari may evict downloaded models when storage is low."') !== -1, 'English pack has the storage line');
 
-console.log('CHAT-MODELS-1 checks passed');
+var PHONE_BLOCK = 'Local LLM currently works best on desktop.';
+var WEBGPU_BLOCK = 'WebGPU not available in this browser';
+var iphone = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1';
+var android = 'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36';
+var ipad = 'Mozilla/5.0 (iPad; CPU OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1';
+var desktop = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+
+var PHONE_BASES = ['SmolLM2-360M-Instruct', 'Qwen2.5-0.5B-Instruct', 'Llama-3.2-1B-Instruct'];
+function rowsFor(shaderF16, phonePath) {
+  var rows = [];
+  curatedEntries.forEach(function (entry) {
+    var id = shaderF16 ? entry.q4f16 : entry.q4f32;
+    if (!api.keepCuratedRowOnPhone(phonePath, vramById[id], phoneMaxVram)) return;
+    rows.push(entry.base);
+  });
+  return rows;
+}
+
+function probeSupport(nav) {
+  var box = { navigator: nav };
+  vm.createContext(box);
+  vm.runInContext(detectSrc + '\nthis.go = detectLocalLlmSupport;', box);
+  return box.go();
+}
+
+(async function () {
+  var phoneCalls = 0;
+  var adapterArgCount = -1;
+  var lifted = await probeSupport({
+    userAgent: iphone,
+    gpu: {
+      requestAdapter: function () {
+        phoneCalls += 1;
+        adapterArgCount = arguments.length;
+        return Promise.resolve({ name: 'mock-adapter' });
+      }
+    }
+  });
+  assert(phoneCalls === 1, 'phone UA with navigator.gpu asks for an adapter once');
+  assert(adapterArgCount === 0, 'requestAdapter is called with no arguments');
+  assert(lifted.supported === true, 'phone UA with a non-null adapter is not UA-blocked');
+  assert(lifted.reason === null, 'phone UA with a non-null adapter has no block text');
+  assert(lifted.phone === true, 'a non-null adapter marks the phone path');
+  curatedEntries.forEach(function (entry) {
+    var under = PHONE_BASES.indexOf(entry.base) !== -1;
+    [entry.q4f16, entry.q4f32].forEach(function (id) {
+      var vram = vramById[id];
+      if (under) assert(vram <= phoneMaxVram, id + ' stays at or under PHONE_MAX_VRAM_MB (' + vram + ')');
+      else assert(vram > phoneMaxVram, id + ' stays above PHONE_MAX_VRAM_MB (' + vram + ')');
+    });
+  });
+  var phoneF16 = rowsFor(true, true);
+  var phoneF32 = rowsFor(false, true);
+  assert(phoneF16.join('|') === PHONE_BASES.join('|'), 'shader-f16 phone picker lists the three smallest bases: ' + phoneF16.join(', '));
+  assert(phoneF32.join('|') === PHONE_BASES.join('|'), 'q4f32 phone picker lists the three smallest bases: ' + phoneF32.join(', '));
+  var notes = api.phoneCapNotes(true);
+  assert(notes.length === 2 && notes[0].indexOf('Copy Context works everywhere.') !== -1, 'phone path shows the may-not-run line');
+  assert(notes[1] === 'Safari may evict downloaded models when storage is low.', 'phone path shows the storage line');
+  assert(notes[0].toLowerCase().indexOf('supported') === -1, 'the may-not-run line does not say supported');
+  var overCap = api.rememberedModelPlan('gemma-2-2b-it', phoneF16, 'Llama-3.2-1B-Instruct');
+  assert(overCap.active === 'Llama-3.2-1B-Instruct', 'a remembered model above the cap uses the default on a phone');
+  assert(overCap.stored === 'gemma-2-2b-it' && overCap.writeDefault === false, 'a remembered model above the cap keeps its stored key');
+  var underCap = api.rememberedModelPlan('SmolLM2-360M-Instruct', phoneF16, 'Llama-3.2-1B-Instruct');
+  assert(underCap.active === 'SmolLM2-360M-Instruct' && underCap.writeDefault === false, 'a remembered model under the cap stays selected');
+  var tapAgain = api.webllmRowTransition({ phase: 'absent', consent: null }, 'tap-download', { offlineOnly: false, onLine: true });
+  var confirmAgain = api.webllmRowTransition(tapAgain.row, 'confirm-download', { offlineOnly: false, onLine: true });
+  assert(tapAgain.effect === null && tapAgain.row.consent === 'download', 'two-tap download still asks on the first tap');
+  assert(confirmAgain.effect === 'download' && confirmAgain.row.phase === 'downloading', 'two-tap confirm still downloads');
+
+  var androidLift = await probeSupport({
+    userAgent: android,
+    gpu: { requestAdapter: function () { return Promise.resolve({ name: 'mock-adapter' }); } }
+  });
+  assert(androidLift.supported === true && androidLift.reason === null, 'Android UA with a non-null adapter is not UA-blocked');
+
+  var noGpu = await probeSupport({ userAgent: iphone });
+  assert(noGpu.supported === false, 'phone UA with no navigator.gpu stays blocked');
+  assert(noGpu.reason === WEBGPU_BLOCK, 'phone UA with no navigator.gpu keeps the WebGPU block text');
+  assert(noGpu.phone !== true, 'missing navigator.gpu does not open the phone picker');
+
+  var nullAdapter = await probeSupport({
+    userAgent: iphone,
+    gpu: { requestAdapter: function () { return Promise.resolve(null); } }
+  });
+  assert(nullAdapter.supported === false, 'phone UA with a null adapter stays blocked');
+  assert(nullAdapter.reason === PHONE_BLOCK, 'phone UA with a null adapter keeps the desktop block text');
+  assert(nullAdapter.phone !== true, 'a null adapter does not open the phone picker');
+  assert(api.phoneCapNotes(false).length === 0, 'a blocked phone shows neither phone line');
+
+  var ipadNull = await probeSupport({
+    userAgent: ipad,
+    gpu: { requestAdapter: function () { return Promise.resolve(null); } }
+  });
+  assert(ipadNull.supported === false && ipadNull.reason === PHONE_BLOCK, 'iPad UA with a null adapter keeps the desktop block text');
+
+  var rejected = await probeSupport({
+    userAgent: android,
+    gpu: { requestAdapter: function () { return Promise.reject(new Error('no adapter')); } }
+  });
+  assert(rejected.supported === false && rejected.reason === PHONE_BLOCK, 'a failed adapter request keeps the phone block text');
+
+  var desktopCalls = 0;
+  var desk = await probeSupport({
+    userAgent: desktop,
+    gpu: {
+      requestAdapter: function () {
+        desktopCalls += 1;
+        return Promise.resolve(null);
+      }
+    }
+  });
+  assert(desktopCalls === 0, 'desktop probe does not call requestAdapter');
+  assert(desk.supported === true && desk.reason === null, 'desktop with navigator.gpu stays available');
+  assert(desk.phone !== true, 'desktop does not take the phone path');
+  assert(rowsFor(true, false).length === 7 && rowsFor(false, false).length === 7, 'desktop lists all seven curated bases');
+  assert(api.phoneCapNotes(false).length === 0, 'desktop shows neither phone line');
+
+  var deskNoGpu = await probeSupport({ userAgent: desktop });
+  assert(deskNoGpu.supported === false && deskNoGpu.reason === WEBGPU_BLOCK, 'desktop without WebGPU keeps the WebGPU block text');
+
+  console.log('CHAT-MODELS-1 checks passed');
+})().catch(function (err) {
+  console.error(err);
+  process.exit(1);
+});
