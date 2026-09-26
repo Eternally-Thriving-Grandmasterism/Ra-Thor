@@ -44,6 +44,16 @@
   const localBackendBtn  = document.getElementById('local-backend-btn');
   const localLlmStatus   = document.getElementById('local-llm-status');
   const localLlmProgress = document.getElementById('local-llm-progress');
+  const webllmPicker      = document.getElementById('webllm-picker');
+  const webllmRows        = document.getElementById('webllm-rows');
+  const webllmThirdParty  = document.getElementById('webllm-third-party');
+  const webllmDownloadNote = document.getElementById('webllm-download-note');
+  const webllmOtherNote   = document.getElementById('webllm-other-note');
+  const netModeOfflineBtn = document.getElementById('net-mode-offline');
+  const netModeNetworkBtn = document.getElementById('net-mode-network');
+  const netConnection     = document.getElementById('net-connection');
+  const netModeNote       = document.getElementById('net-mode-note');
+  const netModeOfflineNote = document.getElementById('net-mode-offline-note');
   const backendSettings  = document.getElementById('backend-settings');
   const backendEndpoint  = document.getElementById('backend-endpoint');
   const backendModel     = document.getElementById('backend-model');
@@ -73,6 +83,81 @@
   let llmSupported = false;
   let llmProbed = false;
   let llmModelId = 'Llama-3.2-1B-Instruct-q4f16_1-MLC';
+  let llmLoadToken = 0;
+  let webllmModule = null;
+  let webllmPickerReady = false;
+  let webllmShaderF16 = false;
+  let webllmOptions = [];
+  let webllmRowRuntime = {};
+  let webllmDownloadCancelled = false;
+
+  const WEBLLM_MODEL_KEY = 'rathor-webllm-model-v1';
+  const WEBLLM_VENDOR = './vendor/web-llm/0.2.85/index.js';
+  // Same-origin script cache. The name contains "webllm", so sw.js activate keeps it.
+  const WEBLLM_SCRIPT_CACHE = 'webllm/script';
+  const WEBLLM_SCRIPT_URL = absoluteScriptUrl(
+    (document.currentScript && document.currentScript.src) || new URL('/js/chat.js', location.href).href,
+    WEBLLM_VENDOR
+  );
+  const WEBLLM_DEFAULT_BASE = 'Llama-3.2-1B-Instruct';
+  // Curated order. Quantization is chosen from the pinned prebuiltAppConfig.
+  // q4f32_1 is used only when the WebGPU adapter lacks shader-f16.
+  const WEBLLM_CURATED = [
+    {
+      base: 'SmolLM2-360M-Instruct',
+      q4f16: 'SmolLM2-360M-Instruct-q4f16_1-MLC',
+      q4f32: 'SmolLM2-360M-Instruct-q4f32_1-MLC',
+      links: [{ text: 'Apache-2.0', href: 'https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct/blob/a10cc1512eabd3dde888204e902eca88bddb4951/README.md' }],
+      smallReplyNote: true
+    },
+    {
+      base: 'Qwen2.5-0.5B-Instruct',
+      q4f16: 'Qwen2.5-0.5B-Instruct-q4f16_1-MLC',
+      q4f32: 'Qwen2.5-0.5B-Instruct-q4f32_1-MLC',
+      links: [{ text: 'Apache-2.0', href: 'https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/blob/7ae557604adf67be50417f59c2c2f167def9a775/LICENSE' }]
+    },
+    {
+      base: 'Llama-3.2-1B-Instruct',
+      q4f16: 'Llama-3.2-1B-Instruct-q4f16_1-MLC',
+      q4f32: 'Llama-3.2-1B-Instruct-q4f32_1-MLC',
+      links: [
+        { text: 'Llama 3.2 Community License', href: 'https://github.com/meta-llama/llama-models/blob/8d29d93fa5700a60532e0061a02ffa89d0acd3fc/models/llama3_2/LICENSE' },
+        { text: 'Acceptable Use Policy', href: 'https://github.com/meta-llama/llama-models/blob/8d29d93fa5700a60532e0061a02ffa89d0acd3fc/models/llama3_2/USE_POLICY.md' }
+      ],
+      builtWithLlama: true
+    },
+    {
+      base: 'Qwen2.5-1.5B-Instruct',
+      q4f16: 'Qwen2.5-1.5B-Instruct-q4f16_1-MLC',
+      q4f32: 'Qwen2.5-1.5B-Instruct-q4f32_1-MLC',
+      links: [{ text: 'Apache-2.0', href: 'https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct/blob/989aa7980e4cf806f80c7fef2b1adb7bc71aa306/LICENSE' }]
+    },
+    {
+      base: 'gemma-2-2b-it',
+      q4f16: 'gemma-2-2b-it-q4f16_1-MLC',
+      q4f32: 'gemma-2-2b-it-q4f32_1-MLC',
+      links: [
+        { text: 'Gemma Terms of Use', href: 'https://ai.google.dev/gemma/terms' },
+        { text: 'Prohibited Use Policy', href: 'https://ai.google.dev/gemma/prohibited_use_policy' }
+      ]
+    },
+    {
+      base: 'Llama-3.2-3B-Instruct',
+      q4f16: 'Llama-3.2-3B-Instruct-q4f16_1-MLC',
+      q4f32: 'Llama-3.2-3B-Instruct-q4f32_1-MLC',
+      links: [
+        { text: 'Llama 3.2 Community License', href: 'https://github.com/meta-llama/llama-models/blob/8d29d93fa5700a60532e0061a02ffa89d0acd3fc/models/llama3_2/LICENSE' },
+        { text: 'Acceptable Use Policy', href: 'https://github.com/meta-llama/llama-models/blob/8d29d93fa5700a60532e0061a02ffa89d0acd3fc/models/llama3_2/USE_POLICY.md' }
+      ],
+      builtWithLlama: true
+    },
+    {
+      base: 'Phi-3.5-mini-instruct',
+      q4f16: 'Phi-3.5-mini-instruct-q4f16_1-MLC',
+      q4f32: 'Phi-3.5-mini-instruct-q4f32_1-MLC',
+      links: [{ text: 'MIT', href: 'https://huggingface.co/microsoft/Phi-3.5-mini-instruct/blob/2fe192450127e6a83f7441aef6e3ca586c338b77/LICENSE' }]
+    }
+  ];
 
   let backendEnabled = false;
   let backendConfig = { endpoint: 'http://localhost:11434/v1', model: 'llama3.2' };
@@ -124,6 +209,11 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     val = en[key];
     if (val != null && String(val).trim() !== '') return String(val);
     return '';
+  }
+
+  function chatLabel(key, fallback) {
+    var val = chatStr(key);
+    return val || fallback;
   }
 
   function replyInClause() {
@@ -736,6 +826,14 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
   async function connectBackend() {
     saveBackendConfig();
     const endpoint = backendConfig.endpoint.replace(/\/$/, '');
+    if (!localServerEndpointAllowed(readNetMode(), endpoint)) {
+      setBackendUI(false);
+      if (backendStatus) {
+        backendStatus.textContent = chatLabel('chatNetLoopbackOnly', 'Offline only allows a server on this machine (localhost, 127.0.0.1, or [::1]).');
+      }
+      addMessage(chatLabel('chatNetLoopbackOnly', 'Offline only allows a server on this machine (localhost, 127.0.0.1, or [::1]).'), 'rathor');
+      return;
+    }
     try {
       const res = await fetch(endpoint + '/models', { method: 'GET', signal: AbortSignal.timeout(4000) });
       if (!res.ok) throw new Error('Endpoint returned ' + res.status);
@@ -850,35 +948,708 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     updatePathBadge();
   }
 
-  async function enableLocalLLM() {
-    if (llmReady) { addMessage('WebLLM is already loaded and ready. ⚡️', 'rathor'); return; }
-    if (llmLoading) return;
-    if (!llmSupported) {
-      addMessage('WebLLM is not available on this device. Use Local Server (Ollama) or **Copy Context**.', 'rathor');
+  function applyWebllmStaticCopy() {
+    if (webllmThirdParty) {
+      webllmThirdParty.textContent = chatLabel('chatWebllmThirdParty', 'Third-party models under their own licenses. Not made by Ra-Thor. Not reviewed or endorsed by their authors.');
+    }
+    if (webllmDownloadNote) {
+      webllmDownloadNote.textContent = chatLabel('chatWebllmFirstDownload', "The first download of each model comes from Hugging Face and GitHub (raw.githubusercontent.com, which serves the model's code file) and needs the network. After that it runs in this browser.");
+    }
+    if (webllmOtherNote) {
+      webllmOtherNote.textContent = chatLabel('chatWebllmOtherModel', 'Any other model: Local Server (Ollama).');
+    }
+  }
+
+  /* chat-models-1-pure */
+  function isLoopbackChatEndpoint(endpoint) {
+    try {
+      var url = new URL(endpoint);
+      var host = String(url.hostname || '').replace(/^\[|\]$/g, '').toLowerCase();
+      return host === 'localhost' || host === '127.0.0.1' || host === '::1';
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function localServerEndpointAllowed(mode, endpoint) {
+    if (mode !== 'offline-only') return true;
+    return isLoopbackChatEndpoint(endpoint);
+  }
+
+  function webllmDownloadAllowed(mode, onLine) {
+    if (mode === 'offline-only') return false;
+    if (onLine === false) return false;
+    return true;
+  }
+
+  function readNetMode() {
+    try {
+      if (localStorage.getItem('rathor-net-mode-v1') === 'offline-only') return 'offline-only';
+    } catch (e) {}
+    return 'network-on';
+  }
+
+  function writeNetMode(mode) {
+    var next = mode === 'offline-only' ? 'offline-only' : 'network-on';
+    try { localStorage.setItem('rathor-net-mode-v1', next); } catch (e) {}
+    return next;
+  }
+
+  function webllmBadgeLabel(phase, pct) {
+    if (phase === 'downloading') return 'Downloading ' + (typeof pct === 'number' ? pct : 0) + '%';
+    if (phase === 'partial') return 'Partly downloaded';
+    if (phase === 'ready') return 'On this device · works offline';
+    return 'Not on this device';
+  }
+
+  function webllmActionLabel(phase) {
+    if (phase === 'downloading') return 'Stop';
+    if (phase === 'partial' || phase === 'ready') return 'Delete';
+    return 'Download';
+  }
+
+  function webllmRowTransition(row, action, ctx) {
+    var phase = row && row.phase ? row.phase : 'absent';
+    var consent = row && row.consent ? row.consent : null;
+    var offlineOnly = !!(ctx && ctx.offlineOnly);
+    var onLine = !ctx || ctx.onLine !== false;
+    var next = { phase: phase, consent: consent };
+    if (action === 'cancel') {
+      next.consent = null;
+      return { row: next, effect: null };
+    }
+    if (action === 'tap-download') {
+      if (phase !== 'absent') return { row: next, effect: null };
+      if (offlineOnly || !onLine) return { row: next, effect: null };
+      next.consent = 'download';
+      return { row: next, effect: null };
+    }
+    if (action === 'confirm-download') {
+      if (consent !== 'download') return { row: next, effect: null };
+      if (offlineOnly || !onLine) {
+        next.consent = null;
+        return { row: next, effect: null };
+      }
+      next.consent = null;
+      next.phase = 'downloading';
+      return { row: next, effect: 'download' };
+    }
+    if (action === 'stop') {
+      if (phase !== 'downloading') return { row: next, effect: null };
+      next.phase = 'partial';
+      next.consent = null;
+      return { row: next, effect: 'stop' };
+    }
+    if (action === 'tap-delete') {
+      if (phase !== 'partial' && phase !== 'ready') return { row: next, effect: null };
+      next.consent = 'delete';
+      return { row: next, effect: null };
+    }
+    if (action === 'confirm-delete') {
+      if (consent !== 'delete') return { row: next, effect: null };
+      next.consent = null;
+      next.phase = 'absent';
+      return { row: next, effect: 'delete' };
+    }
+    if (action === 'use') {
+      if (phase !== 'ready') return { row: next, effect: null };
+      return { row: next, effect: 'use' };
+    }
+    return { row: next, effect: null };
+  }
+
+  function absoluteScriptUrl(scriptSrc, relativePath) {
+    var abs = new URL(relativePath, scriptSrc).href;
+    return abs.split('#')[0].split('?')[0];
+  }
+
+  function modelCacheUrlPrefix(modelUrl) {
+    var url = String(modelUrl || '');
+    if (!url) return '';
+    if (url.charAt(url.length - 1) !== '/') url += '/';
+    if (!/.+\/resolve\/.+\//.test(url)) url += 'resolve/main/';
+    try { return new URL(url).href; } catch (e) { return url; }
+  }
+
+  function isWebllmOwnedCache(name) {
+    if (String(name).indexOf('webllm') === -1) return false;
+    return name === 'webllm/model' || name === 'webllm/wasm' || name === 'webllm/config';
+  }
+
+  function requestMatchesModel(requestUrl, modelUrl, modelLib) {
+    var url = String(requestUrl || '');
+    if (!url) return false;
+    var prefix = modelCacheUrlPrefix(modelUrl);
+    if (prefix && url.indexOf(prefix) !== -1) return true;
+    if (modelLib && url === String(modelLib)) return true;
+    return false;
+  }
+
+  function purgeOwnedModelEntries(stores, modelUrl, modelLib) {
+    var next = {};
+    Object.keys(stores || {}).forEach(function (name) {
+      var urls = (stores[name] || []).slice();
+      if (isWebllmOwnedCache(name)) {
+        urls = urls.filter(function (url) { return !requestMatchesModel(url, modelUrl, modelLib); });
+      }
+      next[name] = urls;
+    });
+    return next;
+  }
+
+  function modelFilesRemain(stores, modelUrl, modelLib) {
+    var names = Object.keys(stores || {});
+    for (var i = 0; i < names.length; i++) {
+      if (!isWebllmOwnedCache(names[i])) continue;
+      var urls = stores[names[i]] || [];
+      for (var r = 0; r < urls.length; r++) {
+        if (requestMatchesModel(urls[r], modelUrl, modelLib)) return true;
+      }
+    }
+    return false;
+  }
+
+  function phaseAfterLocalDelete(stores, modelUrl, modelLib) {
+    var next = purgeOwnedModelEntries(stores, modelUrl, modelLib);
+    return modelFilesRemain(next, modelUrl, modelLib) ? 'partial' : 'absent';
+  }
+
+  function tensorManifestDownloadBytes(manifest) {
+    var records = manifest && manifest.records;
+    if (!records || !records.length) return null;
+    var sum = 0;
+    for (var i = 0; i < records.length; i++) {
+      var n = records[i] && records[i].nbytes;
+      if (typeof n !== 'number' || n !== Math.floor(n) || n < 0) return null;
+      sum += n;
+    }
+    return sum > 0 ? sum : null;
+  }
+
+  function formatByteMegabytes(bytes) {
+    if (typeof bytes !== 'number' || bytes <= 0) return '';
+    var mb = Math.round((bytes / 1000000) * 10) / 10;
+    var text = mb === Math.round(mb) ? String(Math.round(mb)) : mb.toFixed(1);
+    return text + ' MB';
+  }
+
+  function downloadConsentText(base, bytes) {
+    var text = 'Download ' + base + ' from Hugging Face and GitHub to this device?';
+    var size = formatByteMegabytes(bytes);
+    if (size) text += ' Download size: ' + size + '.';
+    return text;
+  }
+
+  function deleteConsentText(base, bytes) {
+    var text = 'Delete ' + base + ' from this device?';
+    var size = formatByteMegabytes(bytes);
+    if (size) text += ' This frees about ' + size + '.';
+    return text;
+  }
+  /* chat-models-1-pure-end */
+
+  function readStoredModelBase() {
+    try { return localStorage.getItem(WEBLLM_MODEL_KEY) || ''; } catch (e) { return ''; }
+  }
+
+  function quantIdFor(entry) {
+    return webllmShaderF16 ? entry.q4f16 : entry.q4f32;
+  }
+
+  function optionByBase(base) {
+    for (var i = 0; i < webllmOptions.length; i++) {
+      if (webllmOptions[i].entry.base === base) return webllmOptions[i];
+    }
+    return null;
+  }
+
+  function ensureRowRuntime(base) {
+    if (!webllmRowRuntime[base]) {
+      webllmRowRuntime[base] = { phase: 'absent', consent: null, progress: 0, downloading: false, downloadBytes: null };
+    }
+    return webllmRowRuntime[base];
+  }
+
+  function activeModelBase() {
+    var stored = readStoredModelBase();
+    if (stored && optionByBase(stored)) return stored;
+    return WEBLLM_DEFAULT_BASE;
+  }
+
+  function modelGpuMemoryLabel(rec) {
+    var mb = rec && rec.vram_required_MB;
+    return (typeof mb === 'number') ? ('GPU memory needed: about ' + mb + ' MB') : '';
+  }
+
+  function renderNetMode() {
+    var mode = readNetMode();
+    var online = typeof navigator === 'undefined' || navigator.onLine !== false;
+    if (netModeOfflineBtn) netModeOfflineBtn.setAttribute('aria-pressed', mode === 'offline-only' ? 'true' : 'false');
+    if (netModeNetworkBtn) netModeNetworkBtn.setAttribute('aria-pressed', mode === 'network-on' ? 'true' : 'false');
+    if (netConnection) {
+      netConnection.textContent = online
+        ? chatLabel('chatNetConnected', 'Connected')
+        : chatLabel('chatNetNone', 'No connection');
+    }
+    if (netModeNote) {
+      netModeNote.textContent = mode === 'offline-only'
+        ? chatLabel('chatNetOfflineLine', "Offline only: Lattice Chat won't download models or contact any server except your own machine.")
+        : chatLabel('chatNetOnLine', 'Network on. A download starts only after you confirm it.');
+    }
+    if (netModeOfflineNote) {
+      netModeOfflineNote.classList.toggle('hidden', mode !== 'offline-only');
+      netModeOfflineNote.textContent = (mode === 'offline-only' && webllmDownloadCancelled)
+        ? 'Offline only is on. Download cancelled. Models already on this device still work.'
+        : 'Offline only is on. Models already on this device still work.';
+    }
+  }
+
+  async function modelFilesCached(rec) {
+    if (!rec || typeof caches === 'undefined' || !caches.keys) return false;
+    var names;
+    try { names = await caches.keys(); } catch (e) { return false; }
+    for (var i = 0; i < names.length; i++) {
+      if (!isWebllmOwnedCache(names[i])) continue;
+      var cache;
+      try { cache = await caches.open(names[i]); } catch (e) { continue; }
+      var reqs = [];
+      try { reqs = await cache.keys(); } catch (e) { reqs = []; }
+      for (var r = 0; r < reqs.length; r++) {
+        var url = reqs[r] && reqs[r].url ? reqs[r].url : '';
+        if (requestMatchesModel(url, rec.model, rec.model_lib)) return true;
+      }
+    }
+    return false;
+  }
+
+  async function purgeModelLeftovers(rec) {
+    if (!rec || typeof caches === 'undefined' || !caches.keys) return;
+    var names;
+    try { names = await caches.keys(); } catch (e) { return; }
+    for (var i = 0; i < names.length; i++) {
+      if (!isWebllmOwnedCache(names[i])) continue;
+      var cache;
+      try { cache = await caches.open(names[i]); } catch (e) { continue; }
+      var reqs = [];
+      try { reqs = await cache.keys(); } catch (e) { reqs = []; }
+      for (var r = 0; r < reqs.length; r++) {
+        var url = reqs[r] && reqs[r].url ? reqs[r].url : '';
+        if (!requestMatchesModel(url, rec.model, rec.model_lib)) continue;
+        try { await cache.delete(reqs[r]); } catch (e2) {}
+      }
+    }
+  }
+
+  async function refreshRowPhase(opt) {
+    var rt = ensureRowRuntime(opt.entry.base);
+    if (rt.downloading) return;
+    var full = false;
+    try {
+      full = !!(webllmModule && await webllmModule.hasModelInCache(opt.id));
+    } catch (e) {
+      full = false;
+    }
+    if (full) {
+      rt.phase = 'ready';
       return;
     }
-    llmLoading = true;
-    updateLlmUI('loading', 'Starting…');
+    var files = false;
+    try { files = await modelFilesCached(opt.rec); } catch (e) { files = false; }
+    rt.phase = files ? 'partial' : 'absent';
+  }
+
+  function renderWebllmRows() {
+    if (!webllmRows) return;
+    var active = activeModelBase();
+    var downloadBlocked = !webllmDownloadAllowed(readNetMode(), typeof navigator === 'undefined' || navigator.onLine !== false);
+    var online = typeof navigator === 'undefined' || navigator.onLine !== false;
+    webllmRows.replaceChildren();
+    webllmOptions.forEach(function (opt) {
+      var base = opt.entry.base;
+      var rt = ensureRowRuntime(base);
+      var phase = rt.downloading ? 'downloading' : rt.phase;
+      var gpu = modelGpuMemoryLabel(opt.rec);
+      var row = document.createElement('div');
+      row.className = 'webllm-row' + (active === base ? ' webllm-row-active' : '');
+      row.setAttribute('data-base', base);
+
+      var top = document.createElement('div');
+      top.className = 'webllm-row-top';
+      var copy = document.createElement('div');
+      copy.className = 'webllm-row-copy';
+      var name = document.createElement('p');
+      name.className = 'webllm-row-name';
+      name.textContent = base;
+      var meta = document.createElement('p');
+      meta.className = 'webllm-row-meta';
+      if (gpu) meta.appendChild(document.createTextNode(gpu));
+      (opt.entry.links || []).forEach(function (link, i) {
+        meta.appendChild(document.createTextNode(i === 0 && gpu ? ' · ' : (i ? ' · ' : '')));
+        var a = document.createElement('a');
+        a.href = link.href;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.textContent = link.text;
+        meta.appendChild(a);
+      });
+      if (opt.entry.builtWithLlama) meta.appendChild(document.createTextNode(' · Built with Llama'));
+      copy.appendChild(name);
+      copy.appendChild(meta);
+      top.appendChild(copy);
+
+      var badge = document.createElement('span');
+      badge.className = 'webllm-badge';
+      badge.textContent = webllmBadgeLabel(phase, rt.progress);
+      top.appendChild(badge);
+
+      if (!rt.consent) {
+        var action = document.createElement('button');
+        action.type = 'button';
+        action.className = 'ctrl-btn text-xs px-2';
+        action.textContent = webllmActionLabel(phase);
+        if (phase === 'downloading') action.setAttribute('data-act', 'stop');
+        else if (phase === 'partial' || phase === 'ready') action.setAttribute('data-act', 'tap-delete');
+        else action.setAttribute('data-act', 'tap-download');
+        if (action.textContent === 'Download' && downloadBlocked) action.disabled = true;
+        top.appendChild(action);
+        if (phase === 'ready') {
+          if (llmReady && llmModelId === opt.id) {
+            var used = document.createElement('span');
+            used.className = 'webllm-badge';
+            used.textContent = 'In use';
+            top.appendChild(used);
+          } else {
+            var useBtn = document.createElement('button');
+            useBtn.type = 'button';
+            useBtn.className = 'ctrl-btn text-xs px-2';
+            useBtn.textContent = 'Use';
+            useBtn.setAttribute('data-act', 'use');
+            top.appendChild(useBtn);
+          }
+        }
+      }
+      row.appendChild(top);
+
+      if (opt.entry.smallReplyNote) {
+        var small = document.createElement('p');
+        small.className = 'webllm-row-note';
+        small.textContent = 'Small models can give wrong or inappropriate replies.';
+        row.appendChild(small);
+      }
+
+      if (!online && phase !== 'ready') {
+        var need = document.createElement('p');
+        need.className = 'webllm-row-note';
+        need.textContent = chatLabel('chatNetNeedsConnection', 'Download needs a connection.');
+        row.appendChild(need);
+      }
+
+      if (rt.consent === 'download' || rt.consent === 'delete') {
+        var consent = document.createElement('div');
+        consent.className = 'webllm-consent';
+        var ask = document.createElement('p');
+        ask.textContent = rt.consent === 'download'
+          ? downloadConsentText(base, rt.downloadBytes)
+          : deleteConsentText(base, rt.downloadBytes);
+        consent.appendChild(ask);
+        var yes = document.createElement('button');
+        yes.type = 'button';
+        yes.className = 'ctrl-btn text-xs px-2';
+        yes.textContent = rt.consent === 'download' ? 'Confirm download' : 'Confirm delete';
+        yes.setAttribute('data-act', rt.consent === 'download' ? 'confirm-download' : 'confirm-delete');
+        var no = document.createElement('button');
+        no.type = 'button';
+        no.className = 'ctrl-btn text-xs px-2';
+        no.textContent = 'Cancel';
+        no.setAttribute('data-act', 'cancel');
+        consent.appendChild(yes);
+        consent.appendChild(no);
+        row.appendChild(consent);
+      }
+      webllmRows.appendChild(row);
+    });
+  }
+
+  async function unloadWebllmEngine() {
+    llmLoadToken += 1;
+    var engine = llmEngine;
+    llmEngine = null;
+    llmReady = false;
+    llmLoading = false;
+    if (engine && typeof engine.unload === 'function') {
+      try { await engine.unload(); } catch (err) {
+        console.error('[Ra-Thor WebLLM] unload', err);
+      }
+    }
+    Object.keys(webllmRowRuntime).forEach(function (base) {
+      var rowState = webllmRowRuntime[base];
+      if (!rowState.downloading) return;
+      rowState.downloading = false;
+      if (rowState.phase === 'downloading') rowState.phase = 'partial';
+    });
+  }
+
+  async function waitForServiceWorkerReady() {
+    if (typeof navigator === 'undefined' || !navigator.serviceWorker || !navigator.serviceWorker.ready) return;
     try {
-      const webllm = await import('https://esm.run/@mlc-ai/web-llm');
-      const initProgressCallback = (report) => {
-        const pct = Math.round((report.progress || 0) * 100);
-        if (localLlmProgress) localLlmProgress.style.width = Math.max(5, pct) + '%';
-        if (localLlmStatus) localLlmStatus.textContent = report.text || `Loading… ${pct}%`;
-      };
-      llmEngine = await webllm.CreateMLCEngine(llmModelId, { initProgressCallback });
-      llmReady = true;
-      llmLoading = false;
-      updateLlmUI('ready');
-      addMessage(`WebLLM loaded (${llmModelId}). ⚡️ Generation now runs entirely in the browser.`, 'rathor');
+      var reg = navigator.serviceWorker.getRegistration ? await navigator.serviceWorker.getRegistration() : null;
+      if (!reg && !navigator.serviceWorker.controller) return;
+      await navigator.serviceWorker.ready;
+    } catch (e) {}
+  }
+
+  async function cacheVendoredWebllmScript() {
+    if (typeof caches === 'undefined' || !caches.open || !WEBLLM_SCRIPT_URL) return;
+    await waitForServiceWorkerReady();
+    try {
+      var cache = await caches.open(WEBLLM_SCRIPT_CACHE);
+      await cache.add(WEBLLM_SCRIPT_URL);
     } catch (err) {
+      console.error('[Ra-Thor WebLLM] script cache', err);
+    }
+  }
+
+  async function fetchTensorDownloadBytes(rec) {
+    if (!webllmDownloadAllowed(readNetMode(), typeof navigator === 'undefined' || navigator.onLine !== false)) return null;
+    var prefix = modelCacheUrlPrefix(rec && rec.model);
+    if (!prefix || typeof fetch !== 'function') return null;
+    try {
+      var res = await fetch(new URL('tensor-cache.json', prefix).href);
+      if (!res || !res.ok) return null;
+      return tensorManifestDownloadBytes(await res.json());
+    } catch (e) {
+      return null;
+    }
+  }
+
+  async function cachedTensorDownloadBytes(rec) {
+    if (typeof caches === 'undefined' || !caches.keys || !caches.open) return null;
+    var prefix = modelCacheUrlPrefix(rec && rec.model);
+    if (!prefix) return null;
+    var names;
+    try { names = await caches.keys(); } catch (e) { return null; }
+    if (names.indexOf('webllm/model') === -1) return null;
+    try {
+      var cache = await caches.open('webllm/model');
+      var hit = await cache.match(new URL('tensor-cache.json', prefix).href);
+      if (!hit) return null;
+      return tensorManifestDownloadBytes(await hit.json());
+    } catch (e2) {
+      return null;
+    }
+  }
+
+  async function startWebllmDownload(base) {
+    if (!webllmDownloadAllowed(readNetMode(), navigator.onLine !== false)) return;
+    await cacheVendoredWebllmScript();
+    await loadWebllmModel(base, true);
+  }
+
+  async function loadWebllmModel(base, fromDownload) {
+    var opt = optionByBase(base);
+    if (!opt) return;
+    if (!webllmModule) {
+      try { webllmModule = await import(WEBLLM_VENDOR); } catch (err) {
+        console.error('[Ra-Thor WebLLM]', err);
+        return;
+      }
+    }
+    if (llmEngine || llmLoading) await unloadWebllmEngine();
+    var token = llmLoadToken;
+    var rt = ensureRowRuntime(base);
+    llmModelId = opt.id;
+    if (fromDownload) {
+      rt.downloading = true;
+      rt.consent = null;
+      rt.phase = 'downloading';
+      rt.progress = 0;
+      llmLoading = true;
+      updateLlmUI('loading', webllmBadgeLabel('downloading', 0));
+      renderWebllmRows();
+    }
+    var engine = new webllmModule.MLCEngine({
+      initProgressCallback: function (report) {
+        if (token !== llmLoadToken || !fromDownload) return;
+        var pct = Math.round((report.progress || 0) * 100);
+        rt.progress = pct;
+        var node = webllmRows && webllmRows.querySelector('.webllm-row[data-base="' + base + '"] .webllm-badge');
+        if (node) node.textContent = webllmBadgeLabel('downloading', pct);
+        if (localLlmProgress) localLlmProgress.style.width = Math.max(5, pct) + '%';
+        if (localLlmStatus) localLlmStatus.textContent = webllmBadgeLabel('downloading', pct);
+      }
+    });
+    llmEngine = engine;
+    try {
+      await engine.reload(opt.id);
+      if (token !== llmLoadToken) return;
+      var full = false;
+      try { full = await webllmModule.hasModelInCache(opt.id); } catch (e) { full = false; }
+      rt.downloading = false;
+      llmLoading = false;
+      if (full) {
+        llmReady = true;
+        rt.phase = 'ready';
+        try { localStorage.setItem(WEBLLM_MODEL_KEY, base); } catch (e) {}
+        updateLlmUI('ready');
+        addMessage('WebLLM loaded (' + opt.id + '). ⚡️ Generation now runs entirely in the browser.', 'rathor');
+      } else {
+        llmReady = false;
+        llmEngine = null;
+        try { await engine.unload(); } catch (e) {}
+        rt.phase = (await modelFilesCached(opt.rec)) ? 'partial' : 'absent';
+        updateLlmUI('idle');
+      }
+    } catch (err) {
+      if (token !== llmLoadToken) return;
+      console.error('[Ra-Thor WebLLM]', err);
+      rt.downloading = false;
       llmLoading = false;
       llmReady = false;
       llmEngine = null;
+      rt.phase = (await modelFilesCached(opt.rec)) ? 'partial' : 'absent';
       updateLlmUI('error', 'Load failed');
       addMessage('WebLLM failed to load. Use Local Server or **Copy Context**.', 'rathor');
     }
+    renderWebllmRows();
   }
+
+  async function stopWebllmDownload(base) {
+    await unloadWebllmEngine();
+    var rt = ensureRowRuntime(base);
+    rt.downloading = false;
+    rt.consent = null;
+    rt.progress = 0;
+    rt.phase = 'partial';
+    updateLlmUI('idle');
+    renderWebllmRows();
+  }
+
+  async function deleteWebllmModel(base) {
+    var opt = optionByBase(base);
+    if (!opt) return;
+    if ((llmEngine || llmReady || llmLoading) && llmModelId === opt.id) await unloadWebllmEngine();
+    if (readNetMode() !== 'offline-only' && webllmModule && webllmModule.deleteModelAllInfoInCache) {
+      try {
+        await webllmModule.deleteModelAllInfoInCache(opt.id);
+      } catch (err) {
+        console.error('[Ra-Thor WebLLM] delete', err);
+      }
+    }
+    try { await purgeModelLeftovers(opt.rec); } catch (err2) {
+      console.error('[Ra-Thor WebLLM] delete leftovers', err2);
+    }
+    var rt = ensureRowRuntime(base);
+    rt.downloading = false;
+    rt.consent = null;
+    rt.progress = 0;
+    rt.downloadBytes = null;
+    await refreshRowPhase(opt);
+    renderWebllmRows();
+  }
+
+  async function useWebllmModel(base) {
+    var opt = optionByBase(base);
+    var rt = ensureRowRuntime(base);
+    if (!opt || rt.phase !== 'ready') return;
+    try { localStorage.setItem(WEBLLM_MODEL_KEY, base); } catch (e) {}
+    if (llmReady && llmEngine && llmModelId === opt.id) {
+      renderWebllmRows();
+      return;
+    }
+    if (llmEngine || llmLoading) await unloadWebllmEngine();
+    await loadWebllmModel(base, false);
+  }
+
+  async function onWebllmRowAction(base, action) {
+    var rt = ensureRowRuntime(base);
+    var ctx = {
+      offlineOnly: readNetMode() === 'offline-only',
+      onLine: navigator.onLine !== false
+    };
+    var result = webllmRowTransition(
+      { phase: rt.downloading ? 'downloading' : rt.phase, consent: rt.consent },
+      action,
+      ctx
+    );
+    rt.consent = result.row.consent;
+    if (action === 'tap-download' && result.row.consent === 'download') {
+      var opt = optionByBase(base);
+      rt.downloadBytes = opt ? await fetchTensorDownloadBytes(opt.rec) : null;
+      renderWebllmRows();
+      return;
+    }
+    if (action === 'tap-delete' && result.row.consent === 'delete') {
+      var delOpt = optionByBase(base);
+      if (rt.downloadBytes == null && delOpt) rt.downloadBytes = await cachedTensorDownloadBytes(delOpt.rec);
+      renderWebllmRows();
+      return;
+    }
+    if (result.effect === 'download') {
+      await startWebllmDownload(base);
+      return;
+    }
+    if (result.effect === 'stop') {
+      await stopWebllmDownload(base);
+      return;
+    }
+    if (result.effect === 'delete') {
+      await deleteWebllmModel(base);
+      return;
+    }
+    if (result.effect === 'use') {
+      await useWebllmModel(base);
+      return;
+    }
+    if (!rt.downloading) rt.phase = result.row.phase;
+    renderWebllmRows();
+  }
+
+  async function initWebllmPicker() {
+    renderNetMode();
+    if (!webllmPicker) {
+      webllmPickerReady = true;
+      return false;
+    }
+    webllmPicker.classList.remove('hidden');
+    applyWebllmStaticCopy();
+    webllmShaderF16 = false;
+    try {
+      var adapter = await navigator.gpu.requestAdapter();
+      webllmShaderF16 = !!(adapter && adapter.features && adapter.features.has('shader-f16'));
+    } catch (e) {
+      webllmShaderF16 = false;
+    }
+    try {
+      webllmModule = webllmModule || await import(WEBLLM_VENDOR);
+    } catch (err) {
+      console.error('[Ra-Thor WebLLM]', err);
+      webllmPickerReady = true;
+      updateLlmUI('error', 'Load failed');
+      return false;
+    }
+    var byId = new Map();
+    var list = (webllmModule.prebuiltAppConfig && webllmModule.prebuiltAppConfig.model_list) || [];
+    list.forEach(function (rec) {
+      if (rec && rec.model_id) byId.set(rec.model_id, rec);
+    });
+    webllmOptions = [];
+    WEBLLM_CURATED.forEach(function (entry) {
+      var id = quantIdFor(entry);
+      var rec = byId.get(id);
+      if (!rec) return;
+      webllmOptions.push({ entry: entry, id: id, rec: rec });
+    });
+    if (!readStoredModelBase()) {
+      try { localStorage.setItem(WEBLLM_MODEL_KEY, WEBLLM_DEFAULT_BASE); } catch (e) {}
+    }
+    for (var i = 0; i < webllmOptions.length; i++) {
+      await refreshRowPhase(webllmOptions[i]);
+    }
+    webllmPickerReady = true;
+    renderWebllmRows();
+    return true;
+  }
+
 
   async function generateWithLocalLLM(userText) {
     if (!llmEngine || !llmReady) return null;
@@ -1130,7 +1901,54 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
   }
   if (copyBtn) copyBtn.addEventListener('click', copyContext);
   if (copyBtnAlt) copyBtnAlt.addEventListener('click', copyContext);
-  if (localLlmBtn) localLlmBtn.addEventListener('click', () => enableLocalLLM());
+  if (webllmRows) {
+    webllmRows.addEventListener('click', function (ev) {
+      var row = ev.target.closest ? ev.target.closest('.webllm-row') : null;
+      if (!row) return;
+      var base = row.getAttribute('data-base');
+      var actEl = ev.target.closest ? ev.target.closest('[data-act]') : null;
+      if (actEl) {
+        onWebllmRowAction(base, actEl.getAttribute('data-act'));
+        return;
+      }
+      if (ev.target.closest && ev.target.closest('a')) return;
+      var rt = webllmRowRuntime[base];
+      if (rt && rt.phase === 'ready' && !rt.consent) onWebllmRowAction(base, 'use');
+    });
+  }
+  if (localLlmBtn) localLlmBtn.addEventListener('click', function () {
+    if (!webllmPicker || webllmPicker.classList.contains('hidden')) return;
+    var row = webllmPicker.querySelector('.webllm-row-active') || webllmPicker;
+    if (row.scrollIntoView) row.scrollIntoView({ block: 'nearest' });
+    var focusBtn = row.querySelector ? row.querySelector('button:not([disabled])') : null;
+    if (!focusBtn) focusBtn = webllmPicker.querySelector('button:not([disabled])');
+    if (focusBtn && focusBtn.focus) focusBtn.focus();
+  });
+  if (netModeOfflineBtn) netModeOfflineBtn.addEventListener('click', function () {
+    var stopping = Object.keys(webllmRowRuntime).filter(function (base) {
+      var rowState = webllmRowRuntime[base];
+      return rowState && rowState.downloading;
+    });
+    writeNetMode('offline-only');
+    webllmDownloadCancelled = stopping.length > 0;
+    if (!stopping.length) {
+      renderNetMode();
+      renderWebllmRows();
+      return;
+    }
+    Promise.all(stopping.map(function (base) { return stopWebllmDownload(base); })).then(function () {
+      if (localLlmStatus) localLlmStatus.textContent = 'Download cancelled.';
+      renderNetMode();
+    });
+  });
+  if (netModeNetworkBtn) netModeNetworkBtn.addEventListener('click', function () {
+    webllmDownloadCancelled = false;
+    writeNetMode('network-on');
+    renderNetMode();
+    renderWebllmRows();
+  });
+  window.addEventListener('online', function () { renderNetMode(); renderWebllmRows(); });
+  window.addEventListener('offline', function () { renderNetMode(); renderWebllmRows(); });
   if (localBackendBtn) localBackendBtn.addEventListener('click', () => {
     if (backendSettings) backendSettings.classList.toggle('hidden');
   });
@@ -1173,6 +1991,9 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
 
   document.addEventListener('rt-chrome-i18n', function () {
     applyChatSurfaceDir();
+    applyWebllmStaticCopy();
+    renderNetMode();
+    renderWebllmRows();
     updatePathBadge();
     setBackendUI(backendEnabled);
     if (!llmProbed || llmLoading) return;
@@ -1180,12 +2001,13 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
       var cap = detectLocalLlmSupport();
       updateLlmUI('unsupported', cap.reason);
     } else if (llmReady) updateLlmUI('ready');
-    else updateLlmUI('idle');
+    else if (webllmPickerReady) updateLlmUI('idle');
   });
 
   // ─── Init ─────────────────────────────────────────────────────────────────
   window.addEventListener('DOMContentLoaded', async () => {
     loadSettings();
+    renderNetMode();
 
     // Check if store is encrypted
     if (isStoreEncrypted()) {
@@ -1203,7 +2025,11 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     llmSupported = cap.supported;
     llmProbed = true;
     if (!llmSupported) updateLlmUI('unsupported', cap.reason);
-    else updateLlmUI('idle');
+    else {
+      if (localLlmBtn) localLlmBtn.disabled = true;
+      var pickerOk = await initWebllmPicker();
+      if (pickerOk && !llmReady && !llmLoading) updateLlmUI('idle');
+    }
     applyChatSurfaceDir();
 
     if (backendSettings) backendSettings.classList.add('hidden');

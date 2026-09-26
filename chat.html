@@ -64,6 +64,17 @@
     #doc-btn { background: #0f172a; color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.4); }
     #send-btn { background: #fbbf24; color: #000; }
     #session-select { background: #0a0a0a; border: 1px solid rgba(252, 211, 77, 0.35); color: #fcd34d; border-radius: 0.7rem; padding: 0.35rem 0.5rem; font-size: 0.78rem; max-width: 120px; }
+    .webllm-badge { font-size: 0.62rem; padding: 0.12rem 0.4rem; border-radius: 999px; border: 1px solid rgba(252, 211, 77, 0.35); color: #fde68a; }
+    .webllm-row { border: 1px solid rgba(252, 211, 77, 0.18); border-radius: 0.8rem; padding: 0.55rem 0.65rem; margin-top: 0.45rem; }
+    .webllm-row-active { border-color: rgba(252, 211, 77, 0.55); }
+    .webllm-row-top { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; }
+    .webllm-row-copy { flex: 1 1 12rem; min-width: 0; }
+    .webllm-row-name { font-size: 0.78rem; color: #fde68a; margin: 0; }
+    .webllm-row-meta { font-size: 0.68rem; color: rgba(255,255,255,0.62); line-height: 1.45; margin: 0.15rem 0 0; }
+    .webllm-row-meta a { color: #93c5fd; text-decoration: underline; }
+    .webllm-consent, .webllm-row-note { font-size: 0.72rem; color: rgba(255,255,255,0.72); margin: 0.4rem 0 0; line-height: 1.4; }
+    .webllm-consent .ctrl-btn { margin: 0.35rem 0.3rem 0 0; }
+    #net-mode button[aria-pressed="true"] { border-color: #fcd34d; color: #fff; background: rgba(252, 211, 77, 0.16); }
     #search-input { background: #0a0a0a; border: 1px solid rgba(252, 211, 77, 0.3); color: #fde68a; border-radius: 0.6rem; padding: 0.3rem 0.55rem; font-size: 0.75rem; width: 110px; }
     .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); z-index: 50; align-items: center; justify-content: center; padding: 1rem; }
     .modal-overlay.active { display: flex; }
@@ -136,6 +147,22 @@
           <button id="local-llm-btn" class="ctrl-btn border-amber-400/50 text-amber-200 shrink-0"><i class="fa-solid fa-microchip"></i> WebLLM</button>
           <button id="local-backend-btn" class="ctrl-btn border-cyan-400/50 text-cyan-200 shrink-0"><i class="fa-solid fa-server"></i> <span data-i18n="chatPathServer">Local Server</span></button>
         </div>
+      </div>
+      <div id="net-mode" class="mt-2">
+        <div class="flex flex-wrap items-center gap-1.5">
+          <button type="button" id="net-mode-offline" class="ctrl-btn text-xs px-2" aria-pressed="false">Offline only</button>
+          <button type="button" id="net-mode-network" class="ctrl-btn text-xs px-2" aria-pressed="true">Network on</button>
+          <span id="net-connection" class="webllm-badge">Connected</span>
+        </div>
+        <p id="net-mode-note" class="text-[10px] text-white/45 mt-1.5 leading-snug">Network on. A download starts only after you confirm it.</p>
+        <p id="net-mode-offline-note" class="text-[10px] text-white/45 mt-1 leading-snug hidden">Offline only is on. Models already on this device still work.</p>
+        <p id="net-mode-scope" class="text-[10px] text-white/35 mt-1 leading-snug">This switch applies to Lattice Chat models only.</p>
+      </div>
+      <div id="webllm-picker" class="hidden mt-2 pt-2 border-t border-amber-400/15">
+        <div id="webllm-rows"></div>
+        <p id="webllm-third-party" class="text-[10px] text-white/40 mt-1.5 leading-snug">Third-party models under their own licenses. Not made by Ra-Thor. Not reviewed or endorsed by their authors.</p>
+        <p id="webllm-download-note" class="text-[10px] text-white/40 mt-1 leading-snug">The first download of each model comes from Hugging Face and GitHub (raw.githubusercontent.com, which serves the model's code file) and needs the network. After that it runs in this browser.</p>
+        <p id="webllm-other-note" class="text-[10px] text-white/40 mt-1 leading-snug">Any other model: Local Server (Ollama).</p>
       </div>
       <div id="backend-settings" class="hidden mt-2 pt-2 border-t border-amber-400/15">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
