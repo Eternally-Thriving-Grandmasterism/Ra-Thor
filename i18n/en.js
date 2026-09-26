@@ -473,6 +473,8 @@ window.translations["en"] = {
   "chatLocalIntel": "Local Intelligence",
   "chatStatusDefault": "Fast responder active (default)",
   "chatNotAvailable": "Not available",
+  "chatPhoneMayNotRun": "This model may not run on this device. Copy Context works everywhere.",
+  "chatPhoneStorageEvict": "Safari may evict downloaded models when storage is low.",
   "chatLocalNote": "WebLLM = pure browser. Local Server = Ollama / LM Studio / any OpenAI-compatible endpoint on your machine.",
   "chatSearch": "Search…",
   "chatSpeak": "Speak your truth…",
