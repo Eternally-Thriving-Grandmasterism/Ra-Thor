@@ -176,7 +176,7 @@ assert(read('js/site-lock-2026-08-22.js').indexOf('20260924a') !== -1, 'site-loc
 assert(read('i18n/README.md').indexOf('20260924a') !== -1, 'i18n README must name the cache token');
 assert(chrome.indexOf('rtApplyChromeI18n') !== -1, 'chrome helper must keep apply');
 var gt = read('js/google-translate-optin.js');
-assert(gt.indexOf('The Google proxy may fail on this site (COEP).') !== -1, 'Google tab must say the proxy may fail');
+assert(gt.indexOf('The Google proxy may fail on this site (COEP).') === -1, 'Google tab must not say the proxy may fail');
 assert(gt.indexOf('translate_a/element.js') === -1, 'Google tab must not inject the widget');
 assert(gt.indexOf('target="_blank"') !== -1, 'Google tab must stay a new tab');
 assert(read('_headers').indexOf('Cross-Origin-Embedder-Policy: require-corp') !== -1, 'COEP require-corp stays');
