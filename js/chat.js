@@ -1841,10 +1841,81 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
       effect: null
     };
   }
+
+  function webllmRowUseLabel(ready, loadedId, rowId, storedBase, rowBase) {
+    if (ready === true && loadedId && rowId && loadedId === rowId) return 'In use';
+    if (storedBase && rowBase && storedBase === rowBase) return 'Selected';
+    return '';
+  }
+
+  function localSendRoute(ready, engineOn, storedBase, listedBases) {
+    if (ready === true && engineOn === true) return 'generate';
+    var listed = listedBases || [];
+    if (storedBase && listed.indexOf(storedBase) !== -1) return 'not-loaded';
+    return 'fallback';
+  }
+
+  function httpStatusOf(err) {
+    if (!err) return 0;
+    if (typeof err.status === 'number') return err.status;
+    if (typeof err.statusCode === 'number') return err.statusCode;
+    var msg = String(err.message || err);
+    var matched = msg.match(/\b(401|403)\b/);
+    return matched ? Number(matched[1]) : 0;
+  }
+
+  function rowLoadErrorText(err) {
+    var status = httpStatusOf(err);
+    if (status === 401 || status === 403) return 'Accept the license on the model page.';
+    var msg = String((err && err.message) || err || '').replace(/\s+/g, ' ').trim();
+    if (!msg) msg = 'Load failed';
+    if (msg.length > 140) msg = msg.slice(0, 137) + '...';
+    return msg;
+  }
+
+  function phoneLightLogFields(phone, shaderF16, modelId, ready, errorText) {
+    return {
+      phone: phone === true,
+      'shader-f16': shaderF16 === true,
+      model_id: modelId || '',
+      llmReady: ready === true,
+      error: errorText || ''
+    };
+  }
   /* chat-models-1-pure-end */
 
   function readStoredModelBase() {
     try { return localStorage.getItem(WEBLLM_MODEL_KEY) || ''; } catch (e) { return ''; }
+  }
+
+  function rowErrorLabel(text) {
+    if (text === 'Accept the license on the model page.') return chatLabel('chatModelLicense', text);
+    return text || '';
+  }
+
+  function listedModelBases() {
+    var listed = [];
+    for (var i = 0; i < webllmOptions.length; i++) listed.push(webllmOptions[i].entry.base);
+    return listed;
+  }
+
+  function phoneLightModelId() {
+    if (llmReady && llmEngine) return llmModelId || '';
+    var stored = readStoredModelBase();
+    if (!stored || listedModelBases().indexOf(stored) === -1) return '';
+    var opt = optionByBase(stored);
+    return opt ? opt.id : '';
+  }
+
+  function logPhoneLight(errorText) {
+    var fields = phoneLightLogFields(
+      webllmPhonePath === true,
+      webllmShaderF16 === true,
+      phoneLightModelId(),
+      llmReady === true && !!llmEngine,
+      errorText || ''
+    );
+    console.info('[Ra-Thor phone-light] ' + JSON.stringify(fields));
   }
 
   function quantIdFor(entry) {
@@ -1860,7 +1931,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
 
   function ensureRowRuntime(base) {
     if (!webllmRowRuntime[base]) {
-      webllmRowRuntime[base] = { phase: 'absent', consent: null, progress: 0, downloading: false, downloadBytes: null, heavyNote: '', heavyAllow: true };
+      webllmRowRuntime[base] = { phase: 'absent', consent: null, progress: 0, downloading: false, downloadBytes: null, heavyNote: '', heavyAllow: true, loadError: '' };
     }
     return webllmRowRuntime[base];
   }
@@ -2018,13 +2089,20 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
         else action.setAttribute('data-act', 'tap-download');
         if (action.textContent === 'Download' && downloadBlocked) action.disabled = true;
         top.appendChild(action);
-        if (phase === 'ready') {
-          if (llmReady && llmModelId === opt.id) {
-            var used = document.createElement('span');
-            used.className = 'webllm-badge';
-            used.textContent = 'In use';
-            top.appendChild(used);
-          } else {
+        var useLabel = webllmRowUseLabel(!!(llmReady && llmEngine), llmModelId, opt.id, readStoredModelBase(), base);
+        if (useLabel === 'In use') {
+          var used = document.createElement('span');
+          used.className = 'webllm-badge';
+          used.textContent = useLabel;
+          top.appendChild(used);
+        } else {
+          if (useLabel === 'Selected') {
+            var selected = document.createElement('span');
+            selected.className = 'webllm-badge';
+            selected.textContent = useLabel;
+            top.appendChild(selected);
+          }
+          if (phase === 'ready') {
             var useBtn = document.createElement('button');
             useBtn.type = 'button';
             useBtn.className = 'ctrl-btn text-xs px-2';
@@ -2041,6 +2119,14 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
         small.className = 'webllm-row-note';
         small.textContent = 'Small models can give wrong or inappropriate replies.';
         row.appendChild(small);
+      }
+
+      if (rt.loadError) {
+        var errNote = document.createElement('p');
+        errNote.className = 'webllm-row-note';
+        errNote.setAttribute('data-load-error', '1');
+        errNote.textContent = rowErrorLabel(rt.loadError);
+        row.appendChild(errNote);
       }
 
       if (!online && phase !== 'ready') {
@@ -2136,13 +2222,13 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     if (!webllmDownloadAllowed(readNetMode(), typeof navigator === 'undefined' || navigator.onLine !== false)) return null;
     var prefix = modelCacheUrlPrefix(rec && rec.model);
     if (!prefix || typeof fetch !== 'function') return null;
-    try {
-      var res = await fetch(new URL('tensor-cache.json', prefix).href);
-      if (!res || !res.ok) return null;
-      return tensorManifestDownloadBytes(await res.json());
-    } catch (e) {
-      return null;
+    var res = await fetch(new URL('tensor-cache.json', prefix).href);
+    if (!res || !res.ok) {
+      var failed = new Error('Model file fetch failed' + (res && res.status ? ' (' + res.status + ')' : ''));
+      if (res && typeof res.status === 'number') failed.status = res.status;
+      throw failed;
     }
+    return tensorManifestDownloadBytes(await res.json());
   }
 
   async function cachedTensorDownloadBytes(rec) {
@@ -2180,6 +2266,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     if (llmEngine || llmLoading) await unloadWebllmEngine();
     var token = llmLoadToken;
     var rt = ensureRowRuntime(base);
+    rt.loadError = '';
     llmModelId = opt.id;
     if (fromDownload) {
       rt.downloading = true;
@@ -2190,19 +2277,20 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
       updateLlmUI('loading', webllmBadgeLabel('downloading', 0));
       renderWebllmRows();
     }
-    var engine = new webllmModule.MLCEngine({
-      initProgressCallback: function (report) {
-        if (token !== llmLoadToken || !fromDownload) return;
-        var pct = Math.round((report.progress || 0) * 100);
-        rt.progress = pct;
-        var node = webllmRows && webllmRows.querySelector('.webllm-row[data-base="' + base + '"] .webllm-badge');
-        if (node) node.textContent = webllmBadgeLabel('downloading', pct);
-        if (localLlmProgress) localLlmProgress.style.width = Math.max(5, pct) + '%';
-        if (localLlmStatus) localLlmStatus.textContent = webllmBadgeLabel('downloading', pct);
-      }
-    });
-    llmEngine = engine;
+    var engine = null;
     try {
+      engine = new webllmModule.MLCEngine({
+        initProgressCallback: function (report) {
+          if (token !== llmLoadToken || !fromDownload) return;
+          var pct = Math.round((report.progress || 0) * 100);
+          rt.progress = pct;
+          var node = webllmRows && webllmRows.querySelector('.webllm-row[data-base="' + base + '"] .webllm-badge');
+          if (node) node.textContent = webllmBadgeLabel('downloading', pct);
+          if (localLlmProgress) localLlmProgress.style.width = Math.max(5, pct) + '%';
+          if (localLlmStatus) localLlmStatus.textContent = webllmBadgeLabel('downloading', pct);
+        }
+      });
+      llmEngine = engine;
       await engine.reload(opt.id);
       if (token !== llmLoadToken) return;
       var full = false;
@@ -2212,6 +2300,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
       if (full) {
         llmReady = true;
         rt.phase = 'ready';
+        rt.loadError = '';
         try { localStorage.setItem(WEBLLM_MODEL_KEY, base); } catch (e) {}
         updateLlmUI('ready');
         addNotice('WebLLM loaded (' + opt.id + '). ⚡️ Generation now runs entirely in the browser.');
@@ -2222,16 +2311,25 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
         rt.phase = (await modelFilesCached(opt.rec)) ? 'partial' : 'absent';
         updateLlmUI('idle');
       }
+      logPhoneLight('');
     } catch (err) {
       if (token !== llmLoadToken) return;
       console.error('[Ra-Thor WebLLM]', err);
       rt.downloading = false;
       llmLoading = false;
       llmReady = false;
+      var failedEngine = llmEngine || engine;
       llmEngine = null;
+      if (failedEngine && typeof failedEngine.unload === 'function') {
+        try { await failedEngine.unload(); } catch (e2) {}
+      }
       rt.phase = (await modelFilesCached(opt.rec)) ? 'partial' : 'absent';
+      rt.loadError = rowLoadErrorText(err);
       updateLlmUI('error', 'Load failed');
-      addNotice('WebLLM failed to load. Use Local Server or **Copy Context**.');
+      var rowNote = rowErrorLabel(rt.loadError);
+      logPhoneLight(rowNote);
+      if (rt.loadError === 'Accept the license on the model page.') addNotice(rowNote);
+      else addNotice('WebLLM failed to load. Use Local Server or **Copy Context**.');
     }
     renderWebllmRows();
   }
@@ -2346,7 +2444,13 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     if (action === 'tap-download' && result.row.consent === 'download') {
       // tensor-cache.json stays before Confirm so the consent line can show the summed size.
       // The picker states that this small size file is fetched.
-      rt.downloadBytes = opt ? await fetchTensorDownloadBytes(opt.rec) : null;
+      try {
+        rt.downloadBytes = opt ? await fetchTensorDownloadBytes(opt.rec) : null;
+      } catch (err) {
+        rt.downloadBytes = null;
+        rt.loadError = rowLoadErrorText(err);
+        logPhoneLight(rowErrorLabel(rt.loadError));
+      }
       if (heavy) {
         var dlGate = await readHeavyGate(tier, 'download', rt.downloadBytes);
         rt.heavyNote = dlGate.note;
@@ -2430,6 +2534,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
       webllmPicker.classList.add('hidden');
       webllmPickerReady = true;
       updateLlmUI('error', 'Load failed');
+      logPhoneLight(rowLoadErrorText(err));
       return false;
     }
     var byId = new Map();
@@ -2455,6 +2560,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
       webllmPicker.classList.add('hidden');
       webllmPickerReady = true;
       updateLlmUI('error', 'Load failed');
+      logPhoneLight('Load failed');
       return false;
     }
     for (var i = 0; i < webllmOptions.length; i++) {
@@ -2462,6 +2568,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     }
     webllmPickerReady = true;
     renderWebllmRows();
+    logPhoneLight('');
     return true;
   }
 
@@ -2626,6 +2733,12 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     if (backendEnabled) {
       const reply = await generateWithBackend(text);
       if (reply === null) addMessage(generateLocalResponse(text) + '\n\n(Local Server request failed)', 'rathor');
+      return;
+    }
+    if (localSendRoute(llmReady === true, !!llmEngine, readStoredModelBase(), listedModelBases()) === 'not-loaded') {
+      var notLoaded = chatLabel('chatModelNotLoaded', 'This model is not loaded. Tap Use.');
+      addNotice(notLoaded);
+      logPhoneLight(notLoaded);
       return;
     }
     if (llmReady && llmEngine) {

@@ -49,7 +49,7 @@ var sandbox = {
   }
 };
 vm.createContext(sandbox);
-vm.runInContext(pure + '\nthis.api = { webllmTierFromVram: webllmTierFromVram, heavyGateRequired: heavyGateRequired, heavyGateDecision: heavyGateDecision, storedModelAfterDelete: storedModelAfterDelete, headerLlmButtonState: headerLlmButtonState, webllmDownloadAllowed: webllmDownloadAllowed, webllmRowTransition: webllmRowTransition, downloadConsentText: downloadConsentText, formatStorageQuota: formatStorageQuota, storageTotalLabel: storageTotalLabel, adapterLimitsLabel: adapterLimitsLabel };', sandbox);
+vm.runInContext(pure + '\nthis.api = { webllmTierFromVram: webllmTierFromVram, heavyGateRequired: heavyGateRequired, heavyGateDecision: heavyGateDecision, storedModelAfterDelete: storedModelAfterDelete, headerLlmButtonState: headerLlmButtonState, webllmDownloadAllowed: webllmDownloadAllowed, webllmRowTransition: webllmRowTransition, downloadConsentText: downloadConsentText, formatStorageQuota: formatStorageQuota, storageTotalLabel: storageTotalLabel, adapterLimitsLabel: adapterLimitsLabel, keepCuratedRowOnPhone: keepCuratedRowOnPhone, webllmRowUseLabel: webllmRowUseLabel };', sandbox);
 var api = sandbox.api;
 
 assert(api.webllmTierFromVram(1199) === 'Light', 'just under 1200 MB is Light');
@@ -254,5 +254,28 @@ assert(btn.indexOf('data-llm-action="none"') !== -1, 'header button starts with 
 assert(chat.indexOf('headerLlmButtonState') !== -1, 'click path uses the header state helper');
 assert(chat.indexOf("header.action === 'retry'") !== -1, 'error click retries the list');
 assert(chat.indexOf("header.action !== 'focus'") !== -1, 'a hidden list does not pretend to focus');
+
+var capMatch = chat.match(/const PHONE_MAX_VRAM_MB = ([0-9.]+);/);
+assert(capMatch && Number(capMatch[1]) === 1200, 'PHONE_MAX_VRAM_MB stays 1200');
+var phoneLight = [];
+var phoneDropped = [];
+Object.keys(expectTier).forEach(function (id) {
+  if (id.indexOf('-q4f16_1-MLC') === -1) return;
+  var at = vendor.indexOf('model_id: "' + id + '"');
+  var vram = Number(vendor.slice(at, at + 500).match(/vram_required_MB:\s*([0-9.]+)/)[1]);
+  var base = id.replace(/-q4f16_1-MLC$/, '');
+  if (api.keepCuratedRowOnPhone(true, vram, 1200)) phoneLight.push(base);
+  else phoneDropped.push(base);
+});
+assert(phoneLight.join('|') === 'SmolLM2-360M-Instruct|Qwen2.5-0.5B-Instruct|Llama-3.2-1B-Instruct', 'phone path keeps the three Light ids: ' + phoneLight.join(', '));
+['Qwen2.5-1.5B-Instruct', 'gemma-2-2b-it', 'Llama-3.2-3B-Instruct', 'Phi-3.5-mini-instruct'].forEach(function (base) {
+  assert(phoneDropped.indexOf(base) !== -1, base + ' stays off the phone path');
+  assert(phoneLight.indexOf(base) === -1, base + ' is not a phone Light row');
+});
+var llamaBase = 'Llama-3.2-1B-Instruct';
+var llamaId = 'Llama-3.2-1B-Instruct-q4f16_1-MLC';
+assert(api.webllmRowUseLabel(true, llamaId, llamaId, llamaBase, llamaBase) === 'In use', 'loaded row is In use');
+assert(api.webllmRowUseLabel(false, llamaId, llamaId, llamaBase, llamaBase) === 'Selected', 'stored and not loaded is Selected');
+assert(api.webllmRowUseLabel(false, llamaId, llamaId, llamaBase, llamaBase) !== 'In use', 'In use requires the loaded model');
 
 console.log('CHAT-MODELS-2 tier checks passed');
