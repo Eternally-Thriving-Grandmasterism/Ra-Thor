@@ -514,5 +514,7 @@ window.translations["en"] = {
   "chatContextFull": "Context is full. Start a new chat or remove documents to continue.",
   "chatReplyCutOff": "Reply stopped at the length limit.",
   "chatReplyContinue": "Continue this reply",
-  "chatReplyContinueLine": "Continue the previous reply from the last word. Do not restart."
+  "chatReplyContinueLine": "Continue the previous reply from the last word. Do not restart.",
+  "chatModelNotLoaded": "This model is not loaded. Tap Use.",
+  "chatModelLicense": "Accept the license on the model page."
 };
