@@ -34,7 +34,7 @@ assert(pure.indexOf('function turnWithFinish') !== -1, 'finish_reason mark must 
 
 var sandbox = {};
 vm.createContext(sandbox);
-vm.runInContext(pure + '\nthis.api = { replyTokenBudget: replyTokenBudget, contextTokensFromSources: contextTokensFromSources, promptCharsOfMessages: promptCharsOfMessages, modelMessagesFromHistory: modelMessagesFromHistory, planReply: planReply, choiceFinishReason: choiceFinishReason, turnWithFinish: turnWithFinish };', sandbox);
+vm.runInContext(pure + '\nthis.api = { replyTokenBudget: replyTokenBudget, contextTokensFromSources: contextTokensFromSources, promptCharsOfMessages: promptCharsOfMessages, modelMessagesFromHistory: modelMessagesFromHistory, planReply: planReply, continueReplyMessages: continueReplyMessages, planContinue: planContinue, trailingCutOff: trailingCutOff, choiceFinishReason: choiceFinishReason, turnWithFinish: turnWithFinish, CONTINUE_REPLY_LINE: CONTINUE_REPLY_LINE };', sandbox);
 var api = sandbox.api;
 
 var floor = api.replyTokenBudget({ contextTokens: 320, promptChars: 0, messageCount: 0, ceiling: 2048 });
@@ -105,6 +105,31 @@ assert(stopped.cutOff !== true, 'stop does not mark a cut-off');
 assert(api.choiceFinishReason({ finish_reason: null }) === null, 'empty finish_reason is ignored');
 assert(api.turnWithFinish('x', null).cutOff !== true, 'missing finish_reason does not mark a cut-off');
 
+var cont = api.continueReplyMessages('SYS', history, 14);
+assert(cont.filter(function (m) { return m.role === 'user' && m.content === 'second question'; }).length === 1, 'continue does not copy the last user question');
+assert(cont.filter(function (m) { return m.content === 'first'; }).length === 1, 'continue does not copy an earlier user turn');
+assert(cont.filter(function (m) { return m.content === api.CONTINUE_REPLY_LINE; }).length === 1, 'continue line is sent once');
+assert(cont[cont.length - 1].role === 'user' && cont[cont.length - 1].content === api.CONTINUE_REPLY_LINE, 'continue line is the last model message');
+assert(cont.some(function (m) { return String(m.content).indexOf('injected into context') !== -1; }) === false, 'continue still excludes the doc notice');
+assert(cont.some(function (m) { return String(m.content).indexOf('Context is full') !== -1; }) === false, 'continue still excludes the context-full notice');
+assert(cont.some(function (m) { return String(m.content).indexOf('Reply stopped') !== -1; }) === false, 'continue still excludes the cut-off line');
+var already = history.concat([{ role: 'user', text: api.CONTINUE_REPLY_LINE }]);
+var once = api.continueReplyMessages('SYS', already, 14);
+assert(once.filter(function (m) { return m.content === api.CONTINUE_REPLY_LINE; }).length === 1, 'continue line is not inserted twice');
+assert(once.filter(function (m) { return m.content === 'second question'; }).length === 1, 'an existing continue line does not copy the last user question');
+
+var planned = api.planContinue('SYS', history, 14, 100000);
+assert(planned.messages.length === cont.length, 'planContinue sends the continue messages');
+assert(planned.budget.send === true && planned.budget.maxTokens === 2048, 'continue keeps the 2048 ceiling');
+var full = api.planContinue('SYS', history, 14, 280);
+assert(full.budget.send === false && full.budget.maxTokens === 0, 'continue uses the same context-full refusal');
+assert(api.trailingCutOff(history).text === 'an answer', 'the trailing cut-off turn is the last assistant');
+assert(api.trailingCutOff(history.concat([{ role: 'user', text: 'later' }])) === null, 'a later user turn hides the continue control');
+
+var continued = api.turnWithFinish('continued words', api.choiceFinishReason({ finish_reason: 'length' }));
+assert(continued.cutOff === true && continued.role === 'rathor' && continued.text === 'continued words', 'length keeps cutOff on the continued turn');
+assert(api.turnWithFinish('continued words', 'stop').cutOff !== true, 'a finished continuation is not marked cut off');
+
 function body(startMark, endMark) {
   var start = chat.indexOf(startMark);
   var end = chat.indexOf(endMark, start + startMark.length);
@@ -128,9 +153,23 @@ assert(web.indexOf('stream: true') !== -1, 'WebLLM keeps a streaming path');
 assert(web.indexOf('nonStreamReason') !== -1, 'WebLLM non-streaming reads finish_reason');
 assert(web.indexOf('readLoadedContextTokens') !== -1, 'WebLLM reads the loaded context');
 assert(chat.indexOf("chatLabel('chatReplyCutOff'") !== -1, 'cut-off line goes through chatLabel');
+assert(chat.indexOf("chatLabel('chatReplyContinue'") !== -1, 'continue button goes through chatLabel');
+assert(chat.indexOf("chatLabel('chatReplyContinueLine'") !== -1, 'continue consent goes through chatLabel');
+assert(chat.indexOf('function planContinue') !== -1, 'continue reuses a plan function');
+assert(chat.indexOf('ceiling: 2048') !== -1, 'ceiling stays 2048');
+assert(chat.indexOf('ceiling: 4096') === -1 && chat.indexOf('ceiling: 8192') === -1, 'continue does not raise the ceiling');
+var contFn = body('async function continueCutOffReply', 'async function sendMessage');
+assert(contFn.indexOf('addMessage(') === -1, 'continue does not insert a user turn');
+assert(contFn.indexOf(", 'continue')") !== -1, 'continue calls the generators in continue mode');
+[backend, web].forEach(function (src, idx) {
+  assert(src.indexOf('planContinue(') !== -1, 'path ' + idx + ' must plan a continuation');
+  assert(src.indexOf("mode === 'continue'") !== -1, 'path ' + idx + ' must branch on continue');
+});
 
 assert(en.indexOf('"chatContextFull": "Context is full. Start a new chat or remove documents to continue."') !== -1, 'en.js context-full string');
 assert(en.indexOf('"chatReplyCutOff": "Reply stopped at the length limit."') !== -1, 'en.js cut-off string');
+assert(en.indexOf('"chatReplyContinue": "Continue this reply"') !== -1, 'en.js continue button');
+assert(en.indexOf('"chatReplyContinueLine": "Continue the previous reply from the last word. Do not restart."') !== -1, 'en.js continue line');
 
 var otherPacks = fs.readdirSync(path.join(root, 'i18n')).filter(function (name) {
   return name.endsWith('.js') && name !== 'en.js';
@@ -139,6 +178,7 @@ otherPacks.forEach(function (name) {
   var pack = read('i18n/' + name);
   assert(pack.indexOf('chatContextFull') === -1, name + ' must not gain chatContextFull');
   assert(pack.indexOf('chatReplyCutOff') === -1, name + ' must not gain chatReplyCutOff');
+  assert(pack.indexOf('chatReplyContinue') === -1, name + ' must not gain chatReplyContinue');
 });
 
-console.log('REPLY-BUDGET-1 clamp, single user turn, notices excluded, length mark: ok');
+console.log('REPLY-BUDGET-1 clamp, single user turn, notices excluded, length mark, continue: ok');

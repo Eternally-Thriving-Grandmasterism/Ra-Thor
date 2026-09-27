@@ -512,5 +512,7 @@ window.translations["en"] = {
   "chatEncryptPlainNotice": "Your saved chats are not encrypted right now. Set your passphrase again to lock them.",
   "chatReplyFallback": "Thunder received. ⚡️ Fast offline responder active.\n\nFor stronger generative power:\n• Connect a **Local Server** (Ollama / LM Studio)\n• Pick a model in the **Local Intelligence** list\n• Or use **Copy Context** (works everywhere)\n\nYou can also upload documents and optionally encrypt the session store.",
   "chatContextFull": "Context is full. Start a new chat or remove documents to continue.",
-  "chatReplyCutOff": "Reply stopped at the length limit."
+  "chatReplyCutOff": "Reply stopped at the length limit.",
+  "chatReplyContinue": "Continue this reply",
+  "chatReplyContinueLine": "Continue the previous reply from the last word. Do not restart."
 };

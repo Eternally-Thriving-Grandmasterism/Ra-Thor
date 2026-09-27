@@ -87,6 +87,7 @@
   let llmEngine = null;
   let llmLoading = false;
   let llmReady = false;
+  let continueSending = false;
   let llmSupported = false;
   let llmProbed = false;
   let llmModelId = 'Llama-3.2-1B-Instruct-q4f16_1-MLC';
@@ -853,6 +854,22 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     msgDiv.appendChild(line);
   }
 
+  function removeContinueControls() {
+    if (!chatMessages) return;
+    var nodes = chatMessages.querySelectorAll('.reply-continue, .reply-continue-consent');
+    for (var i = 0; i < nodes.length; i++) nodes[i].remove();
+  }
+
+  function attachContinueButton(msgDiv) {
+    if (!msgDiv || msgDiv.querySelector('.reply-continue')) return;
+    removeContinueControls();
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'reply-continue';
+    btn.textContent = chatLabel('chatReplyContinue', 'Continue this reply');
+    msgDiv.appendChild(btn);
+  }
+
   function finalizeStreamingMessage(msgDiv, textDiv, finalText, finishReason) {
     if (!msgDiv || !textDiv) return;
     msgDiv.classList.remove('streaming');
@@ -864,7 +881,12 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     hist.push(entry);
     setHistory(hist);
     updateSessionMeta();
-    if (entry.cutOff) appendCutOffLine(msgDiv);
+    if (entry.cutOff) {
+      appendCutOffLine(msgDiv);
+      attachContinueButton(msgDiv);
+    } else {
+      removeContinueControls();
+    }
     if (voiceSettings.enabled) {
       setTimeout(() => speak(finalText.replace(/\n/g, ' ')), 120);
     }
@@ -883,10 +905,12 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     }
 
     let shown = 0;
+    var trail = q ? null : trailingCutOff(hist);
     hist.forEach(m => {
       if (!q || (m.text || '').toLowerCase().includes(q)) {
         var rendered = addMessage(m.text, m.role, false, m.ts);
         if (rendered && m.cutOff) appendCutOffLine(rendered.msgDiv);
+        if (rendered && trail && m === trail) attachContinueButton(rendered.msgDiv);
         shown++;
       }
     });
@@ -1174,6 +1198,41 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     return { messages: messages, promptChars: promptChars, messageCount: messages.length, budget: budget };
   }
 
+  var CONTINUE_REPLY_LINE = 'Continue the previous reply from the last word. Do not restart.';
+
+  function trailingCutOff(history) {
+    var src = history || [];
+    for (var i = src.length - 1; i >= 0; i--) {
+      var m = src[i];
+      if (!m || m.notice) continue;
+      if ((m.role === 'rathor' || m.role === 'assistant') && m.cutOff) return m;
+      return null;
+    }
+    return null;
+  }
+
+  function continueReplyMessages(systemContent, history, limit) {
+    var planned = planReply(systemContent, history, limit, null);
+    var messages = planned.messages.slice();
+    var last = messages.length ? messages[messages.length - 1] : null;
+    if (!(last && last.role === 'user' && last.content === CONTINUE_REPLY_LINE)) {
+      messages.push({ role: 'user', content: CONTINUE_REPLY_LINE });
+    }
+    return messages;
+  }
+
+  function planContinue(systemContent, history, limit, contextTokens) {
+    var messages = continueReplyMessages(systemContent, history, limit);
+    var promptChars = promptCharsOfMessages(messages);
+    var budget = replyTokenBudget({
+      contextTokens: contextTokens,
+      promptChars: promptChars,
+      messageCount: messages.length,
+      ceiling: 2048
+    });
+    return { messages: messages, promptChars: promptChars, messageCount: messages.length, budget: budget };
+  }
+
   function choiceFinishReason(choice) {
     if (!choice || choice.finish_reason == null || choice.finish_reason === '') return null;
     return String(choice.finish_reason);
@@ -1250,12 +1309,14 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     return state;
   }
 
-  async function generateWithBackend(userText) {
+  async function generateWithBackend(userText, mode) {
     if (!backendEnabled) return null;
     if (typeof userText !== 'string') return null;
 
     const hist = getHistory();
-    const plan = planReply(systemPreamble() + getDocumentContext(), hist, 14, null);
+    const plan = mode === 'continue'
+      ? planContinue(systemPreamble() + getDocumentContext(), hist, 14, null)
+      : planReply(systemPreamble() + getDocumentContext(), hist, 14, null);
     const messages = plan.messages;
     const budget = plan.budget;
     logReplyBudget({
@@ -2405,12 +2466,14 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
   }
 
 
-  async function generateWithLocalLLM(userText) {
+  async function generateWithLocalLLM(userText, mode) {
     if (!llmEngine || !llmReady) return null;
     if (typeof userText !== 'string') return null;
     const hist = getHistory();
     const contextTokens = readLoadedContextTokens(llmEngine, llmModelId);
-    const plan = planReply(systemPreamble() + getDocumentContext(), hist, 10, contextTokens);
+    const plan = mode === 'continue'
+      ? planContinue(systemPreamble() + getDocumentContext(), hist, 10, contextTokens)
+      : planReply(systemPreamble() + getDocumentContext(), hist, 10, contextTokens);
     const messages = plan.messages;
     const budget = plan.budget;
     logReplyBudget({
@@ -2533,6 +2596,26 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
   }
 
   // ─── Core send ────────────────────────────────────────────────────────────
+  async function continueCutOffReply() {
+    if (continueSending) return;
+    if (!trailingCutOff(getHistory())) return;
+    continueSending = true;
+    removeContinueControls();
+    try {
+      var reply = null;
+      if (backendEnabled) await generateWithBackend(CONTINUE_REPLY_LINE, 'continue');
+      else if (llmReady && llmEngine) await generateWithLocalLLM(CONTINUE_REPLY_LINE, 'continue');
+    } finally {
+      continueSending = false;
+      if (trailingCutOff(getHistory())) {
+        var lines = chatMessages ? chatMessages.querySelectorAll('.reply-cut-off') : [];
+        var line = lines.length ? lines[lines.length - 1] : null;
+        var row = line && line.closest ? line.closest('.message') : null;
+        if (row) attachContinueButton(row);
+      }
+    }
+  }
+
   async function sendMessage() {
     if (!chatInput) return;
     const text = chatInput.value.trim();
@@ -2677,6 +2760,24 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
 
   // ─── Wire UI ──────────────────────────────────────────────────────────────
   if (sendBtn) sendBtn.addEventListener('click', sendMessage);
+  if (chatMessages) {
+    chatMessages.addEventListener('click', function (ev) {
+      var btn = ev.target && ev.target.closest ? ev.target.closest('.reply-continue') : null;
+      if (!btn || btn.disabled) return;
+      if (btn.getAttribute('data-armed') !== '1') {
+        var row = btn.closest('.message');
+        if (row && !row.querySelector('.reply-continue-consent')) {
+          var consent = document.createElement('p');
+          consent.className = 'reply-continue-consent';
+          consent.textContent = chatLabel('chatReplyContinueLine', CONTINUE_REPLY_LINE);
+          btn.parentNode.insertBefore(consent, btn);
+        }
+        btn.setAttribute('data-armed', '1');
+        return;
+      }
+      continueCutOffReply();
+    });
+  }
   if (micBtn) micBtn.addEventListener('click', toggleMic);
   if (chatInput) {
     chatInput.addEventListener('keydown', (e) => {
