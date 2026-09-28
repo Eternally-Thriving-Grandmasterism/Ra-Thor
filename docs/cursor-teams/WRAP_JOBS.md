@@ -36,6 +36,8 @@ Merged on `main` as `#512` (`acf40ae98`). `employ.html` lists the four doors fro
 
 **Shipped when this PR merges.**
 
+HOST-META-1 — Meta AI custom instructions (`wrappers/custom-instructions/meta.md`). Not a Meta product. Not an AGI warranty.
+
 STOP. No WRAP-4.
 
 ---
