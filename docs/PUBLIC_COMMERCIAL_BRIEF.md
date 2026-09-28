@@ -6,9 +6,10 @@
 
 **Also on the site:** [https://rathor.ai/employ.html](https://rathor.ai/employ.html) (Organizations card) · [https://rathor.ai/briefing.html](https://rathor.ai/briefing.html)  
 **Doors:** [https://rathor.ai/contact.html#commercial-inquiry](https://rathor.ai/contact.html#commercial-inquiry) · [info@Rathor.ai](mailto:info@Rathor.ai)  
+**FAQ:** [`COMMERCIAL_GRANT_FAQ.md`](COMMERCIAL_GRANT_FAQ.md)  
 **Workspace:** 14.15.6  
 **License:** AG-SML v1.1 — personal and research use; organizations license  
-**Date:** 18 September 2026
+**Date:** 18 September 2026; FAQ stamp 2026-09-28
 
 Ra-Thor is inspectable research software from Autonomicity Games Inc.
 
