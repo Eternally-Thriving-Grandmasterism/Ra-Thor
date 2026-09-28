@@ -9,7 +9,7 @@ license: AG-SML-1.1
 ## Use when
 
 - The operator asked to employ Ra-Thor, Rathor.ai, PATSAGi, or the mercy lattice.
-- A host (Hermes Agent, Open AgentOS, Cursor, a local OpenAI-compatible server) needs the standing constitution.
+- A host (Hermes Agent, Open AgentOS, Cursor, Meta AI, a local OpenAI-compatible server) needs the standing constitution.
 
 ## Do not use when
 

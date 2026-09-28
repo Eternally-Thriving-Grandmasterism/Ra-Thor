@@ -71,13 +71,16 @@ assert(employMd.indexOf('ceo@acitygames.com') !== -1, 'docs/EMPLOY.md must keep 
 assert(wrapPy.indexOf('stream=false only') === -1, 'shim must no longer refuse stream');
 assert(wrapPy.indexOf('text/event-stream') !== -1, 'shim must byte-forward SSE as text/event-stream');
 assert(wrapPy.indexOf('/v1/models') !== -1, 'shim must expose GET /v1/models');
-['gemini.md', 'cursor.md'].forEach(function (name) {
+['gemini.md', 'cursor.md', 'meta.md'].forEach(function (name) {
   var snippetPath = path.join(root, 'wrappers/custom-instructions', name);
   assert(fs.existsSync(snippetPath), name + ' must exist');
   var snippet = fs.readFileSync(snippetPath, 'utf8');
   assert(snippet.indexOf('14.15.6') !== -1, name + ' must name workspace 14.15.6');
   assert(snippet.indexOf('info@Rathor.ai') !== -1, name + ' must name contact info@Rathor.ai');
 });
+var metaSnippet = fs.readFileSync(path.join(root, 'wrappers/custom-instructions/meta.md'), 'utf8');
+assert(metaSnippet.indexOf("world's first") === -1, 'meta.md must not claim world\'s first');
+assert(metaSnippet.indexOf('self-healing symbolic AGI') === -1, 'meta.md must not claim self-healing symbolic AGI');
 
 var chatJs = fs.readFileSync(path.join(root, 'js/chat.js'), 'utf8');
 assert(chatJs.indexOf('14.15.6') !== -1, 'js/chat.js SYSTEM_PROMPT must name workspace 14.15.6');

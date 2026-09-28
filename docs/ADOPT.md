@@ -29,6 +29,7 @@ There is **no** public rathor.ai proxy that holds xAI / Anthropic / OpenAI keys.
 - ChatGPT: [`wrappers/custom-instructions/chatgpt.md`](../wrappers/custom-instructions/chatgpt.md)
 - Gemini: [`wrappers/custom-instructions/gemini.md`](../wrappers/custom-instructions/gemini.md)
 - Cursor: [`wrappers/custom-instructions/cursor.md`](../wrappers/custom-instructions/cursor.md)
+- Meta AI: [`wrappers/custom-instructions/meta.md`](../wrappers/custom-instructions/meta.md)
 
 Same constitution. Different paste boxes.
 
