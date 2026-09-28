@@ -1,16 +1,16 @@
-# Professional Dependabot configuration for Ra-Thor monorepo
-# Maintains dependencies with security and compatibility in mind
-# AG-SML v1.0 | TOLC 8 Mercy Gated | ONE Organism aligned
+# Dependabot — patches and Actions only.
+# Majors are a steward card, not a weekly PR.
+# AG-SML v1.1 | workspace 14.15.6 | Contact: info@Rathor.ai
 
 version: 2
 updates:
   - package-ecosystem: "cargo"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
       time: "06:00"
       timezone: "America/Toronto"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 3
     labels:
       - "dependencies"
       - "cargo"
@@ -18,27 +18,34 @@ updates:
     commit-message:
       prefix: "chore(deps)"
       include: "scope"
-    # Ignore major version bumps for core crates to maintain stability
     ignore:
       - dependency-name: "wgpu"
       - dependency-name: "cudarc"
+      - dependency-name: "rand"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+      - dependency-name: "thiserror"
+        update-types:
+          - "version-update:semver-major"
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
 
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
       time: "06:00"
       timezone: "America/Toronto"
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 3
     labels:
       - "dependencies"
       - "github-actions"
       - "ci"
     commit-message:
       prefix: "ci(deps)"
-
-  # Optional: Enable for npm if web/JS layers grow
-  # - package-ecosystem: "npm"
-  #   directory: "/"
-  #   schedule:
-  #     interval: "monthly"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
