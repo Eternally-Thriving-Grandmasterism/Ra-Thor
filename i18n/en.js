@@ -516,5 +516,6 @@ window.translations["en"] = {
   "chatReplyContinue": "Continue this reply",
   "chatReplyContinueLine": "Continue the previous reply from the last word. Do not restart.",
   "chatModelNotLoaded": "This model is not loaded. Tap Use.",
-  "chatModelLicense": "Accept the license on the model page."
+  "chatModelLicense": "Accept the license on the model page.",
+  "chatPhoneWeakLight": "Often fails to run on phones. Qwen 0.5B is the supported Light row."
 };

@@ -34,7 +34,7 @@ assert(pure.indexOf('function turnWithFinish') !== -1, 'finish_reason mark must 
 
 var sandbox = {};
 vm.createContext(sandbox);
-vm.runInContext(pure + '\nthis.api = { replyTokenBudget: replyTokenBudget, contextTokensFromSources: contextTokensFromSources, promptCharsOfMessages: promptCharsOfMessages, modelMessagesFromHistory: modelMessagesFromHistory, planReply: planReply, continueReplyMessages: continueReplyMessages, planContinue: planContinue, trailingCutOff: trailingCutOff, choiceFinishReason: choiceFinishReason, turnWithFinish: turnWithFinish, CONTINUE_REPLY_LINE: CONTINUE_REPLY_LINE };', sandbox);
+vm.runInContext(pure + '\nthis.api = { replyTokenBudget: replyTokenBudget, replyCeilingForPath: replyCeilingForPath, contextTokensFromSources: contextTokensFromSources, promptCharsOfMessages: promptCharsOfMessages, modelMessagesFromHistory: modelMessagesFromHistory, planReply: planReply, continueReplyMessages: continueReplyMessages, planContinue: planContinue, trailingCutOff: trailingCutOff, choiceFinishReason: choiceFinishReason, turnWithFinish: turnWithFinish, CONTINUE_REPLY_LINE: CONTINUE_REPLY_LINE };', sandbox);
 var api = sandbox.api;
 
 var floor = api.replyTokenBudget({ contextTokens: 320, promptChars: 0, messageCount: 0, ceiling: 2048 });
@@ -57,6 +57,19 @@ assert(assumed.send === true && assumed.maxTokens === 2048 && assumed.contextTok
 
 var def = api.replyTokenBudget({ contextTokens: 9000, promptChars: 0, messageCount: 0 });
 assert(def.maxTokens === 2048, 'default ceiling is 2048: ' + def.maxTokens);
+assert(api.replyCeilingForPath(false) === 2048 && api.replyCeilingForPath(true) === 512, 'desktop ceiling stays 2048 and the phone WebLLM ceiling is 512');
+var phoneCap = api.replyTokenBudget({ contextTokens: 100000, promptChars: 0, messageCount: 0, ceiling: api.replyCeilingForPath(true) });
+assert(phoneCap.send === true && phoneCap.maxTokens === 512, 'phone budget ceiling is 512: ' + JSON.stringify(phoneCap));
+var phoneFloor = api.replyTokenBudget({ contextTokens: 320, promptChars: 0, messageCount: 0, ceiling: 512 });
+assert(phoneFloor.send === true && phoneFloor.maxTokens === 256, 'phone path keeps the 256 floor: ' + JSON.stringify(phoneFloor));
+var phoneUnder = api.replyTokenBudget({ contextTokens: 319, promptChars: 0, messageCount: 0, ceiling: 512 });
+assert(phoneUnder.send === false && phoneUnder.maxTokens === 0, 'phone path still refuses room under 256');
+var phonePlan = api.planReply('SYS', [], 10, 100000, 512);
+assert(phonePlan.budget.maxTokens === 512, 'planReply passes the phone ceiling');
+var deskPlan = api.planReply('SYS', [], 10, 100000, api.replyCeilingForPath(false));
+assert(deskPlan.budget.maxTokens === 2048, 'planReply desktop ceiling stays 2048');
+var phoneContinue = api.planContinue('SYS', [], 14, 100000, 512);
+assert(phoneContinue.budget.maxTokens === 512, 'phone continue uses the 512 ceiling');
 
 assert(api.contextTokensFromSources(8192, 3000, { overrides: { context_window_size: 4096 } }) === 8192, 'engine config wins');
 assert(api.contextTokensFromSources({ context_window_size: 5120 }, 3000, { overrides: { context_window_size: 4096 } }) === 5120, 'chat config object is read');
