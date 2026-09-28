@@ -223,7 +223,7 @@ var sandbox = {
   }
 };
 vm.createContext(sandbox);
-vm.runInContext(pure + '\nthis.api = { readNetMode: readNetMode, writeNetMode: writeNetMode, webllmRowTransition: webllmRowTransition, webllmDownloadAllowed: webllmDownloadAllowed, localServerEndpointAllowed: localServerEndpointAllowed, webllmBadgeLabel: webllmBadgeLabel, webllmActionLabel: webllmActionLabel, absoluteScriptUrl: absoluteScriptUrl, modelCacheUrlPrefix: modelCacheUrlPrefix, requestMatchesModel: requestMatchesModel, purgeOwnedModelEntries: purgeOwnedModelEntries, modelFilesRemain: modelFilesRemain, phaseAfterLocalDelete: phaseAfterLocalDelete, tensorManifestDownloadBytes: tensorManifestDownloadBytes, formatByteMegabytes: formatByteMegabytes, downloadConsentText: downloadConsentText, deleteConsentText: deleteConsentText, isWebllmOwnedCache: isWebllmOwnedCache, keepCuratedRowOnPhone: keepCuratedRowOnPhone, listedModelBase: listedModelBase, rememberedModelPlan: rememberedModelPlan, phoneCapNotes: phoneCapNotes, webllmRowUseLabel: webllmRowUseLabel, localSendRoute: localSendRoute, rowLoadErrorText: rowLoadErrorText, phoneLightLogFields: phoneLightLogFields };', sandbox);
+vm.runInContext(pure + '\nthis.api = { readNetMode: readNetMode, writeNetMode: writeNetMode, webllmRowTransition: webllmRowTransition, webllmDownloadAllowed: webllmDownloadAllowed, localServerEndpointAllowed: localServerEndpointAllowed, webllmBadgeLabel: webllmBadgeLabel, webllmActionLabel: webllmActionLabel, absoluteScriptUrl: absoluteScriptUrl, modelCacheUrlPrefix: modelCacheUrlPrefix, requestMatchesModel: requestMatchesModel, purgeOwnedModelEntries: purgeOwnedModelEntries, modelFilesRemain: modelFilesRemain, phaseAfterLocalDelete: phaseAfterLocalDelete, tensorManifestDownloadBytes: tensorManifestDownloadBytes, formatByteMegabytes: formatByteMegabytes, downloadConsentText: downloadConsentText, deleteConsentText: deleteConsentText, isWebllmOwnedCache: isWebllmOwnedCache, keepCuratedRowOnPhone: keepCuratedRowOnPhone, listedModelBase: listedModelBase, rememberedModelPlan: rememberedModelPlan, phoneCapNotes: phoneCapNotes, webllmRowUseLabel: webllmRowUseLabel, localSendRoute: localSendRoute, rowLoadErrorText: rowLoadErrorText, phoneLightLogFields: phoneLightLogFields, phoneHighlightPlan: phoneHighlightPlan, phoneWeakLightNote: phoneWeakLightNote };', sandbox);
 var api = sandbox.api;
 assert(api.readNetMode() === 'network-on', 'default net mode is network-on');
 assert(api.writeNetMode('offline-only') === 'offline-only', 'write offline-only');
@@ -359,7 +359,9 @@ fs.readdirSync(path.join(root, 'i18n')).forEach(function (name) {
   var pack = read('i18n/' + name);
   assert(pack.indexOf('chatModelNotLoaded') === -1, name + ' must not gain chatModelNotLoaded');
   assert(pack.indexOf('chatModelLicense') === -1, name + ' must not gain chatModelLicense');
+  assert(pack.indexOf('chatPhoneWeakLight') === -1, name + ' must not gain chatPhoneWeakLight');
 });
+assert(en.indexOf('"chatPhoneWeakLight": "Often fails to run on phones. Qwen 0.5B is the supported Light row."') !== -1, 'English pack has the phone weak-light line');
 assert(phoneMaxVram === 1200, 'PHONE_MAX_VRAM_MB stays 1200');
 assert(chat.indexOf('[Ra-Thor phone-light]') !== -1, 'phone-light log is one console line');
 assert(chat.indexOf("chatLabel('chatModelNotLoaded'") !== -1, 'not-loaded notice goes through chatLabel');
@@ -372,6 +374,10 @@ assert(notLoadedAt !== -1 && readySendAt !== -1 && notLoadedAt < readySendAt, 'a
 assert(fallbackTimerAt !== -1 && notLoadedAt < fallbackTimerAt, 'the not-loaded notice is ahead of the fast responder');
 assert(sendFn.indexOf('localSendRoute(') !== -1 && sendFn.indexOf("=== 'not-loaded'") !== -1, 'send uses the not-loaded route');
 var renderFn = chat.slice(chat.indexOf('function renderWebllmRows'), chat.indexOf('async function unloadWebllmEngine'));
+assert(renderFn.indexOf('phoneHighlightPlan(') !== -1, 'phone rows use the Qwen highlight plan');
+assert(renderFn.indexOf('phoneWeakLightNote(') !== -1, 'weak Light rows get the phone note');
+assert(renderFn.indexOf("chatLabel('chatPhoneWeakLight'") !== -1, 'the weak-light line goes through chatLabel');
+assert(renderFn.indexOf('setItem') === -1, 'rendering a highlight does not write the stored key');
 assert(renderFn.indexOf('webllmRowUseLabel(') !== -1, 'row label comes from webllmRowUseLabel');
 assert(renderFn.indexOf("useLabel === 'In use'") !== -1, 'In use is only the ready label');
 assert(renderFn.indexOf("useLabel === 'Selected'") !== -1, 'stored-but-not-loaded is Selected');
@@ -492,6 +498,24 @@ function probeSupport(nav) {
   assert(underCap.active === 'SmolLM2-360M-Instruct' && underCap.writeDefault === false, 'a remembered model under the cap stays selected');
   var emptyPlan = api.rememberedModelPlan('', phoneF16, 'Llama-3.2-1B-Instruct');
   assert(emptyPlan.active === '' && emptyPlan.stored === '' && emptyPlan.writeDefault === false, 'an empty stored key highlights no row and is not rewritten');
+  var qwenBase = 'Qwen2.5-0.5B-Instruct';
+  var llamaStored = api.rememberedModelPlan('Llama-3.2-1B-Instruct', phoneF16, 'Llama-3.2-1B-Instruct');
+  var phoneLlama = api.phoneHighlightPlan(true, 'Llama-3.2-1B-Instruct', phoneF16, false, llamaStored.active);
+  assert(phoneLlama.active === qwenBase, 'phone default highlight is Qwen when Llama is not ready');
+  assert(phoneLlama.stored === 'Llama-3.2-1B-Instruct' && phoneLlama.writeDefault === false, 'a Selected Llama key is not rewritten');
+  var phoneEmpty = api.phoneHighlightPlan(true, '', phoneF16, false, '');
+  assert(phoneEmpty.active === qwenBase && phoneEmpty.stored === '' && phoneEmpty.writeDefault === false, 'an empty phone key highlights Qwen and is not written');
+  var phoneReady = api.phoneHighlightPlan(true, 'Llama-3.2-1B-Instruct', phoneF16, true, llamaStored.active);
+  assert(phoneReady.active === 'Llama-3.2-1B-Instruct' && phoneReady.writeDefault === false, 'a ready Llama stays the phone highlight');
+  var deskEmpty = api.phoneHighlightPlan(false, '', phoneF16, false, '');
+  assert(deskEmpty.active === '' && deskEmpty.writeDefault === false, 'desktop empty key still highlights no row');
+  var weakLine = 'Often fails to run on phones. Qwen 0.5B is the supported Light row.';
+  assert(api.phoneWeakLightNote(true, 'SmolLM2-360M-Instruct') === weakLine, 'SmolLM2 carries the phone weak-light line');
+  assert(api.phoneWeakLightNote(true, 'Llama-3.2-1B-Instruct') === weakLine, 'Llama 1B carries the phone weak-light line');
+  assert(api.phoneWeakLightNote(true, qwenBase) === '', 'Qwen 0.5B does not carry the weak-light line');
+  assert(api.phoneWeakLightNote(false, 'SmolLM2-360M-Instruct') === '', 'desktop rows omit the phone weak-light line');
+  assert(api.phoneWeakLightNote(true, 'gemma-2-2b-it') === '', 'Mid rows omit the phone weak-light line');
+  assert(chat.indexOf('return phonePath === true ? 512 : 2048') !== -1, 'phone WebLLM ceiling is 512 and desktop stays 2048');
   var tapAgain = api.webllmRowTransition({ phase: 'absent', consent: null }, 'tap-download', { offlineOnly: false, onLine: true });
   var confirmAgain = api.webllmRowTransition(tapAgain.row, 'confirm-download', { offlineOnly: false, onLine: true });
   assert(tapAgain.effect === null && tapAgain.row.consent === 'download', 'two-tap download still asks on the first tap');

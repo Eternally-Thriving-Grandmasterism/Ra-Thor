@@ -49,7 +49,7 @@ var sandbox = {
   }
 };
 vm.createContext(sandbox);
-vm.runInContext(pure + '\nthis.api = { webllmTierFromVram: webllmTierFromVram, heavyGateRequired: heavyGateRequired, heavyGateDecision: heavyGateDecision, storedModelAfterDelete: storedModelAfterDelete, headerLlmButtonState: headerLlmButtonState, webllmDownloadAllowed: webllmDownloadAllowed, webllmRowTransition: webllmRowTransition, downloadConsentText: downloadConsentText, formatStorageQuota: formatStorageQuota, storageTotalLabel: storageTotalLabel, adapterLimitsLabel: adapterLimitsLabel, keepCuratedRowOnPhone: keepCuratedRowOnPhone, webllmRowUseLabel: webllmRowUseLabel };', sandbox);
+vm.runInContext(pure + '\nthis.api = { webllmTierFromVram: webllmTierFromVram, heavyGateRequired: heavyGateRequired, heavyGateDecision: heavyGateDecision, storedModelAfterDelete: storedModelAfterDelete, headerLlmButtonState: headerLlmButtonState, webllmDownloadAllowed: webllmDownloadAllowed, webllmRowTransition: webllmRowTransition, downloadConsentText: downloadConsentText, formatStorageQuota: formatStorageQuota, storageTotalLabel: storageTotalLabel, adapterLimitsLabel: adapterLimitsLabel, keepCuratedRowOnPhone: keepCuratedRowOnPhone, webllmRowUseLabel: webllmRowUseLabel, phoneHighlightPlan: phoneHighlightPlan, phoneWeakLightNote: phoneWeakLightNote };', sandbox);
 var api = sandbox.api;
 
 assert(api.webllmTierFromVram(1199) === 'Light', 'just under 1200 MB is Light');
@@ -277,5 +277,12 @@ var llamaId = 'Llama-3.2-1B-Instruct-q4f16_1-MLC';
 assert(api.webllmRowUseLabel(true, llamaId, llamaId, llamaBase, llamaBase) === 'In use', 'loaded row is In use');
 assert(api.webllmRowUseLabel(false, llamaId, llamaId, llamaBase, llamaBase) === 'Selected', 'stored and not loaded is Selected');
 assert(api.webllmRowUseLabel(false, llamaId, llamaId, llamaBase, llamaBase) !== 'In use', 'In use requires the loaded model');
+var qwenBase = 'Qwen2.5-0.5B-Instruct';
+var phoneLlama = api.phoneHighlightPlan(true, llamaBase, phoneLight, false, llamaBase);
+assert(phoneLlama.active === qwenBase && phoneLlama.stored === llamaBase && phoneLlama.writeDefault === false, 'phone default highlight is Qwen when Llama is not ready');
+assert(api.phoneHighlightPlan(true, '', phoneLight, false, '').active === qwenBase, 'an empty phone key highlights Qwen');
+assert(api.phoneWeakLightNote(true, llamaBase).indexOf('Qwen 0.5B is the supported Light row.') !== -1, 'Llama keeps the phone weak-light line');
+assert(api.phoneWeakLightNote(true, 'SmolLM2-360M-Instruct') !== '' && api.phoneWeakLightNote(true, qwenBase) === '', 'the weak-light line stays off Qwen');
+assert(chat.indexOf('return phonePath === true ? 512 : 2048') !== -1, 'phone budget ceiling is 512 and desktop stays 2048');
 
 console.log('CHAT-MODELS-2 tier checks passed');

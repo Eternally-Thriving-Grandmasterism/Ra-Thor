@@ -1107,8 +1107,11 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
 
   /* chat-reply-budget-pure */
   // REPLY-BUDGET-1. max_tokens = clamp(ctx - ceil(promptChars/3) - 8*messageCount - 64, 256, ceiling).
-  // ceiling is 2048. When contextTokens is unknown, max_tokens is that ceiling (Local Server).
+  // Desktop ceiling is 2048. Phone WebLLM ceiling is 512. When contextTokens is unknown, max_tokens is that ceiling (Local Server uses 2048).
   // room below 256 does not send. Never invent a 4096 context.
+  function replyCeilingForPath(phonePath) {
+    return phonePath === true ? 512 : 2048;
+  }
   function positiveContextTokens(value) {
     var n = value;
     if (n && typeof n === 'object') n = n.context_window_size;
@@ -1186,14 +1189,14 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     return messages;
   }
 
-  function planReply(systemContent, history, limit, contextTokens) {
+  function planReply(systemContent, history, limit, contextTokens, ceiling) {
     var messages = modelMessagesFromHistory(systemContent, history, limit);
     var promptChars = promptCharsOfMessages(messages);
     var budget = replyTokenBudget({
       contextTokens: contextTokens,
       promptChars: promptChars,
       messageCount: messages.length,
-      ceiling: 2048
+      ceiling: (typeof ceiling === 'number' && ceiling > 0) ? ceiling : 2048
     });
     return { messages: messages, promptChars: promptChars, messageCount: messages.length, budget: budget };
   }
@@ -1221,14 +1224,14 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     return messages;
   }
 
-  function planContinue(systemContent, history, limit, contextTokens) {
+  function planContinue(systemContent, history, limit, contextTokens, ceiling) {
     var messages = continueReplyMessages(systemContent, history, limit);
     var promptChars = promptCharsOfMessages(messages);
     var budget = replyTokenBudget({
       contextTokens: contextTokens,
       promptChars: promptChars,
       messageCount: messages.length,
-      ceiling: 2048
+      ceiling: (typeof ceiling === 'number' && ceiling > 0) ? ceiling : 2048
     });
     return { messages: messages, promptChars: promptChars, messageCount: messages.length, budget: budget };
   }
@@ -1796,6 +1799,27 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     };
   }
 
+  function phoneHighlightPlan(phonePath, stored, listedBases, ready, desktopActive) {
+    var qwen = 'Qwen2.5-0.5B-Instruct';
+    var kept = stored || '';
+    var listed = listedBases || [];
+    if (phonePath !== true || listed.indexOf(qwen) === -1) {
+      return { active: desktopActive || '', stored: kept, writeDefault: false };
+    }
+    if (!kept || (ready !== true && listed.indexOf(kept) !== -1)) {
+      return { active: qwen, stored: kept, writeDefault: false };
+    }
+    return { active: desktopActive || '', stored: kept, writeDefault: false };
+  }
+
+  function phoneWeakLightNote(phonePath, base) {
+    if (phonePath !== true) return '';
+    if (base === 'SmolLM2-360M-Instruct' || base === 'Llama-3.2-1B-Instruct') {
+      return 'Often fails to run on phones. Qwen 0.5B is the supported Light row.';
+    }
+    return '';
+  }
+
   function appleStorageEvictUa(ua, touchPoints) {
     var text = String(ua || '');
     if (/iPhone|iPad/i.test(text)) return true;
@@ -2022,7 +2046,9 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     if (!webllmRows) return;
     var listedBases = [];
     for (var i = 0; i < webllmOptions.length; i++) listedBases.push(webllmOptions[i].entry.base);
-    var active = rememberedModelPlan(readStoredModelBase(), listedBases, WEBLLM_DEFAULT_BASE).active;
+    var storedNow = readStoredModelBase();
+    var desktopPlan = rememberedModelPlan(storedNow, listedBases, WEBLLM_DEFAULT_BASE);
+    var active = phoneHighlightPlan(webllmPhonePath, storedNow, listedBases, !!(llmReady && llmEngine), desktopPlan.active).active;
     var downloadBlocked = !webllmDownloadAllowed(readNetMode(), typeof navigator === 'undefined' || navigator.onLine !== false);
     var online = typeof navigator === 'undefined' || navigator.onLine !== false;
     webllmRows.replaceChildren();
@@ -2119,6 +2145,15 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
         small.className = 'webllm-row-note';
         small.textContent = 'Small models can give wrong or inappropriate replies.';
         row.appendChild(small);
+      }
+
+      var weakLight = phoneWeakLightNote(webllmPhonePath, base);
+      if (weakLight) {
+        var weak = document.createElement('p');
+        weak.className = 'webllm-row-note';
+        weak.setAttribute('data-phone-weak-light', '1');
+        weak.textContent = chatLabel('chatPhoneWeakLight', weakLight);
+        row.appendChild(weak);
       }
 
       if (rt.loadError) {
@@ -2578,9 +2613,10 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     if (typeof userText !== 'string') return null;
     const hist = getHistory();
     const contextTokens = readLoadedContextTokens(llmEngine, llmModelId);
+    const tokenCeiling = replyCeilingForPath(webllmPhonePath);
     const plan = mode === 'continue'
-      ? planContinue(systemPreamble() + getDocumentContext(), hist, 10, contextTokens)
-      : planReply(systemPreamble() + getDocumentContext(), hist, 10, contextTokens);
+      ? planContinue(systemPreamble() + getDocumentContext(), hist, 10, contextTokens, tokenCeiling)
+      : planReply(systemPreamble() + getDocumentContext(), hist, 10, contextTokens, tokenCeiling);
     const messages = plan.messages;
     const budget = plan.budget;
     logReplyBudget({
@@ -2591,7 +2627,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
       promptChars: plan.promptChars,
       messageCount: plan.messageCount,
       send: budget.send,
-      ceiling: 2048
+      ceiling: tokenCeiling
     });
     if (!budget.send) {
       addNotice(chatLabel('chatContextFull', 'Context is full. Start a new chat or remove documents to continue.'));
