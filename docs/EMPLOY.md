@@ -156,6 +156,8 @@ The August 31 work pack cited v1.0 as a freeze. See [`LICENSE-LIVING-STAMP.md`](
 
 Commercial / org / revenue → paid license. See [`COMMERCIAL_LICENSE.md`](../COMMERCIAL_LICENSE.md).
 
+Who pays / what we never host (GitHub FAQ, not a site page): [`COMMERCIAL_GRANT_FAQ.md`](COMMERCIAL_GRANT_FAQ.md) · [blob on main](https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/COMMERCIAL_GRANT_FAQ.md).
+
 Public visitor-voice commercial brief: [`PUBLIC_COMMERCIAL_BRIEF.md`](PUBLIC_COMMERCIAL_BRIEF.md). Living Organizations card on [employ.html](https://rathor.ai/employ.html).
 
 Contact **info@Rathor.ai** only (never `ceo@acitygames.com`).
