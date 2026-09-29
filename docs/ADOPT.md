@@ -11,6 +11,8 @@ Four-edge wrap path: [`WRAP_FOUR_EDGES.md`](WRAP_FOUR_EDGES.md).
 
 Public briefing (same doors, visitor voice): [`/briefing.html`](https://rathor.ai/briefing.html) · [`PUBLIC_EMPLOY_BRIEFING.md`](PUBLIC_EMPLOY_BRIEFING.md).
 
+Runtime sandbox (NVIDIA OpenShell / Sentry) is a different layer. Neighbor note, not an integration: [`NEIGHBOR_OPEN_AGENT_SAFETY.md`](NEIGHBOR_OPEN_AGENT_SAFETY.md).
+
 ## Four doors (pick one)
 
 | Door | Who | What |
@@ -92,6 +94,7 @@ for chunk in client.chat.completions.create(
 
 - No hosted multi-tenant proxy.
 - No “Ra-Thor mode certified by xAI / Anthropic / OpenAI.”
+- No OpenShell policy, BlueField driver, or “certified on NVIDIA” line. See [`NEIGHBOR_OPEN_AGENT_SAFETY.md`](NEIGHBOR_OPEN_AGENT_SAFETY.md).
 - No new default Cargo member.
 - Combined AGSi stays SURMISE.
 - Family walk unchanged.
