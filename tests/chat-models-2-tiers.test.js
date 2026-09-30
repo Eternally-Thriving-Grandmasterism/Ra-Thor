@@ -74,7 +74,8 @@ var expectTier = {
   'Llama-3.2-3B-Instruct-q4f16_1-MLC': 'Mid',
   'Llama-3.2-3B-Instruct-q4f32_1-MLC': 'Mid',
   'Phi-3.5-mini-instruct-q4f16_1-MLC': 'Heavy',
-  'Phi-3.5-mini-instruct-q4f32_1-MLC': 'Heavy'
+  'Phi-3.5-mini-instruct-q4f32_1-MLC': 'Heavy',
+  'Qwen2.5-7B-Instruct-q4f16_1-MLC': 'Heavy'
 };
 Object.keys(expectTier).forEach(function (id) {
   var at = vendor.indexOf('model_id: "' + id + '"');
@@ -264,11 +265,18 @@ Object.keys(expectTier).forEach(function (id) {
   var at = vendor.indexOf('model_id: "' + id + '"');
   var vram = Number(vendor.slice(at, at + 500).match(/vram_required_MB:\s*([0-9.]+)/)[1]);
   var base = id.replace(/-q4f16_1-MLC$/, '');
-  if (api.keepCuratedRowOnPhone(true, vram, 1200)) phoneLight.push(base);
+  var from = curated.indexOf("base: '" + base + "'");
+  assert(from !== -1, 'curated base missing: ' + base);
+  var next = curated.indexOf("base: '", from + 1);
+  var phoneRow = curated.slice(from, next === -1 ? curated.length : next).indexOf('phoneRow: true') !== -1;
+  if (api.keepCuratedRowOnPhone(true, vram, 1200, phoneRow)) phoneLight.push(base);
   else phoneDropped.push(base);
 });
-assert(phoneLight.join('|') === 'SmolLM2-360M-Instruct|Qwen2.5-0.5B-Instruct|Llama-3.2-1B-Instruct', 'phone path keeps the three Light ids: ' + phoneLight.join(', '));
-['Qwen2.5-1.5B-Instruct', 'gemma-2-2b-it', 'Llama-3.2-3B-Instruct', 'Phi-3.5-mini-instruct'].forEach(function (base) {
+assert(phoneLight.length === 1 && phoneLight[0] === 'Qwen2.5-0.5B-Instruct', 'phone path lists only Qwen2.5-0.5B: ' + phoneLight.join(', '));
+assert(api.keepCuratedRowOnPhone(true, 500, 1200, false) === false, 'an unmarked Light row stays off the phone');
+assert(api.keepCuratedRowOnPhone(true, 5000, 1200, true) === false, 'the phone cap still applies to a marked row');
+assert(api.keepCuratedRowOnPhone(false, 5000, 1200, false) === true, 'desktop keeps every row');
+['SmolLM2-360M-Instruct', 'Llama-3.2-1B-Instruct', 'Qwen2.5-1.5B-Instruct', 'gemma-2-2b-it', 'Llama-3.2-3B-Instruct', 'Phi-3.5-mini-instruct', 'Qwen2.5-7B-Instruct'].forEach(function (base) {
   assert(phoneDropped.indexOf(base) !== -1, base + ' stays off the phone path');
   assert(phoneLight.indexOf(base) === -1, base + ' is not a phone Light row');
 });
