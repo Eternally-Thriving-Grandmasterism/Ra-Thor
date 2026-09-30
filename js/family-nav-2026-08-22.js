@@ -11,6 +11,9 @@
    2026-08-31: Public speech lock — no APTD badge in fallback footer
    2026-09-09: Employ destination in the bar and the fallback directory
    2026-09-15: Compact Follow row — X / LinkedIn / Facebook (visible labels)
+   2026-09-30: FOOTER-I18N-1 — fallback footer follows the chosen language with
+               existing pack keys only; English keeps its original text; /pilot.html
+               keeps its footer exactly as before (no hooks, no listener)
 */
 (function () {
   if (window.__rtFamilyNav) return;
@@ -194,6 +197,79 @@
     }
   }
 
+  /* FOOTER-I18N-1: hooks for the fallback footer. Existing pack keys only.
+     Not data-i18n, so the chrome/essay/site-lock appliers never rewrite the
+     English footer with pack English. Pilot gets no hooks at all. */
+  var FOOTER_I18N = here !== '/pilot.html';
+  var FOOTER_HTML_KEYS = { footerTrademarksText: 1 };
+
+  function fk(key) {
+    return FOOTER_I18N ? ' data-rt-footer-i18n="' + key + '"' : '';
+  }
+
+  function footerLang() {
+    try { return localStorage.getItem('rathor-lang') || 'en'; } catch (e) { return 'en'; }
+  }
+
+  function applyFooterI18n(lang) {
+    if (!FOOTER_I18N) return;
+    var foot = document.getElementById('rt-family-footer');
+    if (!foot || !foot.querySelectorAll) return;
+    lang = lang || 'en';
+    var packs = window.translations || {};
+    var pack = lang === 'en' ? null : packs[lang];
+    var en = packs.en || {};
+    if (!window.__rtI18nChrome) {
+      var label = foot.querySelector('.rt-follow-label');
+      if (label && !label.hasAttribute('data-i18n')) label.setAttribute('data-rt-footer-i18n', 'followTitle');
+    }
+    if (typeof window.rtApplyEssayI18n !== 'function') {
+      /* watch-footer-lock.js adds this link with an essay key; pages without i18n-essay.js never apply it. */
+      var watch = foot.querySelector('a[href="/science-watches.html"][data-i18n="swatchTitle"]');
+      if (watch) watch.setAttribute('data-rt-footer-i18n', 'swatchTitle');
+    }
+    var nodes = foot.querySelectorAll('[data-rt-footer-i18n]');
+    for (var i = 0; i < nodes.length; i++) {
+      var el = nodes[i];
+      if (el.__rtFooterEn == null) el.__rtFooterEn = el.innerHTML;
+      var key = el.getAttribute('data-rt-footer-i18n');
+      var val = pack ? pack[key] : null;
+      if (val == null || String(val) === '') {
+        if (el.innerHTML !== el.__rtFooterEn) el.innerHTML = el.__rtFooterEn;
+        el.removeAttribute('dir');
+        el.removeAttribute('lang');
+        continue;
+      }
+      val = String(val);
+      if (FOOTER_HTML_KEYS[key]) el.innerHTML = val;
+      else el.textContent = val;
+      var real = !(en[key] != null && String(en[key]) === val);
+      el.setAttribute('lang', real ? lang : 'en');
+      el.setAttribute('dir', real && /[\u0590-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFF]/.test(val) ? 'rtl' : 'ltr');
+    }
+  }
+
+  function bootFooterI18n() {
+    if (!FOOTER_I18N || window.__rtFooterI18n) return;
+    window.__rtFooterI18n = true;
+    window.rtApplyFooterI18n = applyFooterI18n;
+    document.addEventListener('rt-chrome-i18n', function (e) {
+      applyFooterI18n((e && e.detail && e.detail.lang) || 'en');
+    });
+    var lang = footerLang();
+    if (lang === 'en' || !/^[a-z]{2}$/.test(lang)) return;
+    if (window.translations && window.translations[lang]) {
+      applyFooterI18n(lang);
+      return;
+    }
+    /* Pages with i18n-chrome load the pack and fire rt-chrome-i18n themselves. */
+    if (window.__rtI18nChrome) return;
+    var s = document.createElement('script');
+    s.src = '/i18n/' + lang + '.js?v=20260924a';
+    s.onload = function () { applyFooterI18n(footerLang()); };
+    (document.head || document.documentElement).appendChild(s);
+  }
+
   function siteFooter() {
     var wrap = document.createElement('footer');
     wrap.className = 'rt-site-footer';
@@ -205,31 +281,31 @@
         followNavHtml() +
         '<div class="grid grid-cols-1 md:grid-cols-12 gap-8">' +
           '<div class="md:col-span-3">' +
-            '<h4>Trademarks</h4>' +
-            '<p class="rt-legal">Ra-Thor™ is a trademark of Autonomicity Games Inc.<br>Grok is a trademark of xAI. X is a trademark of X Corp.<br>Ra-Thor is independent — not affiliated with, sponsored by, or endorsed by xAI.</p>' +
+            '<h4' + fk('footerTrademarksTitle') + '>Trademarks</h4>' +
+            '<p class="rt-legal"' + fk('footerTrademarksText') + '>Ra-Thor™ is a trademark of Autonomicity Games Inc.<br>Grok is a trademark of xAI. X is a trademark of X Corp.<br>Ra-Thor is independent — not affiliated with, sponsored by, or endorsed by xAI.</p>' +
           '</div>' +
           '<div class="md:col-span-3">' +
-            '<h4>Privacy</h4>' +
-            '<p class="rt-legal">This website collects no personal data. Computations stay in your browser. No cookies, tracking, or analytics we control.</p>' +
+            '<h4' + fk('footerPrivacyTitle') + '>Privacy</h4>' +
+            '<p class="rt-legal"' + fk('homeFooterPrivacy') + '>This website collects no personal data. Computations stay in your browser. No cookies, tracking, or analytics we control.</p>' +
           '</div>' +
           '<div class="md:col-span-3">' +
-            '<h4>Workspace</h4>' +
-            '<p class="rt-legal">v14.15.6 · AG-SML v1.1 · TOLC 8 · Capable · Bounded · Corrigible</p>' +
+            '<h4' + fk('footerWorkspaceTitle') + '>Workspace</h4>' +
+            '<p class="rt-legal"' + fk('homeFooterWorkspace') + '>v14.15.6 · AG-SML v1.1 · TOLC 8 · Capable · Bounded · Corrigible</p>' +
           '</div>' +
           '<div class="md:col-span-3">' +
-            '<h4>Directory</h4>' +
+            '<h4' + fk('footerFamilyTitle') + '>Directory</h4>' +
             '<div class="flex flex-col gap-2 text-xs">' +
-              '<a href="/">Home</a>' +
+              '<a href="/"' + fk('navHome') + '>Home</a>' +
               '<a href="/chat.html">Lattice Chat</a>' +
-              '<a href="/employ.html">How to employ</a>' +
-              '<a href="/pilot.html">Pilot</a>' +
-              '<a href="/Launch-Ra-Thor.html">Launch map</a>' +
-              '<a href="/micro-moment.html">Micro-moments</a>' +
-              '<a href="/sovereign-shard.html">Sovereign Shard</a>' +
+              '<a href="/employ.html"' + fk('employTitle') + '>How to employ</a>' +
+              '<a href="/pilot.html"' + fk('navPilot') + '>Pilot</a>' +
+              '<a href="/Launch-Ra-Thor.html"' + fk('homeLaunchMap') + '>Launch map</a>' +
+              '<a href="/micro-moment.html"' + fk('homeMoments') + '>Micro-moments</a>' +
+              '<a href="/sovereign-shard.html"' + fk('surfaceShard') + '>Sovereign Shard</a>' +
               '<a href="/web-forge.html">Web-Forge</a>' +
-              '<a href="/contact.html">Contact</a>' +
-              '<a href="/privacy.html">Privacy</a>' +
-              '<a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor" target="_blank" rel="noopener">Monorepo</a>' +
+              '<a href="/contact.html"' + fk('navContact') + '>Contact</a>' +
+              '<a href="/privacy.html"' + fk('navPrivacy') + '>Privacy</a>' +
+              '<a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor" target="_blank" rel="noopener"' + fk('homeMonorepo') + '>Monorepo</a>' +
               '<a href="mailto:info@Rathor.ai">info@Rathor.ai</a>' +
             '</div>' +
           '</div>' +
@@ -303,6 +379,7 @@
       document.body.appendChild(siteFooter());
     }
     ensureFollowStrip();
+    bootFooterI18n();
     try { window.dispatchEvent(new Event('rathor-nav-ready')); } catch (e) {}
   }
 
