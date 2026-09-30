@@ -110,7 +110,8 @@
     WEBLLM_VENDOR
   );
   const WEBLLM_DEFAULT_BASE = 'Llama-3.2-1B-Instruct';
-  // Phone picker rows stay at or under this cap. The curated list itself stays seven.
+  // Phone picker rows: only entries marked phoneRow (Qwen2.5-0.5B), and still at or under this cap.
+  // Other Light rows stay in the curated list for desktop. A stored model key is never rewritten.
   const PHONE_MAX_VRAM_MB = 1200;
   // Curated order. Quantization is chosen from the pinned prebuiltAppConfig.
   // q4f32_1 is used only when the WebGPU adapter lacks shader-f16.
@@ -126,7 +127,8 @@
       base: 'Qwen2.5-0.5B-Instruct',
       q4f16: 'Qwen2.5-0.5B-Instruct-q4f16_1-MLC',
       q4f32: 'Qwen2.5-0.5B-Instruct-q4f32_1-MLC',
-      links: [{ text: 'Apache-2.0', href: 'https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/blob/7ae557604adf67be50417f59c2c2f167def9a775/LICENSE' }]
+      links: [{ text: 'Apache-2.0', href: 'https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct/blob/7ae557604adf67be50417f59c2c2f167def9a775/LICENSE' }],
+      phoneRow: true
     },
     {
       base: 'Llama-3.2-1B-Instruct',
@@ -168,6 +170,15 @@
       q4f16: 'Phi-3.5-mini-instruct-q4f16_1-MLC',
       q4f32: 'Phi-3.5-mini-instruct-q4f32_1-MLC',
       links: [{ text: 'MIT', href: 'https://huggingface.co/microsoft/Phi-3.5-mini-instruct/blob/2fe192450127e6a83f7441aef6e3ca586c338b77/LICENSE' }]
+    },
+    {
+      // PICKER-STEP-1: desktop GPU row. The q4f16_1 id is in the pinned 0.2.85 prebuiltAppConfig.
+      // No q4f32 fallback is listed, so the row is absent when the adapter lacks shader-f16.
+      base: 'Qwen2.5-7B-Instruct',
+      q4f16: 'Qwen2.5-7B-Instruct-q4f16_1-MLC',
+      q4f32: null,
+      links: [{ text: 'Apache-2.0', href: 'https://huggingface.co/Qwen/Qwen2.5-7B-Instruct/blob/a09a35458c702b33eeacc393d103063234e8bc28/LICENSE' }],
+      desktopLabel: 'Desktop. Not SuperGrok. Needs a real GPU.'
     }
   ];
 
@@ -1778,8 +1789,9 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     return text;
   }
 
-  function keepCuratedRowOnPhone(phonePath, vramMb, maxVramMb) {
+  function keepCuratedRowOnPhone(phonePath, vramMb, maxVramMb, phoneRow) {
     if (!phonePath) return true;
+    if (phoneRow !== true) return false;
     return typeof vramMb === 'number' && vramMb <= maxVramMb;
   }
 
@@ -1806,7 +1818,8 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     if (phonePath !== true || listed.indexOf(qwen) === -1) {
       return { active: desktopActive || '', stored: kept, writeDefault: false };
     }
-    if (!kept || (ready !== true && listed.indexOf(kept) !== -1)) {
+    // A stored key that is not listed on the phone highlights Qwen. The key itself is kept.
+    if (!kept || listed.indexOf(kept) === -1 || ready !== true) {
       return { active: qwen, stored: kept, writeDefault: false };
     }
     return { active: desktopActive || '', stored: kept, writeDefault: false };
@@ -2097,6 +2110,12 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
       }
       if (opt.entry.builtWithLlama) meta.appendChild(document.createTextNode(' · Built with Llama'));
       copy.appendChild(name);
+      if (opt.entry.desktopLabel) {
+        var desk = document.createElement('p');
+        desk.className = 'webllm-row-meta webllm-row-desktop';
+        desk.textContent = opt.entry.desktopLabel;
+        copy.appendChild(desk);
+      }
       copy.appendChild(meta);
       top.appendChild(copy);
 
@@ -2582,7 +2601,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
       var id = quantIdFor(entry);
       var rec = byId.get(id);
       if (!rec) return;
-      if (!keepCuratedRowOnPhone(webllmPhonePath, rec.vram_required_MB, PHONE_MAX_VRAM_MB)) return;
+      if (!keepCuratedRowOnPhone(webllmPhonePath, rec.vram_required_MB, PHONE_MAX_VRAM_MB, entry.phoneRow === true)) return;
       webllmOptions.push({ entry: entry, id: id, rec: rec });
     });
     var listedBases = [];
