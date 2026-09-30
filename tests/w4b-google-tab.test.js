@@ -17,7 +17,7 @@ assert(js.indexOf('<script') === -1, 'must not inject a translate.google.com scr
 assert(js.indexOf('target="_blank"') !== -1, 'must open a new tab');
 assert(js.indexOf('rel="noopener"') !== -1, 'must set rel=noopener');
 assert(js.indexOf('https://rathor.ai') !== -1, 'must point Google at rathor.ai');
-assert(js.indexOf('https://translate.google.com/website?sl=en&u=') !== -1, 'English must use the website target picker');
+assert(js.indexOf('translate.google.com/website') === -1, 'English must not use the website picker (it resolves to tl=en on English phones)');
 assert(js.indexOf('tl=en') === -1, 'source must never build tl=en');
 assert(js.indexOf('may fail on this site (COEP)') === -1, 'must not say the proxy may fail');
 assert(js.indexOf('/chat.html') !== -1, 'chat page URL must be rewritten off the chat document');
