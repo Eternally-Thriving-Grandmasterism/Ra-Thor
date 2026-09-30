@@ -80,6 +80,8 @@ assert(src.indexOf('tl=en') === -1, 'source must never build tl=en');
 assert(src.indexOf('window.rtGTranslateHref') !== -1, 'must expose window.rtGTranslateHref for tests');
 assert(typeof EN.gTranslateHint === 'string' && EN.gTranslateHint.trim() !== '', 'en.js must carry gTranslateHint');
 assert(src.indexOf("pack('gTranslateHint'") !== -1, 'hint must come from the pack via pack()');
+assert(src.indexOf("pack('gTranslateHintNote'") !== -1, 'hint note must come from the pack via pack()');
+assert(src.indexOf('Google Translate opens once you pick another language. Offline packs stay the default.') !== -1, 'hint note needs the built-in English fallback');
 assert(nav.indexOf('google-translate-optin.js?v=20260915c') === -1, 'optin cache tag must be bumped');
 
 // 1. English page, English-only device, nothing stored: no Google href, hint shown, strip kept.
@@ -94,11 +96,16 @@ assert(a.textContent === EN.gTranslateHint, 'hint text must come from en.gTransl
 assert(a.getAttribute('target') === null, 'in-page hint must not open a new tab');
 assert(a.getAttribute('data-rt-gtranslate-hint') === '1', 'hint state must be marked');
 assert(!/google/i.test(a.getAttribute('href') || ''), 'no Google href in hint state');
+var hintNote = r.els['rt-gtranslate-note'].textContent;
+assert(typeof EN.gTranslateHintNote === 'string' && EN.gTranslateHintNote.trim() !== '', 'en.js must carry gTranslateHintNote');
+assert(hintNote === EN.gTranslateHintNote, 'hint-mode note must use gTranslateHintNote, got ' + hintNote);
+assert(!/new tab/i.test(hintNote), 'hint-mode note must never say new tab');
 
 // 1b. No language buttons on the page: hint stays, no href at all.
 r = run({ store: { 'rathor-lang': 'en' }, languages: ['en-GB'], langSelector: false });
 assert(r.els['rt-gtranslate-open'].getAttribute('href') === null, 'hint without a language bar must not carry an href');
 assert(r.els['rt-gtranslate-open'].textContent === EN.gTranslateHint, 'hint text still shown without a language bar');
+assert(r.els['rt-gtranslate-note'].textContent === EN.gTranslateHintNote, 'hint note shown without a language bar');
 
 // 2. English page, device prefers Spanish second: tl=es and the button is a Google new tab.
 r = run({ store: { 'rathor-lang': 'en' }, languages: ['en-US', 'es-ES'] });
@@ -106,6 +113,7 @@ assert(tlOf(r.win.rtGTranslateHref('en')) === 'es', 'en + es device must target 
 a = r.els['rt-gtranslate-open'];
 assert(tlOf(a.getAttribute('href')) === 'es' && a.getAttribute('target') === '_blank' && a.getAttribute('rel') === 'noopener', 'es button must be a Google new tab');
 assert(a.textContent === EN.gTranslateBtn, 'button text must be gTranslateBtn');
+assert(r.els['rt-gtranslate-note'].textContent === EN.gTranslateNote, 'link-mode note must stay gTranslateNote');
 
 // 2b. English page, remembered non-English language wins over the device list.
 r = run({ store: { 'rathor-lang': 'en', 'rathor-gtranslate-tl': 'ja' }, languages: ['en-US', 'es'] });

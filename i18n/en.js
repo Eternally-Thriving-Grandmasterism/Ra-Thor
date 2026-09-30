@@ -184,6 +184,7 @@ window.translations["en"] = {
   "gTranslateBtn": "Translate with Google",
   "gTranslateNote": "Opens Google Translate in a new tab. Needs the network. Not the offline pack.",
   "gTranslateHint": "Choose a language on this page",
+  "gTranslateHintNote": "Google Translate opens once you pick another language. Offline packs stay the default.",
   "gTranslateOffline": "Google Translate needs the network. Offline language packs on this page still work.",
   "gTranslateBlocked": "Could not reach Google (offline or blocked). Offline language packs still work.",
   "gTranslateLoading": "Google Translate opens in a new tab. This leaves the device and is not the offline pack.",

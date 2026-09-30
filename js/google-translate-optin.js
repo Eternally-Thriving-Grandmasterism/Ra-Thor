@@ -116,10 +116,11 @@
       }
     }
     if (note) {
-      note.textContent = pack(
-        'gTranslateNote',
-        'Opens Google Translate in a new tab. Needs the network. Not the offline pack.'
-      );
+      note.textContent = href ?
+        pack('gTranslateNote',
+          'Opens Google Translate in a new tab. Needs the network. Not the offline pack.') :
+        pack('gTranslateHintNote',
+          'Google Translate opens once you pick another language. Offline packs stay the default.');
     }
   }
 
