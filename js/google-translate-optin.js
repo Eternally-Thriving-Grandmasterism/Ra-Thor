@@ -44,41 +44,88 @@
     return 'https://rathor.ai' + p;
   }
 
+  // First non-English language the device prefers ('' if none).
+  // Read locally to build the link. Never sent anywhere by this script.
+  function deviceTl() {
+    var list = [];
+    try {
+      list = (navigator.languages && navigator.languages.length) ?
+        navigator.languages : [navigator.language];
+    } catch (e) {}
+    for (var i = 0; i < list.length; i++) {
+      var tag = String(list[i] || '').toLowerCase();
+      var base = tag.split('-')[0];
+      if (!base || base === 'en') continue;
+      if (base === 'zh') {
+        return (tag.indexOf('tw') !== -1 || tag.indexOf('hant') !== -1 ||
+          tag.indexOf('hk') !== -1) ? 'zh-TW' : 'zh-CN';
+      }
+      return base;
+    }
+    return '';
+  }
+
+  function isEnglishTl(tl) {
+    tl = String(tl || '').toLowerCase();
+    return !tl || tl === 'en' || tl.indexOf('en-') === 0;
+  }
+
+  // The page source is English. Google's proxy answers HTTP 400
+  // "Can't translate this page" when target == source, and the /website
+  // picker takes the target from the UI language (en on English phones).
+  // So never build a link whose target is English. Returns '' when there is
+  // no non-English target; sync() then shows the language-button hint.
   function googleHref(lang) {
     lang = lang || currentLang() || 'en';
-    var u = encodeURIComponent(pageUrl());
+    var tl;
     if (lang !== 'en') {
       rememberTl(lang);
-      return 'https://translate.google.com/translate?sl=en&tl=' +
-        encodeURIComponent(lang) +
-        '&u=' + u;
+      tl = lang;
+    } else {
+      tl = storedTl() || deviceTl();
     }
-    var saved = storedTl();
-    if (saved) {
-      return 'https://translate.google.com/translate?sl=en&tl=' +
-        encodeURIComponent(saved) +
-        '&u=' + u;
-    }
-    return 'https://translate.google.com/website?sl=en&u=' + u;
+    if (isEnglishTl(tl)) return '';
+    return 'https://translate.google.com/translate?sl=en&tl=' +
+      encodeURIComponent(tl) + '&u=' + encodeURIComponent(pageUrl());
+  }
+
+  function underProxy() {
+    try { return /\.translate\.goog$/i.test(location.hostname || ''); } catch (e) { return false; }
   }
 
   function sync() {
     var a = document.getElementById('rt-gtranslate-open');
     var note = document.getElementById('rt-gtranslate-note');
     var lang = currentLang();
+    var href = googleHref(lang);
     if (a) {
-      a.textContent = pack('gTranslateBtn', 'Translate with Google');
-      a.setAttribute('href', googleHref(lang));
+      if (href) {
+        a.textContent = pack('gTranslateBtn', 'Translate with Google');
+        a.setAttribute('href', href);
+        a.setAttribute('target', '_blank');
+        a.setAttribute('rel', 'noopener');
+        a.removeAttribute('data-rt-gtranslate-hint');
+      } else {
+        // Same pill, same strip height: point at the site's own language buttons.
+        a.textContent = pack('gTranslateHint', 'Choose a language on this page');
+        if (document.getElementById('lang-selector')) a.setAttribute('href', '#lang-selector');
+        else a.removeAttribute('href');
+        a.removeAttribute('target');
+        a.removeAttribute('rel');
+        a.setAttribute('data-rt-gtranslate-hint', '1');
+      }
     }
     if (note) {
-      note.textContent = pack(
-        'gTranslateNote',
-        'Opens Google Translate in a new tab. Needs the network. Not the offline pack.'
-      );
+      note.textContent = href ?
+        pack('gTranslateNote',
+          'Opens Google Translate in a new tab. Needs the network. Not the offline pack.') :
+        pack('gTranslateHintNote',
+          'Google Translate opens once you pick another language. Offline packs stay the default.');
     }
   }
 
   function mount() {
+    if (underProxy()) return; // already inside Google's proxy: no nested proxy link
     if (document.getElementById('rt-gtranslate')) {
       sync();
       return;
@@ -97,6 +144,7 @@
   }
 
   window.rtGTranslateSync = sync;
+  window.rtGTranslateHref = googleHref;
 
   if (document.body) mount();
   else document.addEventListener('DOMContentLoaded', mount);
