@@ -18,6 +18,14 @@
             catch (e) { document.documentElement.setAttribute('data-theme', 'dark'); }
         })();
     </script>
+    <style>
+        /* PHONE-CLIP-1: page-scoped (web-forge only). Below the shared 900px two-column rule, the single
+           forge column may shrink below its content; presets never force 152px columns wider than the card;
+           sliders may shrink so the value column stays inside the card on 320px phones. */
+        @media (max-width: 899.98px) { .rt-forge-grid { grid-template-columns: minmax(0, 1fr); } }
+        .rt-forge-grid .rt-preset-row { grid-template-columns: repeat(auto-fit, minmax(min(9.5rem, 100%), 1fr)); }
+        .rt-forge-grid .rt-gate-row input[type="range"] { min-width: 0; }
+    </style>
 </head>
 <body>
     <main class="rt-demo-page" id="rt-family-main">

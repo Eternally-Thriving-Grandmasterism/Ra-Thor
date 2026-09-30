@@ -20,6 +20,13 @@
     .title-font { font-family: Inter, system-ui, sans-serif; }
     .thunder-glow { text-shadow: 0 0 40px #ffd700, 0 0 80px #ffaa00; }
     .card-hover { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+    /* PHONE-CLIP-1: .w-full is content-box, so width:100% plus px-4/sm:px-6 overflows the viewport
+       below 52rem (832px); long URLs and code may break so they stay on screen.
+       Page-scoped here so pilot.html and every other page stay as they are. */
+    @media (max-width: 51.99rem) {
+      body > .min-h-screen > .max-w-3xl.w-full { box-sizing: border-box; }
+      body > .min-h-screen > .max-w-3xl.w-full :is(a, code) { overflow-wrap: anywhere; }
+    }
   </style>
 </head>
 <body class="bg-black text-white overflow-x-hidden">
