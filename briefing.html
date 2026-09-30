@@ -28,6 +28,13 @@
     .card-hover { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
     .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px -12px rgb(234 179 8 / 0.25); }
     @media (prefers-reduced-motion: reduce) { .card-hover { animation: none !important; transition: none !important; } }
+    /* PHONE-CLIP-1: .w-full is content-box, so width:100% plus px-4/sm:px-6 overflows the viewport
+       below 52rem (832px); long URLs and code may break so they stay on screen.
+       Page-scoped here so pilot.html and every other page stay as they are. */
+    @media (max-width: 51.99rem) {
+      body > .min-h-screen > .max-w-3xl.w-full { box-sizing: border-box; }
+      body > .min-h-screen > .max-w-3xl.w-full :is(a, code) { overflow-wrap: anywhere; }
+    }
   </style>
 </head>
 <body class="bg-black text-white overflow-x-hidden">
