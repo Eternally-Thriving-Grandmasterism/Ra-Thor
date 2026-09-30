@@ -73,7 +73,8 @@ var bases = [
   'Qwen2.5-1.5B-Instruct',
   'gemma-2-2b-it',
   'Llama-3.2-3B-Instruct',
-  'Phi-3.5-mini-instruct'
+  'Phi-3.5-mini-instruct',
+  'Qwen2.5-7B-Instruct'
 ];
 var pos = -1;
 bases.forEach(function (base) {
@@ -88,16 +89,23 @@ var pickerIds = curated.match(/'[A-Za-z0-9._-]+-MLC'/g).map(function (token) {
   return token.slice(1, -1);
 });
 var curatedEntries = [];
-var entryRe = /base: '([^']+)'[\s\S]*?q4f16: '([^']+)'[\s\S]*?q4f32: '([^']+)'/g;
+// PICKER-STEP-1: Qwen2.5-7B is q4f16 only (q4f32: null). phoneRow marks the phone list.
+var entryRe = /base: '([^']+)'[\s\S]*?q4f16: '([^']+)'[\s\S]*?q4f32: (?:'([^']+)'|null)/g;
 var entryMatch;
 while ((entryMatch = entryRe.exec(curated))) {
-  curatedEntries.push({ base: entryMatch[1], q4f16: entryMatch[2], q4f32: entryMatch[3] });
+  curatedEntries.push({ base: entryMatch[1], q4f16: entryMatch[2], q4f32: entryMatch[3] || null });
 }
-assert(curatedEntries.length === 7, 'curated list stays seven bases');
+curatedEntries.forEach(function (entry, i) {
+  var from = curated.indexOf("base: '" + entry.base + "'");
+  var next = i + 1 < curatedEntries.length ? curated.indexOf("base: '" + curatedEntries[i + 1].base + "'") : curated.length;
+  entry.phoneRow = curated.slice(from, next).indexOf('phoneRow: true') !== -1;
+});
+assert(curatedEntries.length === 8, 'curated list is eight bases');
+assert(curatedEntries.filter(function (e) { return e.phoneRow; }).map(function (e) { return e.base; }).join('|') === 'Qwen2.5-0.5B-Instruct', 'only Qwen2.5-0.5B is marked for the phone');
 var capMatch = chat.match(/const PHONE_MAX_VRAM_MB = ([0-9.]+);/);
 assert(capMatch, 'PHONE_MAX_VRAM_MB must be a named constant');
 var phoneMaxVram = Number(capMatch[1]);
-assert(pickerIds.length === 14, 'picker must name q4f16_1 and q4f32_1 for each curated model');
+assert(pickerIds.length === 15, 'picker names q4f16_1 and q4f32_1 for each curated model, and q4f16_1 only for Qwen2.5-7B');
 var configIds = {};
 var idRe = /model_id:\s*"([^"]+)"/g;
 var idMatch;
@@ -153,7 +161,7 @@ assert(boot.indexOf("if (!llmSupported) updateLlmUI('unsupported', cap.reason);"
 assert(boot.indexOf('initWebllmPicker()') > boot.indexOf('if (!llmSupported)'), 'a supported probe opens the picker');
 assert(chat.indexOf("webllmPicker.classList.remove('hidden')") !== -1, 'picker init shows the list');
 var initSrc = chat.slice(chat.indexOf('async function initWebllmPicker'), chat.indexOf('async function generateWithLocalLLM'));
-assert(initSrc.indexOf('keepCuratedRowOnPhone(webllmPhonePath, rec.vram_required_MB, PHONE_MAX_VRAM_MB)') !== -1, 'phone path filters rows with PHONE_MAX_VRAM_MB');
+assert(initSrc.indexOf('keepCuratedRowOnPhone(webllmPhonePath, rec.vram_required_MB, PHONE_MAX_VRAM_MB, entry.phoneRow === true)') !== -1, 'phone path filters rows with phoneRow and PHONE_MAX_VRAM_MB');
 assert(initSrc.indexOf('rememberedModelPlan(') !== -1, 'init plans the remembered model against the listed rows');
 assert(initSrc.indexOf('if (plan.writeDefault)') !== -1, 'init writes the model key only when none is stored');
 assert(initSrc.indexOf('deleteModelAllInfoInCache') === -1, 'opening the picker does not delete a model cache');
@@ -395,12 +403,14 @@ var desktop = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like G
 var macDesktop = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15';
 var SAFARI_EVICT = 'Safari may evict downloaded models when storage is low.';
 
-var PHONE_BASES = ['SmolLM2-360M-Instruct', 'Qwen2.5-0.5B-Instruct', 'Llama-3.2-1B-Instruct'];
+var PHONE_BASES = ['Qwen2.5-0.5B-Instruct'];
+var UNDER_CAP = ['SmolLM2-360M-Instruct', 'Qwen2.5-0.5B-Instruct', 'Llama-3.2-1B-Instruct'];
 function rowsFor(shaderF16, phonePath) {
   var rows = [];
   curatedEntries.forEach(function (entry) {
     var id = shaderF16 ? entry.q4f16 : entry.q4f32;
-    if (!api.keepCuratedRowOnPhone(phonePath, vramById[id], phoneMaxVram)) return;
+    if (!id) return;
+    if (!api.keepCuratedRowOnPhone(phonePath, vramById[id], phoneMaxVram, entry.phoneRow === true)) return;
     rows.push(entry.base);
   });
   return rows;
@@ -432,8 +442,9 @@ function probeSupport(nav) {
   assert(lifted.reason === null, 'phone UA with a non-null adapter has no block text');
   assert(lifted.phone === true, 'a non-null adapter marks the phone path');
   curatedEntries.forEach(function (entry) {
-    var under = PHONE_BASES.indexOf(entry.base) !== -1;
+    var under = UNDER_CAP.indexOf(entry.base) !== -1;
     [entry.q4f16, entry.q4f32].forEach(function (id) {
+      if (!id) return;
       var vram = vramById[id];
       if (under) assert(vram <= phoneMaxVram, id + ' stays at or under PHONE_MAX_VRAM_MB (' + vram + ')');
       else assert(vram > phoneMaxVram, id + ' stays above PHONE_MAX_VRAM_MB (' + vram + ')');
@@ -441,9 +452,9 @@ function probeSupport(nav) {
   });
   var phoneF16 = rowsFor(true, true);
   var phoneF32 = rowsFor(false, true);
-  assert(phoneF16.join('|') === PHONE_BASES.join('|'), 'shader-f16 phone picker lists the three smallest bases: ' + phoneF16.join(', '));
-  assert(phoneF32.join('|') === PHONE_BASES.join('|'), 'q4f32 phone picker lists the three smallest bases: ' + phoneF32.join(', '));
-  var MID_HEAVY = ['Qwen2.5-1.5B-Instruct', 'gemma-2-2b-it', 'Llama-3.2-3B-Instruct', 'Phi-3.5-mini-instruct'];
+  assert(phoneF16.length === 1 && phoneF16.join('|') === PHONE_BASES.join('|'), 'shader-f16 phone picker lists only Qwen2.5-0.5B: ' + phoneF16.join(', '));
+  assert(phoneF32.length === 1 && phoneF32.join('|') === PHONE_BASES.join('|'), 'q4f32 phone picker lists only Qwen2.5-0.5B: ' + phoneF32.join(', '));
+  var MID_HEAVY = ['SmolLM2-360M-Instruct', 'Llama-3.2-1B-Instruct', 'Qwen2.5-1.5B-Instruct', 'gemma-2-2b-it', 'Llama-3.2-3B-Instruct', 'Phi-3.5-mini-instruct', 'Qwen2.5-7B-Instruct'];
   MID_HEAVY.forEach(function (base) {
     assert(phoneF16.indexOf(base) === -1, base + ' stays off the shader-f16 phone path');
     assert(phoneF32.indexOf(base) === -1, base + ' stays off the q4f32 phone path');
@@ -457,7 +468,10 @@ function probeSupport(nav) {
   assert(api.webllmRowUseLabel(true, qwenId, llamaId, llamaBase, llamaBase) === 'Selected', 'a stored row stays Selected when another model is loaded');
   assert(api.webllmRowUseLabel(false, llamaId, llamaId, '', llamaBase) === '', 'the default model id without a stored key is not In use');
   assert(api.webllmRowUseLabel(true, llamaId, qwenId, llamaBase, 'Qwen2.5-0.5B-Instruct') === '', 'a different row is neither In use nor Selected');
-  assert(api.localSendRoute(false, false, llamaBase, phoneF16) === 'not-loaded', 'Selected and not ready refuses the fast responder');
+  var deskF16 = rowsFor(true, false);
+  assert(api.localSendRoute(false, false, llamaBase, deskF16) === 'not-loaded', 'Selected and not ready refuses the fast responder');
+  assert(api.localSendRoute(false, false, 'Qwen2.5-0.5B-Instruct', phoneF16) === 'not-loaded', 'phone: Selected Qwen and not ready refuses the fast responder');
+  assert(api.localSendRoute(false, false, llamaBase, phoneF16) === 'fallback', 'phone: a stored Llama key that is not listed does not block send');
   assert(api.localSendRoute(true, true, llamaBase, phoneF16) === 'generate', 'In use with a ready engine generates');
   assert(api.localSendRoute(false, false, '', phoneF16) === 'fallback', 'no stored model keeps the fast responder');
   assert(api.localSendRoute(false, false, 'gemma-2-2b-it', phoneF16) === 'fallback', 'a stored base absent from the phone list does not block send');
@@ -495,7 +509,11 @@ function probeSupport(nav) {
   assert(overCap.active === 'Llama-3.2-1B-Instruct', 'a remembered model above the cap uses the default on a phone');
   assert(overCap.stored === 'gemma-2-2b-it' && overCap.writeDefault === false, 'a remembered model above the cap keeps its stored key');
   var underCap = api.rememberedModelPlan('SmolLM2-360M-Instruct', phoneF16, 'Llama-3.2-1B-Instruct');
-  assert(underCap.active === 'SmolLM2-360M-Instruct' && underCap.writeDefault === false, 'a remembered model under the cap stays selected');
+  assert(underCap.stored === 'SmolLM2-360M-Instruct' && underCap.writeDefault === false, 'a stored SmolLM2 key is kept on a phone, not rewritten');
+  var deskSmol = api.rememberedModelPlan('SmolLM2-360M-Instruct', deskF16, 'Llama-3.2-1B-Instruct');
+  assert(deskSmol.active === 'SmolLM2-360M-Instruct' && deskSmol.writeDefault === false, 'a remembered SmolLM2 stays selected on desktop');
+  var phoneSmol = api.phoneHighlightPlan(true, 'SmolLM2-360M-Instruct', phoneF16, false, underCap.active);
+  assert(phoneSmol.active === 'Qwen2.5-0.5B-Instruct' && phoneSmol.stored === 'SmolLM2-360M-Instruct' && phoneSmol.writeDefault === false, 'phone highlights Qwen for a stored SmolLM2 key and keeps the key');
   var emptyPlan = api.rememberedModelPlan('', phoneF16, 'Llama-3.2-1B-Instruct');
   assert(emptyPlan.active === '' && emptyPlan.stored === '' && emptyPlan.writeDefault === false, 'an empty stored key highlights no row and is not rewritten');
   var qwenBase = 'Qwen2.5-0.5B-Instruct';
@@ -505,8 +523,10 @@ function probeSupport(nav) {
   assert(phoneLlama.stored === 'Llama-3.2-1B-Instruct' && phoneLlama.writeDefault === false, 'a Selected Llama key is not rewritten');
   var phoneEmpty = api.phoneHighlightPlan(true, '', phoneF16, false, '');
   assert(phoneEmpty.active === qwenBase && phoneEmpty.stored === '' && phoneEmpty.writeDefault === false, 'an empty phone key highlights Qwen and is not written');
-  var phoneReady = api.phoneHighlightPlan(true, 'Llama-3.2-1B-Instruct', phoneF16, true, llamaStored.active);
-  assert(phoneReady.active === 'Llama-3.2-1B-Instruct' && phoneReady.writeDefault === false, 'a ready Llama stays the phone highlight');
+  var phoneReady = api.phoneHighlightPlan(true, qwenBase, phoneF16, true, qwenBase);
+  assert(phoneReady.active === qwenBase && phoneReady.writeDefault === false, 'a ready Qwen stays the phone highlight');
+  var phoneLlamaReady = api.phoneHighlightPlan(true, 'Llama-3.2-1B-Instruct', phoneF16, true, llamaStored.active);
+  assert(phoneLlamaReady.active === qwenBase && phoneLlamaReady.stored === 'Llama-3.2-1B-Instruct' && phoneLlamaReady.writeDefault === false, 'a Llama key not listed on the phone highlights Qwen and is kept');
   var deskEmpty = api.phoneHighlightPlan(false, '', phoneF16, false, '');
   assert(deskEmpty.active === '' && deskEmpty.writeDefault === false, 'desktop empty key still highlights no row');
   var weakLine = 'Often fails to run on phones. Qwen 0.5B is the supported Light row.';
@@ -566,7 +586,11 @@ function probeSupport(nav) {
   assert(desktopCalls === 0, 'desktop probe does not call requestAdapter');
   assert(desk.supported === true && desk.reason === null, 'desktop with navigator.gpu stays available');
   assert(desk.phone !== true, 'desktop does not take the phone path');
-  assert(rowsFor(true, false).length === 7 && rowsFor(false, false).length === 7, 'desktop lists all seven curated bases');
+  assert(rowsFor(true, false).length === 8, 'desktop with shader-f16 lists all eight curated bases');
+  assert(rowsFor(false, false).length === 7 && rowsFor(false, false).indexOf('Qwen2.5-7B-Instruct') === -1, 'desktop without shader-f16 omits the q4f16-only Qwen2.5-7B row');
+  ['SmolLM2-360M-Instruct', 'Llama-3.2-1B-Instruct', 'Qwen2.5-0.5B-Instruct', 'Qwen2.5-7B-Instruct'].forEach(function (base) {
+    assert(rowsFor(true, false).indexOf(base) !== -1, 'desktop still lists ' + base);
+  });
   assert(api.phoneCapNotes(false).length === 0, 'desktop shows neither phone line');
 
   var deskNoGpu = await probeSupport({ userAgent: desktop });
