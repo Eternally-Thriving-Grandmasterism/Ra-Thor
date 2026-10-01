@@ -2,6 +2,7 @@
 name = "biological_unifier"
 version = "0.1.0"
 edition = "2021"
+license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
 
 [dependencies]
 # Future: serde = { version = "1.0", features = ["derive"] }

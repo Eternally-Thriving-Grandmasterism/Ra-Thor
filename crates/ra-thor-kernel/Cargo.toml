@@ -2,6 +2,7 @@
 name = "ra-thor-kernel"
 version = "2026.1.0"
 edition = "2021"
+license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
 
 [lib]
 crate-type = ["cdylib"]

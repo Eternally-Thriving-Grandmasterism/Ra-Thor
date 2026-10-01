@@ -1,3 +1,4 @@
+[package]
 name = "fenca"
 version = "0.3.9"
 edition = "2021"
