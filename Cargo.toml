@@ -44,6 +44,7 @@ members = [
     "crates/mercy_tolc_operator_algebra",
     "crates/fractal-mercy-ledger-adapter",
     "crates/mercy-security",
+    "crates/mercy",
 ]
 
 # On-disk only (not default members):
