@@ -54,7 +54,8 @@ jobs:
             sovereign-recovery \
             monorepo-intelligence \
             mercy_tolc_operator_algebra \
-            fractal-mercy-ledger-adapter
+            fractal-mercy-ledger-adapter \
+            mercy-security
           do
             if grep -q "crates/${crate}" Cargo.toml; then
               echo "ok: crates/${crate}"

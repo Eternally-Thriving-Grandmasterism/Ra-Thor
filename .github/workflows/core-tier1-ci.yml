@@ -60,6 +60,12 @@ jobs:
       - name: Test fractal-mercy-ledger-adapter (Tier 2 bridge)
         run: cargo test -p fractal-mercy-ledger-adapter -- --nocapture
 
+      - name: Test mercy-security (Tier-1 member; required by ONE Organism)
+        run: cargo test -p mercy-security -- --nocapture
+
+      - name: Test ra-thor-one-organism (extended-live)
+        run: cargo test -p ra-thor-one-organism --features extended-live -- --nocapture
+
       - name: Check live-feature gates (compile only)
         run: |
           cargo check -p ra-thor-one-organism --features kardashev-live
@@ -67,3 +73,5 @@ jobs:
           cargo check -p ra-thor-one-organism --features quantum-live
           cargo check -p ra-thor-one-organism --features gpu-live
           cargo check -p ra-thor-one-organism --features web-demo
+          cargo check -p ra-thor-one-organism --features github-live
+          cargo check -p ra-thor-one-organism --features extended-live
