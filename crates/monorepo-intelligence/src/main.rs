@@ -4,6 +4,9 @@
 //! Makes every AI and human able to instantly query the full lattice.
 
 use clap::{Parser, Subcommand};
+use ra_thor_monorepo_intelligence::health::MonorepoHealthScore;
+use ra_thor_monorepo_intelligence::report::MonorepoReport;
+use ra_thor_monorepo_intelligence::search::MonorepoSearch;
 use ra_thor_monorepo_intelligence::MonorepoIntelligence;
 
 #[derive(Parser)]
@@ -51,15 +54,16 @@ async fn main() {
     match cli.command {
         Commands::PowrushReport => {
             println!("Generating Powrush Report...\n");
-            match intelligence.generate_powrush_report().await {
-                Ok(report) => println!("{}", report),
+            match intelligence.full_scan() {
+                Ok(scan) => println!("{}", MonorepoReport::from_scan(&scan, Some("powrush")).to_markdown()),
                 Err(e) => eprintln!("Error: {}", e),
             }
         }
         Commands::Health { module } => {
             println!("Calculating health score for '{}'...\n", module);
-            match intelligence.get_health_score(&module).await {
-                Ok(score) => {
+            match intelligence.full_scan() {
+                Ok(scan) => {
+                    let score = MonorepoHealthScore::calculate(&scan, &module);
                     println!("Overall Health Score: {:.1}/100", score.overall_score);
                     println!("Powrush Score:        {:.1}", score.powrush_score);
                     println!("Crate Structure:      {:.1}", score.crate_structure_score);
@@ -75,8 +79,9 @@ async fn main() {
         }
         Commands::Search { keyword } => {
             println!("Searching for '{}'...\n", keyword);
-            match intelligence.search(&keyword).await {
-                Ok(results) => {
+            match intelligence.full_scan() {
+                Ok(scan) => {
+                    let results = MonorepoSearch::new(scan.files).search(&keyword);
                     println!("Found {} results:\n", results.len());
                     for (i, result) in results.iter().take(15).enumerate() {
                         println!(
@@ -92,7 +97,7 @@ async fn main() {
         }
         Commands::Scan => {
             println!("Scanning monorepo...\n");
-            match intelligence.scan().await {
+            match intelligence.full_scan() {
                 Ok(result) => {
                     println!("Total Files:      {}", result.total_files);
                     println!("Total Directories: {}", result.total_directories);

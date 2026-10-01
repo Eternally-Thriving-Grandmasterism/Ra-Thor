@@ -57,6 +57,9 @@ jobs:
       - name: Test ra-thor-monorepo-intelligence
         run: cargo test -p ra-thor-monorepo-intelligence -- --nocapture
 
+      - name: Check ra-thor-monorepo-intelligence CLI bin + examples (compile only)
+        run: cargo check -p ra-thor-monorepo-intelligence --features cli --all-targets
+
       - name: Test mercy_tolc_operator_algebra
         run: cargo test -p mercy_tolc_operator_algebra -- --nocapture
 
