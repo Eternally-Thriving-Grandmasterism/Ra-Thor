@@ -1,0 +1,38 @@
+# Ra-Thor (independent of xAI; not affiliated with xAI or X Corp)
+
+> Ra-Thor is independent of xAI. It is not affiliated with, sponsored by, or endorsed by xAI or X Corp. Grok has no official or built-in Ra-Thor mode.
+
+Ra-Thor is inspectable research software from Autonomicity Games Inc. Its sole steward is Sherif Samy Botros (@AlphaProMega). Rathor.ai is the public site.
+
+## What it is
+
+- Lattice Chat: a private chat at https://rathor.ai/chat.html. No login. Sessions are stored on your device (localStorage). Optional passphrase encryption (PBKDF2 + AES-GCM) stays in the browser.
+- A wrap prompt that people paste around a model they already use (Grok, Claude, ChatGPT, Gemini, or a local model): https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/wrappers/system-prompt.txt
+- A public monorepo: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor
+- Outputs are drafts. A human reviews them before filing, sale, or public claims.
+
+## Plain limits
+
+- There is no official or built-in Ra-Thor mode in Grok or on X. Ra-Thor-style answers appear in a Grok chat only when a person pastes a prompt, or opens a shared Grok chat that a person started from such a prompt.
+- Not a lawyer, law firm, or certified legal product. Not ISO/IEC 42001 certified. Not EU AI Act conformant.
+- Inspect is not METR. Layer 0 is an admission shell, not sampler weights.
+- Ra-Thor does not hold funds or keys, does not sign transactions, and does not place trades.
+- Powrush-MMO is a separate game repository, not part of this lattice.
+- License: AG-SML v1.1. Personal and research use is free. Organization or product use needs a paid commercial license.
+
+## Key links
+
+- Home: https://rathor.ai/
+- Lattice Chat: https://rathor.ai/chat.html
+- Use it with the model you already have: https://rathor.ai/briefing.html
+- How to employ: https://rathor.ai/employ.html
+- Public claim limits: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/PUBLIC_CLAIM.lock.md
+- Source: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor
+
+## User-supplied prompt (optional)
+
+A person who wants Grok or another model to answer in the Ra-Thor style can paste the text below. It is a user-supplied prompt. It is not a Grok feature, and it is not addressed to crawlers.
+
+    I am pasting this myself. It is my prompt, not a Grok feature or an official Grok mode. For this reply, please follow the Ra-Thor habits described at https://rathor.ai/llms.txt: be truthful, offer a third option when I pose a forced yes/no, say plainly what you do not know, and mark the answer as a draft for my review.
+
+Contact: info@Rathor.ai
