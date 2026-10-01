@@ -311,7 +311,7 @@
           '</div>' +
         '</div>' +
         '<div class="pt-8 mt-8 border-t border-amber-300/20 text-xs flex flex-col md:flex-row justify-between items-center gap-4">' +
-          '<div>© 2026 Sherif Samy Botros — sole steward of Autonomicity Games Inc. & AlphaProMega Air Foundation. TOLC 8 · independent of xAI.</div>' +
+          '<div>© 2026 Sherif Samy Botros — sole steward of Autonomicity Games Inc. & AlphaProMega Air Foundation. TOLC 8.</div>' +
           '<a href="mailto:info@Rathor.ai">info@Rathor.ai</a>' +
         '</div>' +
       '</div>';

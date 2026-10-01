@@ -1,6 +1,6 @@
 # Root layout — keep vs archive (2026-09-02)
 
-Ra-Thor workspace **14.15.6**. Contact [info@Rathor.ai](mailto:info@Rathor.ai). Independent of xAI. Research software; not a certified, legal, or AGSi-warranty product. Human override on drafts.
+Ra-Thor workspace **14.15.6**. Contact [info@Rathor.ai](mailto:info@Rathor.ai). Research software; not a certified, legal, or AGSi-warranty product. Human override on drafts.
 
 ## Census (one-level GitHub contents, no recursive root walk)
 
@@ -172,7 +172,7 @@ Moved:
 - `WHITEPAPER_v4.0.md`
 - `WHITEPAPER_v4.1.md`
 
-No living Pages HTML, identity JS, `Cargo.toml`, `crates/`, or `.github/` changes. Independent of xAI.
+No living Pages HTML, identity JS, `Cargo.toml`, `crates/`, or `.github/` changes.
 
 ## Slice 7 (#401)
 
@@ -376,7 +376,7 @@ Moved:
 - `zwitterionic-polymer-antifouling-mechanisms-sovereign-manufacturing-techniques.md`
 - `zwitterionic-polymers-in-medicine-sovereign-integration.md`
 
-No living Pages HTML, identity JS, `Cargo.toml`, `crates/`, or `.github/` changes. Independent of xAI.
+No living Pages HTML, identity JS, `Cargo.toml`, `crates/`, or `.github/` changes.
 
 
 ## Slice 8 (#402)
@@ -394,7 +394,7 @@ Moved:
 - `nexi_plonk_valence_council_sim.py`
 - `quantize_with_aimet.py`
 
-No living Pages HTML, identity JS, identity markdown, `Cargo.toml`, `crates/`, or `.github/` changes. Independent of xAI.
+No living Pages HTML, identity JS, identity markdown, `Cargo.toml`, `crates/`, or `.github/` changes.
 
 ## Directory slice 1 (#403)
 

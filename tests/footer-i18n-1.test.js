@@ -48,7 +48,7 @@ var hooked = (footer.match(/fk\('([A-Za-z0-9]+)'\)/g) || []).map(function (s) { 
 assert(hooked.length === EXPECT.length, 'unexpected hook count: ' + hooked.length);
 // Lines without a matching pack key stay English and unhooked.
 ['<a href="/chat.html">Lattice Chat</a>', '<a href="/web-forge.html">Web-Forge</a>',
- '<div>© 2026 Sherif Samy Botros — sole steward of Autonomicity Games Inc. & AlphaProMega Air Foundation. TOLC 8 · independent of xAI.</div>'
+ '<div>© 2026 Sherif Samy Botros — sole steward of Autonomicity Games Inc. & AlphaProMega Air Foundation. TOLC 8.</div>'
 ].forEach(function (s) { assert(footer.indexOf(s) !== -1, 'unkeyed line changed: ' + s); });
 // No data-i18n in the fallback footer: the chrome/essay/site-lock appliers must never touch it.
 assert(footer.indexOf('data-i18n') === -1, 'siteFooter() must not use data-i18n');
@@ -76,31 +76,31 @@ files.forEach(function (f) {
   });
 });
 
-// 4. No pack file changed (sha256 of main d6b17afd).
+// 4. Fingerprints are pinned to the disclaimer-trim-1 pack text (base ebda8a40).
 var PACKS = {
-  'ar.js': '69e3fcd45e76b56813f8915a9d89fc4a901cd1e1592278821da78de7183fa382',
-  'de.js': 'c67ab424781f436f678cfa3d2c64e7046d3d84ca66d4534b5cbbaad3ad9efaf4',
-  'el.js': '64cffd8488935fe84b1c0ed7d2b3c426d7a228df337f8f845585b4a3a9b090b0',
-  'en.js': '7953e2a7626220a9a67a3ed69ff0d1fb6934ce1dd4dbef43f679e46df7e336b1',
-  'es.js': 'c7050244e05f448621642bdb6e2a71baf0333e023b0f26ed81f2dcb2e979a80f',
-  'fa.js': 'af71d19fd4fc9ec49b26490f14f0ec08bbf79a3782c52a600992637345ad3345',
-  'fr.js': '8620081a1c996f70f85927ab8f7b8c1a0aaa90ef5027e1c3c90116d1acc79fef',
-  'he.js': 'd715f02c04feffc060bda8f3d411522291746cfb23aa66fcbdb39de9240abd05',
-  'hi.js': '23c6667f6b03e890f886d8c63921a37258cae132dba445a87d03c743badf6f45',
-  'id.js': 'fd4abf134d8ea29550c75d363a7847de44c6a3d67e19eab52cc4136248f158ca',
-  'it.js': '89fb447072e1f648f272c5297ce95ccfd3c4762f4bb9f8c5a7359f022dac728b',
-  'ja.js': '06560a1d6effed272b996f60e53d6c8a3f1d1d92a6d0d209c87e74d332b6ff2b',
-  'ko.js': 'dfc0789d287bc1c97456929b2242beccf2335ccdf3900e5746d43539649692e4',
-  'nl.js': '0f9417d8f94f3370ef1ed68558c10d09a5752b3fe4189dfa14098ff2cb46ec09',
-  'pl.js': '526e3a963a540cea0b0e72e44ab9be09f579b264f0024d8137ec381242705c7b',
-  'pt.js': '11ca02928a394484c61d95aed96077d51559824c0f3f4fe1ba89ad58cb3fcfb3',
-  'ru.js': 'db9cd87d1a4e41d71c137b056784298763ca1b11c0ac6d1d214a52b473d3d9f6',
-  'sv.js': '8282d59f44291f7f2e3a1bc65f851eea1447e1d1b15e4ae85c157904392547b4',
-  'th.js': '738f103498b53962b375fa9732ec499f02481cd8b6920898d15d49c829bc571a',
-  'tr.js': '6d47e75d925d8aa95fba5c465f4dae32825bab450b16eb0cf0e3c9dacb23b583',
-  'uk.js': '096e91b26e3f2ed8a3f63982c05913974c93922e92cac13505bfd30460c0bc3f',
-  'vi.js': '9eb992a450f90057b04b68a04b7d2b11a47d725b4372a11237f88f3eccc60da4',
-  'zh.js': 'b9fce163437fed97335ad6073c0811c0d943f867e6d4206e5c8e0bb24ae29909',
+  'ar.js': '0c8a89eb0ff042043815a8c29d01093a132754f7f0e002d3ac5dfbc0801755b3',
+  'de.js': '6601fed3020873156673a2dd30524992ab61121192ddfb731d7c13c90753b622',
+  'el.js': 'e3981ac263109210c69e85c9ab816a277d4a0793b5c48186a2f9c6292467a8d5',
+  'en.js': '5d1f24e475dcb0ac42633dd408577fb98cd30f2b2a6b28ee9f14bd2ff5634622',
+  'es.js': '314aa483106ea1eec282d1c9753fbb2bf152719e1ecf8be9c3be4e65b3094892',
+  'fa.js': 'cbcb9dc9c1f66a75df37d112ee859896bc1699f42a7bf573ee96b39535be8619',
+  'fr.js': 'bd8007322ff21bd193e98f134b26b1ee1579eff1f262be934c0835b7b4c6c1d7',
+  'he.js': 'f2b236decd5b041a4f3ec100573882745f051b209c861073532012ff09ebd08e',
+  'hi.js': '7070c1c5d3d69047f7d364878bad0dbe595365ed620f0102dc15086eec0194e6',
+  'id.js': '489a436b376efe1df8f7cf8fe2ec136ce5fe502f082d24cb91e23a49ecb7ef19',
+  'it.js': 'd2db8208a9f668ed5baf4d3b8e0558e677f145fcc775044b226829633bf1961c',
+  'ja.js': 'bdacb5e78b106cf742cf824573fc0ce81c6fd9947ef27407b3ec9e81a2d44e38',
+  'ko.js': '228dce6a207f79bf6d7eb11c81e95a3522756c440c9beec64801910f92efcc01',
+  'nl.js': '33b3b51d098e62e5e0d78e55bc6622f7fde804d698d7d8231116038a82963dd0',
+  'pl.js': '9d02ff8da176bb8e608d5c6f7d61c89b66c6c94adb58018190a7ddac2ce4df9d',
+  'pt.js': 'b846db14a6ae6c4319c31f52a18a1e9e6ce88f35814dc672bca949f7f9439d16',
+  'ru.js': 'b2f9411760f894fbdc9d7bab242513359685d29274705da032b369f5ce5d2c6f',
+  'sv.js': '9b1f282011275ece9db3aec97792102010c0f08ff22525ef973e02b8ee038a90',
+  'th.js': '531232c3ff0905e275f66692200c2886067fbaacdd73d8aea248c74183338b23',
+  'tr.js': '6e812005f189bdde5a966268ad26613c51a5b9c8ad02ba8a2e86f38bca074dcf',
+  'uk.js': 'f2f213e02e882b1c060d749acb5d11ae4a3499e2cbc73b14dd7e70f1e74ea7a0',
+  'vi.js': '32408cd4b909252052ef7efc0e98e08386b8b244ad187a76fc8f1b34a31fb818',
+  'zh.js': 'ea4452db33765e55d350effb016a900ba2b7ea80ae0c51a41111be48f62aef1b',
 };
 assert(Object.keys(PACKS).length === 23, 'pack manifest must list 23 packs');
 files.forEach(function (f) {
