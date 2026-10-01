@@ -2,7 +2,7 @@
 name = "resonance-challenge"
 version = "0.1.0"
 edition = "2021"
-license = "AG-SML-1.0"
+license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
 authors = ["Sherif Samy Botros <info@Rathor.ai>"]
 description = "Resonance Challenge Conductor — mercy-scaled challenge as resonance refinement"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"

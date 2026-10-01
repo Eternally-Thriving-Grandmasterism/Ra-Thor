@@ -3,7 +3,7 @@ name = "llama-cpp-gguf"
 version = "0.1.0"
 edition = "2021"
 description = "Experimental: llama.cpp GGUF model loading for Rathor.ai self-evolution loops"
-license = "AG-SML-1.0"
+license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
 
 [dependencies]
 llama-cpp-rs = "0.5"

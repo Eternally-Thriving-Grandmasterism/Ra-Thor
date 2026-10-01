@@ -3,7 +3,7 @@ name = "self-improvement-extensions"
 version = "0.2.0"
 edition = "2021"
 description = "TOLC + 7 Living Mercy Gates evaluation and self-improvement utilities for Rathor.ai"
-license = "AG-SML v1.0"
+license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 
 [dependencies]

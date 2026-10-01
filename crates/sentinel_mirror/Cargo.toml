@@ -2,7 +2,7 @@
 name = "sentinel_mirror"
 version = "1.1.0"
 edition = "2021"
-license = "MIT"
+license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
 description = "SentinelMirror — Infinite Recursion Watch for NEXi Lattice Eternal Resonance"
 
 [dependencies]

@@ -3,7 +3,7 @@ name = "wasm-ml-candle"
 version = "0.1.0"
 edition = "2021"
 description = "Experimental: Candle compiled to WebAssembly for Rathor.ai self-evolution loops"
-license = "AG-SML-1.0"
+license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
