@@ -463,7 +463,11 @@ ra_thor_github_request_latency_ms_avg {:.2}\n",
             });
         }
 
-        if recursive && path_filter.is_none() {
+        // Blank or slash-only filters ("", "/", "//", " / ") mean the repo root.
+        let root_filter = path_filter
+            .map(|p| p.trim_matches(|c: char| c == '/' || c.is_whitespace()))
+            .is_none_or(str::is_empty);
+        if recursive && root_filter {
             return Err(GitHubError {
                 message: "RECURSIVE ROOT WALK FORBIDDEN. Supply a path_filter \
 (directory prefix) or set recursive=false. See monorepo-intelligence pagination protocol.".into(),
@@ -835,6 +839,57 @@ mod tests {
             .await
             .expect_err("recursive root walk must be rejected");
         assert!(err.message.contains("RECURSIVE ROOT WALK FORBIDDEN"), "{}", err.message);
+    }
+
+    /// Blank or slash-only filters are the repo root: a recursive walk on them
+    /// must be rejected exactly like `None`.
+    #[tokio::test]
+    async fn get_tree_safe_rejects_recursive_walk_on_blank_or_slash_filter() {
+        let c = offline_connector();
+        for filter in ["", "/", "//", " ", " / ", "/ /"] {
+            let err = c
+                .get_tree_safe(Some(filter), true, RECOMMENDED_PER_PAGE)
+                .await
+                .expect_err("recursive root walk must be rejected");
+            assert!(
+                err.message.contains("RECURSIVE ROOT WALK FORBIDDEN"),
+                "filter {filter:?}: {}",
+                err.message
+            );
+            assert_eq!(err.status, None, "filter {filter:?}");
+        }
+    }
+
+    /// A real subtree filter passes the root-walk guard (it then fails only on
+    /// the unreachable offline base_url).
+    #[tokio::test]
+    async fn get_tree_safe_recursive_subtree_filter_passes_root_guard() {
+        let c = offline_connector();
+        let err = c
+            .get_tree_safe(Some("crates/"), true, RECOMMENDED_PER_PAGE)
+            .await
+            .expect_err("offline connector cannot reach GitHub");
+        assert!(!err.message.contains("RECURSIVE ROOT WALK FORBIDDEN"), "{}", err.message);
+        assert!(err.message.starts_with("get_ref_sha failed"), "{}", err.message);
+    }
+
+    /// Non-recursive calls with an empty or '/' filter keep today's behaviour:
+    /// they are a single-level root listing and are not blocked by the guard.
+    #[tokio::test]
+    async fn get_tree_safe_non_recursive_blank_filter_unchanged() {
+        let c = offline_connector();
+        for filter in [None, Some(""), Some("/")] {
+            let err = c
+                .get_tree_safe(filter, false, RECOMMENDED_PER_PAGE)
+                .await
+                .expect_err("offline connector cannot reach GitHub");
+            assert!(
+                !err.message.contains("RECURSIVE ROOT WALK FORBIDDEN"),
+                "filter {filter:?}: {}",
+                err.message
+            );
+            assert!(err.message.starts_with("get_ref_sha failed"), "filter {filter:?}: {}", err.message);
+        }
     }
 
     #[test]
