@@ -84,6 +84,6 @@ assert(blocked.effect === null, 'the Heavy gate still blocks');
 assert(api.webllmTierFromVram(Number(vram[1])) === 'Heavy' && api.heavyGateRequired('Heavy') === true, 'the 7B row is Heavy and goes through the Heavy gate');
 
 // 5. Out-of-scope files stay put.
-assert(sw.indexOf("var LOCK = '20261001a';") !== -1, 'sw.js LOCK stays 20261001a');
+assert(sw.indexOf("var LOCK = '20261001b';") !== -1, 'sw.js LOCK stays 20261001b');
 
 console.log('picker-step-1: phone rows 1 (Qwen2.5-0.5B); desktop adds ' + NEW_ID + ' (pin vram_required_MB ' + vram[1] + '); label "' + LABEL + '"');
