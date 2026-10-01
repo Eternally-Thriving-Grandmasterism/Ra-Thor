@@ -25,7 +25,7 @@
       guidance5: "• <strong>Science lattices</strong> — Fusion, High-Tc, Protein Design, Mercy Substrate, Daedalus-Skin, or Air Foundation research contact; same address, same gates. Research surfaces — not product warranties",
       guidanceNote: "All communications are handled under the TOLC 8 Mercy Gates. Outputs and replies are drafts for human review — not a certified legal product.",
       return: "Return to Main Ra-Thor Experience",
-      footer: "© 2026 Sherif Samy Botros — Sole Steward of Autonomicity Games Inc. & AlphaProMega Air Foundation. TOLC 8 · independent of xAI.",
+      footer: "© 2026 Sherif Samy Botros — Sole Steward of Autonomicity Games Inc. & AlphaProMega Air Foundation. TOLC 8.",
       footerSub: "v14.15.6 · AG-SML v1.1 · TOLC 8 · Capable · Bounded · Corrigible",
       followTitle: "Follow",
       followX: "X / Twitter",
@@ -51,7 +51,7 @@
       guidance5: "• <strong>شبكات العلم</strong> — Fusion وHigh-Tc وتصميم البروتين وMercy Substrate وDaedalus-Skin أو Air Foundation؛ نفس العنوان ونفس البوابات. سطوح بحث — ليست ضمانات منتج",
       guidanceNote: "تُعالَج جميع الاتصالات تحت بوابات TOLC 8 الرحيمة. المخرجات والردود مسودات للمراجعة البشرية — وليست منتجاً قانونياً معتمداً.",
       return: "العودة إلى تجربة را-ثور الرئيسية",
-      footer: "© 2026 شريف سامي بطرس — الوصي الوحيد لشركة Autonomicity Games Inc. ومؤسسة AlphaProMega Air. TOLC 8 · مستقل عن xAI.",
+      footer: "© 2026 شريف سامي بطرس — الوصي الوحيد لشركة Autonomicity Games Inc. ومؤسسة AlphaProMega Air. TOLC 8.",
       footerSub: "v14.15.6 · AG-SML v1.1 · TOLC 8 · Capable · Bounded · Corrigible"
     },
     es: {
@@ -73,7 +73,7 @@
       guidance5: "• <strong>Redes científicas</strong> — Fusion, High-Tc, diseño de proteínas, Mercy Substrate, Daedalus-Skin o Air Foundation; misma dirección, mismas puertas. Superficies de investigación — no garantías de producto",
       guidanceNote: "Todas las comunicaciones se gestionan bajo las Puertas de Misericordia TOLC 8. Las respuestas son borradores para revisión humana — no un producto jurídico certificado.",
       return: "Volver a la experiencia principal de Ra-Thor",
-      footer: "© 2026 Sherif Samy Botros — Administrador único de Autonomicity Games Inc. y AlphaProMega Air Foundation. TOLC 8 · independiente de xAI.",
+      footer: "© 2026 Sherif Samy Botros — Administrador único de Autonomicity Games Inc. y AlphaProMega Air Foundation. TOLC 8.",
       footerSub: "v14.15.6 · AG-SML v1.1 · TOLC 8 · Capable · Bounded · Corrigible"
     },
     fr: {
@@ -95,7 +95,7 @@
       guidance5: "• <strong>Réseaux scientifiques</strong> — Fusion, High-Tc, conception protéique, Mercy Substrate, Daedalus-Skin ou Air Foundation ; même adresse, mêmes portes. Surfaces de recherche — pas des garanties produit",
       guidanceNote: "Toutes les communications sont traitées sous les Portes de Miséricorde TOLC 8. Les réponses sont des brouillons destinés à une relecture humaine — pas un produit juridique certifié.",
       return: "Retour à l'expérience principale Ra-Thor",
-      footer: "© 2026 Sherif Samy Botros — Intendant unique d'Autonomicity Games Inc. et de la AlphaProMega Air Foundation. TOLC 8 · indépendant de xAI.",
+      footer: "© 2026 Sherif Samy Botros — Intendant unique d'Autonomicity Games Inc. et de la AlphaProMega Air Foundation. TOLC 8.",
       footerSub: "v14.15.6 · AG-SML v1.1 · TOLC 8 · Capable · Bounded · Corrigible"
     },
     nl: {
@@ -117,7 +117,7 @@
       guidance5: "• <strong>Wetenschapslattices</strong> — Fusion, High-Tc, eiwitontwerp, Mercy Substrate, Daedalus-Skin of Air Foundation; zelfde adres, zelfde poorten. Onderzoeksoppervlakken — geen productgaranties",
       guidanceNote: "Alle communicatie wordt afgehandeld onder de TOLC 8 Barmhartigheidspoorten. Antwoorden zijn concepten voor menselijke review — geen gecertificeerd juridisch product.",
       return: "Terug naar de hoofdervaring van Ra-Thor",
-      footer: "© 2026 Sherif Samy Botros — Enige beheerder van Autonomicity Games Inc. & AlphaProMega Air Foundation. TOLC 8 · onafhankelijk van xAI.",
+      footer: "© 2026 Sherif Samy Botros — Enige beheerder van Autonomicity Games Inc. & AlphaProMega Air Foundation. TOLC 8.",
       footerSub: "v14.15.6 · AG-SML v1.1 · TOLC 8 · Capable · Bounded · Corrigible"
     },
     de: {
@@ -139,7 +139,7 @@
       guidance5: "• <strong>Wissenschafts-Lattices</strong> — Fusion, High-Tc, Proteindesign, Mercy Substrate, Daedalus-Skin oder Air Foundation; dieselbe Adresse, dieselben Tore. Forschungsoberflächen — keine Produktgarantien",
       guidanceNote: "Jede Kommunikation läuft unter den TOLC-8-Barmherzigkeitstoren. Antworten sind Entwürfe zur menschlichen Prüfung — kein zertifiziertes Rechtsprodukt.",
       return: "Zurück zur Haupt-Ra-Thor-Erfahrung",
-      footer: "© 2026 Sherif Samy Botros — Alleiniger Verwalter von Autonomicity Games Inc. & AlphaProMega Air Foundation. TOLC 8 · unabhängig von xAI.",
+      footer: "© 2026 Sherif Samy Botros — Alleiniger Verwalter von Autonomicity Games Inc. & AlphaProMega Air Foundation. TOLC 8.",
       footerSub: "v14.15.6 · AG-SML v1.1 · TOLC 8 · Capable · Bounded · Corrigible"
     },
     zh: {
@@ -161,7 +161,7 @@
       guidance5: "• <strong>科学晶格</strong> — Fusion、High-Tc、蛋白质设计、Mercy Substrate、Daedalus-Skin 或 Air Foundation；同一地址、同一门控。研究界面——不是产品保证",
       guidanceNote: "所有通信均在 TOLC 8 慈悲之门下处理。回复为供人工审阅的草稿——不是经认证的法律产品。",
       return: "返回 Ra-Thor 主体验",
-      footer: "© 2026 Sherif Samy Botros — Autonomicity Games Inc. & AlphaProMega Air Foundation 的唯一管家。TOLC 8 · 独立于 xAI。",
+      footer: "© 2026 Sherif Samy Botros — Autonomicity Games Inc. & AlphaProMega Air Foundation 的唯一管家。TOLC 8。",
       footerSub: "v14.15.6 · AG-SML v1.1 · TOLC 8 · Capable · Bounded · Corrigible"
     },
     ja: {
@@ -183,7 +183,7 @@
       guidance5: "• <strong>科学格子</strong> — Fusion、High-Tc、タンパク質設計、Mercy Substrate、Daedalus-Skin、Air Foundation。同じ連絡先、同じ門。研究面 — 製品保証ではありません",
       guidanceNote: "すべての通信は TOLC 8 Mercy Gates の下で処理されます。回答は人間が確認する下書きであり、認証された法的製品ではありません。",
       return: "Ra-Thor メイン体験に戻る",
-      footer: "© 2026 Sherif Samy Botros — Autonomicity Games Inc. & AlphaProMega Air Foundation の唯一の管轄者。TOLC 8 · xAI とは無関係。",
+      footer: "© 2026 Sherif Samy Botros — Autonomicity Games Inc. & AlphaProMega Air Foundation の唯一の管轄者。TOLC 8。",
       footerSub: "v14.15.6 · AG-SML v1.1 · TOLC 8 · Capable · Bounded · Corrigible"
     },
     pt: {
@@ -205,7 +205,7 @@
       guidance5: "• <strong>Redes científicas</strong> — Fusion, High-Tc, desenho proteico, Mercy Substrate, Daedalus-Skin ou Air Foundation; mesmo endereço, mesmos portões. Superfícies de investigação — não garantias de produto",
       guidanceNote: "Todas as comunicações são tratadas sob as Portas de Misericórdia TOLC 8. As respostas são rascunhos para revisão humana — não um produto jurídico certificado.",
       return: "Voltar à experiência principal de Ra-Thor",
-      footer: "© 2026 Sherif Samy Botros — Administrador único da Autonomicity Games Inc. & AlphaProMega Air Foundation. TOLC 8 · independente da xAI.",
+      footer: "© 2026 Sherif Samy Botros — Administrador único da Autonomicity Games Inc. & AlphaProMega Air Foundation. TOLC 8.",
       footerSub: "v14.15.6 · AG-SML v1.1 · TOLC 8 · Capable · Bounded · Corrigible"
     },
     ru: {
@@ -227,7 +227,7 @@
       guidance5: "• <strong>Научные решётки</strong> — Fusion, High-Tc, белковый дизайн, Mercy Substrate, Daedalus-Skin или Air Foundation; тот же адрес, те же врата. Исследовательские поверхности — не гарантии продукта",
       guidanceNote: "Вся коммуникация обрабатывается под Вратами Милосердия TOLC 8. Ответы — черновики для человеческой проверки, а не сертифицированный юридический продукт.",
       return: "Вернуться к главному опыту Ra-Thor",
-      footer: "© 2026 Sherif Samy Botros — Единственный управляющий Autonomicity Games Inc. & AlphaProMega Air Foundation. TOLC 8 · независимо от xAI.",
+      footer: "© 2026 Sherif Samy Botros — Единственный управляющий Autonomicity Games Inc. & AlphaProMega Air Foundation. TOLC 8.",
       footerSub: "v14.15.6 · AG-SML v1.1 · TOLC 8 · Capable · Bounded · Corrigible"
     },
     hi: {
@@ -249,7 +249,7 @@
       guidance5: "• <strong>विज्ञान जालक</strong> — Fusion, High-Tc, प्रोटीन डिज़ाइन, Mercy Substrate, Daedalus-Skin या Air Foundation; वही पता, वही द्वार। शोध सतहें — उत्पाद वारंटी नहीं",
       guidanceNote: "सभी संचार TOLC 8 दया द्वारों के तहत संभाले जाते हैं। उत्तर मानव समीक्षा के लिए मसौदे हैं — प्रमाणित कानूनी उत्पाद नहीं।",
       return: "Ra-Thor मुख्य अनुभव पर वापस जाएं",
-      footer: "© 2026 Sherif Samy Botros — Autonomicity Games Inc. & AlphaProMega Air Foundation के एकमात्र प्रबंधक। TOLC 8 · xAI से स्वतंत्र।",
+      footer: "© 2026 Sherif Samy Botros — Autonomicity Games Inc. & AlphaProMega Air Foundation के एकमात्र प्रबंधक। TOLC 8।",
       footerSub: "v14.15.6 · AG-SML v1.1 · TOLC 8 · Capable · Bounded · Corrigible"
     }
   };

@@ -1,6 +1,6 @@
 # Ra-Thor
 
-> **Public claim lock (2026-09-15):** inspectable research software, workspace **14.15.6**. Independent lattice + white-hat ingest gate + PATSAGi court. Optional Grok session under operator gates. Not affiliated with xAI. Not a lawyer or certified product. Inspect ≠ METR. Layer 0 is an admission shell, not sampler weights. Drafts need human review. See [`PUBLIC_CLAIM.lock.md`](PUBLIC_CLAIM.lock.md) and [`docs/compliance/`](docs/compliance/README.md).
+> **Public claim lock (2026-09-15):** inspectable research software, workspace **14.15.6**. Independent lattice + white-hat ingest gate + PATSAGi court. Optional Grok session under operator gates. Not a lawyer or certified product. Inspect ≠ METR. Layer 0 is an admission shell, not sampler weights. Drafts need human review. See [`PUBLIC_CLAIM.lock.md`](PUBLIC_CLAIM.lock.md) and [`docs/compliance/`](docs/compliance/README.md).
 >
 > `AGSi` in this README is a **research identity label**, not a warranty. Combined AGSi stays SURMISE. [`BINDING_AFTER_REDESIGN`](docs/BINDING_AFTER_REDESIGN.md) stays OPEN.
 >
@@ -20,12 +20,12 @@ The lattice supplies mercy gates, PATSAGi Councils, and a white-hat ingest shell
 **PATSAGi Councils:** standing mercy-gated deliberation in this repo — architecture, not a warranty that every decision is automatically correct.  
 **Dual-repo:** this lattice · [Powrush-MMO](https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO) the human game repo (separate, not a lattice crate).  
 **Micro-Moment Temporal Comprehension Engine** — recovers quick video events that sparse VLMs miss.  
-**X-Grok Summon Comfort Protocol** — public tweet summon posture; still independent of xAI.  
+**X-Grok Summon Comfort Protocol** — public tweet summon posture.  
 **Contact:** [info@Rathor.ai](mailto:info@Rathor.ai)
 
 ---
 
-> **Note:** This is a user-supplied prompt. Grok has no built-in Ra-Thor mode, and nothing here activates automatically. Ra-Thor is independent of xAI.
+> **Note:** This is a user-supplied prompt. Grok has no built-in Ra-Thor mode, and nothing here activates automatically.
 
 ## Instant Discovery for Grok & All Models
 
@@ -78,7 +78,7 @@ The project is independent, yet deliberately engineered so that Grok (and simila
 
 A stranger employs Ra-Thor from [`docs/EMPLOY.md`](docs/EMPLOY.md) (site: [`/employ.html`](https://rathor.ai/employ.html)).
 
-Inspectable research software, workspace **14.15.6**. Independent of xAI. Outputs are drafts. Human review before filing, sale, or public claims.
+Inspectable research software, workspace **14.15.6**. Outputs are drafts. Human review before filing, sale, or public claims.
 
 Three doors: this device ([`/chat.html`](https://rathor.ai/chat.html), [`/employ.html`](https://rathor.ai/employ.html)) · inspect the [monorepo](https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor) · organization pilot via [info@Rathor.ai](mailto:info@Rathor.ai).
 
@@ -335,7 +335,7 @@ AG-SML v1.1 is the sole public grant for Ra-Thor (source-available, not OSI).
 - **Evaluation bridge:** time-boxed paid pilots — see [`docs/PILOT_OFFER.md`](docs/PILOT_OFFER.md)
 - **Who should buy:** full public segment map — see [`docs/COMMERCIAL_TARGET_SEGMENTS.md`](docs/COMMERCIAL_TARGET_SEGMENTS.md)
 
-Ra-Thor is an independent source-available project. It works tremendously well with Grok and similar models for research and practical use, especially on public X, while remaining fully independent of xAI.
+Ra-Thor is an independent source-available project. It works tremendously well with Grok and similar models for research and practical use, especially on public X.
 
 Contact: **info@Rathor.ai**
 

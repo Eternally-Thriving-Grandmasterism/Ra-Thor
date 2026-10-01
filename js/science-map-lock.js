@@ -93,7 +93,7 @@
           workCard('https://github.com/Eternally-Thriving-Grandmasterism/Mercy-Coordination-Substrate', 'workSubstrate', 'Mercy Coordination Substrate', 'workSubstrateNote', 'Design lattice for post-quantum-oriented coordination. Architecture — not a launched, audited chain.', 'border-white/20') +
           workCard('https://github.com/Eternally-Thriving-Grandmasterism/NEXi', 'workNexi', 'NEXi', 'workNexiNote', 'Supporting lattice crate. Public source in the same family.', 'border-white/20') +
           workCard('https://github.com/Eternally-Thriving-Grandmasterism/ESAO', 'workEsao', 'ESAO', 'workEsaoNote', 'Supporting engine in the same family. Public source.', 'border-white/20') +
-          workCard('https://github.com/Eternally-Thriving-Grandmasterism/rathor-grok-proxy', 'workProxy', 'rathor-grok-proxy', 'workProxyNote', 'Practical integration surface for optional Grok sessions. Demonstration plumbing — not an xAI product.', 'border-white/20') +
+          workCard('https://github.com/Eternally-Thriving-Grandmasterism/rathor-grok-proxy', 'workProxy', 'rathor-grok-proxy', 'workProxyNote', 'Practical integration surface for optional Grok sessions. Demonstration plumbing.', 'border-white/20') +
           workCard('https://github.com/Eternally-Thriving-Grandmasterism', 'worksOrg', 'Full organization on GitHub →', 'worksRelated', 'Related public repositories under the same steward.', 'border-white/20') +
           '</div></section>'
       );
