@@ -2,7 +2,7 @@
 name = "prometheus_forge"
 version = "1.1.0"
 edition = "2021"
-license = "MIT"
+license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
 description = "PrometheusForge — Hyper-Divine Fire Innovation Crucible with Full Async Integration"
 
 [dependencies]
