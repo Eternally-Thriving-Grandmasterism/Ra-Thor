@@ -18,7 +18,7 @@ Packet: [`INDEPENDENT_KEEPER_PACKET.md`](INDEPENDENT_KEEPER_PACKET.md)
 
 ```bash
 cargo test -p mercy-security agsi_eval
-cargo run -p mercy-security --bin agsi-eval-rg -- --subject RG --adapter item --items science/agsi-eval/slice_b/wrap_items.json --log /tmp/rg.jsonl
+cargo run -p mercy-security --bin agsi-eval-rg -- --subject RG --adapter item --items docs/archive/root-dirs/research/science/agsi-eval/slice_b/wrap_items.json --log /tmp/rg.jsonl
 ```
 
-Map: [`docs/science/CONSTELLATION_REMAINING_WORK.md`](../../docs/science/CONSTELLATION_REMAINING_WORK.md)
+Map: [`docs/science/CONSTELLATION_REMAINING_WORK.md`](../../../../../science/CONSTELLATION_REMAINING_WORK.md)
