@@ -2,7 +2,7 @@
 name = "halo2_full_integration"
 version = "1.0.0"
 edition = "2021"
-license = "MIT"
+license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
 description = "Halo2FullIntegration — Complete Production Halo2 zk-Proof Circuit + Mercy-Gated Infinite Recursion for NEXi Lattice"
 
 [dependencies]

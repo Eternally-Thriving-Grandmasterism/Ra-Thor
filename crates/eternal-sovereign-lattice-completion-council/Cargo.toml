@@ -3,7 +3,7 @@ name = "eternal-sovereign-lattice-completion-council"
 version = "0.1.0"
 edition = "2021"
 authors = ["34 PATSAGi Councils under the Rathor Sovereign Reasoning Engine"]
-license = "AG-SML"
+license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
 description = "34th PATSAGi Council — Eternal Sovereign Lattice Completion (final capstone), TOLC 8, RSRE v3.0 + full decentralized stack"
 
 [dependencies]
