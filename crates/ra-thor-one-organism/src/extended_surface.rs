@@ -38,10 +38,30 @@ use lattice_conductor_v14::{ApiRequestKind, GateDecision, MercyApiRequest, Mercy
 ))]
 fn block_on_live<F, T>(fut: F) -> T
 where
-    F: std::future::Future<Output = T>,
+    F: std::future::Future<Output = T> + Send,
+    T: Send,
 {
     match tokio::runtime::Handle::try_current() {
-        Ok(handle) => handle.block_on(fut),
+        // Inside a runtime, `handle.block_on` panics ("Cannot start a runtime
+        // from within a runtime"). Pick a non-panicking path per flavor.
+        Ok(handle) => match handle.runtime_flavor() {
+            tokio::runtime::RuntimeFlavor::MultiThread => {
+                tokio::task::block_in_place(|| handle.block_on(fut))
+            }
+            // CurrentThread (and any future flavor): run on a scoped thread
+            // with its own current_thread runtime; the result is propagated.
+            _ => std::thread::scope(|s| {
+                s.spawn(|| {
+                    tokio::runtime::Builder::new_current_thread()
+                        .enable_all()
+                        .build()
+                        .expect("[ExtendedSurface] failed to build scoped runtime for live path")
+                        .block_on(fut)
+                })
+                .join()
+                .unwrap_or_else(|panic| std::panic::resume_unwind(panic))
+            }),
+        },
         Err(_) => {
             let rt = tokio::runtime::Builder::new_current_thread()
                 .enable_all()
@@ -1339,5 +1359,48 @@ impl ExtendedOrganismSurface {
 impl Default for ExtendedOrganismSurface {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+// =============================================================================
+// TIER1-ONE-1: block_on_live must not panic when called from inside a runtime.
+// Offline: drives the real quantum-live engine path (no network, no GPU).
+// =============================================================================
+
+#[cfg(all(test, feature = "quantum-live"))]
+mod block_on_live_tests {
+    use super::*;
+
+    fn one_quantum_cycle() -> QuantumEvolutionResult {
+        let arbitration = CouncilArbitrationEngine::new();
+        let mut surface = QuantumSwarmSurface::new();
+        surface.register_members(4);
+        surface.evolve_full_cycle(0.5, &arbitration)
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn quantum_cycle_inside_multi_thread_runtime() {
+        let r = one_quantum_cycle();
+        assert_eq!(r.step, 1);
+        assert!(r.member_id >= 1);
+    }
+
+    #[tokio::test]
+    async fn quantum_cycle_inside_current_thread_runtime() {
+        let r = one_quantum_cycle();
+        assert_eq!(r.step, 1);
+        assert!(r.member_id >= 1);
+    }
+
+    #[test]
+    fn quantum_cycle_without_runtime() {
+        let r = one_quantum_cycle();
+        assert_eq!(r.step, 1);
+        assert!(r.member_id >= 1);
+    }
+
+    #[tokio::test]
+    async fn block_on_live_returns_value_inside_current_thread_runtime() {
+        assert_eq!(block_on_live(async { 7_u32 }), 7);
     }
 }
