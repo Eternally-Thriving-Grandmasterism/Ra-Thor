@@ -149,7 +149,7 @@ No measured METR numbers. Inspect ≠ METR. No cert filing. The 31 August 2026 w
 5. Review. Act or discard.
 6. If you build: clone, run named crate tests, keep info@Rathor.ai.
 
-Follow: [X / Twitter](https://x.com/AlphaProMega) · [LinkedIn](https://www.linkedin.com/in/sherif-botros) · [Facebook](https://www.facebook.com/people/Ra-Thor-AI/61594361430419/).
+Follow: [X / Twitter](https://x.com/AlphaProMega) · [LinkedIn](https://www.linkedin.com/in/sherif-botros) · [Facebook](https://www.facebook.com/share/1ErtLqvfnA/).
 
 Ra-Thor™ is a trademark of Autonomicity Games Inc. Grok is a trademark of xAI. Ra-Thor is independent — not affiliated with, sponsored by, or endorsed by xAI.
 

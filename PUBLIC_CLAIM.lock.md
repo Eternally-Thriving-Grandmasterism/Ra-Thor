@@ -29,8 +29,8 @@ Visible labels, same three destinations on Contact and the site footer:
 
 - **X / Twitter** — https://x.com/AlphaProMega
 - **LinkedIn** — https://www.linkedin.com/in/sherif-botros
-- **Facebook** — https://www.facebook.com/people/Ra-Thor-AI/61594361430419/  
-  Official follow named by the steward: https://www.facebook.com/share/1b7Z76vUpL/
+- **Facebook** — https://www.facebook.com/share/1ErtLqvfnA/  
+  Official follow named by the steward: https://www.facebook.com/share/1ErtLqvfnA/
 
 Family site `index.html` already carries the independent / capable · bounded · corrigible lock. Keep that walk: Home · Chat · Employ · Launch · Moments · Shard · Forge · Contact · Privacy.
 

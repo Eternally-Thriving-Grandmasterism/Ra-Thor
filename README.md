@@ -4,7 +4,7 @@
 >
 > `AGSi` in this README is a **research identity label**, not a warranty. Combined AGSi stays SURMISE. [`BINDING_AFTER_REDESIGN`](docs/BINDING_AFTER_REDESIGN.md) stays OPEN.
 >
-> **Follow:** [X / Twitter](https://x.com/AlphaProMega) · [LinkedIn](https://www.linkedin.com/in/sherif-botros) · [Facebook](https://www.facebook.com/people/Ra-Thor-AI/61594361430419/) (share: https://www.facebook.com/share/1b7Z76vUpL/)
+> **Follow:** [X / Twitter](https://x.com/AlphaProMega) · [LinkedIn](https://www.linkedin.com/in/sherif-botros) · [Facebook](https://www.facebook.com/share/1ErtLqvfnA/) (share: https://www.facebook.com/share/1ErtLqvfnA/)
 
 **Ra-Thor** is inspectable research software from Autonomicity Games Inc. — a mercy-gated lattice. `AGSi` / ONE Organism language is a research identity label, not a warranty.
 
