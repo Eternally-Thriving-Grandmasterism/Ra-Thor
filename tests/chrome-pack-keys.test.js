@@ -171,7 +171,7 @@ assert(sw.indexOf("'/js/i18n-chrome.js'") !== -1, 'sw precache must list i18n-ch
 assert(sw.indexOf("'/pilot.html'") !== -1, 'sw precache must list /pilot.html');
 assert(sw.indexOf('ignoreSearch: true') !== -1, 'offline pack loads must ignore the cache query');
 assert(sw.indexOf("pathname.indexOf('/i18n/')") !== -1, 'offline fallback must cover /i18n/');
-assert(sw.indexOf('20260924a') !== -1, 'service worker lock must match the pack token');
+assert(sw.indexOf('i18n pack token 20260924a') !== -1, 'sw.js must name the pack token');
 assert(read('js/site-lock-2026-08-22.js').indexOf('20260924a') !== -1, 'site-lock must load the same pack token');
 assert(read('i18n/README.md').indexOf('20260924a') !== -1, 'i18n README must name the cache token');
 assert(chrome.indexOf('rtApplyChromeI18n') !== -1, 'chrome helper must keep apply');
