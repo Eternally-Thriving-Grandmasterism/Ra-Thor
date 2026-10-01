@@ -325,7 +325,7 @@ assert(chat.indexOf('Small models can give wrong or inappropriate replies.') !==
 assert(chat.indexOf("const WEBLLM_SCRIPT_CACHE = 'webllm/script'") !== -1, 'vendor script uses the webllm/script cache');
 assert(api.absoluteScriptUrl('https://rathor.ai/js/chat.js?v=20260924a', './vendor/web-llm/0.2.85/index.js') === 'https://rathor.ai/js/vendor/web-llm/0.2.85/index.js', 'script URL is absolute and has no query');
 function activateWouldDelete(key) {
-  var LOCK = '20260924a';
+  var LOCK = sw.match(/var LOCK = '([^']+)';/)[1];
   return key.indexOf(LOCK) === -1 && key.indexOf('rathor-models') === -1 && key.indexOf('rathor-queue') === -1 && key.indexOf('webllm') === -1;
 }
 assert(activateWouldDelete('webllm/script') === false, 'webllm/script survives the activate keep list');
