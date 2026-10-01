@@ -23,7 +23,6 @@ impl Default for AdaptiveParameters {
     }
 }
 
-#[derive(Debug)]
 pub struct SimpleLatticeConductor {
     pub name: String,
     pub state: GeometricState,
@@ -31,6 +30,21 @@ pub struct SimpleLatticeConductor {
     pub registry: ConductorRegistry,
     pub tick_count: u64,
     pub v14: LatticeConductorV14,
+}
+
+// Hand-written: LatticeConductorV14 does not implement Debug, so the
+// v14 orchestrator is shown as an opaque placeholder.
+impl std::fmt::Debug for SimpleLatticeConductor {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("SimpleLatticeConductor")
+            .field("name", &self.name)
+            .field("state", &self.state)
+            .field("adaptive_params", &self.adaptive_params)
+            .field("registry", &self.registry)
+            .field("tick_count", &self.tick_count)
+            .field("v14", &"LatticeConductorV14 { .. }")
+            .finish()
+    }
 }
 
 impl Clone for SimpleLatticeConductor {
