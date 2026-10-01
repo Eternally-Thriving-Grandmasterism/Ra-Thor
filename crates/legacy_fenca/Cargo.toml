@@ -2,7 +2,7 @@
 name = "legacy_fenca"
 version = "0.1.0"
 edition = "2021"
-license = "MIT"
+license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
 description = "LegacyFENCA — Emotional Valence Council Stub Hotfixed into NEXi Lattice for Backward Compatibility"
 
 [dependencies]
