@@ -14,8 +14,6 @@ Same three destinations as the site footer. Visible labels. `rel="me noopener"`.
 | **LinkedIn** | https://www.linkedin.com/in/sherif-botros |
 | **Facebook** | https://www.facebook.com/share/1ErtLqvfnA/ |
 
-Facebook share URL named by the steward (kept as the official follow; live redirect is the people profile above): https://www.facebook.com/share/1ErtLqvfnA/
-
 ### Commercial Licensing & Pilots
 
 | Path | Document |
