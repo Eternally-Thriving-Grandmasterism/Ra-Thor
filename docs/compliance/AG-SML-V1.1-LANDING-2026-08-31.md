@@ -7,7 +7,7 @@ Authority: PATSAGi license-tree decision of the same date.
 
 - Root `LICENSE` → AG-SML v1.1 house public grant (Wanderer verbs; no sell-copies; no MIT parent).
 - `COMMERCIAL_LICENSE.md` → v1.1 exhibit with transitional-consideration + Licensor-Declaration sunset.
-- `COMMERCIAL-LICENSE.md` and `License/COMMERCIAL-LICENSE.md` → retired stubs.
+- `COMMERCIAL-LICENSE.md` → retired stub. `License/COMMERCIAL-LICENSE.md` → removed (LIC-2).
 - Canonical contact: **info@Rathor.ai**
 - Workspace identity: **14.15.6** (not bumped).
 
