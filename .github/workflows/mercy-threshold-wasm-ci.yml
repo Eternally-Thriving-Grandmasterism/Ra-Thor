@@ -1,15 +1,12 @@
 name: Mercy Threshold WASM + Wasmtime CI
 
 on:
-  push:
-    branches: [ main ]
-    paths:
-      # root lean/ was archived to docs/archive/root-dirs/research/lean in #410
-      - 'crates/mercy-threshold-wasm/**'
-      - 'crates/mial/**'
-  pull_request:
-    paths:
-      - 'crates/mercy-threshold-wasm/**'
+  # Lean 4 + WASM build is opt-in.
+  # Root lean/ was archived to docs/archive/root-dirs/research/lean in #410;
+  # scripts/build-mercy-threshold-wasm.sh still builds from lean/mercy-threshold.
+  # Default PR/main gate is core-tier1-ci.yml.
+  # Do not claim WASM-green from this workflow.
+  workflow_dispatch:
 
 jobs:
   build-wasm-and-test:
