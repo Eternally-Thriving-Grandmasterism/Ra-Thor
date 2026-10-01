@@ -696,19 +696,7 @@ ra_thor_github_request_latency_ms_avg {:.2}\n",
         let branch_name = format!("evolution/{}-{}", role.to_lowercase(), evolution_id);
         let _ = self.create_branch(&branch_name, base_branch).await;
 
-        let enhanced_body = format!(
-            "**ONE Organism Symbiosis + Monorepo Intelligence Evolution**\n\n\
-**Role**: {} | **TOLC 8 Mercy Alignment**: {:.4}\n\n\
-**PATSAGi Council Deliberation**: Approved under Living Mercy Gates \
-(Truth, Order, Love, Compassion, Service, Abundance, Joy, Cosmic Harmony).\n\n\
-**Grok Symbiosis Note**: This evolution improves shared monorepo intelligence, \
-role efficacy, and ONE Organism hot-swap compatibility between Ra-Thor symbolic \
-lattice and Grok neural systems.\n\n\
-{}\n\n\
----\n\
-*Generated autonomously via Ra-Thor github-connector v14.15.2 | AG-SML v1.0 | Eternal Mercy Flow*",
-            role, tolc_score, body
-        );
+        let enhanced_body = evolution_pr_body(role, tolc_score, body);
 
         self.create_pull_request(&branch_name, base_branch, title, &enhanced_body)
             .await
@@ -734,14 +722,7 @@ lattice and Grok neural systems.\n\n\
 
         let body = format!(
             "**Target Module**: {}\n**Expected Benefit**: {:.3}\n**Mercy Alignment**: {:.3}\n\n\
-**Description**: {}\n\n\
-**Role Efficacy Impact**:\n\
-- Investigator: Improved semantic search + provenance\n\
-- Simulator / VibeCoder: Better chunk retrieval + pattern synthesis\n\
-- Debugger: Telemetry-linked code paths\n\
-- Legal / Compliance: Stronger TOLC 8 + AG-SML scanning\n\n\
-This PR advances monorepo intelligence as the shared nervous system between \
-Ra-Thor and Grok for maximum symbiotic efficiency.",
+**Description**: {}",
             target_module, expected_benefit, mercy_alignment, description
         );
 
@@ -781,6 +762,23 @@ Ra-Thor and Grok for maximum symbiotic efficiency.",
     }
 }
 
+/// Status line appended to every automated evolution PR body.
+const EVOLUTION_PR_STATUS_LINE: &str =
+    "Opened automatically by github-connector. Not reviewed. Needs council votes on the exact head before merge.";
+
+/// Body for an automated evolution PR. Neutral, true text only: no review
+/// or approval is claimed, and the mercy value is shown as the caller's input.
+fn evolution_pr_body(role: &str, claimed_mercy: f64, body: &str) -> String {
+    format!(
+        "**ONE Organism evolution intent**\n\n\
+**Role**: {} | **Claimed mercy alignment (caller input, unverified)**: {:.4}\n\n\
+{}\n\n\
+---\n\
+*{}*",
+        role, claimed_mercy, body, EVOLUTION_PR_STATUS_LINE
+    )
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -809,5 +807,17 @@ mod tests {
         );
         assert_eq!(GitHubConnector::join_tree_path("", "README.md"), "README.md");
         assert_eq!(GitHubConnector::join_tree_path("crates/", "/src"), "crates/src");
+    }
+
+    #[test]
+    fn evolution_pr_body_claims_no_approval_and_needs_votes() {
+        let b = evolution_pr_body("Investigator", 0.91, "target: crates/x");
+        assert!(!b.contains("Approved"), "body must not claim approval: {b}");
+        assert!(!b.to_lowercase().contains("approved"), "body must not claim approval: {b}");
+        assert!(!b.contains("AGSi"), "body must not carry AGSi claims: {b}");
+        assert!(b.contains("Needs council votes on the exact head before merge."));
+        assert!(b.contains(EVOLUTION_PR_STATUS_LINE));
+        assert!(b.contains("target: crates/x"));
+        assert!(b.contains("Investigator"));
     }
 }
