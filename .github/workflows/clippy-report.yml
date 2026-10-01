@@ -1,0 +1,71 @@
+name: Clippy Report (non-blocking)
+
+# R4 CLIPPY-REPORT: report-only lint visibility for the 12 workspace members.
+# - No `-D warnings`: warnings never fail this job.
+# - continue-on-error at job and step level: this job must never block a PR.
+# - Do NOT add this job to required status checks. Zero code fixes ride with it.
+# Default PR/main gate remains .github/workflows/core-tier1-ci.yml.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: never
+
+jobs:
+  clippy-report:
+    name: Clippy report (non-blocking)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
+      - name: cargo clippy (report only, no -D warnings)
+        continue-on-error: true
+        run: |
+          set +e
+          cargo clippy --workspace --all-targets --message-format=json > clippy.json
+          echo "clippy exit code: $?"
+          exit 0
+
+      - name: Summarise warnings
+        if: always()
+        continue-on-error: true
+        run: |
+          set +e
+          SEL='select(.reason=="compiler-message" and (.message.spans|length)>0)'
+          RAW=$(jq -c "$SEL | select(.message.level==\"warning\")" clippy.json | wc -l)
+          ERR=$(jq -c "$SEL | select(.message.level==\"error\")" clippy.json | wc -l)
+          jq -r "$SEL | select(.message.level==\"warning\") | (.message.spans[] | select(.is_primary) | \"\(.file_name):\(.line_start):\(.column_start)\") + \" \" + (.message.code.code // \"none\")" clippy.json | sort -u > unique.txt
+          UNIQ=$(wc -l < unique.txt)
+          {
+            echo "## Clippy report (non-blocking)"
+            echo
+            echo "- Warning diagnostics (raw, all targets): **$RAW**"
+            echo "- Unique warnings (file:line:col + lint): **$UNIQ**"
+            echo "- Errors: **$ERR**"
+            echo
+            echo "Report only. No \`-D warnings\`. Not a required check."
+            echo
+            echo "### By lint"
+            echo '```'
+            awk '{print $2}' unique.txt | sort | uniq -c | sort -rn
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "::notice title=Clippy report::raw=$RAW unique=$UNIQ errors=$ERR (report only)"
+          exit 0
