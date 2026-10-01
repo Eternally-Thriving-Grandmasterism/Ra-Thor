@@ -30,6 +30,9 @@ jobs:
       - name: Test lattice-conductor-v14
         run: cargo test -p lattice-conductor-v14 -- --nocapture
 
+      - name: Test lattice-conductor-v14 (v13-compat)
+        run: cargo test -p lattice-conductor-v14 --features v13-compat -- --nocapture
+
       - name: Test reality-thriving-transfer
         run: cargo test -p reality-thriving-transfer -- --nocapture
 
