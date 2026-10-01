@@ -792,11 +792,49 @@ mod tests {
         }
     }
 
+    /// Connector with no token and an unreachable base_url. The tree guards
+    /// must reject before any request is built, so this never reaches GitHub.
+    fn offline_connector() -> GitHubConnector {
+        GitHubConnector {
+            client: Client::new(),
+            owner: "offline-owner".into(),
+            repo: "offline-repo".into(),
+            token: String::new(),
+            base_url: "http://127.0.0.1:9".into(),
+            rate_limit_remaining: Arc::new(AtomicUsize::new(0)),
+            request_count: Arc::new(AtomicUsize::new(0)),
+            total_latency_ms: Arc::new(AtomicUsize::new(0)),
+        }
+    }
+
     #[tokio::test]
-    async fn test_get_tree_safe_rejects_recursive_root() {
-        // Documents the permanent safety contract.
-        assert!(MAX_PER_PAGE <= 100);
-        assert!(MAX_SAFE_TREE_ENTRIES <= 250);
+    async fn get_tree_safe_rejects_recursive_root_walk() {
+        let c = offline_connector();
+        let err = c
+            .get_tree_safe(None, true, RECOMMENDED_PER_PAGE)
+            .await
+            .expect_err("recursive root walk must be rejected");
+        assert!(err.message.contains("RECURSIVE ROOT WALK FORBIDDEN"), "{}", err.message);
+        assert_eq!(err.status, None);
+    }
+
+    #[tokio::test]
+    async fn get_tree_safe_rejects_per_page_over_100() {
+        let c = offline_connector();
+        for (path_filter, recursive) in [(Some("crates"), false), (None, false), (Some("crates"), true)] {
+            let err = c
+                .get_tree_safe(path_filter, recursive, MAX_PER_PAGE + 1)
+                .await
+                .expect_err("per_page > 100 must be rejected");
+            assert!(err.message.contains("per_page max 100"), "{}", err.message);
+            assert_eq!(err.status, None);
+        }
+        // 100 itself passes the per_page guard and reaches the next guard.
+        let err = c
+            .get_tree_safe(None, true, MAX_PER_PAGE)
+            .await
+            .expect_err("recursive root walk must be rejected");
+        assert!(err.message.contains("RECURSIVE ROOT WALK FORBIDDEN"), "{}", err.message);
     }
 
     #[test]
