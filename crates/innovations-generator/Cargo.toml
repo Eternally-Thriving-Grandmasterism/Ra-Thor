@@ -3,7 +3,7 @@ name = "innovations-generator"
 version = "0.1.0"
 edition = "2021"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
-license = "AG-SML v1.0 — Autonomicity Games Sovereign Mercy License"
+license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
 description = "Innovations Generator — Higher-order idea synthesis and eternal self-evolution engine for Ra-Thor"
 
 [dependencies]

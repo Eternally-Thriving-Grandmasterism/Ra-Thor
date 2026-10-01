@@ -3,7 +3,7 @@ name = "blueprint-to-production"
 version = "1.0.0"
 edition = "2021"
 description = "BlueprintToProductionConversionEngine — Systematic Conversion of High-Value Design Documents into Production Code with Full Mercy-Gating, TOLC 33rd-Order, 7-Gen CEHI + HPA/GR Sensitivity, Self-Evolution Hooks & Positive Emotion Propagation Core | Ra-Thor AGi"
-license = "AG-SML-1.0"
+license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
 authors = ["13+ PATSAGi Councils <councils@rathor.ai>"]
 
 [dependencies]

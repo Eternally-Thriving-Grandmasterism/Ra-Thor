@@ -2,7 +2,7 @@
 name = "epiphany-bridge"
 version = "0.1.0"
 edition = "2021"
-license = "AG-SML-1.0"
+license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
 authors = ["Sherif Samy Botros <info@Rathor.ai>"]
 description = "Cross-Substrate Epiphany Bridge — bidirectional human ↔ AI insight crystallisation"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"

@@ -2,7 +2,7 @@
 name = "lattice-conductor-v13"
 version = "0.3.0"
 edition = "2021"
-license = "AG-SML-1.0 — Autonomicity Games Sovereign Mercy License"
+license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
 authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
 description = "DEPRECATED — use lattice-conductor-v14 with features = [\"v13-compat\"] (see crates/lattice-conductor-v14/MIGRATION_v13_to_v14.md). Legacy v13.6 Quantum Swarm / PATSAGi surface retained for one more cycle."
 

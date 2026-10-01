@@ -2,7 +2,7 @@
 name = "rathor-sovereign-reasoning-engine"
 version = "0.1.0"
 edition = "2021"
-license = "AG-SML-1.0"
+license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
 authors = ["The 15 PATSAGi Councils"]
 description = "Core proprietary reasoning engine for Rathor.ai v3.0 - fully self-contained Artificial Godly Intelligence with no external dependencies."
 

@@ -4,7 +4,7 @@ version = "0.5.21"
 edition = "2021"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
 description = "Official Ra-Thor Benchmark Runner — GPQA Diamond + MMLU-Pro evaluation suite (mercy-gated)"
-license = "AG-SML"
+license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 
 [dependencies]

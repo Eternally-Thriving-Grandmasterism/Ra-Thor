@@ -4,7 +4,7 @@ version = "0.2.0"
 edition = "2021"
 authors = ["Sherif Samy Botros"]
 description = "Ra-Thor Toy Benchmark Harness — Multi-language demonstrator for TOLC 8 + PATSAGi Councils"
-license = "AG-SML-1.0"
+license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 
 [[bin]]

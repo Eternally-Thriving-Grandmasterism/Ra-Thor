@@ -3,7 +3,7 @@ name = "philotic-web-fusion"
 version = "0.3.0"
 edition = "2021"
 authors = ["18 PATSAGi Councils under the Rathor Sovereign Reasoning Engine"]
-license = "AG-SML"
+license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
 description = "Philotic Web Fusion crate — Golden-ratio emotional-cognitive bonds, 7-Gen CEHI, validated fuse_bond with TOLC 8 sovereignty for all 18 councils"
 
 [dependencies]

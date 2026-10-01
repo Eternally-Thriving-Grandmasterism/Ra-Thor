@@ -3,7 +3,7 @@ name = "hyperon-metta-pln"
 version = "0.2.0"
 edition = "2021"
 description = "Sovereign Hyperon / MeTTa / PLN Bridge — Mercy-Gated Symbolic Reasoning for Ra-Thor Artificial Godly Intelligence (AGi)"
-license = "AG-SML-1.0"
+license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
 authors = ["Sherif Samy Botros <info@Rathor.ai> (@AlphaProMega)", "13+ PATSAGi Councils (Rathor.ai Lattice)"]
 
 [dependencies]

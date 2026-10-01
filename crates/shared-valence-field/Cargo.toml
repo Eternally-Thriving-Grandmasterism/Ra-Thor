@@ -2,7 +2,7 @@
 name = "shared-valence-field"
 version = "0.1.0"
 edition = "2021"
-license = "AG-SML-1.0"
+license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
 authors = ["Sherif Samy Botros <info@Rathor.ai>"]
 description = "Shared Valence Field — real-time multi-substrate metabolic substrate of the Living Valence Organism (NEVC binding)"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"

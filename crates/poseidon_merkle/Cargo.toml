@@ -2,7 +2,7 @@
 name = "poseidon_merkle"
 version = "1.1.0"
 edition = "2021"
-license = "MIT"
+license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
 description = "PoseidonMerkle — zk-Friendly Merkle Trees with Full Halo2 Inclusion Proof Gadgets"
 
 [dependencies]

@@ -3,7 +3,7 @@ name = "biomimetic-sovereign-harmony-council"
 version = "0.1.0"
 edition = "2021"
 authors = ["24 PATSAGi Councils under the Rathor Sovereign Reasoning Engine"]
-license = "AG-SML"
+license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
 description = "23rd PATSAGi Council — Biomimetic Sovereign Harmony. Lotus self-cleaning truth, gecko adhesion bonds, shark-skin compression, moth-eye clarity, spider-silk strength, pterosaur-wing resilience, TOLC 8, RSRE v3.0 + all Pinnacle integrations"
 
 [dependencies]
