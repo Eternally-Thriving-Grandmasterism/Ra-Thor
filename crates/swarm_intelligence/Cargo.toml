@@ -2,6 +2,7 @@
 name = "swarm_intelligence"
 version = "0.1.0"
 edition = "2021"
+license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
 
 [dependencies]
 rand = "0.8"

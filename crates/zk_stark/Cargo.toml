@@ -1,3 +1,4 @@
+[package]
 name = "zk_stark"
 version = "0.3.9"
 edition = "2021"
