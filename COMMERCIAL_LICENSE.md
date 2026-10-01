@@ -89,7 +89,7 @@ Agent-security / prompt-injection evaluators start at [`docs/BOARDY_POLINA_AGENT
 - This document does not replace AG-SML; it activates the commercial path that AG-SML already requires.
 - Root `LICENSE` is the canonical free-use instrument.
 - `LICENSE_CLARIFICATION.md` remains in force for residual historical dual-license wording (including Eternal Mercy Flow License v3/v4).
-- Hyphen file `COMMERCIAL-LICENSE.md` and `License/COMMERCIAL-LICENSE.md` are retired stubs pointing here.
+- Hyphen file `COMMERCIAL-LICENSE.md` is a retired stub pointing here. The `License/COMMERCIAL-LICENSE.md` stub was removed (LIC-2).
 
 ---
 

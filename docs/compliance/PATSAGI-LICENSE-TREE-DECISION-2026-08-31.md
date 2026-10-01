@@ -37,7 +37,7 @@ Pre-landing snapshot. See post-landing status above for HEAD.
 |------|----------------|--------|
 | `LICENSE` | AG-SML **v1.0 — April 11 2026**. | **REWRITE → AG-SML v1.1** (done). |
 | `COMMERCIAL_LICENSE.md` | AG-SML v1.0 commercial exhibit. | **PROMOTE to v1.1 exhibit** (done). |
-| `COMMERCIAL-LICENSE.md` / `License/COMMERCIAL-LICENSE.md` | Duplicates. | **Retired stubs** (done). |
+| `COMMERCIAL-LICENSE.md` / `License/COMMERCIAL-LICENSE.md` | Duplicates. | Hyphen file: **retired stub** (done). `License/` copy: **removed** (LIC-2). |
 | `LICENSE_CLARIFICATION.md` / `LICENSE_SWEEP_COMPLETE.md` / `CONTACT.md` / `CLA.md` / `CODE_OF_CONDUCT.md` | v1.0 refs. | **Bumped / glossary-aligned** (done). |
 | `Cargo.toml` license fields | AG-SML v1.0 strings. | **Bumped to v1.1** (done). Workspace stays 14.15.6. |
 
