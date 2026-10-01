@@ -561,6 +561,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
       setLockedAppInert(false);
       refreshSessionSelect();
       renderHistory();
+      postLoadInit();
       addNotice('Lattice unlocked. ⚡️ Sessions are available for this browser session.');
     } else {
       if (unlockError) unlockError.classList.remove('hidden');
@@ -632,19 +633,19 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
   /* chat-render-pure */
   function escapeHtml(text) {
     return String(text)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
+      .replace(/&/g, '&')
+      .replace(/</g, '<')
+      .replace(/>/g, '>')
+      .replace(/"/g, '"')
       .replace(/'/g, '&#39;');
   }
 
   function chatSafeLink(label, href) {
     var raw = String(href)
-      .replace(/&amp;/g, '&')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&quot;/g, '"')
+      .replace(/&/g, '&')
+      .replace(/</g, '<')
+      .replace(/>/g, '>')
+      .replace(/"/g, '"')
       .replace(/&#39;/g, "'");
     if (/[\u0000-\u0020]/.test(raw)) return null;
     var scheme = /^([a-zA-Z][a-zA-Z0-9+.-]*):/.exec(raw);
@@ -3140,6 +3141,15 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     refreshSessionSelect();
     renderHistory();
     warnIfPlaintextUnderFlag();
+    await postLoadInit();
+  });
+
+  // UNLOCK-INIT-1: the post-load tail runs once, after a plain load or after a
+  // successful unlock. The guard is set before any await; nothing is stored.
+  var postLoadInitStarted = false;
+  async function postLoadInit() {
+    if (postLoadInitStarted) return;
+    postLoadInitStarted = true;
     initSpeechRecognition();
 
     const cap = await detectLocalLlmSupport();
@@ -3167,5 +3177,5 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
     }
 
     console.log('[Ra-Thor chat.js] v14.18.0 — Optional Passphrase Encryption ready ⚡️');
-  });
+  }
 })();
