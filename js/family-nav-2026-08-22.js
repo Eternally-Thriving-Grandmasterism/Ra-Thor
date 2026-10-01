@@ -180,8 +180,8 @@
         '<ul class="rt-follow-list">' +
           '<li><a href="https://x.com/AlphaProMega" rel="me noopener" target="_blank">X / Twitter</a></li>' +
           '<li><a href="https://www.linkedin.com/in/sherif-botros" rel="me noopener" target="_blank">LinkedIn</a></li>' +
-          '<!-- official follow named by the steward: https://www.facebook.com/share/1b7Z76vUpL/ -->' +
-          '<li><a href="https://www.facebook.com/people/Ra-Thor-AI/61594361430419/" rel="me noopener" target="_blank">Facebook</a></li>' +
+          '<!-- official follow named by the steward: https://www.facebook.com/share/1ErtLqvfnA/ -->' +
+          '<li><a href="https://www.facebook.com/share/1ErtLqvfnA/" rel="me noopener" target="_blank">Facebook</a></li>' +
         '</ul>' +
       '</nav>'
     );
