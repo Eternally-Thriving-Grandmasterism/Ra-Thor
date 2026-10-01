@@ -76,7 +76,7 @@ files.forEach(function (f) {
   });
 });
 
-// 4. No pack file changed (sha256 of main d6b17afd).
+// 4. Fingerprints are pinned to the disclaimer-trim-1 pack text (base ebda8a40).
 var PACKS = {
   'ar.js': '0c8a89eb0ff042043815a8c29d01093a132754f7f0e002d3ac5dfbc0801755b3',
   'de.js': '6601fed3020873156673a2dd30524992ab61121192ddfb731d7c13c90753b622',
