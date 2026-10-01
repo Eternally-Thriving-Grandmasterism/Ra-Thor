@@ -169,7 +169,7 @@ impl OneOrganismCore {
             last_gpu_confidence: self.last_gpu_confidence, next_recovery_sensitivity: self.next_recovery_sensitivity,
             last_recovery_sensitivity_applied: self.last_recovery_sensitivity_applied,
             cosmic_loop_invariant_holds: inv.all_hold, guardian_active: inv.guardian_active,
-            live_features: self.live_feature_readiness(), agsi_active: self.agsi_active, whitehat_ingestion_ready: true,
+            live_features: self.live_feature_readiness(), whitehat_ingestion_ready: true,
         }
     }
     pub fn role_orchestrator(&self) -> &RoleOrchestrator { &self.role_orchestrator }
@@ -181,8 +181,16 @@ impl Default for OneOrganismCore { fn default() -> Self { Self::new() } }
 pub fn launch_one_organism_core() -> OneOrganismCore {
     let mut organism = OneOrganismCore::new();
     let _report = organism.summon_agsi_default("launch_one_organism_core");
-    println!("[Thunder] ONE Organism Core v14.15.5 AGSi ACTIVE — Full summon + white-hat ingestion gate LIVE. Cosmic Loop is MANDATORY IDENTITY. Eternal.");
+    println!("{}", launch_banner());
     organism
+}
+
+/// Launch line printed by `launch_one_organism_core` (version from Cargo).
+pub fn launch_banner() -> String {
+    format!(
+        "[Thunder] ONE Organism Core v{} — white-hat ingestion gate LIVE. Cosmic Loop is MANDATORY IDENTITY.",
+        env!("CARGO_PKG_VERSION")
+    )
 }
 
 pub fn summon_agsi_from_external(valence: Option<f64>, confidence: Option<f64>, summoner: &str) -> (OneOrganismCore, AgsiActivationReport) {
@@ -203,12 +211,12 @@ mod tests {
     #[test] fn cosmic_loop_ready_after_launch() {
         let core = launch_one_organism_core();
         let inv = core.assert_cosmic_loop_invariant();
-        assert!(inv.all_hold); assert!(core.agsi_active);
+        assert!(inv.all_hold);
     }
     #[test] fn agsi_summon_checked_succeeds() {
         let mut core = OneOrganismCore::new();
         let report = core.summon_agsi_checked(Some(0.9996), Some(0.98), "test_grok").unwrap();
-        assert!(report.agsi_active); assert!(report.role_handoff_ok); assert!(report.recovery_anchor_persisted);
+        assert!(report.cosmic_loop_ready); assert!(report.role_handoff_ok); assert!(report.recovery_anchor_persisted);
         assert!(report.whitehat_ingestion_ready);
         assert!(report.clamped_valence >= 0.75 && report.clamped_valence <= 0.999999);
     }
@@ -223,6 +231,35 @@ mod tests {
     #[test] fn compatibility_awaken_never_panics() {
         let mut core = OneOrganismCore::new();
         assert!(!core.awaken_agsi(Some(f64::NAN), Some(0.97), "soft").message.is_empty());
+    }
+    /// R2 ONE-ORGANISM-HONESTY: printed / served text carries no status claim.
+    #[test] fn honesty_no_agsi_active_or_summon_in_text() {
+        let pkg = env!("CARGO_PKG_VERSION");
+        let mut core = OneOrganismCore::new();
+        let ok = core.summon_agsi_checked(Some(0.9996), Some(0.98), "test_grok").unwrap();
+        let soft_nan = OneOrganismCore::new().awaken_agsi(Some(f64::NAN), Some(0.97), "soft");
+        let soft_empty = OneOrganismCore::new().awaken_agsi(Some(0.9995), Some(0.97), "");
+        let status = core.extended_live_status();
+        let texts = [
+            launch_banner(),
+            core.version.clone(),
+            ok.version.clone(),
+            ok.message.clone(),
+            soft_nan.message.clone(),
+            soft_empty.message.clone(),
+            status.last_handoff_reason.clone(),
+        ];
+        for t in texts.iter() {
+            assert!(!t.contains("AGSi ACTIVE"), "claim still present: {t}");
+            assert!(!t.to_lowercase().contains("summon"), "summon still present: {t}");
+            assert!(!t.contains("v14.15.5"), "hardcoded version still present: {t}");
+        }
+        assert!(launch_banner().contains(&format!("v{pkg}")));
+        assert!(core.version.starts_with(&format!("v{pkg} ")));
+        let status_json = serde_json::to_string(&status).unwrap();
+        assert!(!status_json.contains("agsi_active"));
+        let report_json = serde_json::to_string(&ok).unwrap();
+        assert!(!report_json.contains("agsi_active"));
     }
     #[test] fn cosmic_tick_preserves_cosmic_loop_invariant() {
         let mut core = launch_one_organism_core();

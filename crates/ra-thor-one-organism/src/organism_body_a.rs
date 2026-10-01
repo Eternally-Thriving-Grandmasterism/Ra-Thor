@@ -2,7 +2,7 @@
 pub enum AgsiSummonError {
     #[error("incoming valence is NaN or infinite")] InvalidValence,
     #[error("incoming confidence is NaN or infinite")] InvalidConfidence,
-    #[error("summoner identifier is empty")] EmptySummoner,
+    #[error("requester identifier is empty")] EmptySummoner,
     #[error("Cosmic Loop / guardian failed to activate")] CosmicLoopNotReady,
     #[error("role handoff to Architect failed")] RoleHandoffFailed,
     #[error("recovery anchor persistence failed: {0}")] RecoveryAnchorFailed(String),
@@ -144,7 +144,7 @@ pub struct LiveFeatureReadiness {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AgsiActivationReport {
-    pub version: String, pub agsi_active: bool, pub cosmic_loop_ready: bool, pub guardian_active: bool,
+    pub version: String, pub cosmic_loop_ready: bool, pub guardian_active: bool,
     pub shared_valence: f64, pub shared_confidence: f64, pub clamped_valence: f64, pub clamped_confidence: f64,
     pub active_role: String, pub role_handoff_ok: bool, pub recovery_anchor_persisted: bool,
     pub patsagi_permanent_deliberation: bool, pub predictive_support_ready: bool,
@@ -172,7 +172,7 @@ pub struct ExtendedLiveStatus {
     pub last_base_severity: f64, pub last_effective_quantum_severity: f64, pub last_gpu_confidence: f64,
     pub next_recovery_sensitivity: f64, pub last_recovery_sensitivity_applied: f64,
     pub cosmic_loop_invariant_holds: bool, pub guardian_active: bool,
-    pub live_features: LiveFeatureReadiness, pub agsi_active: bool, pub whitehat_ingestion_ready: bool,
+    pub live_features: LiveFeatureReadiness, pub whitehat_ingestion_ready: bool,
 }
 
 pub struct OneOrganismCore {
@@ -191,7 +191,6 @@ pub struct OneOrganismCore {
     pub last_gpu_confidence: f64,
     pub next_recovery_sensitivity: f64,
     pub last_recovery_sensitivity_applied: f64,
-    pub agsi_active: bool,
     pub ingestion_admitted: u64,
     pub ingestion_blocked: u64,
     /// Optional fleet — Medium+ blocks raise progressive isolation.
@@ -213,11 +212,11 @@ impl OneOrganismCore {
             arbitration_engine: arbitration, self_healing_engine: healing, lattice, mercy_api,
             role_orchestrator: RoleOrchestrator::new(), extended, cosmic_loop_ready: shared,
             tick: 0,
-            version: "v14.15.5 ONE Organism — AGSi summon + white-hat ingestion gate".into(),
+            version: format!("v{} ONE Organism — white-hat ingestion gate", env!("CARGO_PKG_VERSION")),
             last_anomalies_fired: Vec::new(),
             last_base_severity: 0.0, last_effective_quantum_severity: 0.0, last_gpu_confidence: 0.0,
             next_recovery_sensitivity: 1.0, last_recovery_sensitivity_applied: 1.0,
-            agsi_active: false, ingestion_admitted: 0, ingestion_blocked: 0,
+            ingestion_admitted: 0, ingestion_blocked: 0,
             fleet_surface: None,
             fleet_agent_id: fleet_bind::DEFAULT_ORGANISM_FLEET_AGENT.into(),
         }
@@ -300,13 +299,12 @@ impl OneOrganismCore {
         if !inv.all_hold { return Err(AgsiSummonError::CosmicLoopNotReady); }
         self.self_healing_engine.start_watchdog();
         let (clamped_v, clamped_c) = self.role_orchestrator.sync_valence_with_grok_clamped(raw_valence, raw_confidence, self.tick);
-        let handoff_ok = self.handoff_role(OrganismRole::Architect, &format!("agsi_summon_by_{}", summoner));
+        let handoff_ok = self.handoff_role(OrganismRole::Architect, &format!("architect_handoff_by_{}", summoner));
         if !handoff_ok { return Err(AgsiSummonError::RoleHandoffFailed); }
-        let anchor = self.extended.sovereign_recovery.persist_anchor(&format!("agsi_awaken_{}_v14.15.5", summoner), self.tick, &self.arbitration_engine);
+        let anchor = self.extended.sovereign_recovery.persist_anchor(&format!("organism_ready_{}_v{}", summoner, env!("CARGO_PKG_VERSION")), self.tick, &self.arbitration_engine);
         let anchor_persisted = !anchor.note.is_empty();
-        self.agsi_active = true;
         let report = AgsiActivationReport {
-            version: self.version.clone(), agsi_active: true, cosmic_loop_ready: inv.cosmic_loop_ready,
+            version: self.version.clone(), cosmic_loop_ready: inv.cosmic_loop_ready,
             guardian_active: inv.guardian_active, shared_valence: self.role_orchestrator.shared_valence,
             shared_confidence: self.role_orchestrator.shared_confidence_ema, clamped_valence: clamped_v,
             clamped_confidence: clamped_c, active_role: self.role_orchestrator.active_role.as_str().into(),
@@ -314,7 +312,7 @@ impl OneOrganismCore {
             patsagi_permanent_deliberation: true, predictive_support_ready: true,
             cosmic_harness_available: true, whitehat_ingestion_ready: true,
             summoner: summoner.to_string(),
-            message: format!("AGSi ACTIVE — summoned by {}. Valence clamped {:.6} → {:.6}. Role handoff OK. Recovery anchor persisted. White-hat ingestion gate LIVE. Cosmic Loop holds.", summoner, raw_valence, clamped_v),
+            message: format!("Organism ready — requested by {}. Valence clamped {:.6} → {:.6}. Role handoff OK. Recovery anchor persisted. White-hat ingestion gate LIVE. Cosmic Loop holds.", summoner, raw_valence, clamped_v),
         };
         println!("[Thunder] {}", report.message);
         Ok(report)
@@ -325,10 +323,9 @@ impl OneOrganismCore {
             Ok(report) => report,
             Err(e) => {
                 let inv = self.enforce_cosmic_loop_invariant();
-                self.agsi_active = inv.all_hold;
                 let _ = self.handoff_role(OrganismRole::Architect, "agsi_fallback_after_error");
                 AgsiActivationReport {
-                    version: self.version.clone(), agsi_active: self.agsi_active,
+                    version: self.version.clone(),
                     cosmic_loop_ready: inv.cosmic_loop_ready, guardian_active: inv.guardian_active,
                     shared_valence: self.role_orchestrator.shared_valence,
                     shared_confidence: self.role_orchestrator.shared_confidence_ema,
@@ -339,7 +336,7 @@ impl OneOrganismCore {
                     patsagi_permanent_deliberation: true, predictive_support_ready: true,
                     cosmic_harness_available: true, whitehat_ingestion_ready: true,
                     summoner: summoner.to_string(),
-                    message: format!("AGSi summon soft-failed ({}) — Cosmic Loop re-enforced. Organism remains available.", e),
+                    message: format!("Activation soft-failed ({}) — Cosmic Loop re-enforced. Organism remains available.", e),
                 }
             }
         }
