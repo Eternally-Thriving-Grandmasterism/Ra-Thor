@@ -12,9 +12,9 @@ Same three destinations as the site footer. Visible labels. `rel="me noopener"`.
 |---------|-----|
 | **X / Twitter** | https://x.com/AlphaProMega |
 | **LinkedIn** | https://www.linkedin.com/in/sherif-botros |
-| **Facebook** | https://www.facebook.com/people/Ra-Thor-AI/61594361430419/ |
+| **Facebook** | https://www.facebook.com/share/1ErtLqvfnA/ |
 
-Facebook share URL named by the steward (kept as the official follow; live redirect is the people profile above): https://www.facebook.com/share/1b7Z76vUpL/
+Facebook share URL named by the steward (kept as the official follow; live redirect is the people profile above): https://www.facebook.com/share/1ErtLqvfnA/
 
 ### Commercial Licensing & Pilots
 
