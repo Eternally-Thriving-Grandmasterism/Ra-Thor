@@ -53,7 +53,7 @@ assert(vendor.indexOf('prebuiltAppConfig') !== -1, 'pinned build must export pre
 });
 
 assert(sw.indexOf("key.indexOf('webllm') === -1") !== -1, 'activate keep list must retain webllm caches');
-assert(sw.indexOf("var LOCK = '20260924a';") !== -1, 'LOCK must stay 20260924a');
+assert(sw.indexOf("var LOCK = '20261001a';") !== -1, 'LOCK must stay 20261001a');
 assert(sw.indexOf("var CACHE = 'rathor-core-' + LOCK;") !== -1, 'CACHE name must stay rathor-core- plus LOCK');
 var precache = sw.slice(sw.indexOf('var PRECACHE'), sw.indexOf('self.addEventListener'));
 assert(precache.indexOf('web-llm') === -1, 'PRECACHE must not list the vendored library');

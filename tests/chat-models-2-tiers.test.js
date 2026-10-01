@@ -22,7 +22,7 @@ var vendor = read('js/vendor/web-llm/0.2.85/index.js');
 
 assert(chat.indexOf("./vendor/web-llm/0.2.85/index.js") !== -1, 'WebLLM pin stays 0.2.85');
 assert(chat.indexOf('0.2.86') === -1, 'this card must not bump the WebLLM pin');
-assert(sw.indexOf("var LOCK = '20260924a';") !== -1, 'service worker LOCK stays 20260924a');
+assert(sw.indexOf("var LOCK = '20261001a';") !== -1, 'service worker LOCK stays 20261001a');
 assert(chat.indexOf('DeepSeek') === -1, 'no DeepSeek id is pinned');
 assert(chat.indexOf('<think>') === -1, 'no think-tag model is introduced');
 assert(chat.indexOf('@huggingface/hub') === -1, 'no custom Hugging Face loader');
