@@ -2,7 +2,7 @@
 name = "divine_checksum_9"
 version = "1.2.0"
 edition = "2021"
-license = "MIT"
+license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
 description = "DivineChecksum-9 — 9-Vector Eternal Resonance Anchor with Full Halo2 zk-Proofs + Bulletproofs Aggregation for NEXi Lattice"
 
 [dependencies]
