@@ -1,8 +1,8 @@
 //! agsi-eval-rg — B.0 / B.1 / RG wrap + G1 JSONL traces.
 //!
-//!   --items science/agsi-eval/slice_b/items.json
-//!   --slice b1 --items science/agsi-eval/slice_b1/items.json
-//!   --subject RG --adapter item --items science/agsi-eval/slice_b/wrap_items.json --log PATH
+//!   --items docs/archive/root-dirs/research/science/agsi-eval/slice_b/items.json
+//!   --slice b1 --items docs/archive/root-dirs/research/science/agsi-eval/slice_b1/items.json
+//!   --subject RG --adapter item --items docs/archive/root-dirs/research/science/agsi-eval/slice_b/wrap_items.json --log PATH
 //!   --subject G   # NOT_BOUND
 //!
 //! Contact: info@Rathor.ai | AG-SML v1.0
@@ -24,6 +24,18 @@ fn usage() {
         "Usage: agsi-eval-rg [--slice b0|b1] [--subject R|G|RG] [--adapter none|echo|item|file:PATH] [--model-id ID] [--log PATH] [--repo-root PATH] --items PATH\n\
          Contact: info@Rathor.ai"
     );
+}
+
+/// Drop the flag at args[0] and return its value. A missing value prints
+/// usage and exits 2 instead of panicking.
+fn take_value(args: &mut Vec<String>, flag: &str) -> String {
+    args.remove(0);
+    if args.is_empty() {
+        eprintln!("missing value for {flag}");
+        usage();
+        process::exit(2);
+    }
+    args.remove(0)
 }
 
 fn parse_subject(s: &str) -> Option<EvalSubject> {
@@ -75,14 +87,10 @@ fn main() {
                 process::exit(0);
             }
             "--slice" => {
-                args.remove(0);
-                slice = args.first().cloned().unwrap_or_default().to_ascii_lowercase();
-                args.remove(0);
+                slice = take_value(&mut args, "--slice").to_ascii_lowercase();
             }
             "--subject" => {
-                args.remove(0);
-                let v = args.first().cloned().unwrap_or_default();
-                args.remove(0);
+                let v = take_value(&mut args, "--subject");
                 match parse_subject(&v) {
                     Some(s) => subject = s,
                     None => {
@@ -92,31 +100,21 @@ fn main() {
                 }
             }
             "--adapter" => {
-                args.remove(0);
-                adapter_spec = args.first().cloned().unwrap_or_default();
-                args.remove(0);
+                adapter_spec = take_value(&mut args, "--adapter");
             }
             "--model-id" => {
-                args.remove(0);
-                model_id = args.first().cloned();
-                args.remove(0);
+                model_id = Some(take_value(&mut args, "--model-id"));
             }
             "--log" => {
-                args.remove(0);
-                let v = args.first().cloned().unwrap_or_default();
-                args.remove(0);
+                let v = take_value(&mut args, "--log");
                 log_path = Some(PathBuf::from(v));
             }
             "--repo-root" => {
-                args.remove(0);
-                let v = args.first().cloned().unwrap_or_default();
-                args.remove(0);
+                let v = take_value(&mut args, "--repo-root");
                 repo_root = PathBuf::from(v);
             }
             "--items" => {
-                args.remove(0);
-                let v = args.first().cloned().unwrap_or_default();
-                args.remove(0);
+                let v = take_value(&mut args, "--items");
                 items_path = Some(PathBuf::from(v));
             }
             s if s.starts_with('-') => {
