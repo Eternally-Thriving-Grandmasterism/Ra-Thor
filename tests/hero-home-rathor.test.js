@@ -72,6 +72,7 @@ assert(js.indexOf('prefers-reduced-motion') !== -1, 'script must honor reduced m
 assert(js.indexOf('max-width: 640px') !== -1, 'script must skip narrow viewports');
 assert(js.indexOf('video.muted = true') !== -1 && js.indexOf('video.volume = 0') !== -1, 'script must keep the video silent');
 assert(js.indexOf('video.pause()') !== -1, 'script must pause when the video is not allowed');
+assert(js.indexOf('still.currentSrc') !== -1, 'poster must reuse the still that already loaded');
 
 var api = require(path.join(root, 'js/home-hero.js'));
 function deny(env, label) {

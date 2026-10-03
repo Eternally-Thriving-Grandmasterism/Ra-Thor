@@ -67,7 +67,8 @@
       video.loop = true;
       video.playsInline = true;
       video.preload = 'none';
-      video.poster = POSTER;
+      var still = figure.querySelector('img');
+      video.poster = (still && still.currentSrc) ? still.currentSrc : POSTER;
       video.setAttribute('aria-hidden', 'true');
       video.controls = false;
       var source = document.createElement('source');
