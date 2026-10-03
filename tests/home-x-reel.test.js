@@ -15,8 +15,8 @@ function read(rel) {
 }
 
 var files = {
-  'assets/art/reel-sentinel-architecture.mp4': 843892,
-  'assets/art/reel-sentinel-architecture-poster.webp': 36244,
+  'assets/art/reel-sentinel-architecture.mp4': 824868,
+  'assets/art/reel-sentinel-architecture-poster.webp': 34554,
   'assets/art/reel-tolc-heart.mp4': 1472913,
   'assets/art/reel-tolc-heart-poster.webp': 53848,
   'assets/art/reel-rathor-winged-hammer.mp4': 1397223,
@@ -57,7 +57,7 @@ assert(reel.indexOf('https://x.com/AlphaProMega/status/2057902030614601883') !==
 assert(reel.indexOf('rel="noopener"') !== -1 && reel.indexOf('target="_blank"') !== -1, 'caption links open safely');
 
 var alts = [
-  ['464', '688', 'A luminous blue-white humanoid figure stands between a bright sun and a spiral galaxy, inside glowing circles and geometric marks.'],
+  ['464', '664', 'A luminous blue-white humanoid figure stands between a bright sun and a spiral galaxy, inside glowing circles and geometric marks.'],
   ['640', '952', 'A blue lightning-lined robot figure holds out an open hand under a glowing pink heart with the word TOLC.'],
   ['960', '644', 'A dark hammer with fiery wings and lightning sits in front of a glowing ring, above fiery title text reading RA-THOR.']
 ];
