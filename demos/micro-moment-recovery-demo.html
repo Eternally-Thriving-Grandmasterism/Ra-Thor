@@ -6,14 +6,14 @@
   <title>Ra-Thor · Micro-Moment Recovery Demo (v2.1 Capacity)</title>
   <style>
     :root {
-      --bg: #050505;
-      --panel: #0d0b08;
-      --border: rgba(240, 211, 106, 0.34);
-      --text: #f6f1e4;
-      --muted: rgba(246, 241, 228, 0.68);
-      --accent: #f0d36a;
-      --warn: #d47818;
-      --good: #f0d36a;
+      --bg: var(--rt-bg, #050505);
+      --panel: var(--rt-bg-elev, #0d0b08);
+      --border: var(--rt-line, rgba(240, 211, 106, 0.34));
+      --text: var(--rt-ink, #f6f1e4);
+      --muted: var(--text-calm, #a9a59d);
+      --accent: var(--rt-gold, #f0d36a);
+      --warn: var(--rt-gold-deep, #c9a227);
+      --good: var(--rt-gold, #f0d36a);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -70,8 +70,8 @@
       align-items: center;
     }
     button, label.file-btn {
-      background: #1a2533;
-      color: var(--text);
+      background: var(--rt-bg-card, #10100c);
+      color: var(--rt-gold, #f0d36a);
       border: 1px solid var(--border);
       border-radius: 8px;
       padding: 0.55rem 1rem;
@@ -80,13 +80,13 @@
       transition: border-color 0.15s, background 0.15s;
     }
     button:hover, label.file-btn:hover {
-      border-color: var(--accent);
-      background: #1e2d3f;
+      border-color: var(--rt-gold-hot, #f5c84a);
+      background: var(--rt-wash, rgba(240, 211, 106, 0.08));
     }
     button.primary {
-      background: #0f3d38;
-      border-color: var(--accent);
-      color: var(--accent);
+      background: var(--rt-gold-hot, #f5c84a);
+      border-color: var(--rt-gold-hot, #f5c84a);
+      color: var(--rt-on-gold, #111);
     }
     button:disabled {
       opacity: 0.45;
@@ -117,7 +117,7 @@
       font-size: 0.85rem;
     }
     .metric {
-      background: #0e1520;
+      background: var(--rt-bg-elev, #0d0b08);
       border: 1px solid var(--border);
       border-radius: 6px;
       padding: 0.4rem 0.7rem;
@@ -130,7 +130,7 @@
       font-size: 0.85rem;
     }
     .moments li {
-      background: #0e1520;
+      background: var(--rt-bg-elev, #0d0b08);
       border-left: 3px solid var(--accent);
       padding: 0.45rem 0.7rem;
       border-radius: 0 6px 6px 0;
@@ -141,7 +141,7 @@
       margin-right: 0.4rem;
     }
     pre {
-      background: #0e1520;
+      background: var(--rt-bg-elev, #0d0b08);
       border: 1px solid var(--border);
       border-radius: 6px;
       padding: 0.75rem;

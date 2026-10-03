@@ -11,8 +11,9 @@ html[data-theme="dark"] {
   --rt-bg-elev: #0d0b08;
   --rt-bg-card: #10100c;
   --rt-ink: #f6f1e4;
-  --rt-muted: rgba(246, 241, 228, 0.68);
-  --rt-faint: rgba(246, 241, 228, 0.46);
+  --text-calm: #a9a59d;
+  --rt-muted: var(--text-calm);
+  --rt-faint: var(--text-calm);
   --rt-gold: #f0d36a;
   --rt-gold-hot: #f5c84a;
   --rt-gold-deep: #c9a227;
@@ -29,8 +30,9 @@ html[data-theme="light"] {
   --rt-bg-elev: #f6e4bc;
   --rt-bg-card: #fff4dc;
   --rt-ink: #241a10;
-  --rt-muted: #4a3b28;
-  --rt-faint: #5c4a32;
+  --text-calm: #4a3b28;
+  --rt-muted: var(--text-calm);
+  --rt-faint: var(--text-calm);
   --rt-gold: #4e350c;
   --rt-gold-hot: #d47818;
   --rt-gold-deep: #3d2a08;
@@ -98,7 +100,7 @@ html, body {
 html[data-theme] body,
 html[data-theme] body.bg-black {
   background: var(--rt-bg) !important;
-  color: var(--rt-ink) !important;
+  color: var(--text-calm) !important;
 }
 
 /* Page heroes. Same line, elevation, and shadow as the lattice cards. */
@@ -129,4 +131,169 @@ figure.rt-art-hero img {
   figure.rt-art-hero img {
     max-height: 15.5rem;
   }
+}
+
+/* RATHOR-TONE-1 — one calm grey for non-clickable body and secondary text.
+   Titles stay gold with the footer label treatment (weight, tracking, small caps).
+   Running-text links stay gold and carry a thin underline. Pills and buttons do not. */
+html[data-theme] body,
+html[data-theme] body.bg-black,
+html[data-theme="light"] body.text-white,
+html[data-theme] footer.rt-site-footer,
+html[data-theme] .rt-site-footer {
+  color: var(--text-calm) !important;
+}
+html[data-theme] :is(
+  p, li, dd, blockquote, figcaption, small, caption,
+  .faq-content, .pilot-lead, .rt-legal, .rt-demo-lead,
+  .rt-week-window, .rt-week-note, .rt-week-research,
+  .rt-gtranslate-note, .rt-hf-body, .kicker, .note
+) {
+  color: var(--text-calm) !important;
+}
+html[data-theme] :is(.rt-card, .pilot-card, .record-card, .rt-week-page, .rt-demo-page, .rt-week-list, .rt-week-card) :is(p, li) {
+  color: var(--text-calm) !important;
+}
+html[data-theme] :is(p, li, dd, figcaption, small, caption, blockquote)[class*="text-amber"],
+html[data-theme] :is(p, li, dd, figcaption, small, caption, blockquote)[class*="text-white"],
+html[data-theme] :is(p, li, dd, figcaption, small, caption, blockquote)[class*="text-zinc"],
+html[data-theme] :is(p, li, dd, figcaption, small)[class*="text-violet"],
+html[data-theme] :is(p, li, dd, figcaption, small)[class*="text-sky"],
+html[data-theme] :is(p, li, dd, figcaption, small)[class*="text-cyan"] {
+  color: var(--text-calm) !important;
+}
+html[data-theme] a.rt-card-uniform :is(p, li),
+html[data-theme] a.card-hover :is(p, li) {
+  color: var(--text-calm) !important;
+}
+
+html[data-theme="dark"] :is(
+  h1, h2, h3, h4, h5, h6,
+  .title-font,
+  .pilot-kicker, .rt-kicker, .rt-follow-label, .faq-q, summary,
+  .rt-x-reel-heading, .lattice-status, .chip, .webllm-row-name, .webllm-tier,
+  p.font-semibold, p.font-medium, p.uppercase,
+  p.pilot-kicker, p.rt-kicker, p.rt-follow-label
+) {
+  color: var(--rt-gold) !important;
+}
+html[data-theme="light"] :is(
+  h1, h2, h3, h4, h5, h6,
+  .title-font,
+  .pilot-kicker, .rt-kicker, .rt-follow-label, .faq-q, summary,
+  .rt-x-reel-heading, .lattice-status, .chip, .webllm-row-name, .webllm-tier,
+  p.font-semibold, p.font-medium, p.uppercase,
+  p.pilot-kicker, p.rt-kicker, p.rt-follow-label
+) {
+  color: var(--rt-gold-deep) !important;
+  text-shadow: none !important;
+}
+html[data-theme="dark"] :is(span, strong, code, em)[class*="text-amber"] {
+  color: var(--rt-gold) !important;
+}
+html[data-theme="light"] :is(span, strong, code, em)[class*="text-amber"] {
+  color: var(--rt-gold-deep) !important;
+}
+html[data-theme] :is(h1, h2, h3, h4, h5, h6, .rt-follow-label, .rt-kicker, .pilot-kicker, summary, .faq-q) {
+  font-weight: 650;
+  text-decoration-line: none !important;
+}
+html[data-theme] :is(h1, h2, h3, h4, h5, h6, .rt-follow-label, .rt-kicker, .pilot-kicker, summary, .faq-q):not(#hero-headline) {
+  letter-spacing: 0.04em !important;
+}
+html[data-theme] :is(h2, h3, h4, h5, h6) {
+  text-transform: uppercase !important;
+}
+html[data-theme] .faq-accordion summary,
+html[data-theme] .faq-accordion summary .faq-q {
+  font-weight: 650 !important;
+  letter-spacing: 0.04em !important;
+  text-decoration-line: none !important;
+  text-transform: none !important;
+}
+
+/* Running text: thin gold underline. Thicker and solid on hover and keyboard focus. */
+html[data-theme] :is(
+  p, li, dd, figcaption, blockquote, caption,
+  main, article, section, footer,
+  .rt-site-footer, .rt-prose, .rt-card, .pilot-card, .faq-content, .rt-legal
+) a:where(:not(.rt-btn):not(.rt-btn-primary):not(.rt-btn-secondary):not(.rt-btn-ghost):not(.ctrl-btn):not(.preset-btn):not(.rt-gtranslate-btn):not(.btn):not(.card-hover):not(.rt-card-uniform):not(.lang-tab):not(.reply-continue):not(.doc-chip):not(.path-badge):not(.encrypt-badge):not(.webllm-badge):not([class*="rounded-xl"]):not([class*="rounded-2xl"]):not([class*="rounded-3xl"]):not([class*="rounded-full"])) {
+  color: var(--rt-gold) !important;
+  text-decoration-line: underline !important;
+  text-decoration-thickness: 1px !important;
+  text-underline-offset: 0.2em !important;
+  text-decoration-color: color-mix(in srgb, currentColor 72%, transparent) !important;
+  text-decoration-skip-ink: auto;
+}
+html[data-theme="light"] :is(
+  p, li, dd, figcaption, blockquote, caption,
+  main, article, section, footer,
+  .rt-site-footer, .rt-prose, .rt-card, .pilot-card, .faq-content, .rt-legal
+) a:where(:not(.rt-btn):not(.rt-btn-primary):not(.rt-btn-secondary):not(.rt-btn-ghost):not(.ctrl-btn):not(.preset-btn):not(.rt-gtranslate-btn):not(.btn):not(.card-hover):not(.rt-card-uniform):not(.lang-tab):not(.reply-continue):not(.doc-chip):not(.path-badge):not(.encrypt-badge):not(.webllm-badge):not([class*="rounded-xl"]):not([class*="rounded-2xl"]):not([class*="rounded-3xl"]):not([class*="rounded-full"])) {
+  color: var(--rt-gold-deep) !important;
+}
+html[data-theme] :is(
+  p, li, dd, figcaption, blockquote, caption,
+  main, article, section, footer,
+  .rt-site-footer, .rt-prose, .rt-card, .pilot-card, .faq-content, .rt-legal
+) a:where(:not(.rt-btn):not(.rt-btn-primary):not(.rt-btn-secondary):not(.rt-btn-ghost):not(.ctrl-btn):not(.preset-btn):not(.rt-gtranslate-btn):not(.btn):not(.card-hover):not(.rt-card-uniform):not(.lang-tab):not(.reply-continue):not(.doc-chip):not(.path-badge):not(.encrypt-badge):not(.webllm-badge):not([class*="rounded-xl"]):not([class*="rounded-2xl"]):not([class*="rounded-3xl"]):not([class*="rounded-full"])):is(:hover, :focus-visible) {
+  text-decoration-thickness: 2px !important;
+  text-decoration-color: currentColor !important;
+}
+/* Pills, buttons, chips, whole-card links, and the follow row (it already has a bottom border). */
+html[data-theme] :is(
+  #rt-family-nav a,
+  #product-paths a,
+  .rt-follow-list a,
+  a.rt-btn,
+  a.rt-btn-primary,
+  a.rt-btn-secondary,
+  a.rt-btn-ghost,
+  a.rt-card-uniform,
+  a.card-hover,
+  a.rt-gtranslate-btn,
+  a.btn,
+  a.ctrl-btn,
+  a.preset-btn,
+  a.lang-tab,
+  a.reply-continue,
+  a.doc-chip,
+  a.path-badge,
+  a.encrypt-badge,
+  a.webllm-badge,
+  a[class*="rounded-xl"],
+  a[class*="rounded-2xl"],
+  a[class*="rounded-3xl"],
+  a[class*="rounded-full"]
+) {
+  text-decoration-line: none !important;
+}
+html[data-theme] :is(a, button, .lang-tab, .preset-btn, .ctrl-btn, summary):focus-visible {
+  outline: 2px solid var(--rt-gold-hot);
+  outline-offset: 2px;
+}
+html[data-theme] .rt-follow-list a:focus-visible,
+html[data-theme] #rt-family-nav a:focus-visible,
+html[data-theme] #product-paths a:focus-visible {
+  outline: 2px solid var(--rt-gold-hot);
+  outline-offset: 2px;
+}
+html[data-theme] .message.rathor {
+  color: var(--text-calm) !important;
+}
+html[data-theme] .message.user,
+html[data-theme] .message.user :is(h1, h2, h3, h4, h5, h6, p, li, span, .message-text) {
+  color: var(--rt-on-gold) !important;
+}
+html[data-theme] .message.user a {
+  color: var(--rt-on-gold) !important;
+  text-decoration-line: underline !important;
+  text-decoration-thickness: 1px !important;
+  text-underline-offset: 0.2em !important;
+  text-decoration-color: currentColor !important;
+}
+html[data-theme] .message.user a:is(:hover, :focus-visible) {
+  text-decoration-thickness: 2px !important;
+  outline: 2px solid var(--rt-on-gold);
+  outline-offset: 2px;
 }

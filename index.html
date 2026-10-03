@@ -60,9 +60,9 @@ body { font-family: 'Inter', system-ui, sans-serif; }
     .faq-accordion details[open] { border-color: rgba(240, 211, 106, 0.45); box-shadow: 0 12px 28px -16px rgba(201, 162, 39, 0.35); }
     .faq-accordion summary { cursor: pointer; list-style: none; display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: flex-start; align-items: flex-start; gap: 0.7rem; text-align: start; }
     .faq-accordion summary::-webkit-details-marker { display: none; }
-    .faq-accordion details[open] summary { color: #f0d36a; text-shadow: none; }
+    .faq-accordion details[open] summary { color: var(--rt-gold); text-shadow: none; }
     .faq-accordion .lightning-icon { flex: 0 0 auto; line-height: 1.45; }
-    .faq-accordion summary .faq-q { flex: 1 1 auto; min-width: 0; text-align: start; line-height: 1.45; font-weight: 500; }
+    .faq-accordion summary .faq-q { flex: 1 1 auto; min-width: 0; text-align: start; line-height: 1.45; font-weight: 650; letter-spacing: 0.04em; text-decoration: none; }
     .faq-accordion .faq-content { margin-top: 0.85rem; padding-inline-start: 1.85rem; text-align: start; }
     .lightning-icon { transition: all 0.3s ease; }
     details[open] .lightning-icon { animation: thunderBolt 0.6s ease infinite alternate; }
@@ -168,8 +168,10 @@ body { font-family: 'Inter', system-ui, sans-serif; }
     }
     .rt-x-reel-heading {
       margin: 0 0 0.85rem;
-      font: 600 1rem/1.4 Inter, system-ui, sans-serif;
-      color: var(--rt-ink);
+      font: 650 1rem/1.4 Inter, system-ui, sans-serif;
+      letter-spacing: 0.04em;
+      color: var(--rt-gold);
+      text-decoration: none;
     }
     .rt-x-reel-grid {
       display: grid;
@@ -225,7 +227,7 @@ body { font-family: 'Inter', system-ui, sans-serif; }
       font: 500 0.875rem/1.45 Inter, system-ui, sans-serif;
       font-style: normal;
       text-align: center;
-      color: var(--rt-ink);
+      color: var(--text-calm);
     }
     html[data-theme] #rt-x-reel a {
       color: var(--rt-gold);

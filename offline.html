@@ -19,8 +19,8 @@
   </script>
   <style>
 body {
-      background: #050505;
-      color: #f6f1e4;
+      background: var(--rt-bg);
+      color: var(--text-calm);
       font-family: 'Inter', system-ui, sans-serif;
       text-align: center;
       padding: 40px 20px;
@@ -32,13 +32,13 @@ body {
       min-height: 100vh;
     }
     .title-font { font-family: Inter, system-ui, sans-serif; }
-h1 { color: #f0d36a; font-size: 2.1em; margin: 0 0 0.4em; text-shadow: 0 0 28px rgba(245,200,74,0.28); }
-    p { font-size: 1.05em; margin: 0.6em 0; max-width: 28rem; line-height: 1.45; color: rgba(246,241,228,0.78); }
-    .chip { font-size: 0.75em; color: rgba(240,211,106,0.8); letter-spacing: 0.04em; margin-bottom: 1.2em; }
+h1 { color: var(--rt-gold); font-size: 2.1em; margin: 0 0 0.4em; letter-spacing: 0.04em; font-weight: 650; text-decoration: none; }
+    p { font-size: 1.05em; margin: 0.6em 0; max-width: 28rem; line-height: 1.45; color: var(--text-calm); }
+    .chip { font-size: 0.75em; color: var(--rt-gold); letter-spacing: 0.04em; font-weight: 650; margin-bottom: 1.2em; }
     .row { display: flex; flex-wrap: wrap; gap: 0.8rem; justify-content: center; margin-top: 1.4em; }
     button, .btn {
-      background: #f5c84a;
-      color: #111;
+      background: var(--rt-gold-hot);
+      color: var(--rt-on-gold);
       border: none;
       padding: 12px 28px;
       border-radius: 16px;
@@ -49,8 +49,8 @@ h1 { color: #f0d36a; font-size: 2.1em; margin: 0 0 0.4em; text-shadow: 0 0 28px 
       display: inline-block;
     }
     button:hover, .btn:hover { filter: brightness(1.06); }
-    .ghost { background: transparent; color: #f0d36a; border: 1px solid rgba(240,211,106,0.34); }
-    .note { font-size: 0.8em; color: rgba(246,241,228,0.46); margin-top: 1.6em; }
+    .ghost { background: transparent; color: var(--rt-gold); border: 1px solid var(--rt-line); }
+    .note { font-size: 0.8em; color: var(--text-calm); margin-top: 1.6em; }
   </style>
 </head>
 <body>

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Ra-Thor · GPU Micro-Moment Demo (Optional Polish)</title>
   <style>
-    :root { --bg:#050505; --card:#0d0b08; --border:rgba(240,211,106,0.34); --accent:#f0d36a; --text:#f6f1e4; --muted:rgba(246,241,228,0.68); }
+    :root { --bg:var(--rt-bg,#050505); --card:var(--rt-bg-elev,#0d0b08); --border:var(--rt-line,rgba(240,211,106,0.34)); --accent:var(--rt-gold,#f0d36a); --text:var(--rt-ink,#f6f1e4); --muted:var(--text-calm,#a9a59d); }
     * { box-sizing: border-box; }
     body { margin:0; font-family: system-ui, sans-serif; background:var(--bg); color:var(--text); }
     header { padding:1.25rem 1.5rem; border-bottom:1px solid var(--border); }
@@ -13,9 +13,9 @@
     .badge { display:inline-block; margin-top:0.4rem; font-size:0.75rem; color:var(--accent); border:1px solid var(--accent); padding:0.15rem 0.5rem; border-radius:999px; }
     main { max-width:920px; margin:0 auto; padding:1.25rem; display:grid; gap:1rem; }
     .card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:1rem; }
-    button { background:var(--accent); color:#111; border:0; border-radius:8px; padding:0.55rem 1rem; font-weight:600; cursor:pointer; }
-    button.secondary { background:transparent; color:var(--accent); border:1px solid var(--accent); }
-    pre { background:#0e1520; border:1px solid var(--border); border-radius:6px; padding:0.75rem; font-size:0.78rem; overflow:auto; max-height:280px; color:var(--muted); white-space:pre-wrap; }
+    button { background:var(--rt-gold-hot,#f5c84a); color:var(--rt-on-gold,#111); border:0; border-radius:8px; padding:0.55rem 1rem; font-weight:600; cursor:pointer; }
+    button.secondary { background:transparent; color:var(--rt-gold,#f0d36a); border:1px solid var(--rt-line,rgba(240,211,106,0.34)); }
+    pre { background:var(--rt-bg-elev,#0d0b08); border:1px solid var(--border); border-radius:6px; padding:0.75rem; font-size:0.78rem; overflow:auto; max-height:280px; color:var(--muted); white-space:pre-wrap; }
     .row { display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center; }
     footer { text-align:center; padding:1.5rem; font-size:0.75rem; color:var(--muted); border-top:1px solid var(--border); }
     footer a { color:var(--accent); }
