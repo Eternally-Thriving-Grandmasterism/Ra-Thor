@@ -12,7 +12,11 @@
     "cap:open:android": "npx cap open android",
     "cap:open:ios": "npx cap open ios",
     "cap:build:android": "npm run build && npx cap sync android",
-    "cap:build:ios": "npm run build && npx cap sync ios"
+    "cap:build:ios": "npm run build && npx cap sync ios",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "npm run build && tauri build",
+    "tauri:init": "tauri init"
   },
   "dependencies": {
     "@capacitor/core": "^latest",
@@ -23,18 +27,7 @@
     "@capacitor/android": "^latest",
     "@capacitor/ios": "^latest",
     "vite": "^5.0.0",
-    "workbox-cli": "^7.0.0"
-  }
-}
-
-{
-  "scripts": {
-    "tauri": "tauri",
-    "tauri:dev": "tauri dev",
-    "tauri:build": "npm run build && tauri build",
-    "tauri:init": "tauri init"
-  },
-  "devDependencies": {
+    "workbox-cli": "^7.0.0",
     "@tauri-apps/cli": "^2.0.0",
     "@tauri-apps/api": "^2.0.0"
   }
