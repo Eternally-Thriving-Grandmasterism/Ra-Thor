@@ -172,7 +172,6 @@ html[data-theme="dark"] :is(
   .title-font,
   .pilot-kicker, .rt-kicker, .rt-follow-label, .faq-q, summary,
   .rt-x-reel-heading, .lattice-status, .chip, .webllm-row-name, .webllm-tier,
-  p.font-semibold, p.font-medium, p.uppercase,
   p.pilot-kicker, p.rt-kicker, p.rt-follow-label
 ) {
   color: var(--rt-gold) !important;
@@ -182,11 +181,15 @@ html[data-theme="light"] :is(
   .title-font,
   .pilot-kicker, .rt-kicker, .rt-follow-label, .faq-q, summary,
   .rt-x-reel-heading, .lattice-status, .chip, .webllm-row-name, .webllm-tier,
-  p.font-semibold, p.font-medium, p.uppercase,
   p.pilot-kicker, p.rt-kicker, p.rt-follow-label
 ) {
   color: var(--rt-gold-deep) !important;
   text-shadow: none !important;
+}
+/* Emphasised paragraphs are body text. Weight is not a heading. */
+html[data-theme] :is(p.font-semibold, p.font-medium, p.uppercase),
+html[data-theme] #product-paths a :is(p.font-semibold, p.font-medium, p.uppercase) {
+  color: var(--text-calm) !important;
 }
 html[data-theme="dark"] :is(span, strong, code, em)[class*="text-amber"] {
   color: var(--rt-gold) !important;
@@ -277,6 +280,15 @@ html[data-theme] #rt-family-nav a:focus-visible,
 html[data-theme] #product-paths a:focus-visible {
   outline: 2px solid var(--rt-gold-hot);
   outline-offset: 2px;
+}
+/* Light gold-hot fails 3:1 on sand and card. Focus rings use gold-deep there.
+   !important beats the family-nav script's inline gold-hot outline. The script is unchanged. */
+html[data-theme="light"] :is(a, button, .lang-tab, .preset-btn, .ctrl-btn, summary):focus-visible,
+html[data-theme="light"] .rt-follow-list a:focus-visible,
+html[data-theme="light"] #rt-family-nav a:focus-visible,
+html[data-theme="light"] #product-paths a:focus-visible {
+  outline: 2px solid var(--rt-gold-deep) !important;
+  outline-offset: 2px !important;
 }
 html[data-theme] .message.rathor {
   color: var(--text-calm) !important;

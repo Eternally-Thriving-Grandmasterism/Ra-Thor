@@ -33,6 +33,34 @@ assert(css.indexOf('letter-spacing: 0.04em !important;') !== -1, 'titles use the
 assert(css.indexOf('outline: 2px solid var(--rt-gold-hot);') !== -1, 'keyboard focus keeps a visible ring');
 assert(css.indexOf('.message.user a') !== -1, 'user-bubble links stay readable on gold');
 
+function sliceFrom(src, start, end) {
+  var i = src.indexOf(start);
+  assert(i !== -1, 'missing marker: ' + start);
+  var j = end ? src.indexOf(end, i + start.length) : src.length;
+  assert(j !== -1, 'missing end marker: ' + end);
+  return src.slice(i, j);
+}
+
+var lightFocus = sliceFrom(
+  css,
+  'html[data-theme="light"] :is(a, button, .lang-tab, .preset-btn, .ctrl-btn, summary):focus-visible',
+  'html[data-theme] .message.rathor'
+);
+assert(lightFocus.indexOf('var(--rt-gold-hot)') === -1, 'light-theme focus rings do not use gold-hot');
+assert(lightFocus.indexOf('outline: 2px solid var(--rt-gold-deep) !important;') !== -1, 'light focus rings use gold-deep');
+assert(lightFocus.indexOf('#rt-family-nav a:focus-visible') !== -1, 'light nav focus uses the deep ring');
+assert(lightFocus.indexOf('#product-paths a:focus-visible') !== -1, 'light path-card focus uses the deep ring');
+assert(lightFocus.indexOf('.rt-follow-list a:focus-visible') !== -1, 'light follow focus uses the deep ring');
+
+var darkHeadings = sliceFrom(css, 'html[data-theme="dark"] :is(', 'html[data-theme="light"] :is(');
+var lightHeadings = sliceFrom(css, 'html[data-theme="light"] :is(', '/* Emphasised paragraphs');
+['p.font-semibold', 'p.font-medium', 'p.uppercase'].forEach(function (sel) {
+  assert(darkHeadings.indexOf(sel) === -1, 'dark heading colour does not match ' + sel);
+  assert(lightHeadings.indexOf(sel) === -1, 'light heading colour does not match ' + sel);
+});
+assert(css.indexOf('html[data-theme] :is(p.font-semibold, p.font-medium, p.uppercase)') !== -1, 'emphasised paragraphs stay on the calm token');
+assert(darkHeadings.indexOf('h1, h2, h3, h4, h5, h6') !== -1, 'real headings stay in the gold set');
+
 var pilot = read('pilot.html');
 assert(pilot.indexOf('color: var(--text-calm);') !== -1, 'pilot body points at the token');
 assert(pilot.indexOf('#f6f1e4') === -1, 'pilot does not keep a cream hex fallback');
