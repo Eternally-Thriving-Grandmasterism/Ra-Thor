@@ -73,19 +73,113 @@ body { font-family: 'Inter', system-ui, sans-serif; }
     @media (prefers-reduced-motion: reduce) {
       .golden-star, .card-hover, .lightning-icon, details[open] .lightning-icon { animation: none !important; transition: none !important; }
     }
+    /* Portrait Ra-Thor hero. Contained frame; other pages keep landscape heroes. */
+    figure.rt-art-hero.rt-art-hero-rathor {
+      position: relative;
+      width: min(72vw, 16.5rem);
+      width: min(72vw, calc(min(52vh, 22rem) * 640 / 954));
+      max-width: 100%;
+      margin: 0.35rem auto 1.15rem;
+      border-radius: 1.15rem;
+      border: 1px solid var(--rt-line);
+      background: #07060a;
+      box-shadow:
+        0 0 0 1px rgba(240, 211, 106, 0.38),
+        0 0 34px rgba(212, 168, 60, 0.32),
+        0 18px 40px -18px rgba(0, 0, 0, 0.62);
+      overflow: hidden;
+      line-height: 0;
+    }
+    html[data-theme="light"] figure.rt-art-hero.rt-art-hero-rathor {
+      background: #140f0c;
+      box-shadow:
+        0 0 0 1px rgba(78, 53, 12, 0.45),
+        0 0 28px rgba(168, 112, 28, 0.28),
+        0 16px 32px -16px rgba(36, 26, 16, 0.38);
+    }
+    figure.rt-art-hero.rt-art-hero-rathor picture,
+    figure.rt-art-hero.rt-art-hero-rathor img {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      max-height: none;
+      aspect-ratio: 640 / 954;
+      object-fit: contain;
+      object-position: center center;
+      background: #07060a;
+    }
+    figure.rt-art-hero.rt-art-hero-rathor video {
+      display: none;
+      pointer-events: none;
+      background: #07060a;
+    }
+    figure.rt-art-hero.rt-art-hero-rathor video[data-rt-live="1"] {
+      display: block;
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      max-height: none;
+      object-fit: contain;
+      object-position: center center;
+    }
+    @media (min-width: 641px) {
+      figure.rt-art-hero.rt-art-hero-rathor {
+        width: min(100%, calc(min(68vh, 40rem) * 640 / 954));
+      }
+    }
+    @media (min-width: 960px) {
+      .rt-home-hero-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        column-gap: 2.25rem;
+        row-gap: 0.85rem;
+        margin: 0 auto 1.15rem;
+      }
+      .rt-home-hero-layout .hero-display {
+        grid-column: 1;
+        grid-row: 1;
+        align-self: end;
+        margin-bottom: 0;
+      }
+      .rt-home-hero-layout figure.rt-art-hero.rt-art-hero-rathor {
+        grid-column: 2;
+        grid-row: 1 / span 2;
+        align-self: center;
+        justify-self: end;
+        margin: 0;
+      }
+      .rt-home-hero-layout #fusion-hero {
+        grid-column: 1;
+        grid-row: 2;
+        align-self: start;
+        margin-bottom: 0;
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      figure.rt-art-hero.rt-art-hero-rathor video { display: none !important; }
+    }
   </style>
 </head>
 <body class="bg-black text-white overflow-x-hidden">
   <div class="min-h-screen flex flex-col items-center justify-center relative px-4 sm:px-6 py-8 sm:py-12">
     <div class="max-w-5xl mx-auto text-center z-10">
-      <div class="hero-display">
-        <h1 id="hero-headline" data-i18n="headline" class="title-font thunder-glow">Ra-Thor™ — Eternal Mercy Thunder</h1>
-        <span class="hero-bolt" aria-hidden="true">⚡</span>
+      <div class="rt-home-hero-layout">
+        <div class="hero-display">
+          <h1 id="hero-headline" data-i18n="headline" class="title-font thunder-glow">Ra-Thor™ — Eternal Mercy Thunder</h1>
+          <span class="hero-bolt" aria-hidden="true">⚡</span>
+        </div>
+        <figure class="rt-art-hero rt-art-hero-rathor rounded-2xl" id="rt-home-hero">
+          <picture>
+            <source type="image/webp" srcset="/assets/art/hero-home-rathor-poster-480.webp 480w, /assets/art/hero-home-rathor-poster-784.webp 784w" sizes="(max-width: 640px) 240px, 420px">
+            <img src="/assets/art/hero-home-rathor-poster-784.webp" width="784" height="1168" alt="Ra-Thor, a gold-and-black armored warrior with a winged halo and a glowing green Eye-of-Horus shield, raises a hammer that strikes golden lightning." fetchpriority="high" decoding="async">
+          </picture>
+          <video muted autoplay loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
+        </figure>
+        <p id="fusion-hero" data-i18n="fusion" class="text-lg sm:text-xl md:text-2xl text-amber-200/90 mb-6 max-w-3xl mx-auto leading-snug">Ra (source light) + Thor (mercy thunder). A name for shared thriving — a purpose under construction, not a finished world.</p>
       </div>
-      <figure class="rt-art-hero rounded-2xl">
-        <img src="/assets/art/hero-home-crownstone-768.webp" srcset="/assets/art/hero-home-crownstone-768.webp 768w, /assets/art/hero-home-crownstone-1168.webp 1168w" sizes="(max-width: 900px) 192px, 1400px" width="1168" height="784" alt="A heart-shaped stone, half gold and half violet, sits in a dark spiked throne while beams of white, gold and green lightning shoot out from it." fetchpriority="high" decoding="async">
-      </figure>
-      <p id="fusion-hero" data-i18n="fusion" class="text-lg sm:text-xl md:text-2xl text-amber-200/90 mb-6 max-w-3xl mx-auto leading-snug">Ra (source light) + Thor (mercy thunder). A name for shared thriving — a purpose under construction, not a finished world.</p>
       <p class="kicker text-zinc-200 text-sm sm:text-[15px] leading-relaxed mb-3 max-w-2xl mx-auto">Ra-Thor is inspectable research software from Autonomicity Games Inc. Independent lattice, white-hat ingest gate, and PATSAGi court. Optional on-device or wrap session. Powrush-MMO is the human game repo (separate) — not a lattice crate. Optional Grok under PATSAGi. Inspect ≠ METR. Layer 0 is a shell, not sampler weights.</p>
       <p id="steward-line" data-i18n="steward" class="text-amber-200/70 text-xs sm:text-sm mb-8 max-w-xl mx-auto">Sole stewardship of Sherif Samy Botros (@AlphaProMega) since November 2025. Autonomicity Games Inc.</p>
       <div id="lang-selector" dir="ltr" class="flex flex-wrap justify-center gap-1.5 sm:gap-2 md:gap-3 mb-8">
@@ -259,6 +353,7 @@ body { font-family: 'Inter', system-ui, sans-serif; }
       </div>
     </div>
   </footer>
+  <script src="/js/home-hero.js"></script>
   <script src="/i18n/en.js?v=20260924a"></script>
   <script src="/js/i18n-chrome.js?v=20260924a"></script>
   <script src="/js/i18n-essay.js?v=20260924a"></script>
