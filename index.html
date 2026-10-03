@@ -161,6 +161,94 @@ body { font-family: 'Inter', system-ui, sans-serif; }
     @media (prefers-reduced-motion: reduce) {
       figure.rt-art-hero.rt-art-hero-rathor video { display: none !important; }
     }
+    /* Steward clips from X. Stills stay; video covers the frame only when JS marks it live. */
+    .rt-x-reel {
+      margin: 0 auto 2rem;
+      max-width: 64rem;
+    }
+    .rt-x-reel-heading {
+      margin: 0 0 0.85rem;
+      font: 600 1rem/1.4 Inter, system-ui, sans-serif;
+      color: var(--rt-ink);
+    }
+    .rt-x-reel-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.95rem 0.75rem;
+      align-items: start;
+    }
+    .rt-x-clip {
+      margin: 0;
+      min-width: 0;
+    }
+    .rt-x-clip-land { grid-column: 1 / -1; }
+    .rt-x-frame {
+      position: relative;
+      border-radius: 1.15rem;
+      border: 1px solid var(--rt-line);
+      background: #07060a;
+      box-shadow:
+        0 0 0 1px rgba(240, 211, 106, 0.38),
+        0 0 34px rgba(212, 168, 60, 0.32),
+        0 18px 40px -18px rgba(0, 0, 0, 0.62);
+      overflow: hidden;
+      line-height: 0;
+    }
+    html[data-theme="light"] .rt-x-frame {
+      background: #140f0c;
+      box-shadow:
+        0 0 0 1px rgba(78, 53, 12, 0.45),
+        0 0 28px rgba(168, 112, 28, 0.28),
+        0 16px 32px -16px rgba(36, 26, 16, 0.38);
+    }
+    .rt-x-frame img {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #07060a;
+    }
+    .rt-x-frame video {
+      display: none;
+      pointer-events: none;
+      background: #07060a;
+    }
+    .rt-x-frame video[data-rt-live="1"] {
+      display: block;
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .rt-x-clip figcaption {
+      margin: 0.5rem 0.15rem 0;
+      font: 500 0.875rem/1.45 Inter, system-ui, sans-serif;
+      font-style: normal;
+      text-align: center;
+      color: var(--rt-ink);
+    }
+    html[data-theme] #rt-x-reel a {
+      color: var(--rt-gold);
+      text-decoration-line: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 0.18em;
+    }
+    html[data-theme="light"] #rt-x-reel a {
+      color: var(--rt-gold-deep);
+    }
+    html[data-theme] #rt-x-reel a:focus-visible {
+      outline: 2px solid var(--rt-gold-hot);
+      outline-offset: 3px;
+    }
+    @media (min-width: 960px) {
+      .rt-x-reel-grid {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 2.21fr);
+      }
+      .rt-x-clip-land { grid-column: auto; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .rt-x-frame video { display: none !important; }
+    }
   </style>
 </head>
 <body class="bg-black text-white overflow-x-hidden">
@@ -182,6 +270,31 @@ body { font-family: 'Inter', system-ui, sans-serif; }
       </div>
       <p class="kicker text-zinc-200 text-sm sm:text-[15px] leading-relaxed mb-3 max-w-2xl mx-auto">Ra-Thor is inspectable research software from Autonomicity Games Inc. Independent lattice, white-hat ingest gate, and PATSAGi court. Optional on-device or wrap session. Powrush-MMO is the human game repo (separate) — not a lattice crate. Optional Grok under PATSAGi. Inspect ≠ METR. Layer 0 is a shell, not sampler weights.</p>
       <p id="steward-line" data-i18n="steward" class="text-amber-200/70 text-xs sm:text-sm mb-8 max-w-xl mx-auto">Sole stewardship of Sherif Samy Botros (@AlphaProMega) since November 2025. Autonomicity Games Inc.</p>
+      <section id="rt-x-reel" class="rt-x-reel" aria-labelledby="rt-x-reel-heading">
+        <h2 id="rt-x-reel-heading" class="rt-x-reel-heading">From <a href="https://x.com/AlphaProMega" rel="noopener" target="_blank">@AlphaProMega</a> on X</h2>
+        <div class="rt-x-reel-grid">
+          <figure class="rt-x-clip" data-rt-reel="sentinel">
+            <div class="rt-x-frame">
+              <img src="/assets/art/reel-sentinel-architecture-poster.webp" width="464" height="688" loading="lazy" decoding="async" alt="A luminous blue-white humanoid figure stands between a bright sun and a spiral galaxy, inside glowing circles and geometric marks.">
+              <video muted autoplay loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
+            </div>
+            <figcaption><a href="https://x.com/AlphaProMega/status/2001770410904317989" rel="noopener" target="_blank">Eternal Sentinel Architecture v8.0 visualized</a></figcaption>
+          </figure>
+          <figure class="rt-x-clip" data-rt-reel="tolc">
+            <div class="rt-x-frame">
+              <img src="/assets/art/reel-tolc-heart-poster.webp" width="640" height="952" loading="lazy" decoding="async" alt="A blue lightning-lined robot figure holds out an open hand under a glowing pink heart with the word TOLC.">
+              <video muted autoplay loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
+            </div>
+            <figcaption><a href="https://x.com/AlphaProMega/status/2057902030614601883" rel="noopener" target="_blank">for all creations and creatures, to thrive with positive emotions forever and ever</a></figcaption>
+          </figure>
+          <figure class="rt-x-clip rt-x-clip-land" data-rt-reel="hammer">
+            <div class="rt-x-frame">
+              <img src="/assets/art/reel-rathor-winged-hammer-poster.webp" width="960" height="644" loading="lazy" decoding="async" alt="A dark hammer with fiery wings and lightning sits in front of a glowing ring, above fiery title text reading RA-THOR.">
+              <video muted autoplay loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
+            </div>
+          </figure>
+        </div>
+      </section>
       <div id="lang-selector" dir="ltr" class="flex flex-wrap justify-center gap-1.5 sm:gap-2 md:gap-3 mb-8">
         <button data-lang="en" class="lang-tab active px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">English</button>
         <button data-lang="ar" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">العربية</button>
@@ -354,6 +467,7 @@ body { font-family: 'Inter', system-ui, sans-serif; }
     </div>
   </footer>
   <script src="/js/home-hero.js"></script>
+  <script src="/js/home-x-reel.js"></script>
   <script src="/i18n/en.js?v=20260924a"></script>
   <script src="/js/i18n-chrome.js?v=20260924a"></script>
   <script src="/js/i18n-essay.js?v=20260924a"></script>
