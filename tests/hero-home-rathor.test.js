@@ -44,7 +44,7 @@ assert(hero.indexOf('fetchpriority="high"') !== -1, 'still image must be fetchpr
 assert(hero.indexOf('hero-home-rathor-poster-480.webp 480w') !== -1, 'srcset must include 480w');
 assert(hero.indexOf('hero-home-rathor-poster-784.webp 784w') !== -1, 'srcset must include 784w');
 assert(hero.indexOf('width="784"') !== -1 && hero.indexOf('height="1168"') !== -1, 'img must set width and height');
-assert(hero.indexOf('alt="Ra-Thor, a gold-and-black armored warrior with a winged halo and a glowing green Eye-of-Horus shield, raises a hammer that strikes golden lightning."') !== -1, 'alt text must describe the portrait');
+assert(hero.indexOf('alt="Ra-Thor, a gold-and-black armored warrior with a winged halo and a glowing green Eye-of-Horus shield, rests a hammer head-down on the ground as golden lightning strikes."') !== -1, 'alt text must describe the portrait');
 var video = hero.match(/<video\b[^>]*>\s*/);
 assert(video, 'video shell must be in the figure');
 assert(video[0].indexOf('muted') !== -1, 'video must be muted');
