@@ -100,3 +100,33 @@ html[data-theme] body.bg-black {
   background: var(--rt-bg) !important;
   color: var(--rt-ink) !important;
 }
+
+/* Page heroes. Same line, elevation, and shadow as the lattice cards. */
+figure.rt-art-hero {
+  box-sizing: border-box;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  max-width: 100%;
+  border: 1px solid var(--rt-line);
+  background: var(--rt-bg-elev);
+  box-shadow: var(--rt-shadow);
+  overflow: hidden;
+  line-height: 0;
+}
+figure.rt-art-hero img {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  object-fit: cover;
+  background: var(--rt-bg-elev);
+}
+@media (max-width: 700px) {
+  figure.rt-art-hero {
+    margin-bottom: 1.15rem;
+  }
+  figure.rt-art-hero img {
+    max-height: 15.5rem;
+  }
+}
