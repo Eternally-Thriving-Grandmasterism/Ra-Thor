@@ -1,5 +1,6 @@
 /* Home hero — still image first. Attach the muted mp4 only when motion,
  * network, and width allow. Without this script the picture remains.
+ * window.rtMutedClip is the same gate the home X reel uses.
  * Contact: info@Rathor.ai
  */
 (function () {
@@ -17,9 +18,6 @@
     if (env.narrow) return false;
     return true;
   }
-
-  if (typeof window !== 'undefined') window.rtHomeHeroVideoAllowed = heroVideoAllowed;
-  if (typeof module !== 'undefined' && module.exports) module.exports = { heroVideoAllowed: heroVideoAllowed };
 
   function readEnv() {
     var reduced = false;
@@ -41,68 +39,99 @@
     video.volume = 0;
   }
 
+  function releaseMutedClip(video) {
+    if (!video) return;
+    video.pause();
+    silence(video);
+    video.removeAttribute('src');
+    video.removeAttribute('poster');
+    var nodes = video.querySelectorAll('source');
+    for (var i = 0; i < nodes.length; i++) nodes[i].parentNode.removeChild(nodes[i]);
+    video.removeAttribute('data-rt-live');
+    try { video.load(); } catch (e3) {}
+  }
+
+  function bindMutedClip(video, src, poster) {
+    if (!video || video.getAttribute('data-rt-live') === '1') return;
+    silence(video);
+    video.setAttribute('muted', '');
+    video.autoplay = true;
+    video.loop = true;
+    video.playsInline = true;
+    video.preload = 'none';
+    video.setAttribute('aria-hidden', 'true');
+    video.controls = false;
+    if (poster) video.poster = poster;
+    var source = document.createElement('source');
+    source.type = 'video/mp4';
+    source.src = src;
+    video.appendChild(source);
+    video.setAttribute('data-rt-live', '1');
+    try { video.load(); } catch (e4) {}
+    var pending = video.play();
+    if (pending && typeof pending.catch === 'function') pending.catch(function () {});
+  }
+
+  function pauseMutedClip(video) {
+    if (!video) return;
+    video.pause();
+    silence(video);
+  }
+
+  function watchEnv(onChange) {
+    function watch(mq) {
+      if (!mq) return;
+      if (typeof mq.addEventListener === 'function') mq.addEventListener('change', onChange);
+      else if (typeof mq.addListener === 'function') mq.addListener(onChange);
+    }
+    try { watch(window.matchMedia('(prefers-reduced-motion: reduce)')); } catch (e5) {}
+    try { watch(window.matchMedia('(max-width: 640px)')); } catch (e6) {}
+    var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    if (conn && typeof conn.addEventListener === 'function') conn.addEventListener('change', onChange);
+  }
+
+  var rtMutedClip = {
+    heroVideoAllowed: heroVideoAllowed,
+    readEnv: readEnv,
+    silence: silence,
+    bind: bindMutedClip,
+    release: releaseMutedClip,
+    pause: pauseMutedClip,
+    watchEnv: watchEnv
+  };
+  if (typeof window !== 'undefined') {
+    window.rtHomeHeroVideoAllowed = heroVideoAllowed;
+    window.rtMutedClip = rtMutedClip;
+  }
+  if (typeof module !== 'undefined' && module.exports) module.exports = rtMutedClip;
+
   function boot() {
     var figure = document.getElementById('rt-home-hero');
     if (!figure) return;
     var video = figure.querySelector('video');
     if (!video) return;
 
-    function detach() {
-      video.pause();
-      silence(video);
-      video.removeAttribute('src');
-      video.removeAttribute('poster');
-      var nodes = video.querySelectorAll('source');
-      for (var i = 0; i < nodes.length; i++) nodes[i].parentNode.removeChild(nodes[i]);
-      video.removeAttribute('data-rt-live');
-      try { video.load(); } catch (e3) {}
-    }
-
     function attach() {
       if (video.getAttribute('data-rt-live') === '1') return;
       if (!heroVideoAllowed(readEnv())) return;
-      silence(video);
-      video.setAttribute('muted', '');
-      video.autoplay = true;
-      video.loop = true;
-      video.playsInline = true;
-      video.preload = 'none';
       var still = figure.querySelector('img');
-      video.poster = (still && still.currentSrc) ? still.currentSrc : POSTER;
-      video.setAttribute('aria-hidden', 'true');
-      video.controls = false;
-      var source = document.createElement('source');
-      source.type = 'video/mp4';
-      source.src = MP4;
-      video.appendChild(source);
-      video.setAttribute('data-rt-live', '1');
-      try { video.load(); } catch (e4) {}
-      var pending = video.play();
-      if (pending && typeof pending.catch === 'function') pending.catch(function () {});
+      var poster = (still && still.currentSrc) ? still.currentSrc : POSTER;
+      bindMutedClip(video, MP4, poster);
     }
 
     function sync() {
       if (heroVideoAllowed(readEnv())) attach();
-      else detach();
+      else releaseMutedClip(video);
     }
 
     video.addEventListener('volumechange', function () {
       if (!video.muted || video.volume !== 0) silence(video);
     });
 
-    function watch(mq) {
-      if (!mq) return;
-      if (typeof mq.addEventListener === 'function') mq.addEventListener('change', sync);
-      else if (typeof mq.addListener === 'function') mq.addListener(sync);
-    }
-
-    try { watch(window.matchMedia('(prefers-reduced-motion: reduce)')); } catch (e5) {}
-    try { watch(window.matchMedia('(max-width: 640px)')); } catch (e6) {}
-    var conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-    if (conn && typeof conn.addEventListener === 'function') conn.addEventListener('change', sync);
+    watchEnv(sync);
 
     if (!heroVideoAllowed(readEnv())) {
-      detach();
+      releaseMutedClip(video);
       return;
     }
     function afterPaint() {
