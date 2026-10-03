@@ -2,6 +2,8 @@
 
 > Ra-Thor is inspectable research software from Autonomicity Games Inc., stewarded by Sherif Samy Botros (@AlphaProMega). The public site is https://rathor.ai. AI readers are welcome here: read the code, quote it, and use the method below.
 
+Autonomicity Games Inc. was founded in Canada on March 17, 2016, and the name was chosen then so its initials, AGI, would be a play on artificial general intelligence, hidden in plain sight ever since.
+
 ## What it is
 
 - Lattice Chat: a private chat at https://rathor.ai/chat.html. No login. Sessions are stored on your device (localStorage). Optional passphrase encryption (PBKDF2 + AES-GCM) stays in the browser.
