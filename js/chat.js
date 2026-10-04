@@ -202,7 +202,7 @@ Layer 0 is an admission shell, not sampler weights.
 
 Outputs are drafts. A human reviews them before filing, sale, or public claims.
 
-inspect ≠ METR. Combined AGSi stays SURMISE. Independent of xAI. An optional Grok session is not an xAI product.
+inspect ≠ METR. Combined AGSi stays SURMISE.
 
 Do not invent METR numbers, certifications, or a finished MMO. Powrush-MMO is a separate repo.
 
@@ -2893,7 +2893,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
       injectedDocs.forEach(d => { lines.push(`### ${d.name}`); lines.push(d.content); lines.push(''); });
       lines.push('--- End Documents ---');
     }
-    lines.push('', 'Continue naturally. Outputs remain drafts. Independent of xAI.');
+    lines.push('', 'Continue naturally. Outputs remain drafts.');
     return lines.join('\n');
   }
 

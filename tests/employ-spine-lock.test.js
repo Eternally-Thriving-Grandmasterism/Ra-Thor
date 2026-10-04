@@ -89,7 +89,7 @@ assert(chatJs.indexOf('AGSi demonstration') === -1, 'js/chat.js must not sell AG
 assert(chatJs.indexOf('symbolic AGI lattice') === -1, 'js/chat.js live prompt must not sell symbolic AGI lattice');
 assert(chatJs.indexOf('AG-SML v1.0') === -1, 'js/chat.js live prompt must not sell AG-SML v1.0');
 assert(chatJs.indexOf('Outputs are drafts') !== -1, 'js/chat.js Copy Context / SYSTEM_PROMPT must quote drafts');
-assert(chatJs.indexOf('Independent of xAI') !== -1, 'js/chat.js Copy Context / SYSTEM_PROMPT must quote independent of xAI');
+assert(!/independent of xAI|not an xAI product/i.test(chatJs), 'js/chat.js Copy Context / SYSTEM_PROMPT must not carry the xAI-independence disclaimer (XAI-LINE-1)');
 assert(chatJs.indexOf('SYSTEM_PROMPT.trim()') !== -1, 'Copy Context must quote SYSTEM_PROMPT (same sentences)');
 
 var briefingMd = fs.readFileSync(path.join(root, 'docs/PUBLIC_EMPLOY_BRIEFING.md'), 'utf8');

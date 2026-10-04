@@ -11,7 +11,6 @@ No-custody stamp 2026-09-26
 Ra-Thor is **inspectable research software** from Autonomicity Games Inc.
 
 - Optional Grok session under operator / PATSAGi gates.
-- **Not** affiliated with, sponsored by, or endorsed by xAI.
 - **Not** a lawyer, law firm, certified legal product, or “legal team.”
 - **Not** ISO/IEC 42001 certified, EU AI Act conformant, or AGSi-warrantied.
 - `AGSi` / ONE Organism language in README and Cargo.toml is a **research identity label**. Combined AGSi stays SURMISE. Do not read “AGSi Phase — activation” in Key systems as a warranty.

@@ -25,7 +25,7 @@ var footer = src.slice(start, end);
 // 1. Every translatable footer element carries its pack key, next to its original English.
 var EXPECT = [
   ['footerTrademarksTitle', "'<h4' + fk('footerTrademarksTitle') + '>Trademarks</h4>'"],
-  ['footerTrademarksText', "'<p class=\"rt-legal\"' + fk('footerTrademarksText') + '>Ra-Thor™ is a trademark of Autonomicity Games Inc.<br>Grok is a trademark of xAI. X is a trademark of X Corp.<br>Ra-Thor is independent — not affiliated with, sponsored by, or endorsed by xAI.</p>'"],
+  ['footerTrademarksText', "'<p class=\"rt-legal\"' + fk('footerTrademarksText') + '>Ra-Thor™ is a trademark of Autonomicity Games Inc.<br>Grok is a trademark of xAI. X is a trademark of X Corp.</p>'"],
   ['footerPrivacyTitle', "'<h4' + fk('footerPrivacyTitle') + '>Privacy</h4>'"],
   ['homeFooterPrivacy', "'<p class=\"rt-legal\"' + fk('homeFooterPrivacy') + '>This website collects no personal data. Computations stay in your browser. No cookies, tracking, or analytics we control.</p>'"],
   ['footerWorkspaceTitle', "'<h4' + fk('footerWorkspaceTitle') + '>Workspace</h4>'"],
@@ -48,7 +48,7 @@ var hooked = (footer.match(/fk\('([A-Za-z0-9]+)'\)/g) || []).map(function (s) { 
 assert(hooked.length === EXPECT.length, 'unexpected hook count: ' + hooked.length);
 // Lines without a matching pack key stay English and unhooked.
 ['<a href="/chat.html">Lattice Chat</a>', '<a href="/web-forge.html">Web-Forge</a>',
- '<div>© 2026 Sherif Samy Botros — sole steward of Autonomicity Games Inc. & AlphaProMega Air Foundation. TOLC 8.</div>'
+ '<div>© 2026 Sherif Samy Botros — sole steward of Autonomicity Games Inc. & AlphaProMega Air Foundation. TOLC 8.'
 ].forEach(function (s) { assert(footer.indexOf(s) !== -1, 'unkeyed line changed: ' + s); });
 // No data-i18n in the fallback footer: the chrome/essay/site-lock appliers must never touch it.
 assert(footer.indexOf('data-i18n') === -1, 'siteFooter() must not use data-i18n');
@@ -76,36 +76,45 @@ files.forEach(function (f) {
   });
 });
 
-// 4. Fingerprints are pinned to the disclaimer-trim-1 pack text (base ebda8a40).
+// 4. Fingerprints are pinned to the XAI-LINE-1 pack text (base a0e0f6d9).
 var PACKS = {
-  'ar.js': '0c8a89eb0ff042043815a8c29d01093a132754f7f0e002d3ac5dfbc0801755b3',
-  'de.js': '6601fed3020873156673a2dd30524992ab61121192ddfb731d7c13c90753b622',
-  'el.js': 'e3981ac263109210c69e85c9ab816a277d4a0793b5c48186a2f9c6292467a8d5',
-  'en.js': '5d1f24e475dcb0ac42633dd408577fb98cd30f2b2a6b28ee9f14bd2ff5634622',
-  'es.js': '314aa483106ea1eec282d1c9753fbb2bf152719e1ecf8be9c3be4e65b3094892',
-  'fa.js': 'cbcb9dc9c1f66a75df37d112ee859896bc1699f42a7bf573ee96b39535be8619',
-  'fr.js': 'bd8007322ff21bd193e98f134b26b1ee1579eff1f262be934c0835b7b4c6c1d7',
-  'he.js': 'f2b236decd5b041a4f3ec100573882745f051b209c861073532012ff09ebd08e',
-  'hi.js': '7070c1c5d3d69047f7d364878bad0dbe595365ed620f0102dc15086eec0194e6',
-  'id.js': '489a436b376efe1df8f7cf8fe2ec136ce5fe502f082d24cb91e23a49ecb7ef19',
-  'it.js': 'd2db8208a9f668ed5baf4d3b8e0558e677f145fcc775044b226829633bf1961c',
-  'ja.js': 'bdacb5e78b106cf742cf824573fc0ce81c6fd9947ef27407b3ec9e81a2d44e38',
-  'ko.js': '228dce6a207f79bf6d7eb11c81e95a3522756c440c9beec64801910f92efcc01',
-  'nl.js': '33b3b51d098e62e5e0d78e55bc6622f7fde804d698d7d8231116038a82963dd0',
-  'pl.js': '9d02ff8da176bb8e608d5c6f7d61c89b66c6c94adb58018190a7ddac2ce4df9d',
-  'pt.js': 'b846db14a6ae6c4319c31f52a18a1e9e6ce88f35814dc672bca949f7f9439d16',
-  'ru.js': 'b2f9411760f894fbdc9d7bab242513359685d29274705da032b369f5ce5d2c6f',
-  'sv.js': '9b1f282011275ece9db3aec97792102010c0f08ff22525ef973e02b8ee038a90',
-  'th.js': '531232c3ff0905e275f66692200c2886067fbaacdd73d8aea248c74183338b23',
-  'tr.js': '6e812005f189bdde5a966268ad26613c51a5b9c8ad02ba8a2e86f38bca074dcf',
-  'uk.js': 'f2f213e02e882b1c060d749acb5d11ae4a3499e2cbc73b14dd7e70f1e74ea7a0',
-  'vi.js': '32408cd4b909252052ef7efc0e98e08386b8b244ad187a76fc8f1b34a31fb818',
-  'zh.js': 'ea4452db33765e55d350effb016a900ba2b7ea80ae0c51a41111be48f62aef1b',
+  'ar.js': 'fb21cac31042a87c93d36f23974b5423488a70a24bdcb62106f3a82276cb7e22',
+  'de.js': 'ca0858d5bacc599c66e96e0213b8aa69fa65da5f70b66d209eb36b0b0740bad9',
+  'el.js': '229783041e0fb438439d25d3e1721adf1f7675aacd46e8a28896054ce47a6975',
+  'en.js': '46364cdaddc31302137d37a1127b0c4c69225b00faa7d8d05517de83d93effe7',
+  'es.js': 'b1e2e1a4ae02528ffddb82a0ce4cb3d2b9412f0651b139a72c9a641a919770b1',
+  'fa.js': '4ad786084be5c0e6bc5b7768fa21bad43772bb6c5e5e14df575ea98163ddb679',
+  'fr.js': '5fdab20f6687906883c86b2a443f4cc85c554c91bc1cf368008917b222f2f405',
+  'he.js': 'cc586b67871402f3b0932f940ca8904801346ca6564d132d1194ae2c81846596',
+  'hi.js': '1ed3cd8da882bbe975ef67d589a02ccbabde3c3f80d2866cb751968d35e6612d',
+  'id.js': '213fb827bce4214525a4c20e882faff05c1c001eb1ed3240192177b4a234dd79',
+  'it.js': 'e0282937d6b55af08edfa8996f6a21f1d8b4dd2963d95a994d9e206bc2d3f6fc',
+  'ja.js': 'fb095d374fc5d95be0058f6d548a561150c30887f1a09c27bd7e21320ba95415',
+  'ko.js': 'bf3f6e30d81d7cf0cf07a17b16e7487dfa3e679d9753c87414754f936c4a69a0',
+  'nl.js': '368379c9eef59c45aa6414af054461a68d15b5c43620422bc8c36fa33f43e69f',
+  'pl.js': '90f3fba9d456883ea112ac3390a3d5a75295c0a523a1ba7e086e030a1b15ec58',
+  'pt.js': 'a4f165414e26333cefff3b27d2e0ea2fd8c71de2278a6978220d457ce7a28f92',
+  'ru.js': 'c907d8b938e8a4cbe02267111588ca180fdf22f4333ff3f8b3be0f637c19d11d',
+  'sv.js': '40659e25fe52e15b4d07e13a1c69ccfdee2380a2e08a09a0072898c5683cf4e7',
+  'th.js': '11e1e45a96c7ef1d358bcde18b393248ef2f352e75aee24b4ed7f448cf1468a2',
+  'tr.js': '1cc81d84180db1136e29a003baebdeec034a8fb7c66f40412fa726a51ecd1e41',
+  'uk.js': '15ddb147937f3ea669d16197f80325827a79e7b15073aec173691f59c0794a5f',
+  'vi.js': '78b92b6181b785c92c99754f0c830a72213d8c57c8ccc23a08d47f41f5368cb0',
+  'zh.js': '92fbc76d22bdef1c515db77f03889ea9b31a03ab6f0d101ed8b7a03790e94866',
 };
 assert(Object.keys(PACKS).length === 23, 'pack manifest must list 23 packs');
 files.forEach(function (f) {
   var h = crypto.createHash('sha256').update(fs.readFileSync(path.join(root, 'i18n', f))).digest('hex');
   assert(PACKS[f] === h, 'pack changed: i18n/' + f);
+});
+
+// 5. XAI-LINE-1: the footer and every pack keep the trademark credit and carry no xAI-independence disclaimer.
+assert(footer.indexOf('Grok is a trademark of xAI. X is a trademark of X Corp.') !== -1, 'footer must keep the trademark credit');
+assert(!/independent|affiliated|endorsed/i.test(footer), 'footer must not carry an xAI-independence disclaimer');
+files.forEach(function (f) {
+  var p = T[f.slice(0, 2)];
+  assert((p.footerTrademarksText.match(/<br>/g) || []).length === 1, f + ': footerTrademarksText must be the two trademark lines only');
+  assert(!('faqQ18' in p) && !('faqA18' in p), f + ': the xAI-affiliation FAQ must be gone');
 });
 
 console.log('footer-i18n-1: ' + EXPECT.length + ' footer hooks, keys in all ' + files.length + ' packs, packs unchanged, pilot excluded');
