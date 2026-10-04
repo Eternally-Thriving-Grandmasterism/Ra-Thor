@@ -282,7 +282,7 @@
         '<div class="grid grid-cols-1 md:grid-cols-12 gap-8">' +
           '<div class="md:col-span-3">' +
             '<h4' + fk('footerTrademarksTitle') + '>Trademarks</h4>' +
-            '<p class="rt-legal"' + fk('footerTrademarksText') + '>Ra-Thor™ is a trademark of Autonomicity Games Inc.<br>Grok is a trademark of xAI. X is a trademark of X Corp.<br>Ra-Thor is independent — not affiliated with, sponsored by, or endorsed by xAI.</p>' +
+            '<p class="rt-legal"' + fk('footerTrademarksText') + '>Ra-Thor™ is a trademark of Autonomicity Games Inc.<br>Grok is a trademark of xAI. X is a trademark of X Corp.</p>' +
           '</div>' +
           '<div class="md:col-span-3">' +
             '<h4' + fk('footerPrivacyTitle') + '>Privacy</h4>' +

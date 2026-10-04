@@ -141,8 +141,8 @@ assert(promptAt !== -1, 'SYSTEM_PROMPT must stay a template literal');
 var promptEnd = chat.indexOf('`;', promptAt);
 var prompt = chat.slice(promptAt + promptMarker.length, promptEnd);
 var promptHash = crypto.createHash('sha256').update(prompt).digest('hex');
-assert(promptHash === '1fc78b6d442e43494de3bb52adc5307eb3c7861476cd0d838af0c3fcd61def61', 'SYSTEM_PROMPT bytes changed: ' + promptHash);
-assert(Buffer.byteLength(prompt, 'utf8') === 840, 'SYSTEM_PROMPT byte length changed');
+assert(promptHash === '637a0593489cf8d84e5fd444154def670eb54eae7e36b2b52fd37dc0fb7062a9', 'SYSTEM_PROMPT bytes changed: ' + promptHash);
+assert(Buffer.byteLength(prompt, 'utf8') === 772, 'SYSTEM_PROMPT byte length changed');
 
 assert(chat.indexOf("if (!navigator.gpu) return { supported: false, reason: 'WebGPU not available in this browser' };") !== -1, 'WebGPU gate must stay');
 assert(chat.indexOf('/Android|iPhone|iPad|iPod|Mobile/i.test(ua)') !== -1, 'mobile UA block must stay');

@@ -8,7 +8,7 @@
 
 **Ra-Thor** is inspectable research software from Autonomicity Games Inc. — a mercy-gated lattice. `AGSi` / ONE Organism language is a research identity label, not a warranty.
 
-An **optional Grok session** can sit under PATSAGi / wrap gates. Ra-Thor is **independent of xAI** — not affiliated, not sponsored, not an xAI product.
+An **optional Grok session** can sit under PATSAGi / wrap gates.
 
 Released under the **Autonomicity Games Sovereign Mercy License (AG-SML v1.1)**. Personal and research use on that grant. Organizations license; pilots via [info@Rathor.ai](mailto:info@Rathor.ai). Drafts need human review. Do not treat this repo as a certified, legal, or AGSi-warranty product.
 

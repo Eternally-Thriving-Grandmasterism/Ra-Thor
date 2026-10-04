@@ -58,7 +58,6 @@ This is the same text as the card at https://rathor.ai/briefing.html#ask-grok-as
 - Inspect is not METR.
 - Ra-Thor does not hold funds or keys, does not sign transactions, and does not place trades.
 - Powrush-MMO is a separate game repository, not part of this lattice.
-- Ra-Thor is an independent project, not affiliated with xAI or X Corp.
 
 ## Key links
 
