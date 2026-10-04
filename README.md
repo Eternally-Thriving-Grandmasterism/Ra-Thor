@@ -100,7 +100,7 @@ Cursor / PATSAGi inner-loop agents start at [`docs/AGENT_RUN_BRIEF.md`](docs/AGE
 
 This is the inner loop. The steward brief is the outer loop. The **outer loop does not write code**. Fetch the named tip. Fill the ten sections. Implement one slice. One PR.
 
-HOLD: family walk (Home · Chat · Employ · Launch · Moments · Shard · Forge · Contact · Privacy); Follow URLs in [`PUBLIC_CLAIM.lock.md`](PUBLIC_CLAIM.lock.md); workspace **14.15.6**; Layer 0 is an admission shell, not sampler weights; inspect ≠ METR; independent of xAI; [info@Rathor.ai](mailto:info@Rathor.ai).
+HOLD: family walk (Home · Chat · Employ · Launch · Moments · Shard · Forge · Contact · Privacy); Follow URLs in [`PUBLIC_CLAIM.lock.md`](PUBLIC_CLAIM.lock.md); workspace **14.15.6**; Layer 0 is an admission shell, not sampler weights; inspect ≠ METR; [info@Rathor.ai](mailto:info@Rathor.ai).
 
 Do not rewrite the claim ceiling. Do not relax Layer 0 or COEP. Google Translate stays a chrome new-tab URL (`i18n/README.md`). No crates/evolution theatre. No 23-pack essays. No i18n on a brief-only PR.
 
