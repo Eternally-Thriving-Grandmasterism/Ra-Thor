@@ -309,3 +309,96 @@ html[data-theme] .message.user a:is(:hover, :focus-visible) {
   outline: 2px solid var(--rt-on-gold);
   outline-offset: 2px;
 }
+
+/* SITES-CROSSLINK-1 — "Our worlds" art card on the home hero, and the company line in the footer.
+   The scrim is always dark, so card text keeps light ink in both themes. */
+.rt-worlds {
+  margin: 0 auto 1.75rem;
+  max-width: 28rem;
+}
+html[data-theme] .rt-worlds .rt-worlds-heading {
+  margin: 0 0 0.6rem;
+  font: 650 0.8rem/1.3 Inter, system-ui, sans-serif;
+  letter-spacing: 0.08em !important;
+  text-align: center;
+}
+html[data-theme] .rt-worlds a.rt-world-card {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 9;
+  border-radius: 1.15rem;
+  border: 1px solid var(--rt-line);
+  background: #07060a;
+  box-shadow:
+    0 0 0 1px rgba(240, 211, 106, 0.38),
+    0 0 26px rgba(212, 168, 60, 0.26),
+    0 18px 40px -18px rgba(0, 0, 0, 0.62);
+  overflow: hidden;
+  color: #f6f1e4 !important;
+  text-decoration-line: none !important;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+}
+html[data-theme="light"] .rt-worlds a.rt-world-card {
+  background: #140f0c;
+  box-shadow:
+    0 0 0 1px rgba(78, 53, 12, 0.45),
+    0 0 22px rgba(168, 112, 28, 0.24),
+    0 16px 32px -16px rgba(36, 26, 16, 0.38);
+}
+html[data-theme] .rt-worlds a.rt-world-card:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 0 0 1px rgba(240, 211, 106, 0.6),
+    0 0 34px rgba(212, 168, 60, 0.4),
+    0 22px 44px -18px rgba(0, 0, 0, 0.7);
+}
+html[data-theme="light"] .rt-worlds a.rt-world-card:hover {
+  box-shadow:
+    0 0 0 1px rgba(78, 53, 12, 0.7),
+    0 0 28px rgba(168, 112, 28, 0.34),
+    0 20px 36px -16px rgba(36, 26, 16, 0.45);
+}
+html[data-theme] .rt-worlds a.rt-world-card:focus-visible {
+  outline: 3px solid var(--rt-gold-hot) !important;
+  outline-offset: 3px !important;
+}
+html[data-theme="light"] .rt-worlds a.rt-world-card:focus-visible {
+  outline: 3px solid var(--rt-gold-deep) !important;
+  outline-offset: 3px !important;
+}
+.rt-world-card img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 40%;
+}
+.rt-world-card .rt-world-text {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 2.6rem 1rem 0.85rem;
+  text-align: start;
+  background: linear-gradient(to top, rgba(5, 5, 5, 0.92) 0%, rgba(5, 5, 5, 0.86) 58%, rgba(5, 5, 5, 0) 100%);
+}
+html[data-theme] .rt-world-card .rt-world-title {
+  font: 700 1.05rem/1.25 'Cinzel', Georgia, serif;
+  letter-spacing: 0.04em;
+  color: #f0d36a !important;
+}
+html[data-theme] .rt-world-card .rt-world-hook {
+  font: 500 0.8125rem/1.4 Inter, system-ui, sans-serif;
+  color: #f6f1e4 !important;
+}
+.rt-acity-line {
+  margin: 0.35rem 0 0.5rem;
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme] .rt-worlds a.rt-world-card,
+  html[data-theme] .rt-worlds a.rt-world-card:hover {
+    transition: none !important;
+    transform: none !important;
+  }
+}
