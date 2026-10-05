@@ -22,10 +22,18 @@
     .card-hover { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
     /* PHONE-CLIP-1: .w-full is content-box, so width:100% plus px-4/sm:px-6 overflows the viewport
        below 52rem (832px); long URLs and code may break so they stay on screen.
-       Page-scoped here so pilot.html and every other page stay as they are. */
+       Page-scoped here so pilot.html and every other page stay as they are.
+       EMPLOY-CODE-WRAP-1: the D card pre clipped cargo lines mid-word on a phone.
+       Wrap that pre. Do not change the card shape. */
     @media (max-width: 51.99rem) {
       body > .min-h-screen > .max-w-3xl.w-full { box-sizing: border-box; }
       body > .min-h-screen > .max-w-3xl.w-full :is(a, code) { overflow-wrap: anywhere; }
+      body > .min-h-screen > .max-w-3xl.w-full pre {
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        overflow-x: visible;
+        max-width: 100%;
+      }
     }
   </style>
 </head>
