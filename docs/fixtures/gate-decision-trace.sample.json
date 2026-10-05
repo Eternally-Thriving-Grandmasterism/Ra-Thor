@@ -1,0 +1,20 @@
+{
+  "id": "trace-shelf-1-sample",
+  "utc": "2026-10-05T00:00:00Z",
+  "gate": "layer0-admission-shell",
+  "verdict": "block",
+  "reason": "sample block label for the admission shell; ingest bytes stay out of this file",
+  "files_touched": [
+    "docs/NEIGHBOR_AGENT_MAP.md",
+    "docs/fixtures/gate-decision-trace.sample.json"
+  ],
+  "unproven": [
+    "sample fixture is a sample",
+    "not a measured eval",
+    "not an observed admit_or_block run",
+    "not live behavior under load"
+  ],
+  "human_files": [
+    "docs/NEIGHBOR_AGENT_MAP.md"
+  ]
+}
