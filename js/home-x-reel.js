@@ -1,5 +1,6 @@
 /* Home X reel — stills first. Each muted mp4 is attached only when the
  * shared hero gate allows it and the frame is near the viewport.
+ * The same gate covers the two home-card clips.
  * Without this script the pictures remain.
  * Contact: info@Rathor.ai
  */
@@ -9,7 +10,9 @@
   var CLIPS = {
     sentinel: '/assets/art/reel-sentinel-architecture.mp4',
     tolc: '/assets/art/reel-tolc-heart.mp4',
-    hammer: '/assets/art/reel-rathor-winged-hammer.mp4'
+    hammer: '/assets/art/reel-rathor-winged-hammer.mp4',
+    handshake: '/assets/art/reel-grok-handshake.mp4',
+    build: '/assets/art/reel-grok-build.mp4'
   };
 
   function shared() {
@@ -62,9 +65,8 @@
   }
 
   function boot() {
-    var root = document.getElementById('rt-x-reel');
-    if (!root || typeof IntersectionObserver !== 'function') return;
-    var frames = root.querySelectorAll('[data-rt-reel]');
+    if (typeof IntersectionObserver !== 'function' || !document.querySelectorAll) return;
+    var frames = document.querySelectorAll('[data-rt-reel]');
     if (!frames.length) return;
     var near = [];
     var io = new IntersectionObserver(function (entries) {
