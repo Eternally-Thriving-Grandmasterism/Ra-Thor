@@ -1,6 +1,6 @@
 /* Home X reel — stills first. Each muted mp4 is attached only when the
  * shared hero gate allows it and the frame is near the viewport.
- * The same gate covers the two home-card clips.
+ * The same gate covers the home-card clips.
  * Without this script the pictures remain.
  * Contact: info@Rathor.ai
  */
@@ -12,7 +12,9 @@
     tolc: '/assets/art/reel-tolc-heart.mp4',
     hammer: '/assets/art/reel-rathor-winged-hammer.mp4',
     handshake: '/assets/art/reel-grok-handshake.mp4',
-    build: '/assets/art/reel-grok-build.mp4'
+    build: '/assets/art/reel-grok-build.mp4',
+    xsession: '/assets/art/reel-grok-x.mp4',
+    employ: '/assets/art/reel-grok-employ.mp4'
   };
 
   function shared() {
