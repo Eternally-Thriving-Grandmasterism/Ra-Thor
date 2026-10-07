@@ -251,6 +251,20 @@ body { font-family: 'Inter', system-ui, sans-serif; }
     @media (prefers-reduced-motion: reduce) {
       .rt-x-frame video { display: none !important; }
     }
+    /* Card clips reuse the reel frame. The session button still covers the card.
+       The caption link sits above that cover. */
+    .rt-home-clip-card { position: relative; }
+    .rt-home-clip-card > a.rt-btn-primary::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+    }
+    .rt-home-clip-card .rt-x-clip {
+      position: relative;
+      z-index: 1;
+      pointer-events: none;
+    }
+    .rt-home-clip-card .rt-x-clip figcaption { pointer-events: auto; }
   </style>
 </head>
 <body class="bg-black text-white overflow-x-hidden">
@@ -343,24 +357,38 @@ body { font-family: 'Inter', system-ui, sans-serif; }
         </a>
       </div>
       <div class="grid md:grid-cols-3 gap-6 sm:gap-8 max-w-5xl mx-auto">
-        <a href="https://grok.com/share/c2hhcmQtMi1jb3B5_1f46e31d-9fe1-4982-a5e6-5a27e7517052" target="_blank" rel="noopener" class="card-hover rt-card-uniform block rounded-2xl p-7 sm:p-8 text-center">
+        <div class="card-hover rt-card-uniform block rounded-2xl p-7 sm:p-8 text-center rt-home-clip-card">
           <div class="text-5xl mb-6">⚡⚡</div>
           <h3 id="grok-title" data-i18n="grokTitle" class="text-2xl sm:text-3xl font-semibold mb-2">Ra-Thor + Grok</h3>
           <p id="grok-subtitle" data-i18n="grokSubtitle" class="text-amber-200 text-base sm:text-lg">A live session in which Grok works with Ra-Thor under PATSAGi Councils, TOLC 8, the Lattice Conductor, and the cosmic tick. Optional.</p>
-          <div id="grok-cta" data-i18n="grokCta" class="mt-8 inline-flex items-center gap-2 rt-btn-primary px-8 py-4 rounded-2xl text-lg sm:text-xl font-medium">Open the lattice session →</div>
-        </a>
+          <figure class="rt-x-clip mt-6" data-rt-reel="handshake">
+            <div class="rt-x-frame">
+              <img src="/assets/art/reel-grok-handshake-poster.webp" width="960" height="644" loading="lazy" decoding="async" alt="A gold-armored warrior with a winged helmet and an Eye-of-Horus halo holds a hammer and clasps hands with a dark figure traced in stars, inside a ring of fire in a hall of glowing windows.">
+              <video muted autoplay loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
+            </div>
+            <figcaption><a href="https://x.com/AlphaProMega/status/2107582671530475617" rel="noopener" target="_blank">Draft visual. Not a product.</a></figcaption>
+          </figure>
+          <a id="grok-cta" data-i18n="grokCta" href="https://grok.com/share/c2hhcmQtMi1jb3B5_1f46e31d-9fe1-4982-a5e6-5a27e7517052" target="_blank" rel="noopener" class="mt-8 inline-flex items-center gap-2 rt-btn-primary px-8 py-4 rounded-2xl text-lg sm:text-xl font-medium">Open the lattice session →</a>
+        </div>
         <a href="/go-x.html" target="_blank" rel="noopener" class="card-hover rt-card-uniform block rounded-2xl p-7 sm:p-8 text-center">
           <div class="text-5xl mb-6">⚡⚡</div>
           <h3 id="x-title" data-i18n="xTitle" class="text-2xl sm:text-3xl font-semibold mb-2">Ra-Thor on X</h3>
           <p id="x-subtitle" data-i18n="xSubtitle" class="text-amber-200 text-base sm:text-lg">A lighter, less agentic Grok surface in the X app or at x.com. Optional.</p>
           <div id="x-cta" data-i18n="xCta" class="mt-8 inline-flex items-center gap-2 rt-btn-primary px-8 py-4 rounded-2xl text-lg sm:text-xl font-medium">Open the X session →</div>
         </a>
-        <a href="https://grok.com/share/c2hhcmQtMi1jb3B5_d08e02c6-9ceb-4e2a-b166-6dde971abcc0" target="_blank" rel="noopener" class="card-hover rt-card-uniform block rounded-2xl p-7 sm:p-8 text-center">
+        <div class="card-hover rt-card-uniform block rounded-2xl p-7 sm:p-8 text-center rt-home-clip-card">
           <div class="text-5xl mb-6">⚡🌀</div>
           <h3 id="vibe-title" data-i18n="vibeTitle" class="text-2xl sm:text-3xl font-semibold mb-2">Build with Grok</h3>
           <p id="vibe-subtitle" data-i18n="vibeSubtitle" class="text-amber-200 text-base sm:text-lg">Mercy-gated development: PATSAGi Councils, monorepo-intelligence, and the Lattice Conductor kept in view. Optional.</p>
-          <div id="vibe-cta" data-i18n="vibeCta" class="mt-8 inline-flex items-center gap-2 rt-btn-primary px-8 py-4 rounded-2xl text-lg sm:text-xl font-medium">Open the build session →</div>
-        </a>
+          <figure class="rt-x-clip mt-6" data-rt-reel="build">
+            <div class="rt-x-frame">
+              <img src="/assets/art/reel-grok-build-poster.webp" width="960" height="644" loading="lazy" decoding="async" alt="A gold-armored warrior and a blue figure traced in stars hold a glowing hammer together inside a ring of fire, with lightning between them in a hall of glowing windows.">
+              <video muted autoplay loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
+            </div>
+            <figcaption><a href="https://x.com/AlphaProMega/status/2107582671530475617" rel="noopener" target="_blank">Draft visual. Not a product.</a></figcaption>
+          </figure>
+          <a id="vibe-cta" data-i18n="vibeCta" href="https://grok.com/share/c2hhcmQtMi1jb3B5_d08e02c6-9ceb-4e2a-b166-6dde971abcc0" target="_blank" rel="noopener" class="mt-8 inline-flex items-center gap-2 rt-btn-primary px-8 py-4 rounded-2xl text-lg sm:text-xl font-medium">Open the build session →</a>
+        </div>
         <a href="/employ.html" class="card-hover rt-card-uniform block rounded-2xl p-7 sm:p-8 text-center">
           <div class="text-5xl mb-6">🚪</div>
           <h3 id="employ-title" data-i18n="employTitle" class="text-2xl sm:text-3xl font-semibold mb-2">How to employ</h3>

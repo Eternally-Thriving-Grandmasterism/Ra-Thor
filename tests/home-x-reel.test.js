@@ -1,4 +1,5 @@
 /* RATHOR-VIDEO-1: three steward clips under the home intro.
+ * HOME-CLIPS-2: two more clips on the Ra-Thor + Grok and Build with Grok cards.
  * Stills are the default. js/home-x-reel.js attaches muted mp4s
  * through the shared home-hero gate, and only when a frame is near view.
  */
@@ -20,7 +21,11 @@ var files = {
   'assets/art/reel-tolc-heart.mp4': 1472913,
   'assets/art/reel-tolc-heart-poster.webp': 53848,
   'assets/art/reel-rathor-winged-hammer.mp4': 1397223,
-  'assets/art/reel-rathor-winged-hammer-poster.webp': 58124
+  'assets/art/reel-rathor-winged-hammer-poster.webp': 58124,
+  'assets/art/reel-grok-handshake.mp4': 8037507,
+  'assets/art/reel-grok-handshake-poster.webp': 161624,
+  'assets/art/reel-grok-build.mp4': 8896114,
+  'assets/art/reel-grok-build-poster.webp': 156780
 };
 Object.keys(files).forEach(function (rel) {
   var full = path.join(root, rel);
@@ -32,6 +37,9 @@ var html = read('index.html');
 assert(html.indexOf('reel-sentinel-architecture.mp4') === -1, 'index must not embed the sentinel mp4');
 assert(html.indexOf('reel-tolc-heart.mp4') === -1, 'index must not embed the tolc mp4');
 assert(html.indexOf('reel-rathor-winged-hammer.mp4') === -1, 'index must not embed the hammer mp4');
+assert(html.indexOf('reel-grok-handshake.mp4') === -1, 'index must not embed the handshake mp4');
+assert(html.indexOf('reel-grok-build.mp4') === -1, 'index must not embed the build mp4');
+assert(html.indexOf('video.twimg.com') === -1, 'index must not leave a video.twimg.com src');
 assert(html.indexOf('2078966782883135582') === -1, 'hammer post must not be linked; its text is not repeated');
 assert(html.indexOf('/js/home-x-reel.js') !== -1, 'index must load home-x-reel.js');
 assert(html.indexOf('/js/home-hero.js') < html.indexOf('/js/home-x-reel.js'), 'hero gate script must load before the reel');
@@ -90,6 +98,10 @@ var js = read('js/home-x-reel.js');
 assert(js.indexOf('reel-sentinel-architecture.mp4') !== -1, 'script must name the sentinel mp4');
 assert(js.indexOf('reel-tolc-heart.mp4') !== -1, 'script must name the tolc mp4');
 assert(js.indexOf('reel-rathor-winged-hammer.mp4') !== -1, 'script must name the hammer mp4');
+assert(js.indexOf('reel-grok-handshake.mp4') !== -1, 'script must name the handshake mp4');
+assert(js.indexOf('reel-grok-build.mp4') !== -1, 'script must name the build mp4');
+assert(js.indexOf('video.twimg.com') === -1, 'script must not leave a video.twimg.com src');
+assert(js.indexOf("document.querySelectorAll('[data-rt-reel]')") !== -1, 'card clips use the same reel wiring');
 assert(js.indexOf('heroVideoAllowed') !== -1, 'reel must use the shared hero gate');
 assert(js.indexOf('slow-2g') === -1 && js.indexOf('saveData') === -1, 'reel must not copy the gate conditions');
 assert(js.indexOf('IntersectionObserver') !== -1, 'reel must watch viewport nearness');
@@ -135,5 +147,73 @@ assert(heroApi.pause && heroApi.release && heroApi.bind && heroApi.watchEnv, 'sh
 var headers = read('_headers');
 assert(headers.indexOf('media-src') === -1, '_headers must not send a media-src that would block same-origin clips');
 assert(html.indexOf('Content-Security-Policy') === -1, 'index must not add a CSP meta that blocks self media');
+
+function cardSlice(startId, endId) {
+  var start = html.indexOf('id="' + startId + '"');
+  var end = html.indexOf('id="' + endId + '"');
+  assert(start !== -1 && end > start, startId + ' card slice');
+  var open = html.lastIndexOf('<div class="card-hover', start);
+  assert(open !== -1 && open < start, startId + ' card shell');
+  return html.slice(open, end);
+}
+
+function assertClip(slice, key, poster, alt, ctaId, sessionHref) {
+  assert(slice.indexOf('rt-home-clip-card') !== -1, key + ' card keeps the clip shell');
+  assert(slice.indexOf('data-rt-reel="' + key + '"') !== -1, key + ' frame must be present');
+  assert(slice.indexOf('data-rt-reel="' + key + '"') < slice.indexOf('id="' + ctaId + '"'), key + ' clip sits above the button');
+  assert(slice.indexOf(poster) !== -1, key + ' poster must be on the card');
+  assert(slice.indexOf('width="960"') !== -1 && slice.indexOf('height="644"') !== -1, key + ' poster must set width and height');
+  assert(slice.indexOf('alt="' + alt + '"') !== -1, key + ' alt must describe the picture');
+  assert(slice.indexOf('loading="lazy"') !== -1, key + ' poster img is lazy');
+  assert(slice.indexOf('https://x.com/AlphaProMega/status/2107582671530475617') !== -1, key + ' caption links the post');
+  assert(slice.indexOf('>Draft visual. Not a product.</a>') !== -1, key + ' caption stays the one line');
+  assert(slice.indexOf('rel="noopener"') !== -1 && slice.indexOf('target="_blank"') !== -1, key + ' caption link opens safely');
+  assert(slice.indexOf('Infinitely Winning') === -1, key + ' must not say Infinitely Winning');
+  assert(slice.indexOf('AGSi') === -1, key + ' must not state AGSi');
+  assert(slice.indexOf('data-i18n="') !== -1, key + ' card copy keys stay');
+  var captionAt = slice.indexOf('Draft visual. Not a product.');
+  var captionTag = slice.slice(slice.lastIndexOf('<', captionAt), slice.indexOf('>', captionAt));
+  assert(captionTag.indexOf('data-i18n') === -1, key + ' caption is not an i18n key');
+  var videos = slice.match(/<video\b[^>]*>/g);
+  assert(videos && videos.length === 1, key + ' has one video shell');
+  assert(videos[0].indexOf('muted') !== -1, key + ' video must be muted');
+  assert(videos[0].indexOf('autoplay') !== -1, key + ' video must autoplay');
+  assert(videos[0].indexOf('loop') !== -1, key + ' video must loop');
+  assert(videos[0].indexOf('playsinline') !== -1, key + ' video must be playsinline');
+  assert(videos[0].indexOf('preload="none"') !== -1, key + ' video preload must be none');
+  assert(videos[0].indexOf('aria-hidden="true"') !== -1, key + ' video duplicates the alt and must be aria-hidden');
+  assert(videos[0].indexOf('controls') === -1, key + ' video must not show controls');
+  assert(videos[0].indexOf('src=') === -1, key + ' video shell must not embed a src');
+  var ctaAt = slice.indexOf('id="' + ctaId + '"');
+  var ctaTag = slice.slice(slice.lastIndexOf('<', ctaAt), slice.indexOf('>', ctaAt) + 1);
+  assert(ctaTag.indexOf('<a ') === 0, key + ' session control stays a link');
+  assert(ctaTag.indexOf('href="' + sessionHref + '"') !== -1, key + ' session href stays on the button');
+}
+
+var grokCard = cardSlice('grok-title', 'x-title');
+assertClip(
+  grokCard,
+  'handshake',
+  'reel-grok-handshake-poster.webp',
+  'A gold-armored warrior with a winged helmet and an Eye-of-Horus halo holds a hammer and clasps hands with a dark figure traced in stars, inside a ring of fire in a hall of glowing windows.',
+  'grok-cta',
+  'https://grok.com/share/c2hhcmQtMi1jb3B5_1f46e31d-9fe1-4982-a5e6-5a27e7517052'
+);
+var buildCard = cardSlice('vibe-title', 'employ-title');
+assertClip(
+  buildCard,
+  'build',
+  'reel-grok-build-poster.webp',
+  'A gold-armored warrior and a blue figure traced in stars hold a glowing hammer together inside a ring of fire, with lightning between them in a hall of glowing windows.',
+  'vibe-cta',
+  'https://grok.com/share/c2hhcmQtMi1jb3B5_d08e02c6-9ceb-4e2a-b166-6dde971abcc0'
+);
+assert(html.indexOf('<a href="/go-x.html" target="_blank" rel="noopener" class="card-hover rt-card-uniform block rounded-2xl p-7 sm:p-8 text-center">') !== -1, 'X card stays a whole-card link');
+assert(html.indexOf('<a href="/employ.html" class="card-hover rt-card-uniform block rounded-2xl p-7 sm:p-8 text-center">') !== -1, 'employ card stays a whole-card link');
+var xCard = html.slice(html.indexOf('id="x-title"'), html.indexOf('id="vibe-title"'));
+assert(xCard.indexOf('data-rt-reel') === -1 && xCard.indexOf('Draft visual') === -1, 'X card does not take a clip');
+var employCard = html.slice(html.indexOf('id="employ-title"'), html.indexOf('homeLaunchMap'));
+assert(employCard.indexOf('data-rt-reel') === -1 && employCard.indexOf('Draft visual') === -1, 'employ card does not take a clip');
+assert(reel.indexOf('reel-grok-') === -1 && reel.indexOf('2107582671530475617') === -1, 'intro reel does not take the card clips');
 
 console.log('home-x-reel.test.js ok');
