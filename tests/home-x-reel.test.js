@@ -168,7 +168,6 @@ function cardSlice(startId, endId) {
 }
 
 function assertClip(slice, key, poster, alt, ctaId, sessionHref, postUrl, newTab) {
-  if (!postUrl) postUrl = 'https://x.com/AlphaProMega/status/2107582671530475617';
   assert(slice.indexOf('rt-home-clip-card') !== -1, key + ' card keeps the clip shell');
   assert(slice.indexOf('data-rt-reel="' + key + '"') !== -1, key + ' frame must be present');
   assert(slice.indexOf('data-rt-reel="' + key + '"') < slice.indexOf('id="' + ctaId + '"'), key + ' clip sits above the button');
@@ -176,15 +175,11 @@ function assertClip(slice, key, poster, alt, ctaId, sessionHref, postUrl, newTab
   assert(slice.indexOf('width="960"') !== -1 && slice.indexOf('height="644"') !== -1, key + ' poster must set width and height');
   assert(slice.indexOf('alt="' + alt + '"') !== -1, key + ' alt must describe the picture');
   assert(slice.indexOf('loading="lazy"') !== -1, key + ' poster img is lazy');
-  assert(slice.indexOf(postUrl) !== -1, key + ' caption links the post');
-  assert(slice.indexOf('>Draft visual. Not a product.</a>') !== -1, key + ' caption stays the one line');
-  assert(slice.indexOf('rel="noopener"') !== -1 && slice.indexOf('target="_blank"') !== -1, key + ' caption link opens safely');
+  assert(slice.indexOf('Draft visual. Not a product.') === -1, key + ' has no disclaimer caption');
+  assert(slice.indexOf('<figcaption') === -1, key + ' has no caption');
   assert(slice.indexOf('Infinitely Winning') === -1, key + ' must not say Infinitely Winning');
   assert(slice.indexOf('AGSi') === -1, key + ' must not state AGSi');
   assert(slice.indexOf('data-i18n="') !== -1, key + ' card copy keys stay');
-  var captionAt = slice.indexOf('Draft visual. Not a product.');
-  var captionTag = slice.slice(slice.lastIndexOf('<', captionAt), slice.indexOf('>', captionAt));
-  assert(captionTag.indexOf('data-i18n') === -1, key + ' caption is not an i18n key');
   var videos = slice.match(/<video\b[^>]*>/g);
   assert(videos && videos.length === 1, key + ' has one video shell');
   assert(videos[0].indexOf('muted') !== -1, key + ' video must be muted');
@@ -253,5 +248,6 @@ assert(buildCard.indexOf('2107689413517979810') === -1 && buildCard.indexOf('dat
 assert(reelApi.CLIPS.xsession === '/assets/art/reel-grok-x.mp4', 'xsession key points at the local mp4');
 assert(reelApi.CLIPS.employ === '/assets/art/reel-grok-employ.mp4', 'employ key points at the local mp4');
 assert(reel.indexOf('reel-grok-') === -1 && reel.indexOf('2107582671530475617') === -1 && reel.indexOf('2107689413517979810') === -1, 'intro reel does not take the card clips');
+assert(html.indexOf('Draft visual. Not a product.') === -1, 'home page has no disclaimer caption');
 
 console.log('home-x-reel.test.js ok');
