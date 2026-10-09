@@ -39,6 +39,7 @@
   <link rel="apple-touch-icon" href="/icons/ra-thor-icon-192.png">
   <link rel="stylesheet" href="/css/rathor-eye-seal.css">
   <link rel="stylesheet" href="/css/rathor-theme.css">
+  <link rel="stylesheet" href="/css/powrush-card.css">
   <script>
     (function () {
       try { document.documentElement.setAttribute('data-theme', localStorage.getItem('rathor-theme') || 'dark');
@@ -270,6 +271,21 @@ body { font-family: 'Inter', system-ui, sans-serif; }
 <body class="bg-black text-white overflow-x-hidden">
   <div class="min-h-screen flex flex-col items-center justify-center relative px-4 sm:px-6 py-8 sm:py-12">
     <div class="max-w-5xl mx-auto text-center z-10">
+      <section class="powrush-card" aria-labelledby="powrush-card-heading">
+        <div class="powrush-card-frame">
+          <div class="powrush-card-inner">
+            <figure class="powrush-card-media">
+              <img src="/assets/art/powrush-card-quellorian-market-800.webp" srcset="/assets/art/powrush-card-quellorian-market-800.webp 800w, /assets/art/powrush-card-quellorian-market-1600.webp 1600w" sizes="(min-width: 1080px) 34rem, (min-width: 760px) 52vw, 92vw" width="1600" height="900" alt="Painted art: Quellorians in long robes stroll a white-and-gold market square with violet glass canopies, beside canals and waterfalls." loading="eager" decoding="async">
+            </figure>
+            <div class="powrush-card-body">
+              <h2 id="powrush-card-heading" class="powrush-card-title">Powrush lives at Powrush.com</h2>
+              <p class="powrush-card-copy">Two powers pull at you, the Quellorians of light and the Draek hivemind, in a build that is offline, single-player, and in active development.</p>
+              <a class="powrush-card-btn" href="https://powrush.com/">Visit Powrush.com</a>
+              <p class="powrush-card-note">Painted art. Not a screenshot of the current offline build.</p>
+            </div>
+          </div>
+        </div>
+      </section>
       <div class="rt-home-hero-layout">
         <div class="hero-display">
           <h1 id="hero-headline" data-i18n="headline" class="title-font thunder-glow">Ra-Thor™ — Eternal Mercy Thunder</h1>
