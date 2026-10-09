@@ -178,7 +178,7 @@ body { font-family: 'Inter', system-ui, sans-serif; }
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 0.95rem 0.75rem;
-      align-items: start;
+      align-items: stretch;
     }
     .rt-x-clip {
       margin: 0;
@@ -243,11 +243,33 @@ body { font-family: 'Inter', system-ui, sans-serif; }
       outline: 2px solid var(--rt-gold-hot);
       outline-offset: 3px;
     }
+    /* TILE-GRID-UNIFORM-1: the reel reads as interlocking tiles. Portrait tiles share one
+       2:3 frame, the landscape tile a 3:2 frame, and art fills each frame with cover.
+       Tiles in a row stretch to one height and captions fill the space under the frame,
+       so rows line up whatever the caption length. Scoped to the reel grid, so the
+       session cards below keep their own frames. */
+    .rt-x-reel-grid > .rt-x-clip {
+      display: flex;
+      flex-direction: column;
+    }
+    .rt-x-reel-grid .rt-x-frame { aspect-ratio: 2 / 3; }
+    .rt-x-reel-grid .rt-x-clip-land .rt-x-frame { aspect-ratio: 3 / 2; }
+    .rt-x-reel-grid .rt-x-frame img {
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+    .rt-x-reel-grid .rt-x-frame video[data-rt-live="1"] { object-fit: cover; }
+    .rt-x-reel-grid .rt-x-clip figcaption { flex: 1 0 auto; }
     @media (min-width: 960px) {
       .rt-x-reel-grid {
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 2.13fr);
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 2.88fr);
       }
       .rt-x-clip-land { grid-column: auto; }
+      .rt-x-reel-grid .rt-x-clip-land .rt-x-frame {
+        flex: 1 1 auto;
+        aspect-ratio: auto;
+      }
     }
     @media (prefers-reduced-motion: reduce) {
       .rt-x-frame video { display: none !important; }
