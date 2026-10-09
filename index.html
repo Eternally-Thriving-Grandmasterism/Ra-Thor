@@ -288,6 +288,47 @@ body { font-family: 'Inter', system-ui, sans-serif; }
       pointer-events: none;
     }
     .rt-home-clip-card .rt-x-clip figcaption { pointer-events: auto; }
+    /* TILE-GRID-UNIFORM-1: reel captions read as one neat band. Same type and spacing on
+       every tile, balanced wrapping where supported (plain wrapping elsewhere), and a
+       quiet underline that turns solid on hover and focus. The link colours are
+       unchanged, so contrast stays as before. */
+    .rt-x-reel-grid .rt-x-clip figcaption {
+      margin: 0.65rem 0.25rem 0;
+      font: 500 0.875rem/1.5 Inter, system-ui, sans-serif;
+      letter-spacing: 0.01em;
+      text-wrap: balance;
+      hyphens: manual;
+    }
+    html[data-theme] #rt-x-reel figcaption a {
+      text-decoration-thickness: 1px;
+      text-underline-offset: 0.28em;
+      text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+      transition: text-decoration-color 0.2s ease;
+    }
+    html[data-theme] #rt-x-reel figcaption a:is(:hover, :focus-visible) {
+      text-decoration-color: currentColor;
+    }
+    /* TILE-GRID-UNIFORM-1: session cards. From md the grid is 2 x 2, not 3 + 1, with
+       equal rows. Each card is a column: title and text sit at the top, and the clip and
+       button sit at the bottom, so clips and buttons line up across a row. Mobile is
+       unchanged (one card per row). */
+    .rt-home-clip-card h3 { text-wrap: balance; }
+    .rt-home-clip-card h3 + p { text-wrap: balance; }
+    @media (min-width: 768px) {
+      .grid:has(> .rt-home-clip-card) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-auto-rows: 1fr;
+      }
+      .grid > .rt-home-clip-card {
+        display: flex;
+        flex-direction: column;
+      }
+      .grid > .rt-home-clip-card > .rt-x-clip {
+        margin-top: auto;
+        padding-top: 1.5rem;
+      }
+      .grid > .rt-home-clip-card > a.rt-btn-primary { align-self: center; }
+    }
   </style>
 </head>
 <body class="bg-black text-white overflow-x-hidden">
