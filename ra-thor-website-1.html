@@ -48,6 +48,10 @@
     .faq-accordion.rtl .lightning-icon {
       order: 1; /* ensures lightning appears at the visual start (right) for RTL */
     }
+
+    /* TEXT-OVERFLOW-FIX-1 — the two right-edge decorative stars (left:88%/92%) sit one glyph-width inward so they
+       no longer widen the page (horizontal scroll) on phones. */
+    .golden-star[style*="left:8"], .golden-star[style*="left:9"] { margin-left: -1em; }
   </style>
 </head>
 <body class="bg-black text-white overflow-x-hidden">
