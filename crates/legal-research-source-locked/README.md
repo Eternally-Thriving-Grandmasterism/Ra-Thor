@@ -31,3 +31,17 @@ Keep Core Tier-1 green. Any expansion of this sketch requires a later named PATS
 
 **Capable · Bounded · Corrigible.**  
 Thunder locked. yoi ⚡
+
+## Citation scan added 2026-10-10
+
+Task card: `docs/science/TASK-CARD-CURSOR-2026-10-10-LEGAL-RESEARCH-STUB.md`.
+
+`extract_citations_research` copies spans that match `\d{4}\s+[A-Z]+\s+\d+` (token boundaries on the year and the number) into a `ResearchDraft`. `find_reporter_citations` returns those same spans. The draft body lists the verbatim spans from the supplied text.
+
+Fixture `fixtures/synthetic-citation-list.txt` is a synthetic stand-in, not a judgment. `tests/extract_reporter_citations.rs` checks the span list and the draft seal.
+
+Volume-reporter-page forms such as `410 U.S. 113` stay outside this pattern. Coverage of those forms is not demonstrated.
+
+This crate stays off default workspace members.
+
+DRAFT — human review required. Not legal advice. Not a product. See PUBLIC_CLAIM.lock.md.
