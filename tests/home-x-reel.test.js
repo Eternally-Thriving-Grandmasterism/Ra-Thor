@@ -26,7 +26,7 @@ var files = {
   'assets/art/reel-grok-handshake.mp4': 8037507,
   'assets/art/reel-grok-handshake-poster.webp': 161624,
   'assets/art/reel-grok-build.mp4': 8896114,
-  'assets/art/reel-grok-build-poster.webp': 157062,
+  'assets/art/reel-grok-build-poster.webp': 156780,
   'assets/art/reel-grok-x.mp4': 6769021,
   'assets/art/reel-grok-x-poster.webp': 97898,
   'assets/art/reel-grok-employ.mp4': 8710848,
@@ -215,7 +215,7 @@ assertClip(
   buildCard,
   'build',
   'reel-grok-build-poster.webp',
-  'Two lavender-skinned Quellorians in white-and-gold robes build a pearl-white craft held in a gantry, one fitting its engine and one sorting tools at a workbench, in a sunlit workshop above a turquoise bay.',
+  'A gold-armored warrior and a blue figure traced in stars hold a glowing hammer together inside a ring of fire, with lightning between them in a hall of glowing windows.',
   'vibe-cta',
   'https://grok.com/share/c2hhcmQtMi1jb3B5_d08e02c6-9ceb-4e2a-b166-6dde971abcc0'
 );
