@@ -310,10 +310,18 @@ body { font-family: 'Inter', system-ui, sans-serif; }
     }
     /* TILE-GRID-UNIFORM-1: session cards. From md the grid is 2 x 2, not 3 + 1, with
        equal rows. Each card is a column: title and text sit at the top, and the clip and
-       button sit at the bottom, so clips and buttons line up across a row. Mobile is
-       unchanged (one card per row). */
+       button sit at the bottom, so clips and buttons line up across a row.
+       On a phone the subtitle and the button reserve the same block on every card,
+       so the emoji, title, reel and button share one offset and the four cards share one height. */
     .rt-home-clip-card h3 { text-wrap: balance; }
     .rt-home-clip-card h3 + p { text-wrap: balance; }
+    @media (max-width: 767px) {
+      .rt-home-clip-card h3 + p { min-height: 7.5rem; }
+      .grid > .rt-home-clip-card > a.rt-btn-primary {
+        box-sizing: border-box;
+        min-height: 5rem;
+      }
+    }
     @media (min-width: 768px) {
       .grid:has(> .rt-home-clip-card) {
         grid-template-columns: repeat(2, minmax(0, 1fr));
