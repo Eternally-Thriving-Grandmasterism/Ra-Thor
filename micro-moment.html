@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Moments — Ra-Thor</title>
-  <meta name="description" content="Local dense temporal recovery. Sub-200 ms micro-moments. MercyMotionVisionEngine v2.3.1. Computations stay in your browser.">
+  <meta name="description" content="Local dense temporal recovery. Sub-200 ms micro-moments. Computations stay in your browser. Local inspectable research software. Not a certified model upgrade.">
   <meta name="theme-color" content="#050505">
   <meta name="color-scheme" content="dark light">
   <link rel="manifest" href="/manifest.json">
@@ -36,13 +36,18 @@ body { font-family: 'Inter', system-ui, sans-serif; }
         <span class="rt-kicker">dense · local</span>
       </div>
       <h1 class="title-font text-4xl sm:text-5xl font-bold thunder-glow">Micro-moment recovery</h1>
-      <p class="mt-4 text-white/65 max-w-2xl mx-auto text-sm sm:text-base">Continue after Launch. Never sparse-keyframe-only. Drop a short clip or run the synthetic X failure-mode chain (theft transfer + gesture resolution).</p>
+      <p class="mt-4 text-white/65 max-w-2xl mx-auto text-sm sm:text-base">Continue after Launch. Dense sampling is the default. Drop a short clip or run the synthetic X failure-mode chain (theft transfer + gesture resolution).</p>
+      <p id="mm-claim" class="mt-3 text-xs text-white/50 max-w-2xl mx-auto">Local inspectable research software. Not a certified model upgrade.</p>
     </div>
 
     <div class="mt-10 grid md:grid-cols-2 gap-5">
       <section class="rt-card-uniform rounded-3xl p-6 sm:p-7">
         <h2 class="text-lg font-semibold text-amber-200">Local video</h2>
-        <p class="mt-2 text-sm text-white/60">Stays on this device. First 3 seconds sampled densely via canvas seeks.</p>
+        <p class="mt-2 text-sm text-white/60">Stays on this device. Dense sampling is the default on the first 3 seconds. Blur or high motion raises the rate and tightens the window to about 150 ms on that interval.</p>
+        <label class="mt-4 flex items-center gap-2 text-xs text-white/70">
+          <input id="opt-dense" type="checkbox" checked>
+          Dense sampling (default)
+        </label>
         <input id="vid-file" type="file" accept="video/*" class="mt-4 block w-full text-xs text-white/70">
         <video id="vid" controls class="mt-4 w-full rounded-2xl border border-amber-300/20"></video>
         <div class="mt-4 flex flex-wrap gap-2">
@@ -65,7 +70,11 @@ body { font-family: 'Inter', system-ui, sans-serif; }
         <div><div class="text-white/45 text-xs">Engine</div><div id="mm-engine" class="mono text-sm text-amber-100 mt-2">—</div></div>
       </div>
       <p id="mm-story" class="mt-5 text-sm text-white/75 leading-relaxed">Awaiting frames.</p>
-      <ul id="mm-list" class="mt-4 space-y-1 text-xs mono text-amber-100/80"></ul>
+      <p id="mm-sampling" class="mt-3 text-xs text-white/50">Dense sampling: on (default).</p>
+      <h3 class="mt-5 text-xs font-semibold text-amber-200/90">keyMicroMoments</h3>
+      <ul id="mm-list" class="mt-2 space-y-1 text-xs mono text-amber-100/80"></ul>
+      <h3 class="mt-4 text-xs font-semibold text-amber-200/90">causalChain</h3>
+      <ul id="mm-chain" class="mt-2 space-y-1 text-xs mono text-amber-100/80"></ul>
       <pre id="mm-json" class="mt-5 text-[11px] leading-relaxed text-white/50 overflow-x-auto max-h-72 whitespace-pre-wrap"></pre>
     </section>
 
@@ -85,23 +94,53 @@ body { font-family: 'Inter', system-ui, sans-serif; }
     const engine = new MercyMotionVisionEngine({ valence: 1.0 });
     window.__MERCY_MOTION_VISION__ = engine;
 
+    function denseOn() {
+      const box = document.getElementById('opt-dense');
+      return !box || box.checked;
+    }
+
     function render(result) {
-      document.getElementById('mm-count').textContent = String((result.keyMicroMoments || []).length);
+      const moments = result.keyMicroMoments || [];
+      const chain = result.causalChain || [];
+      document.getElementById('mm-count').textContent = String(moments.length);
       document.getElementById('mm-conf').textContent = result.confidence != null ? Number(result.confidence).toFixed(4) : '—';
       document.getElementById('mm-engine').textContent = result.engine || engine.name;
       document.getElementById('mm-story').textContent = result.story || result.error || result.note || '';
+      const sampling = result.sampling;
+      document.getElementById('mm-sampling').textContent = sampling
+        ? `denseSampling ${sampling.denseSampling ? 'on' : 'off'} · window ${sampling.microBurstWindowMs} ms · fps requested ${sampling.targetFpsRequested} · applied ${sampling.targetFpsApplied} · ${sampling.resample}`
+        : 'Dense sampling: on (default).';
       const list = document.getElementById('mm-list');
       list.innerHTML = '';
-      (result.keyMicroMoments || []).forEach((m) => {
+      if (!moments.length) {
+        const li = document.createElement('li');
+        li.textContent = 'None recovered.';
+        list.appendChild(li);
+      }
+      moments.forEach((m) => {
         const li = document.createElement('li');
         li.textContent = `${Math.round(m.t)} ms · ${m.type} · ${m.description}`;
         list.appendChild(li);
+      });
+      const chainList = document.getElementById('mm-chain');
+      chainList.innerHTML = '';
+      if (!chain.length) {
+        const li = document.createElement('li');
+        li.textContent = 'None recovered.';
+        chainList.appendChild(li);
+      }
+      chain.forEach((e) => {
+        const li = document.createElement('li');
+        const causes = (e.causes || []).join(', ') || '—';
+        li.textContent = `${e.id} · ${Math.round(e.t)} ms · ${e.type} · causes ${causes}`;
+        chainList.appendChild(li);
       });
       document.getElementById('mm-json').textContent = JSON.stringify({
         patsagiReady: result.patsagiReady,
         recoveredDetail: result.recoveredDetail,
         opticalFlowMode: result.opticalFlowMode,
         denseSamplingMode: result.denseSamplingMode,
+        sampling: result.sampling,
         keyMicroMoments: result.keyMicroMoments,
         causalChain: result.causalChain
       }, null, 2);
@@ -116,15 +155,15 @@ body { font-family: 'Inter', system-ui, sans-serif; }
 
     document.getElementById('btn-video').addEventListener('click', async () => {
       if (!video.src) { document.getElementById('mm-story').textContent = 'Choose a local video first.'; return; }
-      render(await engine.comprehendVideoStory(video, { valence: 1.0, maxDuration: 3, targetFps: 24, maxFrames: 36 }));
+      render(await engine.comprehendVideoStory(video, { valence: 1.0, denseSampling: denseOn(), maxDuration: 3 }));
     });
     document.getElementById('btn-x').addEventListener('click', async () => {
       if (!video.src) { document.getElementById('mm-story').textContent = 'Choose a local video first.'; return; }
-      render(await engine.analyzeXVideoFailureModes(video, { valence: 1.0 }));
+      render(await engine.analyzeXVideoFailureModes(video, { valence: 1.0, denseSampling: denseOn() }));
     });
     document.getElementById('btn-synth').addEventListener('click', async () => {
       const frames = buildFailureModeFrames();
-      render(await engine.analyzeXVideoFailureModes(frames, { valence: 1.0, expectedTheft: true, expectedRPS: true }));
+      render(await engine.analyzeXVideoFailureModes(frames, { valence: 1.0, denseSampling: denseOn(), expectedTheft: true, expectedRPS: true }));
     });
 
     activateOneOrganism().catch(() => {});
