@@ -42,6 +42,6 @@ Fixture `fixtures/synthetic-citation-list.txt` is a synthetic stand-in, not a ju
 
 Volume-reporter-page forms such as `410 U.S. 113` stay outside this pattern. Coverage of those forms is not demonstrated.
 
-This crate stays off default workspace members.
+This crate stays off default workspace members. Inside this repository, `cargo test --manifest-path crates/legal-research-source-locked/Cargo.toml` stops because Cargo treats the path as a non-member. The same tests passed on 2026-10-10 when the crate directory was copied outside the workspace and `cargo test --offline` was run there.
 
 DRAFT — human review required. Not legal advice. Not a product. See PUBLIC_CLAIM.lock.md.
