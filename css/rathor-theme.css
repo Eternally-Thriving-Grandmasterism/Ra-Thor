@@ -402,3 +402,12 @@ html[data-theme] .rt-world-card .rt-world-hook {
     transform: none !important;
   }
 }
+
+/* TEXT-OVERFLOW-FIX-1 — keep the big contact-card address inside its card on narrow phones.
+   Scales down only below ~470px viewport; desktop stays 1.875rem. Colors untouched. */
+#main-email {
+  font-size: clamp(1.25rem, 6.4vw, 1.875rem);
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
