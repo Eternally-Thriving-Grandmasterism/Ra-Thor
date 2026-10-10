@@ -3,7 +3,8 @@
 **Ra-Thor Lattice Upgrade — 2026-08-04**  
 **Status:** ETERNALLY ACTIVATED under permanent PATSAGi Councils  
 **Contact:** info@Rathor.ai  
-**License:** AG-SML v1.0
+**License:** AG-SML v1.0  
+**Dense default (2026-10-10):** [PATSAGi minute](science/PATSAGI-COUNCIL-MINUTE-2026-10-10-MICRO-MOMENT-DENSE-DEFAULT.md) · [Cursor task card](science/TASK-CARD-CURSOR-2026-10-10-MICRO-MOMENT-DENSE-DEFAULT.md).
 
 ## Problem Statement (Observed on X)
 

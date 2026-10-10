@@ -2,6 +2,9 @@
 // Micro-Moment Temporal Comprehension Edition + Capacity Mission
 // Optical-Flow Fallback (v2.1) + Dense Sampling (v2.2) + Common Fate integration payload (v2.3)
 // v2.3.1: mercy gate fix — unseeded fuzzy knowledge defaults to 0.5 must not hard-fail explicit high valence
+// Dense default (2026-10-10): denseSampling defaults on. Motion blur or high saliency
+// raises target FPS, tightens the micro-burst window to 150 ms or below, and focuses
+// sampling on that interval. Identity string stays v2.3.1. Local CPU optical-flow fallback.
 // Solves X-Grok / frontier VLM failure to catch quick moments in videos and compute full nuanced stories
 // Demonstrated failures: phone-theft micro-event (hand reach + window close) + Boston RPS traffic resolution
 // Implements biological motion perception + hierarchical predictive coding + multi-agent causal graphs
@@ -13,12 +16,22 @@ import { fuzzyMercy } from './fuzzy-mercy-logic.js';
 
 const MERCY_THRESHOLD = 0.999999;
 const MICRO_BURST_MS = 180;
+const DENSE_MICRO_BURST_MS = 150;
 const GESTURE_WINDOW_MS = 1200;
 const MAX_TEMPORAL_HISTORY = 48;
 const BLOCK_SIZE = 16;
 const SALIENCY_THRESHOLD = 1.65;
 const DEFAULT_TARGET_FPS = 30;
 const DEFAULT_MAX_FRAMES = 48;
+const HIGH_MOTION_TARGET_FPS = 60;
+const HIGH_MOTION_MAX_FRAMES = 72;
+const SPARSE_TARGET_FPS = 8;
+const SPARSE_MAX_FRAMES = 12;
+const BLUR_COVERAGE_MIN = 0.45;
+const BLUR_MAGNITUDE_MIN = 1.05;
+const BLUR_SPEED_MAX = 2.2;
+const BLUR_BLOCK_MAGNITUDE = 0.85;
+const CLAIM_NOTE = 'Local inspectable research software. Not a certified model upgrade.';
 
 /**
  * MercyMotionVisionEngine v2.3.1
@@ -71,20 +84,109 @@ class MercyMotionVisionEngine {
       options.query || 'fully understand video story with all micro-moments and nuances',
       options.valence ?? this.valence ?? 1.0
     );
-    if (!gate.passed) return { error: 'Mercy gate failed', story: null, confidence: 0 };
-
-    const frames = await this._extractDenseFrames(videoSource, options);
-    if (!frames || frames.length < 3) {
-      return { story: null, confidence: 0, note: 'Insufficient frames for temporal comprehension' };
+    if (!gate.passed) {
+      return {
+        error: 'Mercy gate failed',
+        story: null,
+        confidence: 0,
+        keyMicroMoments: [],
+        causalChain: []
+      };
     }
 
-    const motionFields = this._computeMotionSequence(frames, options);
-    const microBursts = this._detectMicroBursts(motionFields, frames);
+    const denseSampling = options.denseSampling !== false;
+    const baseFps = options.targetFps ?? (denseSampling ? DEFAULT_TARGET_FPS : SPARSE_TARGET_FPS);
+    const baseMaxFrames = options.maxFrames ?? (denseSampling ? DEFAULT_MAX_FRAMES : SPARSE_MAX_FRAMES);
+    const baseWindowMs = options.microBurstThresholdMs ?? MICRO_BURST_MS;
+    const extractOptions = {
+      ...options,
+      denseSampling,
+      targetFps: baseFps,
+      maxFrames: baseMaxFrames
+    };
+
+    let frames = await this._extractDenseFrames(videoSource, extractOptions);
+    if (!frames || frames.length < 3) {
+      return {
+        story: null,
+        confidence: 0,
+        note: 'Insufficient frames for temporal comprehension',
+        keyMicroMoments: [],
+        causalChain: [],
+        sampling: this._samplingReport({
+          denseSampling,
+          targetFpsRequested: baseFps,
+          targetFpsApplied: baseFps,
+          microBurstWindowMs: baseWindowMs,
+          probe: { triggered: false, motionBlur: false, highSaliency: false },
+          resample: 'none',
+          denseApplied: false,
+          focus: null
+        })
+      };
+    }
+
+    let motionFields = this._computeMotionSequence(frames, extractOptions);
+    const probe = this._probeHighMotion(motionFields);
+    let targetFpsRequested = baseFps;
+    let microBurstWindowMs = baseWindowMs;
+    let resample = 'none';
+    let focus = null;
+    let denseApplied = false;
+
+    if (denseSampling && probe.triggered) {
+      microBurstWindowMs = Math.min(baseWindowMs, DENSE_MICRO_BURST_MS);
+      targetFpsRequested = Math.max(baseFps, HIGH_MOTION_TARGET_FPS);
+      focus = probe.window;
+      denseApplied = true;
+
+      if (this._isVideoElement(videoSource)) {
+        const padSec = 0.04;
+        const denseFrames = await this.extractFramesFromVideoElement(videoSource, {
+          ...extractOptions,
+          targetFps: targetFpsRequested,
+          maxFrames: Math.max(baseMaxFrames, HIGH_MOTION_MAX_FRAMES),
+          startSec: Math.max(0, (focus.startMs / 1000) - padSec),
+          endSec: (focus.endMs / 1000) + padSec
+        });
+        if (denseFrames && denseFrames.length >= 3) {
+          denseFrames._extractionMode = 'video-element-canvas-high-motion';
+          frames = denseFrames;
+          motionFields = this._computeMotionSequence(frames, extractOptions);
+          resample = 'video-element-canvas';
+          focus = this._focusFromFrames(frames);
+        }
+      } else {
+        const focused = this._focusFramesOnWindow(frames, focus);
+        if (focused.focused) {
+          frames = focused.frames;
+          motionFields = this._computeMotionSequence(frames, extractOptions);
+          resample = 'cpu-window-focus';
+          focus = this._focusFromFrames(frames);
+        } else {
+          resample = 'cpu-optical-flow-fallback';
+        }
+      }
+    }
+
+    const microBursts = this._detectMicroBursts(motionFields, frames, {
+      microBurstThresholdMs: microBurstWindowMs
+    });
     const tracks = this._trackInteractions(frames, motionFields, microBursts);
     const eventGraph = this._buildCausalEventGraph(microBursts, tracks, frames);
     const predictive = this._hierarchicalPredictiveCoding(eventGraph, motionFields);
     const story = this._reconstructNuancedStory(eventGraph, tracks, predictive, options);
     const confidence = Math.min(0.999999, story.confidence * this.valence);
+    const sampling = this._samplingReport({
+      denseSampling,
+      targetFpsRequested,
+      targetFpsApplied: this._appliedFps(frames, targetFpsRequested),
+      microBurstWindowMs,
+      probe,
+      resample,
+      denseApplied,
+      focus
+    });
 
     const result = {
       story: story.narrative,
@@ -93,7 +195,8 @@ class MercyMotionVisionEngine {
         type: b.type,
         description: b.description,
         agents: b.agents,
-        magnitude: b.magnitude
+        magnitude: b.magnitude,
+        windowMs: b.windowMs
       })),
       causalChain: eventGraph,
       interactionTracks: Array.from(tracks.entries()),
@@ -101,10 +204,11 @@ class MercyMotionVisionEngine {
       confidence,
       thrivingScore: story.thrivingScore || 0.97,
       engine: this.name,
-      note: 'Full temporal micro-moment comprehension — recovers phone-theft, RPS sequences, and any rapid nuanced interaction that sparse VLM sampling misses. Optical-flow fallback active; dense sampling hardened; Common Fate payload (v2.3).',
+      note: 'Full temporal micro-moment comprehension — recovers phone-theft, RPS sequences, and any rapid nuanced interaction that sparse VLM sampling misses. Optical-flow fallback active; dense sampling is the default; Common Fate payload (v2.3). ' + CLAIM_NOTE,
       patsagiReady: true,
       opticalFlowMode: 'cpu-dense-fallback',
-      denseSamplingMode: frames._extractionMode || 'pre-extracted'
+      denseSamplingMode: frames._extractionMode || 'pre-extracted',
+      sampling
     };
 
     result.commonFate = this.lastMotionField
@@ -121,7 +225,8 @@ class MercyMotionVisionEngine {
         confidence,
         opticalFlowMode: result.opticalFlowMode,
         denseSamplingMode: result.denseSamplingMode,
-        commonFate: result.commonFate
+        commonFate: result.commonFate,
+        sampling: result.sampling
       });
     }
 
@@ -139,11 +244,13 @@ class MercyMotionVisionEngine {
       ...knownHints
     });
 
-    if (knownHints.expectedTheft || (result.keyMicroMoments || []).some(m => m.type === 'object_transfer')) {
-      result.recoveredDetail = 'Phone/object extraction during window-close motion recovered via micro-burst + hand-object track';
+    const moments = result.keyMicroMoments || [];
+    if (moments.some(m => m.type === 'object_transfer')) {
+      result.recoveredDetail = 'Object-transfer class present in keyMicroMoments (local optical-flow label, not a verified incident finding).';
     }
-    if (knownHints.expectedRPS || (result.keyMicroMoments || []).some(m => m.type === 'gesture_sequence')) {
-      result.recoveredDetail = (result.recoveredDetail || '') + ' | RPS / gesture sequence fully reconstructed as causal resolution of potential conflict';
+    if (moments.some(m => m.type === 'gesture_sequence')) {
+      const gesture = 'Gesture-sequence class present in keyMicroMoments (local optical-flow label, not a verified incident finding).';
+      result.recoveredDetail = result.recoveredDetail ? `${result.recoveredDetail} ${gesture}` : gesture;
     }
 
     return result;
@@ -163,7 +270,7 @@ class MercyMotionVisionEngine {
       return options.simulateFrames;
     }
 
-    if (typeof HTMLVideoElement !== 'undefined' && source instanceof HTMLVideoElement) {
+    if (this._isVideoElement(source)) {
       const frames = await this.extractFramesFromVideoElement(source, options);
       if (frames) frames._extractionMode = 'video-element-canvas';
       return frames;
@@ -188,7 +295,13 @@ class MercyMotionVisionEngine {
       });
     }
 
-    const duration = Math.min(video.duration || maxDuration, maxDuration);
+    const cap = maxDuration;
+    const mediaDuration = Number.isFinite(video.duration) && video.duration > 0 ? video.duration : cap;
+    const bounded = Math.min(mediaDuration, cap);
+    const startSec = Math.max(0, Math.min(options.startSec ?? 0, bounded));
+    let endSec = options.endSec == null ? bounded : Math.min(options.endSec, bounded);
+    if (!(endSec > startSec)) endSec = Math.min(bounded, startSec + (2 / targetFps));
+    const duration = endSec - startSec;
     if (!duration || duration <= 0) return [];
 
     const frameCount = Math.min(maxFrames, Math.max(3, Math.ceil(duration * targetFps)));
@@ -203,7 +316,7 @@ class MercyMotionVisionEngine {
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
 
     for (let i = 0; i < frameCount; i++) {
-      const t = (i / (frameCount - 1)) * duration;
+      const t = frameCount === 1 ? startSec : startSec + (i / (frameCount - 1)) * duration;
       video.currentTime = t;
       await new Promise(resolve => {
         const onSeeked = () => { video.removeEventListener('seeked', onSeeked); resolve(); };
@@ -243,9 +356,7 @@ class MercyMotionVisionEngine {
     const width = frameA.width || frameB.width || 640;
     const height = frameA.height || frameB.height || 360;
     const frameIndex = options.frameIndex || 0;
-    const timestampMs = frameA.timestampMs != null
-      ? frameA.timestampMs
-      : frameIndex * (1000 / 30);
+    const timestampMs = this._frameTimestampMs(frameA, frameIndex);
 
     const dataA = this._getPixelBuffer(frameA);
     const dataB = this._getPixelBuffer(frameB);
@@ -298,7 +409,7 @@ class MercyMotionVisionEngine {
 
       const magnitudeMean = vectorCount > 0 ? magnitudeSum / vectorCount : 0;
 
-      return {
+      return this._markMotionQuality({
         width,
         height,
         frameIndex,
@@ -307,10 +418,10 @@ class MercyMotionVisionEngine {
         magnitudeMean,
         highSaliency: magnitudeMean > SALIENCY_THRESHOLD,
         mode: 'cpu-dense-fallback'
-      };
+      });
     }
 
-    return {
+    return this._markMotionQuality({
       width,
       height,
       frameIndex,
@@ -319,7 +430,7 @@ class MercyMotionVisionEngine {
       magnitudeMean: 0,
       highSaliency: false,
       mode: 'no-pixel-data'
-    };
+    });
   }
 
   _getPixelBuffer(frame) {
@@ -333,11 +444,142 @@ class MercyMotionVisionEngine {
     return null;
   }
 
-  _detectMicroBursts(motionFields, frames) {
+  _isVideoElement(source) {
+    if (!source || typeof source !== 'object' || Array.isArray(source)) return false;
+    if (typeof HTMLVideoElement !== 'undefined' && source instanceof HTMLVideoElement) return true;
+    return typeof source.currentTime === 'number'
+      && (typeof source.videoWidth === 'number' || typeof source.duration === 'number');
+  }
+
+  _frameTimestampMs(frame, frameIndex) {
+    if (frame && frame.timestampMs != null && Number.isFinite(frame.timestampMs)) return frame.timestampMs;
+    if (frame && frame.timestamp != null && Number.isFinite(frame.timestamp)) return frame.timestamp;
+    return frameIndex * (1000 / DEFAULT_TARGET_FPS);
+  }
+
+  _appliedFps(frames, fallback) {
+    if (!frames || frames.length < 2) return fallback;
+    const dts = [];
+    for (let i = 1; i < frames.length; i++) {
+      const dt = this._frameTimestampMs(frames[i], i) - this._frameTimestampMs(frames[i - 1], i - 1);
+      if (dt > 0) dts.push(dt);
+    }
+    if (!dts.length) return fallback;
+    dts.sort((a, b) => a - b);
+    const mid = dts[Math.floor(dts.length / 2)];
+    return Math.max(1, Math.round(1000 / mid));
+  }
+
+  _markMotionQuality(field) {
+    const vectors = field.vectors || [];
+    if (!vectors.length) {
+      field.motionBlur = false;
+      field.highSaliency = false;
+      return field;
+    }
+    let active = 0;
+    let dx = 0;
+    let dy = 0;
+    for (const v of vectors) {
+      if (v.magnitude >= BLUR_BLOCK_MAGNITUDE) active++;
+      dx += v.dx || 0;
+      dy += v.dy || 0;
+    }
+    const coverage = active / vectors.length;
+    const speed = Math.hypot(dx / vectors.length, dy / vectors.length);
+    field.motionBlur = coverage >= BLUR_COVERAGE_MIN
+      && field.magnitudeMean >= BLUR_MAGNITUDE_MIN
+      && speed < BLUR_SPEED_MAX;
+    field.highSaliency = field.magnitudeMean > SALIENCY_THRESHOLD;
+    return field;
+  }
+
+  _probeHighMotion(motionFields) {
+    let motionBlur = false;
+    let highSaliency = false;
+    let first = -1;
+    let last = -1;
+    for (let i = 0; i < motionFields.length; i++) {
+      const field = motionFields[i];
+      if (field.motionBlur) motionBlur = true;
+      if (field.highSaliency) highSaliency = true;
+      if (field.motionBlur || field.highSaliency) {
+        if (first < 0) first = i;
+        last = i;
+      }
+    }
+    if (first < 0) {
+      return { triggered: false, motionBlur: false, highSaliency: false, window: null };
+    }
+    const start = Math.max(0, first - 1);
+    const end = Math.min(motionFields.length - 1, last + 1);
+    const startMs = motionFields[start].timestampMs ?? 0;
+    const endMs = motionFields[end].timestampMs ?? startMs;
+    const prevMs = end > 0 ? (motionFields[end - 1].timestampMs ?? startMs) : startMs;
+    const dt = endMs > prevMs ? endMs - prevMs : (1000 / DEFAULT_TARGET_FPS);
+    return {
+      triggered: true,
+      motionBlur,
+      highSaliency,
+      window: {
+        startIndex: start,
+        endIndex: end,
+        startMs,
+        endMs: endMs + dt
+      }
+    };
+  }
+
+  _focusFromFrames(frames) {
+    return {
+      startMs: this._frameTimestampMs(frames[0], 0),
+      endMs: this._frameTimestampMs(frames[frames.length - 1], frames.length - 1),
+      startIndex: 0,
+      endIndex: Math.max(0, frames.length - 2)
+    };
+  }
+
+  _focusFramesOnWindow(frames, focus) {
+    if (!focus || !frames || frames.length < 3) return { frames, focused: false };
+    const from = Math.max(0, focus.startIndex);
+    const to = Math.min(frames.length, focus.endIndex + 2);
+    if (to - from < 3 || to - from >= frames.length) return { frames, focused: false };
+    const sliced = frames.slice(from, to);
+    sliced._extractionMode = (frames._extractionMode || 'pre-extracted') + '+high-motion-window';
+    return { frames: sliced, focused: true };
+  }
+
+  _samplingReport(info) {
+    const focus = info.focus;
+    const probe = info.probe || {};
+    return {
+      denseSamplingDefault: true,
+      denseSampling: !!info.denseSampling,
+      denseApplied: !!info.denseApplied,
+      targetFpsRequested: info.targetFpsRequested,
+      targetFpsApplied: info.targetFpsApplied,
+      microBurstWindowMs: info.microBurstWindowMs,
+      highMotion: !!probe.triggered,
+      motionBlur: !!probe.motionBlur,
+      highSaliency: !!probe.highSaliency,
+      focusStartMs: focus ? focus.startMs : null,
+      focusEndMs: focus ? focus.endMs : null,
+      resample: info.resample || 'none',
+      note: CLAIM_NOTE
+    };
+  }
+
+  _detectMicroBursts(motionFields, frames, burstOptions = {}) {
+    const windowMs = burstOptions.microBurstThresholdMs ?? MICRO_BURST_MS;
     const bursts = [];
     for (let i = 0; i < motionFields.length; i++) {
       const field = motionFields[i];
-      const isBurst = field.highSaliency || (field.magnitudeMean > SALIENCY_THRESHOLD);
+      const prevMs = i > 0
+        ? (motionFields[i - 1].timestampMs ?? field.timestampMs)
+        : (field.timestampMs - windowMs);
+      const dt = field.timestampMs - prevMs;
+      const withinWindow = !Number.isFinite(dt) || dt <= windowMs + 0.5;
+      const isBurst = (field.highSaliency || field.motionBlur || field.magnitudeMean > SALIENCY_THRESHOLD) && withinWindow;
       if (isBurst) {
         const type = this._classifyBurstType(field, frames?.[i]);
         bursts.push({
@@ -347,7 +589,8 @@ class MercyMotionVisionEngine {
           description: this._describeBurst(type, field),
           agents: [],
           confidence: Math.min(0.97, 0.75 + field.magnitudeMean * 0.08),
-          magnitude: field.magnitudeMean
+          magnitude: field.magnitudeMean,
+          windowMs
         });
       }
     }
@@ -387,9 +630,10 @@ class MercyMotionVisionEngine {
   _buildCausalEventGraph(microBursts, tracks, frames) {
     return microBursts.map((b, idx) => ({
       id: `evt_${idx}`,
+      t: b.timestampMs,
       ...b,
       causes: idx > 0 ? [`evt_${idx - 1}`] : [],
-      effects: []
+      effects: idx + 1 < microBursts.length ? [`evt_${idx + 1}`] : []
     }));
   }
 
@@ -400,9 +644,12 @@ class MercyMotionVisionEngine {
   _reconstructNuancedStory(eventGraph, tracks, predictive, options) {
     let narrative = 'Temporal comprehension complete (v2.3.1 dense sampling + optical-flow + Common Fate payload). ';
     if (eventGraph.length > 0) {
-      narrative += `Recovered ${eventGraph.length} micro-moments and causal chain. `;
+      const types = [...new Set(eventGraph.map(e => e.type).filter(Boolean))];
+      narrative += `Recovered ${eventGraph.length} micro-moments and a causal chain.`;
+      if (types.length) narrative += ` Classified types: ${types.join(', ')}.`;
+    } else {
+      narrative += 'No micro-moment passed the saliency window.';
     }
-    narrative += 'Full nuances (object transfers, gesture sequences, multi-agent interactions) now available for PATSAGi distillation.';
 
     return {
       narrative,
@@ -503,6 +750,8 @@ class MercyMotionVisionEngine {
       commonFate,
       keyMicroMoments: lastResult?.keyMicroMoments || [],
       causalChain: lastResult?.causalChain || lastResult?.eventGraph || [],
+      sampling: lastResult?.sampling || null,
+      claimNote: CLAIM_NOTE,
       patsagiCouncilHint:
         'Feed keyMicroMoments + causalChain + commonFate + story into PATSAGi visual + narrative councils for zero-hallucination final distillation',
       latticeConductorHint:
