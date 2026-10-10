@@ -32,13 +32,26 @@ impl ResearchDraft {
     }
 }
 
-/// Placeholder for future source-locked citation extraction.
-/// Returns the input unchanged until a later named motion implements it.
+mod citations;
+
+#[doc(inline)]
+pub use citations::find_reporter_citations;
+
+/// Copy year / uppercase-reporter / number spans from `source` into a sealed draft.
+///
+/// Pattern: `\d{4}\s+[A-Z]+\s+\d+`, with boundaries so a match is not sliced out of a longer token.
+/// The body lists verbatim spans from the supplied text. Volume-reporter-page forms stay outside this pattern.
+///
+/// DRAFT — human review required. Not legal advice. Not a product. See PUBLIC_CLAIM.lock.md.
 pub fn extract_citations_research(source: &str) -> ResearchDraft {
+    let hits = find_reporter_citations(source);
+    let listed = if hits.is_empty() {
+        "(no matches)".to_string()
+    } else {
+        hits.join("\n")
+    };
     ResearchDraft::new(format!(
-        "Source-locked citation extraction not yet implemented.\n\nInput length: {} chars.\n\n{}",
-        source.len(),
-        DRAFT_SEAL
+        "Source-locked reporter citation matches.\nPattern only. Spans are copied from the supplied text.\n\n{listed}\n\n{DRAFT_SEAL}"
     ))
 }
 
@@ -52,5 +65,14 @@ mod tests {
         assert!(d.is_draft);
         assert!(d.seal.contains("DRAFT"));
         assert!(d.seal.contains("Not legal advice"));
+    }
+
+    #[test]
+    fn empty_source_draft_stays_sealed() {
+        let d = extract_citations_research("");
+        assert!(d.is_draft);
+        assert_eq!(d.seal, DRAFT_SEAL);
+        assert!(d.body.contains("(no matches)"));
+        assert!(d.body.contains(DRAFT_SEAL));
     }
 }
