@@ -38,6 +38,15 @@
       .card-hover, .card-hover:hover { transition: none !important; transform: none !important; }
       .thunder-glow { text-shadow: none; }
     }
+    /* Phone: this wrapper is content-box, so width 100% plus side padding
+       starts after the 8px body margin and paints past the viewport.
+       Keep the padding inside the width. Desktop max-width stays 48rem. */
+    @media (max-width: 639px) {
+      body > .min-h-screen > .max-w-3xl {
+        box-sizing: border-box;
+        max-width: 100%;
+      }
+    }
   </style>
 </head>
 <body class="bg-black text-white overflow-x-hidden">
