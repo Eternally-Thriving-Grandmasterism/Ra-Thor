@@ -418,9 +418,6 @@ body { font-family: 'Inter', system-ui, sans-serif; }
       object-fit: contain;
     }
     .rt-x-clip figcaption {
-      margin: 0.5rem 0.15rem 0;
-      font: 500 0.875rem/1.45 Inter, system-ui, sans-serif;
-      font-style: normal;
       text-align: center;
       color: var(--text-calm);
     }
@@ -428,7 +425,6 @@ body { font-family: 'Inter', system-ui, sans-serif; }
       color: var(--rt-gold);
       text-decoration-line: underline;
       text-decoration-thickness: 1px;
-      text-underline-offset: 0.18em;
     }
     html[data-theme="light"] #rt-x-reel a {
       color: var(--rt-gold-deep);
@@ -485,22 +481,28 @@ body { font-family: 'Inter', system-ui, sans-serif; }
     /* TILE-GRID-UNIFORM-1: reel captions read as one neat band. Same type and spacing on
        every tile, balanced wrapping where supported (plain wrapping elsewhere), and a
        quiet underline that turns solid on hover and focus. The link colours are
-       unchanged, so contrast stays as before. */
+       unchanged, so contrast stays as before.
+       REEL-CAPTION-POLISH-1: the caption link has to beat the sitewide running-text
+       underline, which sets a closer offset, a stronger mix, and a 2px hover with
+       !important. Gap, type, and the equal top-aligned caption band stay as they are. */
     .rt-x-reel-grid .rt-x-clip figcaption {
       margin: 0.65rem 0.25rem 0;
       font: 500 0.875rem/1.5 Inter, system-ui, sans-serif;
       letter-spacing: 0.01em;
+      text-wrap: wrap;
       text-wrap: balance;
       hyphens: manual;
     }
     html[data-theme] #rt-x-reel figcaption a {
-      text-decoration-thickness: 1px;
-      text-underline-offset: 0.28em;
-      text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+      text-decoration-thickness: 1px !important;
+      text-underline-offset: 0.28em !important;
+      text-decoration-color: color-mix(in srgb, currentColor 45%, transparent) !important;
+      text-decoration-skip-ink: auto;
       transition: text-decoration-color 0.2s ease;
     }
     html[data-theme] #rt-x-reel figcaption a:is(:hover, :focus-visible) {
-      text-decoration-color: currentColor;
+      text-decoration-thickness: 1px !important;
+      text-decoration-color: currentColor !important;
     }
     /* TILE-GRID-UNIFORM-1: session cards. From md the grid is 2 x 2, not 3 + 1, with
        equal rows. Each card is a column: title and text sit at the top, and the clip and
