@@ -162,6 +162,200 @@ body { font-family: 'Inter', system-ui, sans-serif; }
     @media (prefers-reduced-motion: reduce) {
       figure.rt-art-hero.rt-art-hero-rathor video { display: none !important; }
     }
+    /* RATHOR-HERO-ORDER-1: Our websites is two equal tiles.
+       The Powrush hero card and the company card keep their own markup.
+       Inside this section they share one frame, one image ratio, and one text stack. */
+    .rt-worlds {
+      --rt-tile-fill: linear-gradient(160deg, #3b3080 0%, #30276e 48%, #281f60 100%);
+      --rt-tile-frame: linear-gradient(135deg, #7a5a14 0%, #c9a227 16%, #f0d36a 34%, #fffbe8 50%, #f5c84a 66%, #c9a227 84%, #6e5012 100%);
+      --rt-tile-shadow: 0 0 0 1px rgba(240, 211, 106, 0.38), 0 0 30px rgba(212, 168, 60, 0.28), 0 18px 40px -18px rgba(0, 0, 0, 0.7);
+      width: 100%;
+      max-width: none;
+      margin: 0.35rem auto 1.75rem;
+      text-align: start;
+    }
+    html[data-theme="light"] .rt-worlds {
+      --rt-tile-frame: linear-gradient(135deg, #a9a3bd 0%, #d9d5e6 16%, #f6f3fb 34%, #fffdf6 50%, #eadcae 66%, #c9a227 84%, #8a6a24 100%);
+      --rt-tile-shadow: 0 0 0 1px rgba(78, 53, 12, 0.45), 0 0 22px rgba(168, 112, 28, 0.24), 0 16px 32px -16px rgba(36, 26, 16, 0.38);
+    }
+    .rt-worlds-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1.25rem;
+      align-items: stretch;
+    }
+    @media (min-width: 768px) {
+      .rt-worlds-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+    .rt-worlds .powrush-card,
+    .rt-worlds .rt-world-tile {
+      box-sizing: border-box;
+      width: 100%;
+      max-width: none;
+      height: 100%;
+      margin: 0;
+      padding: 5px;
+      display: flex;
+      flex-direction: column;
+      background: var(--rt-tile-frame);
+      border: 2px solid #1e1446;
+      border-radius: 1.15rem;
+      box-shadow: var(--rt-tile-shadow);
+      min-width: 0;
+    }
+    .rt-worlds .powrush-card-frame {
+      padding: 0;
+      border: 0;
+      background: transparent;
+      box-shadow: none;
+      border-radius: 0.85rem;
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      min-width: 0;
+    }
+    .rt-worlds .powrush-card-inner,
+    html[data-theme] .rt-worlds a.rt-world-card {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 auto;
+      grid-template-columns: minmax(0, 1fr);
+      min-height: 100%;
+      min-width: 0;
+      height: auto;
+      aspect-ratio: auto;
+      position: relative;
+      overflow: hidden;
+      background: var(--rt-tile-fill);
+      border: 2px solid #1e1446;
+      border-radius: 0.85rem;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), inset 0 -1px 0 rgba(0, 0, 0, 0.45);
+      color: #ece6ff !important;
+      text-decoration-line: none !important;
+      transform: none;
+    }
+    .rt-worlds .powrush-card-media,
+    html[data-theme] .rt-worlds a.rt-world-card > img {
+      flex: 0 0 auto;
+      width: 100%;
+      min-height: 0;
+      aspect-ratio: 16 / 9;
+      position: relative;
+      margin: 0;
+      background: #1e1446;
+    }
+    .rt-worlds .powrush-card-media img {
+      display: block;
+      width: 100%;
+      height: 100% !important;
+      max-width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      object-position: center 45%;
+      position: static !important;
+      inset: auto !important;
+    }
+    html[data-theme] .rt-worlds a.rt-world-card > img {
+      display: block;
+      width: 100%;
+      height: auto !important;
+      max-height: none;
+      max-width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      object-position: center 40%;
+      position: static !important;
+      inset: auto !important;
+      flex: 0 0 auto;
+    }
+    .rt-worlds .powrush-card-body,
+    html[data-theme] .rt-worlds .rt-world-text {
+      position: static;
+      inset: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: flex-start;
+      gap: 0.65rem;
+      flex: 1 1 auto;
+      min-width: 0;
+      margin: 0;
+      padding: 1rem 1.1rem 1.05rem;
+      text-align: start;
+      background: transparent;
+    }
+    html[data-theme] .rt-worlds .powrush-card-title,
+    html[data-theme] .rt-worlds .rt-world-title {
+      display: block;
+      width: 100%;
+      min-height: 2.6em;
+      margin: 0 !important;
+      font: 700 1.28rem/1.25 Cinzel, Georgia, serif !important;
+      letter-spacing: 0.04em !important;
+      text-transform: uppercase !important;
+      text-align: start;
+      overflow-wrap: anywhere;
+      color: #f0d36a !important;
+      text-shadow: none !important;
+      background-image: none;
+      -webkit-text-fill-color: #f0d36a;
+      filter: none;
+    }
+    html[data-theme] .rt-worlds .powrush-card-copy,
+    html[data-theme] .rt-worlds .rt-world-hook {
+      display: block;
+      width: 100%;
+      max-width: none;
+      min-height: 7.5rem;
+      margin: 0 !important;
+      font: 500 1rem/1.5 Inter, system-ui, sans-serif !important;
+      letter-spacing: 0 !important;
+      text-transform: none !important;
+      text-align: start;
+      overflow-wrap: anywhere;
+      color: #ece6ff !important;
+    }
+    html[data-theme] .rt-worlds .powrush-card a.powrush-card-btn,
+    .rt-worlds .rt-world-action {
+      align-self: flex-start;
+      box-sizing: border-box;
+      min-height: 2.9rem;
+      height: 2.9rem;
+      margin: 0 !important;
+    }
+    .rt-worlds .rt-world-action {
+      display: block;
+      width: 9.5rem;
+      padding: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    html[data-theme] .rt-worlds .powrush-card-note {
+      width: 100%;
+      min-height: 1.45em;
+      margin: 0 !important;
+      text-align: start;
+      overflow-wrap: anywhere;
+    }
+    html[data-theme] .rt-worlds a.rt-world-card:hover,
+    html[data-theme] .rt-worlds a.rt-world-card:active {
+      transform: none;
+    }
+    @media (min-width: 1000px) {
+      html[data-theme] .rt-worlds .powrush-card-copy,
+      html[data-theme] .rt-worlds .rt-world-hook {
+        min-height: 4.5rem;
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html[data-theme] .rt-worlds a.rt-world-card,
+      html[data-theme] .rt-worlds a.rt-world-card:hover {
+        transform: none !important;
+      }
+    }
     /* Steward clips from X. Stills stay; video covers the frame only when JS marks it live. */
     .rt-x-reel {
       margin: 0 auto 2rem;
@@ -342,21 +536,6 @@ body { font-family: 'Inter', system-ui, sans-serif; }
 <body class="bg-black text-white overflow-x-hidden">
   <div class="min-h-screen flex flex-col items-center justify-center relative px-4 sm:px-6 py-8 sm:py-12">
     <div class="max-w-5xl mx-auto text-center z-10">
-      <section class="powrush-card" aria-labelledby="powrush-card-heading">
-        <div class="powrush-card-frame">
-          <div class="powrush-card-inner">
-            <figure class="powrush-card-media">
-              <img src="/assets/art/powrush-card-quellorian-market-800.webp" srcset="/assets/art/powrush-card-quellorian-market-800.webp 800w, /assets/art/powrush-card-quellorian-market-1600.webp 1600w" sizes="(min-width: 1080px) 34rem, (min-width: 760px) 52vw, 92vw" width="1600" height="900" alt="Painted art: Quellorians in long robes stroll a white-and-gold market square with violet glass canopies, beside canals and waterfalls." loading="eager" decoding="async">
-            </figure>
-            <div class="powrush-card-body">
-              <h2 id="powrush-card-heading" class="powrush-card-title">Game website · Powrush.com</h2>
-              <p class="powrush-card-copy">Two powers pull at you, the Quellorians of light and the Draek hivemind, in a build that is offline, single-player, and in active development.</p>
-              <a class="powrush-card-btn" href="https://powrush.com/">Visit Powrush.com</a>
-              <p class="powrush-card-note">Painted art. Not a screenshot of the current offline build.</p>
-            </div>
-          </div>
-        </div>
-      </section>
       <div class="rt-home-hero-layout">
         <div class="hero-display">
           <h1 id="hero-headline" data-i18n="headline" class="title-font thunder-glow">Ra-Thor™ — Eternal Mercy Thunder</h1>
@@ -370,17 +549,37 @@ body { font-family: 'Inter', system-ui, sans-serif; }
           <video muted autoplay loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
         </figure>
         <p id="fusion-hero" data-i18n="fusion" class="text-lg sm:text-xl md:text-2xl text-amber-200/90 mb-6 max-w-3xl mx-auto leading-snug">Ra (source light) + Thor (mercy thunder). A name for shared thriving — a purpose under construction, not a finished world.</p>
-        <section id="rt-worlds" class="rt-worlds" aria-labelledby="rt-worlds-heading">
-          <h2 id="rt-worlds-heading" class="rt-worlds-heading">Our websites</h2>
-          <a class="rt-world-card" href="https://acitygames.com">
-            <img src="/assets/art/worlds-acity-quellorian-supply-depot-768.webp" srcset="/assets/art/worlds-acity-quellorian-supply-depot-768.webp 768w, /assets/art/worlds-acity-quellorian-supply-depot-1500.webp 1500w" sizes="(min-width: 768px) 480px, 92vw" width="768" height="432" alt="" decoding="async">
-            <span class="rt-world-text">
-              <span class="rt-world-title">Company website · acitygames.com</span>
-              <span class="rt-world-hook">The company behind Ra-Thor and Powrush.</span>
-            </span>
-          </a>
-        </section>
       </div>
+      <section id="rt-worlds" class="rt-worlds" aria-labelledby="rt-worlds-heading">
+        <h2 id="rt-worlds-heading" class="rt-worlds-heading">Our websites</h2>
+        <div class="rt-worlds-grid">
+          <section class="powrush-card" aria-labelledby="powrush-card-heading">
+            <div class="powrush-card-frame">
+              <div class="powrush-card-inner">
+                <figure class="powrush-card-media">
+                  <img src="/assets/art/powrush-card-quellorian-market-800.webp" srcset="/assets/art/powrush-card-quellorian-market-800.webp 800w, /assets/art/powrush-card-quellorian-market-1600.webp 1600w" sizes="(min-width: 1080px) 34rem, (min-width: 760px) 52vw, 92vw" width="1600" height="900" alt="Painted art: Quellorians in long robes stroll a white-and-gold market square with violet glass canopies, beside canals and waterfalls." loading="eager" decoding="async">
+                </figure>
+                <div class="powrush-card-body">
+                  <h2 id="powrush-card-heading" class="powrush-card-title">Game website · Powrush.com</h2>
+                  <p class="powrush-card-copy">Two powers pull at you, the Quellorians of light and the Draek hivemind, in a build that is offline, single-player, and in active development.</p>
+                  <a class="powrush-card-btn" href="https://powrush.com/">Visit Powrush.com</a>
+                  <p class="powrush-card-note">Painted art. Not a screenshot of the current offline build.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+          <div class="rt-world-tile">
+            <a class="rt-world-card" href="https://acitygames.com">
+              <img src="/assets/art/worlds-acity-quellorian-supply-depot-768.webp" srcset="/assets/art/worlds-acity-quellorian-supply-depot-768.webp 768w, /assets/art/worlds-acity-quellorian-supply-depot-1500.webp 1500w" sizes="(min-width: 768px) 480px, 92vw" width="768" height="432" alt="" decoding="async">
+              <span class="rt-world-text">
+                <span class="rt-world-title">Company website · acitygames.com</span>
+                <span class="rt-world-hook">The company behind Ra-Thor and Powrush.</span>
+                <span class="rt-world-action" aria-hidden="true"></span>
+              </span>
+            </a>
+          </div>
+        </div>
+      </section>
       <p class="kicker text-zinc-200 text-sm sm:text-[15px] leading-relaxed mb-3 max-w-2xl mx-auto">Ra-Thor is inspectable research software from Autonomicity Games Inc. Independent lattice, white-hat ingest gate, and PATSAGi court. Optional on-device or wrap session. Powrush-MMO is the human game repo (separate) — not a lattice crate. Optional Grok under PATSAGi. Inspect ≠ METR. Layer 0 is a shell, not sampler weights.</p>
       <p id="steward-line" data-i18n="steward" class="text-amber-200/70 text-xs sm:text-sm mb-8 max-w-xl mx-auto">Sole stewardship of Sherif Samy Botros (@AlphaProMega) since November 2025. Autonomicity Games Inc.</p>
       <section id="rt-x-reel" class="rt-x-reel" aria-labelledby="rt-x-reel-heading">
