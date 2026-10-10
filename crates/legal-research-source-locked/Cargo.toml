@@ -1,0 +1,23 @@
+[package]
+name = "legal-research-source-locked"
+version = "0.1.0"
+edition = "2021"
+authors = ["Sherif Samy Botros <info@Rathor.ai>"]
+license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
+description = "On-disk research sketch only. Source-locked parsing and structured draft analysis of public legal texts (citations, head-of-power mapping). Not a legal product. Not a resolver. Not a workspace member. Outputs are drafts requiring human review. See PUBLIC_CLAIM.lock.md and docs/science/PATSAGI-COUNCIL-MINUTE-2026-10-10-LEGAL-RESEARCH-BOUND.md."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["research", "source-locked", "legal-text", "citations", "tolc", "mercy", "not-a-product"]
+categories = ["science"]
+publish = false
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
+regex = "1"
+
+[dev-dependencies]
+
+# Explicit non-member note:
+# This crate is on-disk research only. Do not add to root Cargo.toml [workspace].members
+# without a later named PATSAGi motion. Cargo loads every member; Core Tier-1 must stay green.
