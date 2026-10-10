@@ -244,11 +244,13 @@ class MercyMotionVisionEngine {
       ...knownHints
     });
 
-    if (knownHints.expectedTheft || (result.keyMicroMoments || []).some(m => m.type === 'object_transfer')) {
-      result.recoveredDetail = 'Phone/object extraction during window-close motion recovered via micro-burst + hand-object track';
+    const moments = result.keyMicroMoments || [];
+    if (moments.some(m => m.type === 'object_transfer')) {
+      result.recoveredDetail = 'Object-transfer class present in keyMicroMoments (local optical-flow label, not a verified incident finding).';
     }
-    if (knownHints.expectedRPS || (result.keyMicroMoments || []).some(m => m.type === 'gesture_sequence')) {
-      result.recoveredDetail = (result.recoveredDetail || '') + ' | RPS / gesture sequence fully reconstructed as causal resolution of potential conflict';
+    if (moments.some(m => m.type === 'gesture_sequence')) {
+      const gesture = 'Gesture-sequence class present in keyMicroMoments (local optical-flow label, not a verified incident finding).';
+      result.recoveredDetail = result.recoveredDetail ? `${result.recoveredDetail} ${gesture}` : gesture;
     }
 
     return result;
@@ -642,9 +644,12 @@ class MercyMotionVisionEngine {
   _reconstructNuancedStory(eventGraph, tracks, predictive, options) {
     let narrative = 'Temporal comprehension complete (v2.3.1 dense sampling + optical-flow + Common Fate payload). ';
     if (eventGraph.length > 0) {
-      narrative += `Recovered ${eventGraph.length} micro-moments and causal chain. `;
+      const types = [...new Set(eventGraph.map(e => e.type).filter(Boolean))];
+      narrative += `Recovered ${eventGraph.length} micro-moments and a causal chain.`;
+      if (types.length) narrative += ` Classified types: ${types.join(', ')}.`;
+    } else {
+      narrative += 'No micro-moment passed the saliency window.';
     }
-    narrative += 'Full nuances (object transfers, gesture sequences, multi-agent interactions) now available for PATSAGi distillation.';
 
     return {
       narrative,

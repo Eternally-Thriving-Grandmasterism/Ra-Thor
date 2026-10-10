@@ -165,7 +165,9 @@ assert.equal(failure.causalChain.length, 12);
 assert.equal(failure.opticalFlowMode, 'cpu-dense-fallback');
 assert.equal(failure.sampling.denseSampling, true);
 assert.ok(failure.sampling.microBurstWindowMs <= 150);
-assert.equal(typeof failure.recoveredDetail, 'string');
+assert.equal(failure.recoveredDetail, undefined);
+assert.equal(failure.story.includes('Classified types: micro_event'), true);
+assert.equal(failure.story.includes('object transfers'), false);
 
 const calls = [];
 const videoEngine = new MercyMotionVisionEngine({ valence: 1.0 });

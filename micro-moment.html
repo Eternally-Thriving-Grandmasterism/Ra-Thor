@@ -163,7 +163,7 @@ body { font-family: 'Inter', system-ui, sans-serif; }
     });
     document.getElementById('btn-synth').addEventListener('click', async () => {
       const frames = buildFailureModeFrames();
-      render(await engine.analyzeXVideoFailureModes(frames, { valence: 1.0, denseSampling: denseOn(), expectedTheft: true, expectedRPS: true }));
+      render(await engine.analyzeXVideoFailureModes(frames, { valence: 1.0, denseSampling: denseOn() }));
     });
 
     activateOneOrganism().catch(() => {});
