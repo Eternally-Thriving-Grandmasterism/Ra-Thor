@@ -178,7 +178,7 @@ body { font-family: 'Inter', system-ui, sans-serif; }
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 0.95rem 0.75rem;
-      align-items: start;
+      align-items: stretch;
     }
     .rt-x-clip {
       margin: 0;
@@ -243,11 +243,33 @@ body { font-family: 'Inter', system-ui, sans-serif; }
       outline: 2px solid var(--rt-gold-hot);
       outline-offset: 3px;
     }
+    /* TILE-GRID-UNIFORM-1: the reel reads as interlocking tiles. Portrait tiles share one
+       2:3 frame, the landscape tile a 3:2 frame, and art fills each frame with cover.
+       Tiles in a row stretch to one height and captions fill the space under the frame,
+       so rows line up whatever the caption length. Scoped to the reel grid, so the
+       session cards below keep their own frames. */
+    .rt-x-reel-grid > .rt-x-clip {
+      display: flex;
+      flex-direction: column;
+    }
+    .rt-x-reel-grid .rt-x-frame { aspect-ratio: 2 / 3; }
+    .rt-x-reel-grid .rt-x-clip-land .rt-x-frame { aspect-ratio: 3 / 2; }
+    .rt-x-reel-grid .rt-x-frame img {
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+    .rt-x-reel-grid .rt-x-frame video[data-rt-live="1"] { object-fit: cover; }
+    .rt-x-reel-grid .rt-x-clip figcaption { flex: 1 0 auto; }
     @media (min-width: 960px) {
       .rt-x-reel-grid {
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 2.13fr);
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 2.88fr);
       }
       .rt-x-clip-land { grid-column: auto; }
+      .rt-x-reel-grid .rt-x-clip-land .rt-x-frame {
+        flex: 1 1 auto;
+        aspect-ratio: auto;
+      }
     }
     @media (prefers-reduced-motion: reduce) {
       .rt-x-frame video { display: none !important; }
@@ -266,6 +288,55 @@ body { font-family: 'Inter', system-ui, sans-serif; }
       pointer-events: none;
     }
     .rt-home-clip-card .rt-x-clip figcaption { pointer-events: auto; }
+    /* TILE-GRID-UNIFORM-1: reel captions read as one neat band. Same type and spacing on
+       every tile, balanced wrapping where supported (plain wrapping elsewhere), and a
+       quiet underline that turns solid on hover and focus. The link colours are
+       unchanged, so contrast stays as before. */
+    .rt-x-reel-grid .rt-x-clip figcaption {
+      margin: 0.65rem 0.25rem 0;
+      font: 500 0.875rem/1.5 Inter, system-ui, sans-serif;
+      letter-spacing: 0.01em;
+      text-wrap: balance;
+      hyphens: manual;
+    }
+    html[data-theme] #rt-x-reel figcaption a {
+      text-decoration-thickness: 1px;
+      text-underline-offset: 0.28em;
+      text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+      transition: text-decoration-color 0.2s ease;
+    }
+    html[data-theme] #rt-x-reel figcaption a:is(:hover, :focus-visible) {
+      text-decoration-color: currentColor;
+    }
+    /* TILE-GRID-UNIFORM-1: session cards. From md the grid is 2 x 2, not 3 + 1, with
+       equal rows. Each card is a column: title and text sit at the top, and the clip and
+       button sit at the bottom, so clips and buttons line up across a row.
+       On a phone the subtitle and the button reserve the same block on every card,
+       so the emoji, title, reel and button share one offset and the four cards share one height. */
+    .rt-home-clip-card h3 { text-wrap: balance; }
+    .rt-home-clip-card h3 + p { text-wrap: balance; }
+    @media (max-width: 767px) {
+      .rt-home-clip-card h3 + p { min-height: 7.5rem; }
+      .grid > .rt-home-clip-card > a.rt-btn-primary {
+        box-sizing: border-box;
+        min-height: 5rem;
+      }
+    }
+    @media (min-width: 768px) {
+      .grid:has(> .rt-home-clip-card) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-auto-rows: 1fr;
+      }
+      .grid > .rt-home-clip-card {
+        display: flex;
+        flex-direction: column;
+      }
+      .grid > .rt-home-clip-card > .rt-x-clip {
+        margin-top: auto;
+        padding-top: 1.5rem;
+      }
+      .grid > .rt-home-clip-card > a.rt-btn-primary { align-self: center; }
+    }
   </style>
 </head>
 <body class="bg-black text-white overflow-x-hidden">
@@ -403,7 +474,7 @@ body { font-family: 'Inter', system-ui, sans-serif; }
           <p id="vibe-subtitle" data-i18n="vibeSubtitle" class="text-amber-200 text-base sm:text-lg">Mercy-gated development: PATSAGi Councils, monorepo-intelligence, and the Lattice Conductor kept in view. Optional.</p>
           <figure class="rt-x-clip mt-6" data-rt-reel="build">
             <div class="rt-x-frame">
-              <img src="/assets/art/reel-grok-build-poster.webp" width="960" height="644" loading="lazy" decoding="async" alt="A gold-armored warrior and a blue figure traced in stars hold a glowing hammer together inside a ring of fire, with lightning between them in a hall of glowing windows.">
+              <img src="/assets/art/reel-grok-build-poster.webp" width="960" height="644" loading="lazy" decoding="async" alt="Two lavender-skinned Quellorians in white-and-gold robes build a pearl-white craft held in a gantry, one fitting its engine and one sorting tools at a workbench, in a sunlit workshop above a turquoise bay.">
               <video muted autoplay loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
             </div>
           </figure>
