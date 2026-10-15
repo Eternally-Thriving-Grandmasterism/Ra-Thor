@@ -1,4 +1,5 @@
 /* RATHOR-HERO-LANDING-1: portrait hero on index.html only.
+ * RATHOR-HERO-LT-1: Home plays Living Thunder. The older portrait stays on disk.
  * Still image is the default. The mp4 is attached by js/home-hero.js.
  */
 var fs = require('fs');
@@ -16,19 +17,27 @@ function read(rel) {
 var mp4 = path.join(root, 'assets/art/hero-home-rathor.mp4');
 var poster784 = path.join(root, 'assets/art/hero-home-rathor-poster-784.webp');
 var poster480 = path.join(root, 'assets/art/hero-home-rathor-poster-480.webp');
-assert(fs.existsSync(mp4), 'mp4 must exist');
-assert(fs.existsSync(poster784), '784 poster must exist');
-assert(fs.existsSync(poster480), '480 poster must exist');
-assert(fs.statSync(mp4).size === 1071652, 'mp4 must stay the supplied 1071652-byte file');
-assert(fs.statSync(poster784).size === 157794, '784 poster must stay the supplied 157794-byte file');
-assert(fs.statSync(poster480).size === 68096, '480 poster must stay the supplied 68096-byte file');
+assert(fs.existsSync(mp4), 'older mp4 must stay on disk');
+assert(fs.existsSync(poster784), 'older 784 poster must stay on disk');
+assert(fs.existsSync(poster480), 'older 480 poster must stay on disk');
+assert(fs.statSync(mp4).size === 1071652, 'older mp4 must stay the supplied 1071652-byte file');
+assert(fs.statSync(poster784).size === 157794, 'older 784 poster must stay the supplied 157794-byte file');
+assert(fs.statSync(poster480).size === 68096, 'older 480 poster must stay the supplied 68096-byte file');
+
+var liveMp4 = path.join(root, 'assets/art/rathor-hero-living-thunder.mp4');
+var livePoster = path.join(root, 'assets/art/rathor-hero-living-thunder.jpg');
+assert(fs.existsSync(liveMp4), 'living thunder mp4 must exist');
+assert(fs.existsSync(livePoster), 'living thunder poster must exist');
+assert(fs.statSync(liveMp4).size === 5654960, 'living thunder mp4 must stay the supplied 5654960-byte file');
+assert(fs.statSync(livePoster).size === 310977, 'living thunder poster must stay the supplied 310977-byte file');
 
 assert(!fs.existsSync(path.join(root, 'assets/art/hero-home-crownstone-768.webp')), 'crownstone 768 is unreferenced and must be removed');
 assert(!fs.existsSync(path.join(root, 'assets/art/hero-home-crownstone-1168.webp')), 'crownstone 1168 is unreferenced and must be removed');
 
 var html = read('index.html');
 assert(html.indexOf('hero-home-crownstone') === -1, 'index must not reference crownstone');
-assert(html.indexOf('hero-home-rathor.mp4') === -1, 'index.html must not embed the mp4 url');
+assert(html.indexOf('hero-home-rathor') === -1, 'index must stop referencing the older hero');
+assert(html.indexOf('rathor-hero-living-thunder.mp4') === -1, 'index.html must not embed the mp4 url');
 assert(html.indexOf('/js/home-hero.js') !== -1, 'index must load home-hero.js');
 assert(html.indexOf('id="hero-headline"') !== -1, 'h1 must stay');
 assert(html.indexOf('class="hero-bolt"') !== -1, 'bolt must stay');
@@ -41,20 +50,22 @@ var heroEnd = html.indexOf('</figure>', heroStart);
 assert(heroStart !== -1 && heroEnd > heroStart, 'home hero figure must exist');
 var hero = html.slice(heroStart, heroEnd);
 assert(hero.indexOf('fetchpriority="high"') !== -1, 'still image must be fetchpriority high');
-assert(hero.indexOf('hero-home-rathor-poster-480.webp 480w') !== -1, 'srcset must include 480w');
-assert(hero.indexOf('hero-home-rathor-poster-784.webp 784w') !== -1, 'srcset must include 784w');
-assert(hero.indexOf('width="784"') !== -1 && hero.indexOf('height="1168"') !== -1, 'img must set width and height');
-assert(hero.indexOf('alt="Ra-Thor, a gold-and-black armored warrior with a winged halo and a glowing green Eye-of-Horus shield, rests a hammer head-down on the ground as golden lightning strikes."') !== -1, 'alt text must describe the portrait');
+assert(hero.indexOf('rathor-hero-living-thunder.jpg') !== -1, 'poster jpg must be in the figure');
+assert(hero.indexOf('width="896"') !== -1 && hero.indexOf('height="1008"') !== -1, 'img must set the 8:9 width and height');
+assert(hero.indexOf('alt="Ra-Thor in obsidian and antique-gold armour, with a winged gold helm, a glowing sun chest disc, and an Eye of Horus tower shield, in a storm of golden lightning."') !== -1, 'alt text must describe the living thunder portrait');
 var video = hero.match(/<video\b[^>]*>\s*/);
 assert(video, 'video shell must be in the figure');
 assert(video[0].indexOf('muted') !== -1, 'video must be muted');
 assert(video[0].indexOf('autoplay') !== -1, 'video must autoplay');
 assert(video[0].indexOf('loop') !== -1, 'video must loop');
 assert(video[0].indexOf('playsinline') !== -1, 'video must be playsinline');
-assert(video[0].indexOf('preload="none"') !== -1, 'video preload must be none');
+assert(video[0].indexOf('preload="metadata"') !== -1, 'video preload must be metadata');
+assert(video[0].indexOf('poster="/assets/art/rathor-hero-living-thunder.jpg"') !== -1, 'video must use the living thunder poster');
 assert(video[0].indexOf('aria-hidden="true"') !== -1, 'video is a duplicate of the alt and must be aria-hidden');
 assert(video[0].indexOf('controls') === -1, 'video must not show controls');
-assert(hero.indexOf('<source') !== -1 && hero.indexOf('video/mp4') === -1, 'static figure must not include an mp4 source');
+assert(hero.indexOf('video/mp4') === -1, 'static figure must not include an mp4 source');
+assert(html.indexOf('aspect-ratio: 896 / 1008') !== -1, 'frame must match the 8:9 portrait');
+assert(html.indexOf('object-fit: contain') !== -1, 'portrait must not stretch');
 
 var order = ['id="hero-headline"', 'class="hero-bolt"', 'id="rt-home-hero"', 'id="fusion-hero"', 'id="rathor-hero-install"'];
 var at = -1;
@@ -65,7 +76,11 @@ order.forEach(function (token) {
 });
 
 var js = read('js/home-hero.js');
-assert(js.indexOf('hero-home-rathor.mp4') !== -1, 'script must name the mp4');
+assert(js.indexOf('hero-home-rathor') === -1, 'script must stop naming the older hero');
+assert(js.indexOf('rathor-hero-living-thunder.mp4') !== -1, 'script must name the mp4');
+assert(js.indexOf('rathor-hero-living-thunder.jpg') !== -1, 'script must name the poster');
+assert(js.indexOf("bindMutedClip(video, MP4, poster, 'metadata')") !== -1, 'hero bind must preload metadata');
+assert(js.indexOf("video.preload = preload || 'none'") !== -1, 'shared clip bind must keep none as the default');
 assert(js.indexOf('slow-2g') !== -1 && js.indexOf("'2g'") !== -1 && js.indexOf("'3g'") !== -1, 'script must skip slow connections');
 assert(js.indexOf('saveData') !== -1, 'script must honor saveData');
 assert(js.indexOf('prefers-reduced-motion') !== -1, 'script must honor reduced motion');
@@ -91,7 +106,9 @@ allow({ reducedMotion: false, narrow: false, saveData: false, effectiveType: '4g
 allow({ reducedMotion: false, narrow: false, saveData: false, effectiveType: '' }, 'unknown network allows video');
 
 ['sw.js', 'public/sw.js', 'offline.html', 'pilot.html'].forEach(function (rel) {
-  assert(read(rel).indexOf('hero-home-rathor') === -1, rel + ' must not list the new hero media');
+  var text = read(rel);
+  assert(text.indexOf('hero-home-rathor') === -1, rel + ' must not list the older hero media');
+  assert(text.indexOf('rathor-hero-living-thunder') === -1, rel + ' must not list the living thunder media');
 });
 
 ['employ.html', 'chat.html', 'privacy.html', 'contact.html', 'Launch-Ra-Thor.html'].forEach(function (rel) {
