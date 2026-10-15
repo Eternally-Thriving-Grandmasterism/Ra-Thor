@@ -6,8 +6,8 @@
 (function () {
   'use strict';
 
-  var MP4 = '/assets/art/hero-home-rathor.mp4';
-  var POSTER = '/assets/art/hero-home-rathor-poster-784.webp';
+  var MP4 = '/assets/art/rathor-hero-living-thunder.mp4';
+  var POSTER = '/assets/art/rathor-hero-living-thunder.jpg';
 
   function heroVideoAllowed(env) {
     env = env || {};
@@ -51,14 +51,14 @@
     try { video.load(); } catch (e3) {}
   }
 
-  function bindMutedClip(video, src, poster) {
+  function bindMutedClip(video, src, poster, preload) {
     if (!video || video.getAttribute('data-rt-live') === '1') return;
     silence(video);
     video.setAttribute('muted', '');
     video.autoplay = true;
     video.loop = true;
     video.playsInline = true;
-    video.preload = 'none';
+    video.preload = preload || 'none';
     video.setAttribute('aria-hidden', 'true');
     video.controls = false;
     if (poster) video.poster = poster;
@@ -116,7 +116,7 @@
       if (!heroVideoAllowed(readEnv())) return;
       var still = figure.querySelector('img');
       var poster = (still && still.currentSrc) ? still.currentSrc : POSTER;
-      bindMutedClip(video, MP4, poster);
+      bindMutedClip(video, MP4, poster, 'metadata');
     }
 
     function sync() {
