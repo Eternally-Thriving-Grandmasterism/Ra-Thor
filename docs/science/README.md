@@ -30,6 +30,7 @@
 | `../signals/` | External metabolisms (not our discoveries) |
 | `SISTER_WATCH_2026-09-01.md` | Pointers: Daedalus PCG/GSL packet; LATTICE paper. No new program. |
 | `PIN_THREAD_GATED_VS_UNGATED_2026-09-01.md` | Public pin: proof / adoption / enforcement maps to existing AGSi-eval. Pedagogy only. |
+| `JEV-DECISION-LAYER-DOCUMENTATION-STUB-2026-10-15.md` | Documentation stub only. Choice / Score / noul-style signal in front of a later model call. No high-volume use case named. Not a program. |
 
 **Current active empirical program:** S-1 (waiting on First-5 real labels).  
 **Current queued ops game:** Seed 1 (REVENUE_SCALE + Core receipts) — in progress, not closed.  
