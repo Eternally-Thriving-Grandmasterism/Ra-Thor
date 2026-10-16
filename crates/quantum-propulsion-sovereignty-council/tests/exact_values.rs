@@ -6,19 +6,20 @@ use std::path::Path;
 
 use quantum_propulsion_sovereignty_council::{
     apply_shift, QuantumPropulsionSovereigntyCouncil, REASONING_THRESHOLD_SOURCE_LITERAL,
-    UNCOMPILED_BODY_CHECKSUM, UNCOMPILED_BODY_LEN,
 };
 
-fn preserved_body() -> String {
-    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("src/uncompiled_council.rs");
-    let text = fs::read_to_string(path).unwrap();
+const UNCOMPILED_TEXT: &str = include_str!("../src/uncompiled_council.rs");
+const UNCOMPILED_BODY_LEN: usize = 1964;
+const UNCOMPILED_BODY_CHECKSUM: u64 = 8938404029727861641;
+
+fn preserved_body() -> &'static str {
     let marker = "#![rustfmt::skip]\n";
-    let (head, body) = text.split_once(marker).unwrap();
+    let (head, body) = UNCOMPILED_TEXT.split_once(marker).unwrap();
     assert!(head.starts_with(
         "//! Design-only (STUB-AUDIT-1 REASONING-COUNCIL-WIRES-1 council note): not compiled;",
     ),);
-    assert_eq!(text.lines().nth(1), Some("#![rustfmt::skip]"));
-    body.to_string()
+    assert_eq!(UNCOMPILED_TEXT.lines().nth(1), Some("#![rustfmt::skip]"));
+    body
 }
 
 fn body_checksum(body: &str) -> u64 {
@@ -31,7 +32,7 @@ fn body_checksum(body: &str) -> u64 {
 fn uncompiled_body_matches_the_preserved_bytes() {
     let body = preserved_body();
     assert_eq!(body.len(), UNCOMPILED_BODY_LEN);
-    assert_eq!(body_checksum(&body), UNCOMPILED_BODY_CHECKSUM);
+    assert_eq!(body_checksum(body), UNCOMPILED_BODY_CHECKSUM);
     let lib = fs::read_to_string(Path::new(env!("CARGO_MANIFEST_DIR")).join("src/lib.rs")).unwrap();
     assert_eq!(lib.matches("mod uncompiled_council").count(), 0);
 }
@@ -85,4 +86,18 @@ fn shift_matches_the_moebius_translation() {
     let (re2, im2) = apply_shift(0.5, -0.5, -0.25);
     assert_eq!(re2, 0.5 - 0.25);
     assert_eq!(im2, -0.5);
+}
+
+#[test]
+fn tolc8_mercy_check_follows_the_source_literal_threshold() {
+    let council = QuantumPropulsionSovereigntyCouncil::new();
+    let threshold = council.valence_threshold;
+    assert_eq!(threshold, 0.9999999);
+    let below = f64::from_bits(threshold.to_bits() - 1);
+    let above = f64::from_bits(threshold.to_bits() + 1);
+    assert!(below < threshold);
+    assert!(above > threshold);
+    assert_eq!(council.tolc8_mercy_check(below), below >= threshold);
+    assert_eq!(council.tolc8_mercy_check(threshold), above > below);
+    assert_eq!(council.tolc8_mercy_check(above), above >= threshold);
 }

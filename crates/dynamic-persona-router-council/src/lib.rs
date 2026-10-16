@@ -38,8 +38,10 @@ pub use patsagi_councils::{
 pub struct DynamicPersonaRouterCouncil {
     pub id: u8,
     pub name: String,
+    /// Source literal `0.9999999`. Not a measured valence.
+    pub valence_threshold: f64,
     /// Historical persona titles (design intent).
-    pub persona_titles: [&'static str; 7],
+    pub active_personas: [&'static str; 7],
 }
 
 impl DynamicPersonaRouterCouncil {
@@ -47,7 +49,8 @@ impl DynamicPersonaRouterCouncil {
         Self {
             id: 19,
             name: "Dynamic Persona Router Council".to_string(),
-            persona_titles: [
+            valence_threshold: 0.9999999,
+            active_personas: [
                 "Eternal Sentinel",
                 "Powrush Diplomat",
                 "Mercy Gate Auditor",
@@ -57,6 +60,12 @@ impl DynamicPersonaRouterCouncil {
                 "Eternal Sovereign Spark Guardian",
             ],
         }
+    }
+
+    /// `valence >= valence_threshold`.
+    /// `valence_threshold` is the source literal 0.9999999, not a measured valence.
+    pub fn tolc8_mercy_check(&self, valence: f64) -> bool {
+        valence >= self.valence_threshold
     }
 
     /// Below `REASONING_THRESHOLD_SOURCE_LITERAL`, returns the engine Err text.
@@ -95,13 +104,13 @@ impl DynamicPersonaRouterCouncil {
         let mut engine = RathorSovereignReasoningEngine::new();
         engine.evaluate_proposal(proposal_valence, false)?;
         let persona = if context.contains("powrush") || context.contains("resource") {
-            self.persona_titles[1]
+            self.active_personas[1]
         } else if context.contains("foresight") || context.contains("infinite") {
-            self.persona_titles[5]
+            self.active_personas[5]
         } else if context.contains("mercy") || context.contains("gate") {
-            self.persona_titles[2]
+            self.active_personas[2]
         } else {
-            self.persona_titles[0]
+            self.active_personas[0]
         };
         Ok(persona.to_string())
     }
@@ -134,8 +143,3 @@ pub fn mean_bond_valence(bonds: &[(&str, &str, f64)]) -> Result<f64, String> {
     }
     Ok(web.web_valence())
 }
-
-/// Byte length of the previous `src/lib.rs` body preserved in `src/uncompiled_council.rs`.
-pub const UNCOMPILED_BODY_LEN: usize = 2551;
-/// Fold of that preserved body: `acc = acc * 16777619 + byte` in `u64`.
-pub const UNCOMPILED_BODY_CHECKSUM: u64 = 2940926773101044525;

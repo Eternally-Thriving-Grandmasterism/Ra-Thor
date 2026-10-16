@@ -29,6 +29,8 @@ pub use rathor_sovereign_reasoning_engine::MERCY_THRESHOLD as REASONING_THRESHOL
 pub struct InfiniteHorizonExplorationCouncil {
     pub id: u8,
     pub name: String,
+    /// Source literal `0.9999999`. Not a measured valence.
+    pub valence_threshold: f64,
 }
 
 impl InfiniteHorizonExplorationCouncil {
@@ -36,7 +38,14 @@ impl InfiniteHorizonExplorationCouncil {
         Self {
             id: 16,
             name: "Infinite Horizon Exploration Council".to_string(),
+            valence_threshold: 0.9999999,
         }
+    }
+
+    /// `valence >= valence_threshold`.
+    /// `valence_threshold` is the source literal 0.9999999, not a measured valence.
+    pub fn tolc8_mercy_check(&self, valence: f64) -> bool {
+        valence >= self.valence_threshold
     }
 
     /// Below `REASONING_THRESHOLD_SOURCE_LITERAL`, returns the engine Err text.
@@ -88,8 +97,3 @@ pub fn disk_distance(ax: f64, ay: f64, bx: f64, by: f64) -> f64 {
     let right = PoincarePoint::new(bx, by);
     hyperbolic_distance(&left, &right)
 }
-
-/// Byte length of the previous `src/lib.rs` body preserved in `src/uncompiled_council.rs`.
-pub const UNCOMPILED_BODY_LEN: usize = 1454;
-/// Fold of that preserved body: `acc = acc * 16777619 + byte` in `u64`.
-pub const UNCOMPILED_BODY_CHECKSUM: u64 = 10454461316306180156;

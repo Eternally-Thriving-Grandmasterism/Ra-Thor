@@ -25,6 +25,8 @@ pub use rathor_sovereign_reasoning_engine::MERCY_THRESHOLD as REASONING_THRESHOL
 pub struct QuantumPropulsionSovereigntyCouncil {
     pub id: u8,
     pub name: String,
+    /// Source literal `0.9999999`. Not a measured valence.
+    pub valence_threshold: f64,
 }
 
 impl QuantumPropulsionSovereigntyCouncil {
@@ -32,7 +34,14 @@ impl QuantumPropulsionSovereigntyCouncil {
         Self {
             id: 20,
             name: "Quantum Propulsion Sovereignty Council".to_string(),
+            valence_threshold: 0.9999999,
         }
+    }
+
+    /// `valence >= valence_threshold`.
+    /// `valence_threshold` is the source literal 0.9999999, not a measured valence.
+    pub fn tolc8_mercy_check(&self, valence: f64) -> bool {
+        valence >= self.valence_threshold
     }
 
     /// Below `REASONING_THRESHOLD_SOURCE_LITERAL`, returns the engine Err text.
@@ -63,8 +72,3 @@ pub fn apply_shift(z_re: f64, z_im: f64, shift: f64) -> (f64, f64) {
     let image = map.apply(Complex::new(z_re, z_im));
     (image.re, image.im)
 }
-
-/// Byte length of the previous `src/lib.rs` body preserved in `src/uncompiled_council.rs`.
-pub const UNCOMPILED_BODY_LEN: usize = 1964;
-/// Fold of that preserved body: `acc = acc * 16777619 + byte` in `u64`.
-pub const UNCOMPILED_BODY_CHECKSUM: u64 = 8938404029727861641;

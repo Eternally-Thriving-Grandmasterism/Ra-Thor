@@ -21,6 +21,8 @@ pub use rathor_sovereign_reasoning_engine::MERCY_THRESHOLD as REASONING_THRESHOL
 pub struct EternalSovereignInfiniteHorizonCouncil {
     pub id: u8,
     pub name: String,
+    /// Source literal `0.9999999`. Not a measured valence.
+    pub valence_threshold: f64,
 }
 
 impl EternalSovereignInfiniteHorizonCouncil {
@@ -28,7 +30,14 @@ impl EternalSovereignInfiniteHorizonCouncil {
         Self {
             id: 31,
             name: "Eternal Sovereign Infinite Horizon Council".to_string(),
+            valence_threshold: 0.9999999,
         }
+    }
+
+    /// `valence >= valence_threshold`.
+    /// `valence_threshold` is the source literal 0.9999999, not a measured valence.
+    pub fn tolc8_mercy_check(&self, valence: f64) -> bool {
+        valence >= self.valence_threshold
     }
 
     /// Below `REASONING_THRESHOLD_SOURCE_LITERAL`, returns the engine Err text.
@@ -47,8 +56,3 @@ impl Default for EternalSovereignInfiniteHorizonCouncil {
         Self::new()
     }
 }
-
-/// Byte length of the previous `src/lib.rs` body preserved in `src/uncompiled_council.rs`.
-pub const UNCOMPILED_BODY_LEN: usize = 1052;
-/// Fold of that preserved body: `acc = acc * 16777619 + byte` in `u64`.
-pub const UNCOMPILED_BODY_CHECKSUM: u64 = 15728484574158329081;

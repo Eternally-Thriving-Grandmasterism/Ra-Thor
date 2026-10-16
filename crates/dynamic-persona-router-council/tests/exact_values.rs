@@ -7,19 +7,21 @@ use std::path::Path;
 use dynamic_persona_router_council::{
     mean_bond_valence, CouncilDeliberation, CouncilGateLabel, DynamicPersonaRouterCouncil,
     DEFAULT_VALENCE_THRESHOLD, DEFAULT_WEIGHTS, PROGRESSIVE_FLOOR,
-    REASONING_THRESHOLD_SOURCE_LITERAL, UNCOMPILED_BODY_CHECKSUM, UNCOMPILED_BODY_LEN,
+    REASONING_THRESHOLD_SOURCE_LITERAL,
 };
 
-fn preserved_body() -> String {
-    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("src/uncompiled_council.rs");
-    let text = fs::read_to_string(path).unwrap();
+const UNCOMPILED_TEXT: &str = include_str!("../src/uncompiled_council.rs");
+const UNCOMPILED_BODY_LEN: usize = 2551;
+const UNCOMPILED_BODY_CHECKSUM: u64 = 2940926773101044525;
+
+fn preserved_body() -> &'static str {
     let marker = "#![rustfmt::skip]\n";
-    let (head, body) = text.split_once(marker).unwrap();
+    let (head, body) = UNCOMPILED_TEXT.split_once(marker).unwrap();
     assert!(head.starts_with(
         "//! Design-only (STUB-AUDIT-1 REASONING-COUNCIL-WIRES-1 council note): not compiled;",
     ),);
-    assert_eq!(text.lines().nth(1), Some("#![rustfmt::skip]"));
-    body.to_string()
+    assert_eq!(UNCOMPILED_TEXT.lines().nth(1), Some("#![rustfmt::skip]"));
+    body
 }
 
 fn body_checksum(body: &str) -> u64 {
@@ -32,7 +34,7 @@ fn body_checksum(body: &str) -> u64 {
 fn uncompiled_body_matches_the_preserved_bytes() {
     let body = preserved_body();
     assert_eq!(body.len(), UNCOMPILED_BODY_LEN);
-    assert_eq!(body_checksum(&body), UNCOMPILED_BODY_CHECKSUM);
+    assert_eq!(body_checksum(body), UNCOMPILED_BODY_CHECKSUM);
     let lib = fs::read_to_string(Path::new(env!("CARGO_MANIFEST_DIR")).join("src/lib.rs")).unwrap();
     assert_eq!(lib.matches("mod uncompiled_council").count(), 0);
 }
@@ -141,7 +143,7 @@ fn deliberation_follows_the_axes_and_the_mercy_block_input() {
 #[test]
 fn persona_title_follows_context_after_the_engine_call() {
     let council = DynamicPersonaRouterCouncil::new();
-    assert_eq!(council.persona_titles.len(), 7);
+    assert_eq!(council.active_personas.len(), 7);
     assert_eq!(
         council
             .route_persona("powrush resource claim", REASONING_THRESHOLD_SOURCE_LITERAL)
@@ -170,13 +172,13 @@ fn persona_title_follows_context_after_the_engine_call() {
         council
             .route_persona("mercy review", REASONING_THRESHOLD_SOURCE_LITERAL)
             .unwrap(),
-        council.persona_titles[2],
+        council.active_personas[2],
     );
     assert_eq!(
         council
             .route_persona("gate-side", REASONING_THRESHOLD_SOURCE_LITERAL)
             .unwrap(),
-        council.persona_titles[2],
+        council.active_personas[2],
     );
     assert_eq!(
         council
@@ -188,4 +190,18 @@ fn persona_title_follows_context_after_the_engine_call() {
         council.route_persona("powrush", 0.5).unwrap_err(),
         "Mercy Gate violation: valence below threshold",
     );
+}
+
+#[test]
+fn tolc8_mercy_check_follows_the_source_literal_threshold() {
+    let council = DynamicPersonaRouterCouncil::new();
+    let threshold = council.valence_threshold;
+    assert_eq!(threshold, 0.9999999);
+    let below = f64::from_bits(threshold.to_bits() - 1);
+    let above = f64::from_bits(threshold.to_bits() + 1);
+    assert!(below < threshold);
+    assert!(above > threshold);
+    assert_eq!(council.tolc8_mercy_check(below), below >= threshold);
+    assert_eq!(council.tolc8_mercy_check(threshold), above > below);
+    assert_eq!(council.tolc8_mercy_check(above), above >= threshold);
 }

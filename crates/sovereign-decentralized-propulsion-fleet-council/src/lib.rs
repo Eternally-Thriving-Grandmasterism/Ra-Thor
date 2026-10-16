@@ -34,6 +34,8 @@ pub use patsagi_councils::{
 pub struct SovereignDecentralizedPropulsionFleetCouncil {
     pub id: u8,
     pub name: String,
+    /// Source literal `0.9999999`. Not a measured valence.
+    pub valence_threshold: f64,
 }
 
 impl SovereignDecentralizedPropulsionFleetCouncil {
@@ -41,7 +43,14 @@ impl SovereignDecentralizedPropulsionFleetCouncil {
         Self {
             id: 32,
             name: "Sovereign Decentralized Propulsion Fleet Council".to_string(),
+            valence_threshold: 0.9999999,
         }
+    }
+
+    /// `valence >= valence_threshold`.
+    /// `valence_threshold` is the source literal 0.9999999, not a measured valence.
+    pub fn tolc8_mercy_check(&self, valence: f64) -> bool {
+        valence >= self.valence_threshold
     }
 
     /// Below `REASONING_THRESHOLD_SOURCE_LITERAL`, returns the engine Err text.
@@ -88,8 +97,3 @@ pub struct CouncilDeliberation {
     pub valence: f64,
     pub label: CouncilGateLabel,
 }
-
-/// Byte length of the previous `src/lib.rs` body preserved in `src/uncompiled_council.rs`.
-pub const UNCOMPILED_BODY_LEN: usize = 1136;
-/// Fold of that preserved body: `acc = acc * 16777619 + byte` in `u64`.
-pub const UNCOMPILED_BODY_CHECKSUM: u64 = 14316905449428797998;

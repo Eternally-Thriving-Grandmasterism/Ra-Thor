@@ -6,19 +6,21 @@ use std::path::Path;
 
 use infinite_horizon_exploration_council::{
     apply_shift, disk_distance, mean_bond_valence, InfiniteHorizonExplorationCouncil,
-    REASONING_THRESHOLD_SOURCE_LITERAL, UNCOMPILED_BODY_CHECKSUM, UNCOMPILED_BODY_LEN,
+    REASONING_THRESHOLD_SOURCE_LITERAL,
 };
 
-fn preserved_body() -> String {
-    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("src/uncompiled_council.rs");
-    let text = fs::read_to_string(path).unwrap();
+const UNCOMPILED_TEXT: &str = include_str!("../src/uncompiled_council.rs");
+const UNCOMPILED_BODY_LEN: usize = 1454;
+const UNCOMPILED_BODY_CHECKSUM: u64 = 10454461316306180156;
+
+fn preserved_body() -> &'static str {
     let marker = "#![rustfmt::skip]\n";
-    let (head, body) = text.split_once(marker).unwrap();
+    let (head, body) = UNCOMPILED_TEXT.split_once(marker).unwrap();
     assert!(head.starts_with(
         "//! Design-only (STUB-AUDIT-1 REASONING-COUNCIL-WIRES-1 council note): not compiled;",
     ),);
-    assert_eq!(text.lines().nth(1), Some("#![rustfmt::skip]"));
-    body.to_string()
+    assert_eq!(UNCOMPILED_TEXT.lines().nth(1), Some("#![rustfmt::skip]"));
+    body
 }
 
 fn body_checksum(body: &str) -> u64 {
@@ -31,7 +33,7 @@ fn body_checksum(body: &str) -> u64 {
 fn uncompiled_body_matches_the_preserved_bytes() {
     let body = preserved_body();
     assert_eq!(body.len(), UNCOMPILED_BODY_LEN);
-    assert_eq!(body_checksum(&body), UNCOMPILED_BODY_CHECKSUM);
+    assert_eq!(body_checksum(body), UNCOMPILED_BODY_CHECKSUM);
     let lib = fs::read_to_string(Path::new(env!("CARGO_MANIFEST_DIR")).join("src/lib.rs")).unwrap();
     assert_eq!(lib.matches("mod uncompiled_council").count(), 0);
 }
@@ -111,4 +113,18 @@ fn disk_distance_matches_the_poincare_formula() {
     let den = (1.0 - ax * ax) * (1.0 - bx * bx);
     let expect = (1.0 + num / den).acosh();
     assert_eq!(got, expect);
+}
+
+#[test]
+fn tolc8_mercy_check_follows_the_source_literal_threshold() {
+    let council = InfiniteHorizonExplorationCouncil::new();
+    let threshold = council.valence_threshold;
+    assert_eq!(threshold, 0.9999999);
+    let below = f64::from_bits(threshold.to_bits() - 1);
+    let above = f64::from_bits(threshold.to_bits() + 1);
+    assert!(below < threshold);
+    assert!(above > threshold);
+    assert_eq!(council.tolc8_mercy_check(below), below >= threshold);
+    assert_eq!(council.tolc8_mercy_check(threshold), above > below);
+    assert_eq!(council.tolc8_mercy_check(above), above >= threshold);
 }
