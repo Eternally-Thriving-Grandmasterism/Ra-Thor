@@ -1020,7 +1020,7 @@ It must land before `mial`, `mercy_gating_runtime`, or `mercy-threshold-wasm` jo
 
 ### SHARD-COMPOSER-KEY-REQUIRED-1 (DONE, #686)
 
-**Status:** DONE in #686. `DEFAULT_BASE_KEY` is deleted. Non-test source has no key literal. `RA_THOR_HMAC_BASE_KEY` must be at least 32 bytes. Unset, empty, or shorter: `save_to_file` returns an `io::Error` that names the variable, and `load_from_file` does not accept the signed file. `save_to_file` refuses to overwrite an existing file that does not verify under the current key, and it writes no bytes in that case.
+**Status:** DONE in #686. `DEFAULT_BASE_KEY` is deleted. The removed documentation example is `REJECTED_DOC_PLACEHOLDER` and is refused, not used for HMAC. `RA_THOR_HMAC_BASE_KEY` must be at least 32 bytes and must not be that placeholder. Unset, empty, shorter, or that placeholder: `save_to_file` returns an `io::Error` that names the variable, and `load_from_file` does not accept the signed file. `save_to_file` refuses to overwrite an existing file that does not verify under the current key, and it writes no bytes in that case.
 
 Core votes. When the env var was unset, the HMAC state-signing key fell back to `DEFAULT_BASE_KEY` in source. Make the key required and fail closed, with no key in source. Recorded in #738 comment 6220555628.
 

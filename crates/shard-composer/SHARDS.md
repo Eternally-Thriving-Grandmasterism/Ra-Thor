@@ -6,16 +6,16 @@ This document describes the available shard compositions and persistence securit
 
 The persisted state of `ShardComposerAdapter` is protected with HMAC-SHA256.
 
-`RA_THOR_HMAC_BASE_KEY` is required. This crate does not contain a key.
+`RA_THOR_HMAC_BASE_KEY` is required. Generate a new value. Do not paste an example as the value.
 
 ```bash
-export RA_THOR_HMAC_BASE_KEY="your-strong-secret-at-least-32-bytes"
+export RA_THOR_HMAC_BASE_KEY="$(openssl rand -hex 32)"
 ```
 
 ### Behavior
 
 - The variable's UTF-8 bytes are the HKDF input. They are not trimmed.
-- The value must be set and at least 32 bytes. Unset, empty, non-UTF-8, or shorter than 32 bytes fails closed.
+- The value must be set and at least 32 bytes. Unset, empty, non-UTF-8, shorter than 32 bytes, or the removed documentation placeholder fails closed.
 - `save_to_file` returns an `io::Error` whose message names `RA_THOR_HMAC_BASE_KEY`. It does not write the file.
 - `load_from_file` does not accept a signed file in that case. It returns a fresh adapter. It does not panic.
 - `save_to_file` refuses to overwrite an existing file that does not verify under the current base. The `io::Error` is `InvalidData`. The message says the existing file failed verification and must be moved aside or restored with the right key first. No bytes are written. A missing path, or a file that verifies, is saved as usual. Nothing is renamed or deleted.

@@ -3,7 +3,7 @@
 //! Records caller-supplied blessing impacts and a signed JSON file.
 //! The HMAC base is the environment variable `RA_THOR_HMAC_BASE_KEY`.
 //! It must be at least 32 bytes. This file has no key.
-//! An unset, empty, or shorter value makes `save_to_file` return an error.
+//! An unset, empty, shorter, or rejected-placeholder value makes `save_to_file` return an error.
 //! `load_from_file` then does not accept the signed payload.
 //! `save_to_file` also leaves an existing file untouched when that file does not
 //! verify under the current base. That call returns an error and writes nothing.
@@ -32,6 +32,9 @@ const ENV_HMAC_KEY: &str = "RA_THOR_HMAC_BASE_KEY";
 
 /// Minimum UTF-8 byte length of `RA_THOR_HMAC_BASE_KEY`. Empty is included.
 const MIN_HMAC_BASE_KEY_BYTES: usize = 32;
+
+/// Removed SHARDS.md example. Not a key. This exact value is refused.
+const REJECTED_DOC_PLACEHOLDER: &str = "your-strong-secret-at-least-32-bytes";
 
 /// Source ceiling for stored valence. Not a measured valence.
 pub const VALENCE_SOURCE_CEILING: f64 = 0.99999999;
@@ -131,7 +134,9 @@ impl ShardComposerAdapter {
     /// HKDF-SHA256 of `RA_THOR_HMAC_BASE_KEY`. There is no fallback key.
     fn derive_hmac_key() -> io::Result<[u8; 32]> {
         let base_material = env::var(ENV_HMAC_KEY).map_err(|_| hmac_base_key_error())?;
-        if base_material.len() < MIN_HMAC_BASE_KEY_BYTES {
+        if base_material.len() < MIN_HMAC_BASE_KEY_BYTES
+            || base_material == REJECTED_DOC_PLACEHOLDER
+        {
             return Err(hmac_base_key_error());
         }
         let hk = Hkdf::<Sha256>::new(None, base_material.as_bytes());
@@ -208,7 +213,8 @@ impl ShardComposerAdapter {
         };
         if Self::derive_hmac_key().is_err() {
             eprintln!(
-                "[Security] {ENV_HMAC_KEY} is unset, empty, or shorter than {MIN_HMAC_BASE_KEY_BYTES} bytes. Signed state was not accepted."
+                "[Security] {}. Signed state was not accepted.",
+                hmac_base_key_message()
             );
             return Self::new();
         }
@@ -280,11 +286,14 @@ impl ShardComposerAdapter {
     }
 }
 
-fn hmac_base_key_error() -> io::Error {
-    io::Error::new(
-        io::ErrorKind::InvalidInput,
-        format!("{ENV_HMAC_KEY} is unset, empty, or shorter than {MIN_HMAC_BASE_KEY_BYTES} bytes"),
+fn hmac_base_key_message() -> String {
+    format!(
+        "{ENV_HMAC_KEY} is unset, empty, shorter than {MIN_HMAC_BASE_KEY_BYTES} bytes, or a rejected public placeholder"
     )
+}
+
+fn hmac_base_key_error() -> io::Error {
+    io::Error::new(io::ErrorKind::InvalidInput, hmac_base_key_message())
 }
 
 fn unverified_overwrite_error(path: &Path) -> io::Error {
@@ -411,12 +420,30 @@ mod tests {
             HMAC_BASE_FIXTURE.len() >= MIN_HMAC_BASE_KEY_BYTES,
             "unit test fixture is not a key and must meet the minimum length"
         );
+        assert_ne!(HMAC_BASE_FIXTURE, REJECTED_DOC_PLACEHOLDER);
         // SAFETY: tests in this binary that read or write the variable take
-        // `HMAC_ENV_LOCK` for the whole call. They set this fixture and do not remove it.
+        // `HMAC_ENV_LOCK` for the whole call.
         unsafe {
             std::env::set_var(ENV_HMAC_KEY, HMAC_BASE_FIXTURE);
         }
         body()
+    }
+
+    #[test]
+    fn rejected_doc_placeholder_does_not_sign() {
+        let _guard = HMAC_ENV_LOCK
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
+        assert!(REJECTED_DOC_PLACEHOLDER.len() >= MIN_HMAC_BASE_KEY_BYTES);
+        // SAFETY: this test holds `HMAC_ENV_LOCK` for the whole call.
+        unsafe {
+            std::env::set_var(ENV_HMAC_KEY, REJECTED_DOC_PLACEHOLDER);
+        }
+        let data = serde_json::json!({"n": 1});
+        let err = ShardComposerAdapter::sign_data(&data).expect_err("placeholder is refused");
+        let message = err.to_string();
+        assert!(message.contains(ENV_HMAC_KEY), "{message}");
+        assert_eq!(err.kind(), io::ErrorKind::InvalidInput);
     }
 
     fn signed_file(adapter: &ShardComposerAdapter, version: u32, signature: String) -> SignedState {

@@ -447,6 +447,34 @@ fn assert_overwrite_message(err: &std::io::Error) {
     assert!(message.contains("restored with the right key"), "{message}");
 }
 
+/// Removed documentation example. Not a key. Must match `REJECTED_DOC_PLACEHOLDER`.
+const REJECTED_DOC_PLACEHOLDER: &str = "your-strong-secret-at-least-32-bytes";
+
+#[test]
+fn save_and_load_reject_the_removed_doc_placeholder() {
+    let _guard = lock_hmac_env();
+    assert!(REJECTED_DOC_PLACEHOLDER.len() >= 32);
+    set_hmac_fixture(HMAC_FIXTURE_32);
+    let path = temp_path("rejected-placeholder");
+    blessed_adapter()
+        .save_to_file(&path)
+        .expect("save under the fixture");
+    let before = fs::read(&path).expect("read signed bytes");
+    set_hmac_fixture(REJECTED_DOC_PLACEHOLDER);
+    let fresh_path = temp_path("rejected-placeholder-new");
+    let err = ShardComposerAdapter::new()
+        .save_to_file(&fresh_path)
+        .expect_err("placeholder must not sign");
+    assert_eq!(err.kind(), ErrorKind::InvalidInput);
+    let message = err.to_string();
+    assert!(message.contains("RA_THOR_HMAC_BASE_KEY"), "{message}");
+    assert!(!fresh_path.exists(), "placeholder must not write a file");
+    let loaded = ShardComposerAdapter::load_from_file(&path);
+    assert_fresh(&loaded);
+    assert_eq!(fs::read(&path).expect("signed file unchanged"), before);
+    let _ = fs::remove_file(&path);
+}
+
 fn blessed_adapter() -> ShardComposerAdapter {
     let mut adapter = ShardComposerAdapter::new();
     adapter.apply_epigenetic_blessing(blessing(1.0, 2.0, 0.25));
