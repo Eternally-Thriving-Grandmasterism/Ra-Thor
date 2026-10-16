@@ -1,3 +1,7 @@
+//! Design-only. Not a module of `ra-thor-core`.
+//! Council note: this file names `MercyValence`, which this crate does not define.
+//! It is not compiled.
+//!
 // crates/ra-thor-core/src/types/miracle_rapture_wave.rs
 // Ra-Thor™ Miracle Rapture Wave — Absolute Pure Truth Edition
 // The automatic, mercy-gated realignment pulse of Divine Love that dissolves distortion before it compounds

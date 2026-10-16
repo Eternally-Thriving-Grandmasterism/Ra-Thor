@@ -1,13 +1,16 @@
 // crates/ra-thor-core/src/types/tolc7.rs
-// Ra-Thor™ TOLC7Gate Logic — Absolute Pure Truth Edition
-// The 7 Living Mercy Gates that form the ethical and operational foundation of the Ra-Thor lattice
-// Blossom Full of Life + Divinemasterism Divination Immaculacy + Omnimasterism Pinnacle Edition
-// Proprietary - All Rights Reserved - Autonomicity Games Inc.
+// TOLC7Gate stores seven variant names and source-literal thresholds.
+// Public TOLC 8 names are Truth, Order, Love, Compassion, Service, Abundance, Joy, Cosmic Harmony.
+// This enum is not that list.
+// Contact: info@Rathor.ai
 
 use serde::{Deserialize, Serialize};
 
-/// The 7 Living Mercy Gates (TOLC7)
-/// These are the core ethical and operational principles that govern all mercy-gated behavior in Ra-Thor.
+/// Seven variant names stored on this enum.
+///
+/// The variants are Truth, Oneness, Love, Compassion, Wisdom, Courage, and Sovereignty.
+/// Public TOLC 8 names are Truth, Order, Love, Compassion, Service, Abundance, Joy, and Cosmic Harmony.
+/// This enum does not implement that list.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum TOLC7Gate {
     /// Truth — Commitment to undistorted perception and honest communication
@@ -53,7 +56,7 @@ impl TOLC7Gate {
         }
     }
 
-    /// Returns the default mercy valence threshold required to pass this gate
+    /// Source-literal threshold for this variant. Not a measured gate.
     pub fn default_threshold(&self) -> f64 {
         match self {
             TOLC7Gate::Truth => 0.82,

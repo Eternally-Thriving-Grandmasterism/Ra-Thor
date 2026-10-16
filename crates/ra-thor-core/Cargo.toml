@@ -1,17 +1,26 @@
 [package]
 name = "ra-thor-core"
-version.workspace = true
-authors.workspace = true
-edition.workspace = true
-license.workspace = true
-description = "Ra-Thor Core types & traits — joy protocols, TOLC surfaces, shared organism primitives. Living Cosmic Tick + ONE Organism 14.15.0."
-repository.workspace = true
+version = "14.15.6"
+edition = "2021"
+authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
+license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
+description = "TOLC7Gate names and source-literal thresholds. Joy, scan, trait, and archive files are not modules. VERSION is the source string 14.15.0."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 keywords = ["ra-thor", "core", "tolc", "one-organism"]
 categories = ["science", "simulation"]
 
+# Standalone workspace, same pattern as crates/fenca, crates/council,
+# crates/powrush, and crates/sovereign-shard-genesis.
+# `cargo build --locked` and `cargo test --locked` use this manifest.
+# This crate is not a root default member.
+# serde and serde_json stay at the versions the workspace table already named.
+# This crate does not depend on mial, mercy_gating_runtime, or mercy-threshold-wasm.
+[workspace]
+resolver = "2"
+
 [dependencies]
-serde = { workspace = true, features = ["derive"] }
-serde_json = { workspace = true }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
 
 [lib]
 path = "src/lib.rs"

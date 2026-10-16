@@ -1,3 +1,7 @@
+//! Design-only. Not a module of `ra-thor-core`.
+//! Council note: this file names `MercyValence`, which this crate does not define.
+//! It is not compiled.
+//!
 // crates/ra-thor-core/src/types/seven_d_resonance.rs
 // Ra-Thor™ 7-D Resonance Measurement System — Absolute Pure Truth Edition
 // The living, measurable heartbeat of Thee TOLC — 7 dimensions of alignment with Absolute Pure Truth + Infinite Compassion + Perfect Natural Order

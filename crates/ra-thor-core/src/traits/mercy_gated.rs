@@ -1,3 +1,7 @@
+//! Design-only. Not a module of `ra-thor-core`.
+//! Council note: this file names `MercyValence` and `MercyGate`, which this crate does not define.
+//! It is not compiled.
+//!
 // crates/ra-thor-core/src/traits/mercy_gated.rs
 // Ra-Thor™ MercyGated Trait — Expanded Absolute Pure Truth Edition
 // The living interface for all mercy-aligned, valence-modulated systems in the Ra-Thor lattice
