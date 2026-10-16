@@ -23,7 +23,7 @@ assert(employHtml.indexOf('mailto:info@Rathor.ai') !== -1, 'employ.html must kee
 
 assert(employMd.indexOf('## The loop') !== -1, 'docs/EMPLOY.md must restore The loop');
 assert(employMd.indexOf('Intend') !== -1, 'docs/EMPLOY.md loop must name Intend');
-assert(employHtml.indexOf('Pass the TOLC 8 mercy checks (Mercy Gates in code)') !== -1, 'employ.html must say Pass the TOLC 8 mercy checks');
+assert(employHtml.indexOf('Pass the TOLC 8 mercy checks</strong>') !== -1, 'employ.html must say Pass the TOLC 8 mercy checks');
 assert(employHtml.indexOf('14.18') === -1, 'employ.html must not sell 14.18');
 
 var optionalMd = fs.readFileSync(path.join(root, 'docs/OPTIONAL_MODEL.md'), 'utf8');
