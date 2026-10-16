@@ -144,7 +144,7 @@ In-repo first error, before that PR: not a workspace member. Probe then showed o
 
 **Runtime / v14:** no.
 
-**Size:** S (`swarm_intelligence` 93 lines, the other two are single files).
+**Size:** S. `swarm_intelligence` and `patsagi-quantum-valence` are one source file each. `hyperon-metta-pln` has 6 source files.
 
 ---
 

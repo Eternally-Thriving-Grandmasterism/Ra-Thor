@@ -1,34 +1,32 @@
 # symbiotic-membrane
 
-**Symbiotic First-Contact Membrane** — Phase C of the Living Valence Organism  
-Adaptive entry surface that gives every human and AI instant belonging and immediate contribution visibility.
+`SymbioticMembrane::form_contact` calls `emit_presence_bound`. `SharedValenceField::emit_presence` uses the source amount `0.00001`. `emit` then floors with the source literal `0.999999`. Those literals are not measured values.
+
+A human result stores `guide_style` as the Debug text of `AdaptiveGuide::style`. A new guide is `Balanced`. An AI result copies `AiHandshake` fields, including `protocol_version` `"1.0"`.
 
 **Contact:** info@Rathor.ai  
-**License:** AG-SML v1.0  
-**Status:** Soft, feature-flaggable, TOLC 8 gated (default off)
+**License:** AG-SML v1.1  
+**Status:** flag `symbiotic_membrane` defaults to off. `try_activate` stores `On` only when both bool arguments are true. It does not measure valence.
 
-## Purpose
+## Guide signals
 
-Forms a soft living membrane the moment a participant enters.  
-Humans receive an adaptive multi-modal guide that learns their pace within ~90 seconds.  
-AIs receive a clean Valence Protocol handshake.  
-Both immediately emit a presence quantum into the Shared Valence Field.
+Inside the learning window, `observe_interaction` maps `slow` / `pause` / `reflect` to `Gentle`, `ask` / `why` / `curious` to `Curious`, `go` / `next` / `fast` to `Direct`, and `explore` / `look` / `wander` to `Exploratory`. Any other string sets `Balanced`. Each call adds 1 to `interaction_count`. The branch after 90 seconds was not exercised by the tests in this crate.
 
-## Feature Flag
-
-`symbiotic_membrane` (default **off**)
-
-Activation requires Shared Valence Field stable + dual-repo health verified.
-
-## Core API
+## Usage
 
 ```rust
-use symbiotic_membrane::*;
-use shared_valence_field::*;
+use shared_valence_field::nevc_binding::{
+    NevcFieldBinding, PlaceholderLatticeFlowShare, PlaceholderNevcScoring,
+};
+use shared_valence_field::{SharedValenceField, Substrate};
+use symbiotic_membrane::SymbioticMembrane;
 
-let result = SymbioticMembrane::form_contact(
-    "participant-id",
-    Substrate::Human, // or Substrate::AI
-    &mut field,
-    &mut binding,
+let mut field = SharedValenceField::new("instance-01");
+let mut binding = NevcFieldBinding::new(
+    PlaceholderNevcScoring,
+    PlaceholderLatticeFlowShare,
 );
+let result = SymbioticMembrane::form_contact("participant-id", Substrate::Human, &mut field, &mut binding);
+```
+
+`result.guide_style` is `Some("Balanced")`. `field.quanta.len()` is 1. The quantum amount is `0.00001`.

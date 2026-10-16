@@ -5,16 +5,11 @@
 
 pub const SYMBIOTIC_MEMBRANE_FLAG: &str = "symbiotic_membrane";
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum FlagState {
+    #[default]
     Off,
     On,
-}
-
-impl Default for FlagState {
-    fn default() -> Self {
-        FlagState::Off
-    }
 }
 
 pub struct SymbioticMembraneGuard {
@@ -32,7 +27,7 @@ impl SymbioticMembraneGuard {
         self.state == FlagState::On
     }
 
-    /// Activate only after Shared Valence Field is stable and dual-repo health is verified
+    /// Stores `On` only when both arguments are true. Does not measure valence or health.
     pub fn try_activate(&mut self, shared_valence_stable: bool, dual_repo_healthy: bool) -> bool {
         if shared_valence_stable && dual_repo_healthy {
             self.state = FlagState::On;
@@ -45,5 +40,11 @@ impl SymbioticMembraneGuard {
 
     pub fn deactivate(&mut self) {
         self.state = FlagState::Off;
+    }
+}
+
+impl Default for SymbioticMembraneGuard {
+    fn default() -> Self {
+        Self::new()
     }
 }

@@ -4,8 +4,17 @@ version = "0.1.0"
 edition = "2021"
 license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
 authors = ["Sherif Samy Botros <info@Rathor.ai>"]
-description = "Abundance Breath Loop — continuous inhale/exhale cycle of the Living Valence Organism"
+description = "BreathCycle::trigger emits two quanta. Amounts are the source literals 0.00003 and 0.00004 (not measured values). src/feature_flag.rs is not a module."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+
+# Standalone workspace, same pattern as crates/fenca, crates/council,
+# crates/powrush, and crates/sovereign-shard-genesis.
+# `cargo build --locked` and `cargo test --locked` use this manifest.
+# This crate is not a root default member.
+# shared-valence-field stays a relative path dependency.
+# src/feature_flag.rs is not a module.
+[workspace]
+resolver = "2"
 
 [dependencies]
 shared-valence-field = { path = "../shared-valence-field" }

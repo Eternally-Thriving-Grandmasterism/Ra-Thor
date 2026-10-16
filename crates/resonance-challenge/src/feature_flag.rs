@@ -5,16 +5,11 @@
 
 pub const RESONANCE_CHALLENGE_FLAG: &str = "resonance_challenge";
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum FlagState {
+    #[default]
     Off,
     On,
-}
-
-impl Default for FlagState {
-    fn default() -> Self {
-        FlagState::Off
-    }
 }
 
 pub struct ResonanceChallengeGuard {
@@ -32,7 +27,7 @@ impl ResonanceChallengeGuard {
         self.state == FlagState::On
     }
 
-    /// Activate only after Symbiotic Membrane is stable and dual-repo health is verified
+    /// Stores `On` only when both arguments are true. Does not measure valence or health.
     pub fn try_activate(&mut self, membrane_stable: bool, dual_repo_healthy: bool) -> bool {
         if membrane_stable && dual_repo_healthy {
             self.state = FlagState::On;
@@ -45,5 +40,11 @@ impl ResonanceChallengeGuard {
 
     pub fn deactivate(&mut self) {
         self.state = FlagState::Off;
+    }
+}
+
+impl Default for ResonanceChallengeGuard {
+    fn default() -> Self {
+        Self::new()
     }
 }
