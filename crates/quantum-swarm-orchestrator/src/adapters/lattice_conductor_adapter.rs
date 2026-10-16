@@ -2,7 +2,9 @@
 // Example adapter for Lattice Conductor v14 (first real adapter)
 
 use crate::adapter::RaThorSystemAdapter;
-use crate::types::{EpigeneticBlessing, GodlyIntelligenceCoherence, MercyError, SwarmResonance, Valence};
+use crate::types::{
+    EpigeneticBlessing, GodlyIntelligenceCoherence, MercyError, SwarmResonance, Valence,
+};
 
 /// Adapter that allows Lattice Conductor v14 to participate in the ONE Organism.
 pub struct LatticeConductorAdapter {
@@ -14,8 +16,15 @@ impl LatticeConductorAdapter {
     pub fn new() -> Self {
         Self {
             name: "LatticeConductor",
+            // Source literal, not a measured value.
             current_valence: Valence(0.99999995),
         }
+    }
+}
+
+impl Default for LatticeConductorAdapter {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -30,7 +39,10 @@ impl RaThorSystemAdapter for LatticeConductorAdapter {
 
     fn receive_swarm_resonance(&mut self, resonance: SwarmResonance) -> Result<(), MercyError> {
         // In real implementation: apply resonance to conduction logic
-        println!("[LatticeConductor] Received resonance: {}", resonance.message);
+        println!(
+            "[LatticeConductor] Received resonance: {}",
+            resonance.message
+        );
         Ok(())
     }
 

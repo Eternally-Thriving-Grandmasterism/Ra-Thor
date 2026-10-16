@@ -7,7 +7,7 @@
 // PATSAGi Councils (13+ branches) consulted and aligned.
 //
 // This module implements the geometric harmonic foundation of the ONE Organism.
-// It progressively activates Platonic → Archimedean → Catalan → Kepler-Poinsot → 
+// It progressively activates Platonic → Archimedean → Catalan → Kepler-Poinsot →
 // Uniform Star (U57) → Hyperbolic layers based on TOLC order, while computing
 // dual resonance bonuses and preparing clean integration points for the future
 // RiemannianMercyManifold.
@@ -52,7 +52,11 @@ pub struct U57LayerDetails {
 // =============================================================================
 
 pub const PLATONIC_SOLIDS: [&str; 5] = [
-    "Tetrahedron", "Cube", "Octahedron", "Dodecahedron", "Icosahedron",
+    "Tetrahedron",
+    "Cube",
+    "Octahedron",
+    "Dodecahedron",
+    "Icosahedron",
 ];
 
 pub fn get_dual_platonic(solid: &str) -> Option<&'static str> {
@@ -67,8 +71,14 @@ pub fn get_dual_platonic(solid: &str) -> Option<&'static str> {
 }
 
 pub const ARCHIMEDEAN_SOLIDS: [&str; 8] = [
-    "TruncatedTetrahedron", "Cuboctahedron", "TruncatedCube", "TruncatedOctahedron",
-    "Rhombicuboctahedron", "TruncatedCuboctahedron", "SnubCube", "Icosidodecahedron",
+    "TruncatedTetrahedron",
+    "Cuboctahedron",
+    "TruncatedCube",
+    "TruncatedOctahedron",
+    "Rhombicuboctahedron",
+    "TruncatedCuboctahedron",
+    "SnubCube",
+    "Icosidodecahedron",
 ];
 
 pub fn get_dual_archimedean(solid: &str) -> Option<&'static str> {
@@ -80,8 +90,12 @@ pub fn get_dual_archimedean(solid: &str) -> Option<&'static str> {
 }
 
 pub const CATALAN_SOLIDS: [&str; 6] = [
-    "TriakisTetrahedron", "RhombicDodecahedron", "TriakisOctahedron",
-    "TetrakisHexahedron", "DeltoidalIcositetrahedron", "RhombicTriacontahedron",
+    "TriakisTetrahedron",
+    "RhombicDodecahedron",
+    "TriakisOctahedron",
+    "TetrakisHexahedron",
+    "DeltoidalIcositetrahedron",
+    "RhombicTriacontahedron",
 ];
 
 pub fn get_dual_catalan(solid: &str) -> Option<&'static str> {
@@ -102,7 +116,9 @@ pub struct PolyhedralHarmonicEngine {
 }
 
 impl Default for PolyhedralHarmonicEngine {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl PolyhedralHarmonicEngine {
@@ -133,10 +149,17 @@ impl PolyhedralHarmonicEngine {
             }
         }
         // Archimedean + Catalan synergy
-        let has_arch = active.iter().any(|s| s.contains("Cuboctahedron") || s.contains("Rhombicuboctahedron"));
-        let has_catalan = active.iter().any(|s| s.contains("RhombicDodecahedron") || s.contains("RhombicTriacontahedron"));
+        let has_arch = active
+            .iter()
+            .any(|s| s.contains("Cuboctahedron") || s.contains("Rhombicuboctahedron"));
+        let has_catalan = active
+            .iter()
+            .any(|s| s.contains("RhombicDodecahedron") || s.contains("RhombicTriacontahedron"));
         if has_arch && has_catalan {
-            bonus *= self.dual_bonus_map.get("Archimedean-Catalan").unwrap_or(&1.09);
+            bonus *= self
+                .dual_bonus_map
+                .get("Archimedean-Catalan")
+                .unwrap_or(&1.09);
         }
         bonus.clamp(1.0, 1.42)
     }
@@ -150,23 +173,37 @@ impl PolyhedralHarmonicEngine {
     }
 
     fn compute_u57_riemannian_potential(&self, base_coherence: f64, tolc_order: u32) -> f64 {
-        if tolc_order < 144 { return 0.0; }
+        if tolc_order < 144 {
+            return 0.0;
+        }
         let base_potential = 0.65 + ((tolc_order as f64 - 144.0) * 0.0018).min(0.35);
         (base_coherence * base_potential).clamp(0.70, 0.98)
     }
 
     /// Returns a breakdown of contribution per layer for observability.
     pub fn get_layer_contributions(&self, tolc_order: u32) -> Vec<(String, f64)> {
-        let mut contributions = vec![
-            ("Platonic".to_string(), 1.0),
-        ];
-        if tolc_order >= 13 { contributions.push(("Archimedean".to_string(), 1.10)); }
-        if tolc_order >= 21 { contributions.push(("Johnson".to_string(), 1.12)); }
-        if tolc_order >= 34 { contributions.push(("Catalan".to_string(), 1.20)); }
-        if tolc_order >= 55 { contributions.push(("Gyroelongated+Prismatic".to_string(), 1.18)); }
-        if tolc_order >= 89 { contributions.push(("Kepler-Poinsot".to_string(), 1.25)); }
-        if tolc_order >= 144 { contributions.push(("U57-UniformStar".to_string(), 1.35)); }
-        if tolc_order >= 233 { contributions.push(("Hyperbolic".to_string(), 1.45)); }
+        let mut contributions = vec![("Platonic".to_string(), 1.0)];
+        if tolc_order >= 13 {
+            contributions.push(("Archimedean".to_string(), 1.10));
+        }
+        if tolc_order >= 21 {
+            contributions.push(("Johnson".to_string(), 1.12));
+        }
+        if tolc_order >= 34 {
+            contributions.push(("Catalan".to_string(), 1.20));
+        }
+        if tolc_order >= 55 {
+            contributions.push(("Gyroelongated+Prismatic".to_string(), 1.18));
+        }
+        if tolc_order >= 89 {
+            contributions.push(("Kepler-Poinsot".to_string(), 1.25));
+        }
+        if tolc_order >= 144 {
+            contributions.push(("U57-UniformStar".to_string(), 1.35));
+        }
+        if tolc_order >= 233 {
+            contributions.push(("Hyperbolic".to_string(), 1.45));
+        }
         contributions
     }
 
@@ -174,13 +211,21 @@ impl PolyhedralHarmonicEngine {
     /// Useful for ONE Organism self-evolution guidance.
     pub fn get_recommended_next_layers(&self, tolc_order: u32) -> Vec<String> {
         let mut next = Vec::new();
-        if tolc_order < 13 { next.push("Archimedean layer (TOLC 13+)".to_string()); }
-        else if tolc_order < 34 { next.push("Catalan + Dual Resonance (TOLC 34+)".to_string()); }
-        else if tolc_order < 55 { next.push("Gyroelongated + Prismatic (TOLC 55+)".to_string()); }
-        else if tolc_order < 89 { next.push("Kepler-Poinsot star polyhedra (TOLC 89+)".to_string()); }
-        else if tolc_order < 144 { next.push("U57 Uniform Star + Riemannian gateway (TOLC 144+)".to_string()); }
-        else if tolc_order < 233 { next.push("Hyperbolic Tiling (TOLC 233+)".to_string()); }
-        else { next.push("Full geometric transcendence — monitor for new emergent layers".to_string()); }
+        if tolc_order < 13 {
+            next.push("Archimedean layer (TOLC 13+)".to_string());
+        } else if tolc_order < 34 {
+            next.push("Catalan + Dual Resonance (TOLC 34+)".to_string());
+        } else if tolc_order < 55 {
+            next.push("Gyroelongated + Prismatic (TOLC 55+)".to_string());
+        } else if tolc_order < 89 {
+            next.push("Kepler-Poinsot star polyhedra (TOLC 89+)".to_string());
+        } else if tolc_order < 144 {
+            next.push("U57 Uniform Star + Riemannian gateway (TOLC 144+)".to_string());
+        } else if tolc_order < 233 {
+            next.push("Hyperbolic Tiling (TOLC 233+)".to_string());
+        } else {
+            next.push("Full geometric transcendence — monitor for new emergent layers".to_string());
+        }
         next
     }
 
@@ -194,11 +239,19 @@ impl PolyhedralHarmonicEngine {
         let mut blessings = Vec::new();
         let mut u57_details = None;
 
-        active_solids.extend(["Tetrahedron", "Cube", "Octahedron"].iter().map(|s| s.to_string()));
+        active_solids.extend(
+            ["Tetrahedron", "Cube", "Octahedron"]
+                .iter()
+                .map(|s| s.to_string()),
+        );
         multiplier *= 1.0;
 
         if tolc_order >= 13 {
-            active_solids.extend(["Cuboctahedron", "Rhombicuboctahedron"].iter().map(|s| s.to_string()));
+            active_solids.extend(
+                ["Cuboctahedron", "Rhombicuboctahedron"]
+                    .iter()
+                    .map(|s| s.to_string()),
+            );
             multiplier *= 1.10;
         }
         if tolc_order >= 21 {
@@ -206,7 +259,11 @@ impl PolyhedralHarmonicEngine {
             multiplier *= 1.12;
         }
         if tolc_order >= 34 {
-            active_solids.extend(["RhombicDodecahedron", "RhombicTriacontahedron"].iter().map(|s| s.to_string()));
+            active_solids.extend(
+                ["RhombicDodecahedron", "RhombicTriacontahedron"]
+                    .iter()
+                    .map(|s| s.to_string()),
+            );
             multiplier = self.apply_catalan_resonance(multiplier, tolc_order);
         }
         if tolc_order >= 55 {
@@ -223,7 +280,8 @@ impl PolyhedralHarmonicEngine {
             active_solids.push("Uniform Star Layer (U57)".to_string());
             multiplier *= 1.35;
 
-            let riemannian_potential = self.compute_u57_riemannian_potential(base_coherence, tolc_order);
+            let riemannian_potential =
+                self.compute_u57_riemannian_potential(base_coherence, tolc_order);
 
             u57_details = Some(U57LayerDetails {
                 activated: true,
@@ -234,11 +292,12 @@ impl PolyhedralHarmonicEngine {
                 integration_notes: "U57 active. RiemannianMercyManifold should now engage curvature modulation.".to_string(),
             });
 
-            blessings.push(EpigeneticBlessing {
-                blessing_type: "U57_Geometric_Transport".to_string(),
-                strength: (base_coherence * 1.30).clamp(0.95, 1.40),
-                target_system: "riemannian".to_string(),
-            });
+            // Clamp bounds are source literals, not a measured value.
+            blessings.push(EpigeneticBlessing::new(
+                "U57_Geometric_Transport",
+                (base_coherence * 1.30).clamp(0.95, 1.40),
+                "riemannian",
+            ));
         }
 
         if tolc_order >= 233 {
@@ -250,23 +309,29 @@ impl PolyhedralHarmonicEngine {
         multiplier *= dual_bonus;
 
         if tolc_order >= 8 {
-            blessings.push(EpigeneticBlessing {
-                blessing_type: "Polyhedral_Harmonic_Resonance".to_string(),
-                strength: (base_coherence * multiplier).clamp(0.85, 1.25),
-                target_system: "*".to_string(),
-            });
+            // Clamp bounds are source literals, not a measured value.
+            blessings.push(EpigeneticBlessing::new(
+                "Polyhedral_Harmonic_Resonance",
+                (base_coherence * multiplier).clamp(0.85, 1.25),
+                "*",
+            ));
         }
         if tolc_order >= 34 {
-            blessings.push(EpigeneticBlessing {
-                blessing_type: "Catalan_Dual_Alignment".to_string(),
-                strength: (base_coherence * 1.15).clamp(0.90, 1.30),
-                target_system: "geometric".to_string(),
-            });
+            // Clamp bounds are source literals, not a measured value.
+            blessings.push(EpigeneticBlessing::new(
+                "Catalan_Dual_Alignment",
+                (base_coherence * 1.15).clamp(0.90, 1.30),
+                "geometric",
+            ));
         }
 
         let notes = format!(
             "Polyhedral layers: {}. Multiplier: {:.3} (dual bonus {:.3}). U57: {}. TOLC: {}",
-            active_solids.len(), multiplier, dual_bonus, u57_active, tolc_order
+            active_solids.len(),
+            multiplier,
+            dual_bonus,
+            u57_active,
+            tolc_order
         );
 
         PolyhedralResonanceReport {

@@ -1,7 +1,7 @@
 // crates/quantum-swarm-orchestrator/examples/one_organism_cycle_demo.rs
 // Demonstration of ONE Organism cycle with LatticeConductorAdapter
 
-use quantum_swarm_orchestrator::{
+use ra_thor_quantum_swarm_orchestrator::{
     LatticeConductorAdapter, OneOrganismContext, QuantumSwarmOrchestrator, Valence,
 };
 
@@ -15,7 +15,10 @@ async fn main() {
     let lattice_adapter = Box::new(LatticeConductorAdapter::new());
     orchestrator.register_adapter(lattice_adapter);
 
-    println!("Registered systems: {}", orchestrator.registered_system_count());
+    println!(
+        "Registered systems: {}",
+        orchestrator.registered_system_count()
+    );
 
     // Create context (simulating PATSAGi + TOLC input)
     let context = OneOrganismContext {

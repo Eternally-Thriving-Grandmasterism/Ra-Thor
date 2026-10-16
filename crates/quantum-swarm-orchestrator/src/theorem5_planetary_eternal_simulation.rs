@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; println recurrence clamps mercy_valence with .min(0.9999) and labels that a theorem result. rand is imported. Not an implementation of a demonstrated theorem.
 //! # Theorem 5 Planetary & Eternal Simulation
 //!
 //! **Production implementation of Theorem 5: Planetary-Scale Invariance

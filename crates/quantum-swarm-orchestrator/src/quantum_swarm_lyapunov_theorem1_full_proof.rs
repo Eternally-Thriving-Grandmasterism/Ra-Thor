@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; doc-comment proof text, not an implementation.
 //! # Full Rigorous Proof of Theorem 1 — Exponential Convergence to Mercy Consensus
 //!
 //! **This module contains the complete, self-contained mathematical derivation

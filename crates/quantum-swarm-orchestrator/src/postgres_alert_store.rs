@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; uses sqlx and anomaly_alerting, which is not a module.
 //! # Postgres Alert Store
 //!
 //! **Async Postgres backend for persistent alert storage using sqlx.**

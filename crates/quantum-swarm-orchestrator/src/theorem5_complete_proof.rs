@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; doc-comment proof text, not an implementation.
 //! # Theorem 5 — Complete Rigorous Proof (Definitive Version)
 //!
 //! **Theorem 5: Planetary-Scale Invariance and Eternal Forward Compatibility**

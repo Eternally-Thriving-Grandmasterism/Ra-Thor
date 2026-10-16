@@ -17,7 +17,7 @@
 // - Adapter-ready for CryptoSystem / Blockchain organ
 
 use crate::polyhedral_harmonic_engine::PolyhedralHarmonicEngine;
-use crate::riemannian_mercy_manifold::{RiemannianMercyManifold, GeometricTransportResult};
+use crate::riemannian_mercy_manifold::{GeometricTransportResult, RiemannianMercyManifold};
 use crate::types::EpigeneticBlessing;
 
 /// A single fractal shard node in the recursive hierarchy.
@@ -105,7 +105,12 @@ impl FractalTopologyEngine {
     /// Recursively expand a shard into self-similar children (Sierpinski / hyper-simplex inspired).
     /// Branching factor is kept modest (3) for logarithmic diameter while remaining fractal.
     fn expand_to_depth(&mut self, parent_id: u64, target_depth: u32) {
-        let parent_depth = self.shards.iter().find(|s| s.id == parent_id).map(|s| s.depth).unwrap_or(0);
+        let parent_depth = self
+            .shards
+            .iter()
+            .find(|s| s.id == parent_id)
+            .map(|s| s.depth)
+            .unwrap_or(0);
         if parent_depth >= target_depth {
             return;
         }
@@ -157,9 +162,10 @@ impl FractalTopologyEngine {
         let poly_report = polyhedral_engine.process_resonance(tolc_order, base_coherence);
 
         // 2. Optional Riemannian transport if U57 is active
-        let transport = poly_report.u57_details.as_ref().map(|u57| {
-            riemannian.apply_mercy_gated_transport(u57, base_coherence)
-        });
+        let transport = poly_report
+            .u57_details
+            .as_ref()
+            .map(|u57| riemannian.apply_mercy_gated_transport(u57, base_coherence));
 
         // 3. Propagate valence / coherence down the fractal hierarchy
         let resonance_mult = poly_report.resonance_multiplier;
@@ -170,10 +176,11 @@ impl FractalTopologyEngine {
             if !shard.active {
                 continue;
             }
-            // Depth-dependent attenuation + resonance boost
+            // Depth-dependent attenuation + resonance boost.
+            // The clamp floor 0.999999 is a source literal, not a measured value.
             let depth_factor = 1.0 / (1.0 + shard.depth as f64 * 0.08);
-            let boosted = (shard.local_valence * resonance_mult * depth_factor)
-                .clamp(0.999999, 1.0);
+            let boosted =
+                (shard.local_valence * resonance_mult * depth_factor).clamp(0.999999, 1.0);
             shard.local_valence = boosted;
             total_valence += boosted;
             active_count += 1;
@@ -213,7 +220,9 @@ impl FractalTopologyEngine {
             suggested_blessings: blessings,
             geometric_notes: format!(
                 "Fractal cycle complete. Depth={}, Shards={}, Poly notes: {}",
-                max_depth, self.shards.len(), poly_report.notes
+                max_depth,
+                self.shards.len(),
+                poly_report.notes
             ),
             transport_result: transport,
         }
@@ -224,7 +233,9 @@ impl FractalTopologyEngine {
         let active = self.shards.iter().filter(|s| s.active).count();
         format!(
             "FractalTopologyEngine {}: {} shards ({} active), max_depth ready",
-            self.version, self.shards.len(), active
+            self.version,
+            self.shards.len(),
+            active
         )
     }
 

@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; binary calls SwarmMonitor, notification senders, AnomalyDetector, and MercyGatesEngine, which are not modules, and it depends on clap.
 //! # Ra-Thor Quantum Swarm Orchestrator — Unified Demo Binary
 //!
 //! **The single entry point for all simulation, monitoring, alerting, and legacy modes.**

@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; uses powrush::PowrushGame and methods this orchestrator does not define.
 //! Quantum Swarm Bridge for Core Spine Integration
 //!
 //! Bidirectional communication between TOLC Lattice and Quantum Swarm.

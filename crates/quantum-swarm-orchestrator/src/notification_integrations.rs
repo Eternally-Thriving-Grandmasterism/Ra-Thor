@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; uses reqwest, async_trait, and anomaly_alerting, which is not a module.
 //! # Notification Integrations
 //!
 //! **Production-grade notification system for Ra-Thor swarm alerts.**

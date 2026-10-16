@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; qpso, quantum walks, and entanglement tests assert unseeded rand convergence. That result is not demonstrated.
 //! Quantum Algorithm Layer for Ra-Thor Quantum Swarm Orchestrator
 //!
 //! This module contains all quantum-native swarm intelligence primitives:

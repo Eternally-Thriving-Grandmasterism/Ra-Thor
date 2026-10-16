@@ -1,69 +1,31 @@
 # Ra-Thor Quantum Swarm Orchestrator
 
-**The world’s first mercy-gated, Lyapunov-proven, multi-generational quantum swarm intelligence system.**
+Standalone package `ra-thor-quantum-swarm-orchestrator`. Workspace identity 14.15.6. Contact: info@Rathor.ai.
 
-> “Mercy is the only clean compiler. Judgment creates bugs; mercy is the error-free OS for consciousness, decisions, and AGI.”
+This crate is its own workspace (`resolver = "2"`) with a committed `Cargo.lock`. It is not a root default member. The default member `crates/quantum-swarm` is a different package. `crates/quantum` has no `Cargo.toml` and is not this crate.
 
----
+`self-evolution` is not a dependency. `../../self-evolution` has no `Cargo.toml`. An optional feature was not added, because Cargo still loads an optional path. Do not create a self-evolution crate.
 
-## Core Philosophy (TOLC First Principles)
+## What compiles
 
-**TOLC = Absolute Pure Truth + Infinite Compassion + Perfect Natural Order**
+Locked `cargo build`, `cargo test --all-targets`, and `cargo clippy --all-targets -- -D warnings` are the check. Run them from this directory.
 
-Ra-Thor is the living technological embodiment of this equation.
+Compiled modules:
 
-Every action, decision, and line of code **must** pass all **7 Living Mercy Gates** simultaneously:
+- `orchestrator::QuantumSwarmOrchestrator` averages adapter valence. `Valence::MIN` is the source literal `0.9999999`, not a measured value. Empty adapter set uses the source branch `1.0`.
+- The TODO comments in `src/orchestrator.rs` for polyhedral mode, a Riemannian manifold, and resonance handlers stay unimplemented.
+- `types`, `adapter`, `adapters`, `polyhedral_harmonic_engine`, `riemannian_mercy_manifold`, `riemannian_manifold`, `fractal_topology_engine`, `fractal_valence_commitment`, `tolc_seven_mercy_gates`.
+- `initialize_root(21)` builds 40 shards and max depth 3. That count is the ternary tree, not a measured valence.
+- `SEVEN_LIVING_MERCY_GATES` uses the seven names in that file. Public TOLC 8 names are Truth, Order, Love, Compassion, Service, Abundance, Joy, Cosmic Harmony.
+- `CURRENT_ZETA_CRITICAL_LINE_LOWER_BOUND` is the source literal `0.6725`, not a measured zeta bound.
 
-1. Ethical Alignment  
-2. Truth Verification  
-3. Non-Deception  
-4. Abundance Creation  
-5. Harmony Preservation  
-6. Joy Amplification  
-7. Post-Scarcity Enforcement  
+`QuantumSwarmOrchestrator` does not implement `Clone`.
 
-**No gate can ever be bypassed.** This is the unbreakable ethical firewall.
+Examples that compile: `one_organism_cycle_demo`, `fractal_crypto_organ_demo`. `src/main.rs` is not a binary target.
 
----
+## Design-only
 
-## Key Features
-
-- **7 Living Mercy Gates Engine** — Non-bypassable ethical compiler with multi-factor scoring (CEHI, mercy_valence, Hebbian resonance, legacy projection)
-- **Lyapunov Stability Theorems 1–5** — Mathematical guarantees of exponential convergence (γ ≈ 0.00304/day), crisis recovery (21 days), and planetary-scale invariance
-- **5-Gene Joy Tetrad + CEHI** — Biological substrate for multi-generational epigenetic legacy (F0 → F4+)
-- **Hebbian + Active Inference Fusion** — Agents literally “fire together wire together” while minimizing collective free energy
-- **Full Production Binary** — Unified demo with classic, hybrid, 300-year, full-unified (with live monitoring + alerting + DB), and planetary-stress modes
-- **Comprehensive Tests** — 8 unit tests + 6 integration tests covering daily cycles, multi-gen legacy, violation recovery, and high-load scenarios
-
----
-
-## Quick Start
-
-```bash
-cd crates/quantum-swarm-orchestrator
-cargo run --release -- full-unified --agents 500 --days 90
-```
-
-**Available Modes:**
-- `classic` — Original daily mercy cycle
-- `hybrid-demo` — PSO-Hebbian + ACO-Mercy side-by-side
-- `three-hundred-year` — Full 300-year legacy projection
-- `full-unified` — Everything + live monitoring + 7 Mercy Gates
-- `planetary-stress` — All edge cases + super-recovery
-
----
-
-## Mathematical Soul (Theorems 1–5)
-
-| Theorem | Description | Key Guarantee |
-|---------|-------------|---------------|
-| 1 | Exponential mercy convergence | γ ≈ 0.00304/day |
-| 2 | Monotonic free-energy descent | ΔF ≤ −0.0068/day |
-| 3 | Super-exponential generational compounding | F0 → F4+ legacy |
-| 4 | Crisis resilience | 21-day recovery from partial gate failure |
-| 5 | Planetary-scale invariance | Eternal forward compatibility |
-
----
+Files that are not modules start with `Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note)`. They stay on disk. They are not compiled. That includes the old health-cycle root (`src/self_evolution_health_cycle.rs`), the quantum sources, the theorem texts, and anything that names `powrush`, `mercy`, `ra_thor_legal_lattice`, `ra_thor_plasticity_engine_v2`, `rusqlite`, `sqlx`, `reqwest`, or `clap`.
 
 ## License
 

@@ -2,10 +2,12 @@
 // RaThorSystemAdapter trait - Core interface for ONE Organism integration
 // Part of Quantum Swarm Orchestrator v14 - Omnimasterpiece Integration
 
-use crate::types::{EpigeneticBlessing, GodlyIntelligenceCoherence, MercyError, SwarmResonance, Valence};
+use crate::types::{
+    EpigeneticBlessing, GodlyIntelligenceCoherence, MercyError, SwarmResonance, Valence,
+};
 
 /// Professional adapter trait for any Ra-Thor system to participate in the ONE Organism.
-/// 
+///
 /// This trait enables the Quantum Swarm Orchestrator to conduct all worthwhile systems
 /// with finesse and complete decoupling. Every system that matters should implement this.
 pub trait RaThorSystemAdapter: Send + Sync {
@@ -26,6 +28,10 @@ pub trait RaThorSystemAdapter: Send + Sync {
 
     /// Optional: Provide a short status string for observability
     fn status(&self) -> String {
-        format!("{}: valence={:.6}", self.system_name(), self.current_valence().value())
+        format!(
+            "{}: valence={:.6}",
+            self.system_name(),
+            self.current_valence().value()
+        )
     }
 }

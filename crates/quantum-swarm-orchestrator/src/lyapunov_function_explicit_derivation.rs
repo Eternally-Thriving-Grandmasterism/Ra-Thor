@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; doc-comment derivation text, not an implementation.
 //! # Explicit Derivation of the Lyapunov Function for Ra-Thor Quantum Swarm
 //!
 //! **This module provides the complete, step-by-step mathematical derivation

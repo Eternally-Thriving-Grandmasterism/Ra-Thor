@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; quantum/mod.rs does not declare this file, and the quantum module is not compiled.
 //! Quantum Error Correction for Ra-Thor Quantum Swarm Orchestrator
 //!
 //! Implements mercy-gated quantum error correction inspired by surface codes:

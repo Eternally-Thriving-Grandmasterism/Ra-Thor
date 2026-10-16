@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; uses ra_thor_legal_lattice and ra_thor_plasticity_engine_v2. Those crates are not dependencies.
 //! # Quantum Swarm Agent (Clarity Edition — Revised Cycle Method)
 //!
 //! **The individual mercy-aligned active-inference agent inside the Ra-Thor Quantum Swarm.**

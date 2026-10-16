@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; its unit test expects a neutralize action to fail Ethical Alignment, but the scorer does not penalize that word. The scorer was not changed to force a failure.
 //! # 7 Living Mercy Gates Engine — Expanded Scoring Logic + Unit Tests
 //!
 //! **The non-bypassable ethical compiler for Ra-Thor Quantum Swarm Orchestrator.**

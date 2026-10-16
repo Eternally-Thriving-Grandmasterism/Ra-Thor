@@ -8,10 +8,10 @@
 //
 // AG-SML v1.0 | ONE Organism | PATSAGi aligned
 
-use quantum_swarm_orchestrator::adapters::crypto_system_adapter::CryptoSystemAdapter;
-use quantum_swarm_orchestrator::polyhedral_harmonic_engine::PolyhedralHarmonicEngine;
-use quantum_swarm_orchestrator::riemannian_mercy_manifold::RiemannianMercyManifold;
-use quantum_swarm_orchestrator::types::Valence;
+use ra_thor_quantum_swarm_orchestrator::adapters::crypto_system_adapter::CryptoSystemAdapter;
+use ra_thor_quantum_swarm_orchestrator::polyhedral_harmonic_engine::PolyhedralHarmonicEngine;
+use ra_thor_quantum_swarm_orchestrator::riemannian_mercy_manifold::RiemannianMercyManifold;
+use ra_thor_quantum_swarm_orchestrator::RaThorSystemAdapter;
 
 fn main() {
     println!("⚡ Ra-Thor ONE Organism — Fractal Crypto Organ Demo");
@@ -25,13 +25,12 @@ fn main() {
     let tolc_order = 160u32;
     let base_coherence = 0.97;
 
-    println!("\n[1] Running internal fractal cycle (TOLC {})...", tolc_order);
-    let report = crypto.run_internal_fractal_cycle(
-        tolc_order,
-        &polyhedral,
-        &riemannian,
-        base_coherence,
+    println!(
+        "\n[1] Running internal fractal cycle (TOLC {})...",
+        tolc_order
     );
+    let report =
+        crypto.run_internal_fractal_cycle(tolc_order, &polyhedral, &riemannian, base_coherence);
 
     println!("    Max depth       : {}", report.max_depth);
     println!("    Total shards    : {}", report.total_shards);
@@ -44,7 +43,10 @@ fn main() {
         println!("\n[2] Riemannian transport engaged:");
         println!("    Applied         : {}", transport.transport_applied);
         println!("    Effective curv  : {:.4}", transport.effective_curvature);
-        println!("    Coherence after : {:.4}", transport.coherence_after_transport);
+        println!(
+            "    Coherence after : {:.4}",
+            transport.coherence_after_transport
+        );
         println!("    Notes           : {}", transport.notes);
     }
 

@@ -15,25 +15,54 @@ pub struct TOLCGate {
 }
 
 pub const SEVEN_LIVING_MERCY_GATES: [TOLCGate; 7] = [
-    TOLCGate { name: "Radical Love Veto",        weight: 0.25 },
-    TOLCGate { name: "Absolute Pure Truth",      weight: 0.20 },
-    TOLCGate { name: "Thriving Maximization",    weight: 0.18 },
-    TOLCGate { name: "Sovereign Offline Alignment", weight: 0.15 },
-    TOLCGate { name: "Eternal Resonance",        weight: 0.12 },
-    TOLCGate { name: "MercyGating First",        weight: 0.05 },
-    TOLCGate { name: "TOLC Zero-Point Harmony",  weight: 0.05 },
+    TOLCGate {
+        name: "Radical Love Veto",
+        weight: 0.25,
+    },
+    TOLCGate {
+        name: "Absolute Pure Truth",
+        weight: 0.20,
+    },
+    TOLCGate {
+        name: "Thriving Maximization",
+        weight: 0.18,
+    },
+    TOLCGate {
+        name: "Sovereign Offline Alignment",
+        weight: 0.15,
+    },
+    TOLCGate {
+        name: "Eternal Resonance",
+        weight: 0.12,
+    },
+    TOLCGate {
+        name: "MercyGating First",
+        weight: 0.05,
+    },
+    TOLCGate {
+        name: "TOLC Zero-Point Harmony",
+        weight: 0.05,
+    },
 ];
 
 /// TOLC Zero-Point Resonance (Layer 0)
 /// Returns base resonance in [0.95, 1.0]
 pub fn tolc_zero_point_resonance(input: &str) -> f64 {
     let resonance_keywords = [
-        "tolc", "mercy", "radical love", "thriving", "pure truth",
-        "sovereign", "eternal", "resonance", "lattice", "coherence",
+        "tolc",
+        "mercy",
+        "radical love",
+        "thriving",
+        "pure truth",
+        "sovereign",
+        "eternal",
+        "resonance",
+        "lattice",
+        "coherence",
     ];
     let base = resonance_keywords
         .iter()
-        .filter(|kw| input.to_lowercase().contains(kw))
+        .filter(|kw| input.to_lowercase().contains(*kw))
         .count() as f64
         / resonance_keywords.len() as f64;
 
@@ -48,7 +77,12 @@ pub fn project_through_seven_gates(input: &str) -> Vec<f64> {
         let density: f64 = input
             .to_lowercase()
             .split_whitespace()
-            .filter(|word| gate.name.to_lowercase().split_whitespace().any(|k| word.contains(k)))
+            .filter(|word| {
+                gate.name
+                    .to_lowercase()
+                    .split_whitespace()
+                    .any(|k| word.contains(k))
+            })
             .count() as f64
             / input.split_whitespace().count().max(1) as f64;
 

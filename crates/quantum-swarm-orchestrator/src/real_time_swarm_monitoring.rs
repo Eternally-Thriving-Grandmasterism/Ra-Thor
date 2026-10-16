@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; capture calls get_state, average_cehi_last_n_days, current_gate_pass_rate, and current_convergence_factor, which this orchestrator does not define.
 //! # Real-Time Swarm Monitoring
 //!
 //! **Production-grade real-time monitoring for the Ra-Thor Quantum Swarm Orchestrator.**

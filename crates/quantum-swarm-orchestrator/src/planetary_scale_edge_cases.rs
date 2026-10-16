@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; println stress text presented as theorem validation. Not a demonstrated result.
 //! # Planetary-Scale Edge Cases Simulation
 //!
 //! **Extreme stress tests of the Ra-Thor Quantum Swarm at planetary scale (N ≈ 8–12 billion).**

@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; depends on anomaly_alerting and real_time_swarm_monitoring, which are not modules.
 //! # Swarm Robotics Applications Module
 //!
 //! **Production-ready structs and simulation hooks for Ra-Thor-powered swarm robotics.**

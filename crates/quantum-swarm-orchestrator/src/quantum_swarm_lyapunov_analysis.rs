@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; uses quantum_swarm_convergence and ra_thor_legal_lattice, which are not modules or dependencies.
 //! # Quantum Swarm Lyapunov Analysis
 //!
 //! **Rigorous Lyapunov stability proof for Theorem 4: Robustness to Partial Gate Failure

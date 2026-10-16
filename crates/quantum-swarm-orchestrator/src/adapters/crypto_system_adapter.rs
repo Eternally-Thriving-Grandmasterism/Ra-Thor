@@ -124,9 +124,9 @@ impl RaThorSystemAdapter for CryptoSystemAdapter {
         let new_val = (self.current_valence.value() + mercy_boost).clamp(0.999999, 1.0);
         self.current_valence = Valence(new_val);
 
-        self.organism_coherence_contribution =
-            (self.organism_coherence_contribution + blessing.evolution_impact * 0.01)
-                .clamp(0.88, 1.0);
+        self.organism_coherence_contribution = (self.organism_coherence_contribution
+            + blessing.evolution_impact * 0.01)
+            .clamp(0.88, 1.0);
     }
 
     fn status(&self) -> String {

@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; uses quantum_swarm_convergence, which is not a module.
 //! # Quantum Swarm State
 //!
 //! **Persistent, serializable state for the Ra-Thor Quantum Swarm Orchestrator.**

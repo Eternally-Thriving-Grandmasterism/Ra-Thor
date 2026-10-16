@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; comparison string states guarantees this crate does not demonstrate.
 //! # Classical Swarm Models vs Ra-Thor Quantum Swarm — Deep Comparison
 //!
 //! **The definitive side-by-side analysis of classical swarm intelligence algorithms

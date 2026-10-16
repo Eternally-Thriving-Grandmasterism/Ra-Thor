@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; uses powrush::PowrushGame and quantum_swarm_bridge, which is not a module.
 //! Phase 2 Integration Layer
 //!
 //! Ergonomic, crate-agnostic helpers so every other crate in the monorepo

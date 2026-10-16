@@ -1,32 +1,44 @@
 [package]
 name = "ra-thor-quantum-swarm-orchestrator"
-version.workspace = true
-authors.workspace = true
-edition.workspace = true
-license.workspace = true
-description.workspace = true
-repository.workspace = true
+version = "14.15.6"
+edition = "2021"
+license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
+authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
+description = "Adapter orchestrator plus local geometric modules. Valence::MIN is the source literal 0.9999999. self-evolution is not a dependency. Design-only files are not modules."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 keywords = ["quantum", "swarm", "orchestrator", "active-inference", "mercy", "ra-thor", "plasticity", "hebbian"]
 categories = ["science", "simulation", "embedded", "network-programming"]
+autobins = false
+autoexamples = false
+
+# Standalone workspace, same pattern as crates/fenca, crates/council,
+# crates/powrush, and crates/sovereign-shard-genesis.
+# `cargo build --locked` and `cargo test --locked` use this manifest.
+# This crate is not a root default member.
+# Path dependencies are relative. This package has none.
+# self-evolution was dropped. ../../self-evolution has no Cargo.toml.
+# An optional feature was not added: Cargo still loads an optional path,
+# and that directory is not a package. Do not create a self-evolution crate.
+# geometric-intelligence has no library. plasticity-engine-v2 uses workspace
+# keys and path-depends back on this package. Neither is a dependency here.
+# src/main.rs is not a binary target.
+[workspace]
+resolver = "2"
 
 [dependencies]
-geometric-intelligence = { path = "../geometric-intelligence", optional = true }
-ra-thor-legal-lattice = { path = "../legal-lattice" }
-ra-thor-plasticity-engine-v2 = { path = "../plasticity-engine-v2" }
-self-evolution = { path = "../../self-evolution" }
-tokio = { workspace = true, features = ["full"] }
-serde = { workspace = true, features = ["derive"] }
-thiserror.workspace = true
-tracing.workspace = true
-chrono = { workspace = true, features = ["serde"] }
-rand.workspace = true
-ndarray = "0.15"
+serde = { version = "1.0", features = ["derive"] }
+thiserror = "1.0"
 
-[features]
-default = []
-full = ["geometric-intelligence"]
-focused-geometry = ["geometric-intelligence"]
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 
-# Quantum Swarm Orchestrator
-# Mercy-gated active-inference coordination layer.
-# Now delegates geometric intelligence to geometric-intelligence crate (optional for focused shards).
+[lib]
+path = "src/lib.rs"
+
+[[example]]
+name = "one_organism_cycle_demo"
+path = "examples/one_organism_cycle_demo.rs"
+
+[[example]]
+name = "fractal_crypto_organ_demo"
+path = "examples/fractal_crypto_organ_demo.rs"
