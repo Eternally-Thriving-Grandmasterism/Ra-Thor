@@ -462,10 +462,54 @@ fn save_to_file_leaves_no_temp_file_on_success() {
         .expect("read target directory")
         .filter_map(|entry| entry.ok())
         .map(|entry| entry.file_name().to_string_lossy().into_owned())
-        .filter(|name| name.starts_with(&target_name) && name != &target_name)
+        .filter(|name| {
+            (name.starts_with(&target_name) && name != &target_name)
+                || name.starts_with(&format!(".{target_name}."))
+        })
         .collect();
     let _ = fs::remove_file(&path);
     assert!(leftovers.is_empty(), "temp file left behind: {leftovers:?}");
+}
+
+#[test]
+fn two_saves_in_a_row_leave_no_temp_files() {
+    let _guard = lock_hmac_env();
+    set_hmac_fixture(HMAC_FIXTURE_32);
+    let dir = std::env::temp_dir().join(format!(
+        "shard-composer-it-two-saves-{}",
+        std::process::id()
+    ));
+    let _ = fs::remove_dir_all(&dir);
+    fs::create_dir_all(&dir).expect("create save directory");
+    let path = dir.join("state.json");
+    let adapter = blessed_adapter();
+    adapter.save_to_file(&path).expect("first save");
+    assert_dir_has_only(&dir, "state.json");
+    let mut updated = adapter.clone();
+    updated.apply_epigenetic_blessing(blessing(1.0, 0.0, 0.5));
+    updated.save_to_file(&path).expect("second save");
+    assert_dir_has_only(&dir, "state.json");
+    let loaded = ShardComposerAdapter::load_from_file(&path);
+    let _ = fs::remove_dir_all(&dir);
+    assert_eq!(loaded.blessings_received(), 2);
+    assert_eq!(loaded.blessings_received(), updated.blessings_received());
+    assert_eq!(loaded.evolution_level(), updated.evolution_level());
+}
+
+fn assert_dir_has_only(dir: &std::path::Path, target_name: &str) {
+    let mut names: Vec<String> = fs::read_dir(dir)
+        .expect("read target directory")
+        .map(|entry| {
+            entry
+                .expect("entry")
+                .file_name()
+                .to_string_lossy()
+                .into_owned()
+        })
+        .collect();
+    names.sort();
+    assert_eq!(names, vec![target_name.to_string()]);
+    assert!(!dir.join(format!("{target_name}.tmp")).exists());
 }
 
 fn assert_overwrite_message(err: &std::io::Error) {
