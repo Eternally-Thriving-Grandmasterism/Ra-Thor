@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 PATSAGI-COUNCILS-BUILDS-1 council note): not compiled; LatticeConductor is not defined in this crate.
 //! PATSAGi Bridge — v14.15.0
 //!
 //! ProposalHandler trait + specialized council bridges.

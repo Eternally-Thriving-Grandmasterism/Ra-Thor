@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 PATSAGI-COUNCILS-BUILDS-1 council note): not compiled; lean-sys was not shown to resolve, tracing is not a dependency, and the FFI bridge is not active.
 //! Mercy Threshold Checker — v14.15.0
 //!
 //! Production mercy threshold with optional Lean 4 FFI (lean-sys).

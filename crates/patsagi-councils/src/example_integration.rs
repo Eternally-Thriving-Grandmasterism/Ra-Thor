@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 PATSAGI-COUNCILS-BUILDS-1 council note): not compiled; PowrushPatsagiBridge is not a compiled type.
 //! # Example Integration — v14.15.0
 //!
 //! How to wire the 16 PATSAGi Councils into the Powrush-MMO simulation loop.

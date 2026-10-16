@@ -14,7 +14,6 @@
 
 use patsagi_councils::{PowrushTelemetrySnapshot, RaThorFeedbackLoop};
 use std::env;
-use std::path::PathBuf;
 
 fn main() {
     println!("╔════════════════════════════════════════════════════════════╗");
@@ -41,11 +40,23 @@ fn main() {
     println!("  session_id              : {}", snap.session_id);
     println!("  export_seq              : {}", snap.export_seq);
     println!("  abundance_signal        : {:.2}", snap.abundance_signal);
-    println!("  peaceful_resolution     : {:.2}", snap.peaceful_resolution_signal);
-    println!("  ethical_floor           : {:.2}", snap.ethical_floor_signal);
-    println!("  council_participation   : {:.2}", snap.council_participation_signal);
+    println!(
+        "  peaceful_resolution     : {:.2}",
+        snap.peaceful_resolution_signal
+    );
+    println!(
+        "  ethical_floor           : {:.2}",
+        snap.ethical_floor_signal
+    );
+    println!(
+        "  council_participation   : {:.2}",
+        snap.council_participation_signal
+    );
     println!("  innovation              : {:.2}", snap.innovation_signal);
-    println!("  mercy_presence          : {:.2}\n", snap.mercy_presence_signal);
+    println!(
+        "  mercy_presence          : {:.2}\n",
+        snap.mercy_presence_signal
+    );
 
     // Emit to a local artifacts path for the demo
     let mut out = env::temp_dir();
@@ -62,7 +73,7 @@ fn main() {
                 println!("Emitted envelope (pretty):\n{}", raw);
             }
 
-            println!("\nThunder locked in. Dual-repo soft feedback organism is operational.");
+            println!("\nDemo cycle complete.");
             println!("Yoi ⚡");
         }
         Err(e) => {

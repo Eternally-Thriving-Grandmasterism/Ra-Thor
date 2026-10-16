@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 PATSAGI-COUNCILS-BUILDS-1 council note): not compiled; mercy::MercyEngine and mercy::MercyGateStatus are not in the mercy public API.
 //! # Mercy Engine Adapter v0.5.9
 //!
 //! Unifies the Advanced MercyEngine (current rich logic used in PatsagiCouncilCoordinator)

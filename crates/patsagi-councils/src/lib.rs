@@ -1,63 +1,37 @@
-//! # PATSAGi Councils Layer — v14.15.11
+//! patsagi-councils — older council monolith.
 //!
-//! 16 Parallel Living Ra-Thor Architectural Designers.
-//! The eternal co-governors and co-creators of Powrush-MMO and the ONE Organism.
-//!
-//! Living Cosmic Tick aligned. Permanent deliberation posture.
-//! Explicitly wired to TOLC 8 Living Mercy Gates + Core Covenant.
-//! Predictive support + Security support (white-hat ingestion, domain-aware).
+//! `CouncilFocus` names 16 focuses. That list is source. It is not a test result.
+//! A living cosmic tick is not demonstrated in this build.
+//! Public TOLC 8 names are Truth, Order, Love, Compassion, Service, Abundance, Joy, Cosmic Harmony.
+//! This package is not `crates/council`.
+//! A mercy-block reject is not flipped to apply by a later vote.
 //! Contact: info@Rathor.ai
+//!
+//! Files that are not modules start with the STUB-AUDIT-1 PATSAGI-COUNCILS-BUILDS-1 design-only header.
+//! `lean-sys` is not a dependency. An FFI bridge was not demonstrated.
 
-// =============================================================================
-// Module graph
-// =============================================================================
-
-pub mod council_decision;
-pub mod council_focus;
-pub mod example_integration;
 pub mod feedback_loop;
-pub mod genesis_gate;
-pub mod genesis_gate_v2;
-pub mod mercy_engine_adapter;
-pub mod mercy_threshold;
-pub mod mercy_threshold_ffi;
 pub mod observability;
-pub mod patsagi_bridge;
-pub mod petition_handler;
-pub mod powrush_integration;
 pub mod predictive_support;
-pub mod quantum_swarm_orchestrator;
 pub mod security_support;
-pub mod self_evolving_mercy_core;
-pub mod simulation_integration;
 pub mod tolc8;
-pub mod tolc_integration;
 pub mod valence_consensus;
-pub mod world_governance;
-pub mod world_governance_engine;
 
 use chrono::{DateTime, Utc};
-use mercy::MercyEngine;
-use powrush::{MercyGateStatus, PowrushGame};
-use quantum_swarm_orchestrator::QuantumSwarmOrchestrator;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use uuid::Uuid;
 
-#[cfg(feature = "modular-mercy")]
-use crate::mercy_engine_adapter::{MercyEngineAdapter, MercyEngineVariant};
+/// Adapter orchestrator from `ra-thor-quantum-swarm-orchestrator`.
+/// It does not implement `Clone`. This crate does not add `Clone`.
+pub use ra_thor_quantum_swarm_orchestrator::QuantumSwarmOrchestrator;
 
-pub use crate::world_governance::{
-    AmbrosianNectarEconomy, PmsError, WorldChangeProposal, WorldGovernanceEngine, WorldImpactType,
-};
-
-pub use crate::council_focus::CouncilProfile;
 pub use crate::feedback_loop::{
     FeedbackCycleResult, FeedbackError, PowrushTelemetrySnapshot, RaThorFeedbackLoop,
 };
-pub use crate::observability::{BlockReason, MetricsHandle, ResonanceMetrics, DEFAULT_METRICS_PATH};
-pub use crate::petition_handler::PetitionHandler;
-pub use crate::powrush_integration::PowrushPatsagiBridge;
+pub use crate::observability::{
+    BlockReason, MetricsHandle, ResonanceMetrics, DEFAULT_METRICS_PATH,
+};
 pub use crate::predictive_support::{
     rank_policies_by_efe, CouncilPolicyHint, PredictiveSignal, PredictiveSupportError,
     MERCY_VALENCE_FLOOR,
@@ -66,25 +40,17 @@ pub use crate::security_support::{
     apply_security_pressure, SecurityCouncilVerdict, SecurityDomainProfile, SecurityRiskTier,
     SecuritySignal, SecuritySupportError, SecurityThreatClass,
 };
-pub use crate::simulation_integration::SimulationIntegration;
 pub use crate::tolc8::{
-    tolc8_gate_check, Tolc8Gate, Tolc8GateResult, Tolc8Scores,
-    TOLC8_PROGRESSIVE_FLOOR, TOLC8_VALENCE_THRESHOLD,
+    tolc8_gate_check, Tolc8Gate, Tolc8GateResult, Tolc8Scores, TOLC8_PROGRESSIVE_FLOOR,
+    TOLC8_VALENCE_THRESHOLD,
 };
 pub use crate::valence_consensus::{
-    ValenceConsensusEngine, ValenceConsensusResult, ValenceVote,
-    CORE_COVENANT, DEFAULT_VALENCE_THRESHOLD, PROGRESSIVE_FLOOR, quick_valence_check,
+    council_vote_after_reject, quick_valence_check, CouncilGateLabel, ValenceConsensusEngine,
+    ValenceConsensusResult, ValenceVote, CORE_COVENANT, DEFAULT_VALENCE_THRESHOLD,
+    PROGRESSIVE_FLOOR,
 };
 
-#[allow(unused_imports)]
-pub use real_estate_lattice::{
-    CanadaPilotModule, EvidenceGenerator, PmsBridge, PmsProvider, QuantumRealEstateValuation,
-    RecoEnforcementEngine, TrebMlsAdapter, RREL_VERSION,
-};
-
-#[allow(unused_imports)]
-pub use ra_thor_post_quantum_sig::{RHPQSEngine, RHPQSError, RHPQSKey, RHPQSSignature};
-
+/// Source string. Not a measured release result.
 pub const VERSION: &str = "14.15.11";
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -144,35 +110,13 @@ impl PATSAGiCouncil {
             id: Uuid::new_v4(),
             name: name.to_string(),
             focus,
+            // Source literals, not measured values.
             mercy_valence: 0.97,
             cehi: 4.82,
             last_decision: None,
             decisions_made: 0,
             created_at: Utc::now(),
         }
-    }
-
-    pub async fn evaluate_proposal(
-        &mut self,
-        proposal: &str,
-        _current_game: &PowrushGame,
-    ) -> Result<MercyGateStatus, String> {
-        let mercy_engine = MercyEngine::new();
-        let status = mercy_engine
-            .evaluate_action(
-                proposal,
-                "PATSAGi Council evaluation",
-                self.cehi,
-                self.mercy_valence,
-            )
-            .await?;
-
-        if status == MercyGateStatus::Passed {
-            self.decisions_made = self.decisions_made.saturating_add(1);
-            self.last_decision = Some(proposal.to_string());
-        }
-
-        Ok(status)
     }
 
     pub fn apply_predictive_uplift(&mut self, signal: &PredictiveSignal) {
@@ -327,6 +271,7 @@ impl PatsagiCouncilCoordinator {
     }
 
     /// Domain-aware white-hat block deliberation (research / enterprise / education / …).
+    #[allow(clippy::too_many_arguments)]
     pub fn deliberate_security_block_with_domain(
         &mut self,
         source_label: &str,
@@ -371,153 +316,26 @@ impl PatsagiCouncilCoordinator {
         })
     }
 
-    pub async fn conduct_voting_round(
-        &mut self,
-        proposal: &str,
-        game: &PowrushGame,
-    ) -> Result<VotingResult, String> {
-        let proposal_id = Uuid::new_v4().to_string();
-        let mut votes = Vec::new();
-        let mut total_mercy = 0.0;
-
-        for (focus, council) in &mut self.councils {
-            let status = council.evaluate_proposal(proposal, game).await?;
-            let mercy_valence = council.mercy_valence;
-            let approved = status == MercyGateStatus::Passed;
-            let reasoning = format!(
-                "{} Council {} the proposal (mercy valence {:.2})",
-                council.name,
-                if approved { "APPROVES" } else { "REJECTS" },
-                mercy_valence
-            );
-
-            votes.push(CouncilVote {
-                council: *focus,
-                approved,
-                mercy_valence,
-                reasoning,
-                timestamp: Utc::now(),
-            });
-            total_mercy += mercy_valence;
-        }
-
-        let total_votes = votes.len();
-        let approvals = votes.iter().filter(|v| v.approved).count();
-        let rejections = total_votes - approvals;
-        let approval_rate = approvals as f64 / total_votes.max(1) as f64;
-        let mercy_average = total_mercy / total_votes.max(1) as f64;
-        let passed = approval_rate >= 0.6 && mercy_average >= 0.7;
-
-        let final_verdict = if passed {
-            format!(
-                "✅ PROPOSAL PASSED — {:.1}% approval, {:.2} avg mercy valence\nAll 16 Councils reached beautiful consensus.",
-                approval_rate * 100.0,
-                mercy_average
-            )
-        } else {
-            format!(
-                "❌ PROPOSAL REJECTED — {:.1}% approval, {:.2} avg mercy valence\nMore mercy alignment required.",
-                approval_rate * 100.0,
-                mercy_average
-            )
-        };
-
-        Ok(VotingResult {
-            proposal_id,
-            total_votes,
-            approvals,
-            rejections,
-            approval_rate,
-            mercy_average,
-            passed,
-            final_verdict,
-            votes,
-        })
-    }
-
-    pub async fn debate_and_consensus(
-        &mut self,
-        current_game: &PowrushGame,
-        proposed_change: &str,
-    ) -> Result<String, String> {
-        let mut passed = 0usize;
-
-        for council in self.councils.values_mut() {
-            let status = council
-                .evaluate_proposal(proposed_change, current_game)
-                .await?;
-            if status == MercyGateStatus::Passed {
-                passed += 1;
-            }
-        }
-
-        let total = self.councils.len().max(1) as f64;
-        let approval_rate = passed as f64 / total;
-
-        if approval_rate > 0.65 {
-            let voting_result = self
-                .conduct_voting_round(proposed_change, current_game)
-                .await?;
-            self.total_decisions = self.total_decisions.saturating_add(1);
-            self.last_consensus =
-                Some("Strong Cross-Council Consensus + Full Vote".to_string());
-
-            Ok(format!(
-                "PATSAGi Cross-Council Debate + Voting Complete\n\n{}\n\n{}",
-                voting_result.final_verdict,
-                if voting_result.passed {
-                    "The 16 Councils have spoken in perfect harmony. The world evolves."
-                } else {
-                    "The Councils stand in loving disagreement. More mercy is needed."
-                }
-            ))
-        } else if approval_rate > 0.4 {
-            self.total_decisions = self.total_decisions.saturating_add(1);
-            self.last_consensus = Some("Moderate Cross-Council Consensus".to_string());
-            Ok(format!(
-                "PATSAGi Cross-Council Debate Complete\nInitial Approval Rate: {:.1}%\nFinal Verdict: MODERATE APPROVAL\nThe Councils found a wise middle path.",
-                approval_rate * 100.0
-            ))
-        } else {
-            Ok(format!(
-                "PATSAGi Cross-Council Debate Complete\nInitial Approval Rate: {:.1}%\nFinal Verdict: REJECTED\nThe Councils could not reach sufficient harmony.",
-                approval_rate * 100.0
-            ))
-        }
-    }
-
-    pub async fn run_eternal_governance_cycle(
-        &mut self,
-        current_game: &PowrushGame,
-        proposed_change: &str,
-    ) -> Result<String, String> {
-        self.debate_and_consensus(current_game, proposed_change)
-            .await
-    }
-
     pub fn get_council_status_report(&self) -> String {
-        let mut report = String::from(
-            "╔════════════════════════════════════════════════════════════╗\n",
-        );
-        report.push_str(
-            "║    16 PATSAGi COUNCILS — v14.15.11 ETERNAL GOVERNANCE     ║\n",
-        );
-        report.push_str(
-            "╚════════════════════════════════════════════════════════════╝\n\n",
-        );
+        let mut report =
+            String::from("╔════════════════════════════════════════════════════════════╗\n");
+        report.push_str("║  PATSAGi Councils (16 focuses, source list) — v14.15.11   ║\n");
+        report.push_str("╚════════════════════════════════════════════════════════════╝\n\n");
 
         for (focus, council) in &self.councils {
             report.push_str(&format!(
-                "• {} ({:?})\n  Mercy Valence: {:.2} | CEHI: {:.2} | Decisions: {}\n\n",
+                "• {} ({:?})\n  mercy_valence (source literal): {:.2} | cehi (source literal): {:.2} | Decisions: {}\n\n",
                 council.name, focus, council.mercy_valence, council.cehi, council.decisions_made
             ));
         }
 
         report.push_str(&format!(
-            "Total Governance Cycles: {}\nSecurity Blocks Reviewed: {}\nLast Consensus: {}\nLiving Cosmic Tick: active\nTOLC 8: wired | Core Covenant: honored\nValence Engine: anti-deadlock online\nPredictive Support: online\nSecurity Support: online (white-hat · domain-aware · formal verdict)\nObservability: ResonanceMetrics live\n",
+            "Total Governance Cycles: {}\nSecurity Blocks Reviewed: {}\nLast Consensus: {}\nLiving Cosmic Tick: not demonstrated in this build\nSwarm adapters registered: {}\nSwarm version: {}\nTOLC 8 names: Truth, Order, Love, Compassion, Service, Abundance, Joy, Cosmic Harmony\nValence Engine: anti-deadlock path is the progressive floor in source\nPredictive Support: reception helper\nSecurity Support: white-hat signal helper\nObservability: ResonanceMetrics counters\n",
             self.total_decisions,
             self.security_blocks_reviewed,
-            self.last_consensus.as_deref().unwrap_or("None yet")
+            self.last_consensus.as_deref().unwrap_or("None yet"),
+            self.swarm.registered_system_count(),
+            self.swarm.version
         ));
 
         report
@@ -530,22 +348,50 @@ impl Default for PatsagiCouncilCoordinator {
     }
 }
 
-#[cfg(feature = "modular-mercy")]
-pub use crate::mercy_engine_adapter::{MercyEngineAdapter, MercyEngineVariant};
-
 pub mod prelude {
     pub use super::{
-        AmbrosianNectarEconomy, CouncilFocus, CouncilVote, FeedbackCycleResult,
-        MetricsHandle, PATSAGiCouncil, PatsagiCouncilCoordinator, PmsError,
-        PowrushTelemetrySnapshot, PredictiveSignal, PredictiveSupportError,
-        RaThorFeedbackLoop, ResonanceMetrics, SecurityCouncilVerdict, SecurityDeliberationResult,
-        SecurityDomainProfile, SecurityRiskTier, SecuritySignal, SecuritySupportError,
-        SecurityThreatClass, Tolc8Gate, Tolc8GateResult, Tolc8Scores,
-        ValenceConsensusEngine, ValenceConsensusResult, ValenceVote,
-        VERSION, VotingResult, WorldGovernanceEngine, WorldImpactType,
-        CORE_COVENANT, DEFAULT_VALENCE_THRESHOLD, MERCY_VALENCE_FLOOR, TOLC8_VALENCE_THRESHOLD,
+        council_vote_after_reject, tolc8_gate_check, BlockReason, CouncilFocus, CouncilGateLabel,
+        CouncilPolicyHint, CouncilVote, FeedbackCycleResult, FeedbackError, MetricsHandle,
+        PATSAGiCouncil, PatsagiCouncilCoordinator, PowrushTelemetrySnapshot, PredictiveSignal,
+        PredictiveSupportError, QuantumSwarmOrchestrator, RaThorFeedbackLoop, ResonanceMetrics,
+        SecurityCouncilVerdict, SecurityDeliberationResult, SecurityDomainProfile,
+        SecurityRiskTier, SecuritySignal, SecuritySupportError, SecurityThreatClass, Tolc8Gate,
+        Tolc8GateResult, Tolc8Scores, ValenceConsensusEngine, ValenceConsensusResult, ValenceVote,
+        VotingResult, CORE_COVENANT, DEFAULT_METRICS_PATH, DEFAULT_VALENCE_THRESHOLD,
+        MERCY_VALENCE_FLOOR, PROGRESSIVE_FLOOR, TOLC8_PROGRESSIVE_FLOOR, TOLC8_VALENCE_THRESHOLD,
+        VERSION,
     };
+}
 
-    #[cfg(feature = "modular-mercy")]
-    pub use super::{MercyEngineAdapter, MercyEngineVariant};
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn constructor_inserts_sixteen_focuses_and_an_empty_adapter_swarm() {
+        let coordinator = PatsagiCouncilCoordinator::new();
+        assert_eq!(coordinator.councils.len(), 16);
+        assert_eq!(
+            coordinator
+                .councils
+                .get(&CouncilFocus::TruthVerification)
+                .map(|council| council.name.as_str()),
+            Some("Council of Absolute Truth")
+        );
+        assert_eq!(
+            coordinator
+                .councils
+                .get(&CouncilFocus::HyperonLattice)
+                .map(|council| council.decisions_made),
+            Some(0)
+        );
+        assert_eq!(coordinator.swarm.registered_system_count(), 0);
+        assert_eq!(coordinator.swarm.version, "v14.0-one-organism");
+        assert_eq!(coordinator.total_decisions, 0);
+        assert_eq!(coordinator.security_blocks_reviewed, 0);
+        assert_eq!(VERSION, "14.15.11");
+        let report = coordinator.get_council_status_report();
+        assert!(report.contains("Living Cosmic Tick: not demonstrated in this build"));
+        assert!(report.contains("Swarm adapters registered: 0"));
+    }
 }

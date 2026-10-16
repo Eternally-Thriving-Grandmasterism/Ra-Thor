@@ -31,6 +31,7 @@ These were make-real cards. `cargo check` on 2026-10-16 finished for each. They 
 | MIAL-THRESHOLD-BUILDS-1: `crates/mercy_gating_runtime`, `crates/mial`, `crates/mercy-threshold-wasm` | #674 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock` each. Relative path from `mial` to `mercy_gating_runtime`, and from `mercy-threshold-wasm` to `mial`. Not root members. Locked `cargo build`, `cargo test --all-targets`, and `cargo clippy --all-targets -- -D warnings` finished. `src/error.rs` does not exist. Uncompiled files stay uncompiled. Threshold figures stay source literals. |
 | RA-THOR-CORE-BUILDS-1: `crates/ra-thor-core` | #675 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock`. Not a root member. No path dependency. Locked `cargo build`, `cargo test --all-targets`, and `cargo clippy --all-targets -- -D warnings` finished. Compiled surface is `TOLC7Gate` plus `VERSION` and `summary`. Files that name `MercyValence` stay uncompiled. Threshold figures stay source literals. |
 | QSO-BUILDS-1: `crates/quantum-swarm-orchestrator` | #676 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock`. Not a root member. No path dependency. `self-evolution` is dropped (`../../self-evolution` has no `Cargo.toml`). Locked `cargo test --all-targets` and `cargo clippy --all-targets -- -D warnings` finished. Compiled surface is `QuantumSwarmOrchestrator` plus the local geometric modules listed in section 6. It does not implement `Clone`. Design-only files stay uncompiled. `Valence::MIN` is the source literal `0.9999999`. |
+| PATSAGI-COUNCILS-BUILDS-1: `crates/patsagi-councils` | #677 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock`. Not a root member. Path deps are `../powrush` and `../quantum-swarm-orchestrator` (package `ra-thor-quantum-swarm-orchestrator`). `ra-thor-core` is not imported. `mercy` is not a dependency (`MercyCore` is the public type; `MercyEngine` is not). `lean-sys` is cut. Optional paths `real-estate-lattice`, `ra-thor-post-quantum-sig`, and `interstellar-operations` are cut. Locked `cargo test --all-targets` and `cargo clippy --all-targets -- -D warnings` finished. A recorded Reject is not flipped to Apply. This package is not `crates/council`. Design-only files stay uncompiled. |
 
 Two tidy leftovers on the shard crate are banked below. They did not stop `cargo check`.
 
@@ -88,7 +89,7 @@ Dependencies first. Then the smallest crates whose source already checks once th
 | 4 | `MIAL-THRESHOLD-BUILDS-1` (DONE, #674) | `mercy_gating_runtime`, `mial`, `mercy-threshold-wasm` | `powrush-mmo-simulator` path-deps `mial` and `mercy-threshold-wasm`. The gating runtime is the path dep under `mial`. | M | No, if standalone. |
 | 5 | `RA-THOR-CORE-BUILDS-1` (DONE, #675) | `crates/ra-thor-core` | `patsagi-councils` path-deps it. | M (988 lines, 9 files) | No, if standalone. |
 | 6 | `QSO-BUILDS-1` (DONE, #676) | `crates/quantum-swarm-orchestrator` | `patsagi-councils` path-deps it. It path-deps missing `self-evolution`. | L (9,872 lines) | No, if standalone. Do not add a `self-evolution` crate. |
-| 7 | `PATSAGI-COUNCILS-BUILDS-1` | `crates/patsagi-councils` | After 5 and 6, and after `powrush` (#668). Living small council is already `crates/council`. | L (6,115 lines, 26 files) | No, if standalone. Yes if added to root `members`. |
+| 7 | `PATSAGI-COUNCILS-BUILDS-1` (DONE, #677) | `crates/patsagi-councils` | After 5 and 6, and after `powrush` (#668). Living small council is already `crates/council`. | L (6,115 lines, 26 files) | No, if standalone. Yes if added to root `members`. |
 | 8 | `POWRUSH-MMO-SIM-BUILDS-1` | `crates/powrush-mmo-simulator` | After 4 and #668. Not the Powrush-MMO repo and not the browser client. | M (1,039 lines) | No, if standalone. |
 | 9 | `SHARD-COMPOSER-PARSE-1` | `crates/shard-composer` | TOML does not parse. One-line array break. | S | No. |
 | 10 | `KERNEL-MANIFEST-1` | `crates/ra-thor-kernel`, `crates/kernel` | Unstable `rustflags`, missing path deps. Separate from the undefined workspace key `ra-thor-kernel`. | S–M | No, if not a default member. |
@@ -254,7 +255,27 @@ The three TODO comments in `src/orchestrator.rs` (polyhedral mode, a Riemannian 
 
 ---
 
-## 7. PATSAGI-COUNCILS-BUILDS-1
+## 7. PATSAGI-COUNCILS-BUILDS-1 (DONE, #677)
+
+**Status:** DONE in #677. `crates/patsagi-councils` is its own workspace (`resolver = "2"`) with a committed `Cargo.lock`. It is not a root member. Locked `cargo test --all-targets` and `cargo clippy --all-targets -- -D warnings` finished inside the crate. `CouncilFocus` names 16 focuses. That list is source. A living cosmic tick is not demonstrated. Public TOLC 8 names stay Truth, Order, Love, Compassion, Service, Abundance, Joy, Cosmic Harmony. `VERSION` stays the source string `14.15.11`. `PATSAGiCouncil::new` still sets `mercy_valence` `0.97` and `cehi` `4.82`. Those are source literals. This package is not `crates/council`.
+
+`council_vote_after_reject` keeps a recorded `CouncilGateLabel::Reject`. A later yes-vote does not change that label to `Apply`. A mercy block at valence `1.0` is Reject. Refine is the progressive path (`avg_valence` `0.75` for joy `1`, harmony `1`, abundance `0`). HumanOverride is the hold when the composite is under the progressive floor (`avg_valence` `0.0` for joy `0`, harmony `-1`, abundance `0`).
+
+**Compiled:** `src/lib.rs` (coordinator, security deliberation, predictive uplift), `src/valence_consensus.rs`, `src/tolc8.rs`, `src/predictive_support.rs`, `src/security_support.rs`, `src/observability.rs`, `src/feedback_loop.rs`, examples `feedback_loop_demo` and `live_resonance_test`. The swarm field is `ra_thor_quantum_swarm_orchestrator::QuantumSwarmOrchestrator`. That type does not implement `Clone`. This crate does not add `Clone`. Callers use `run_one_organism_cycle`. `examples/live_resonance_test` runs. Its high-mercy inputs land on the progressive path (composite under `0.90`). The example prints FAIL for that scenario. That line is the example's own check, not a passing test.
+
+**Path deps:** `../powrush`, `../quantum-swarm-orchestrator`. `ra-thor-core` is not imported, so it is not a dependency. `mercy` is not a dependency. `crates/mercy` exports `MercyCore`, not `MercyEngine`.
+
+**Cut:** `lean-sys` (not shown to resolve; the FFI bridge is not active). Optional features and paths `real-estate-lattice`, `ra-thor-post-quantum-sig`, `interstellar-operations`. `src/bin/council_simulator.rs` is not a cargo target (`autobins` is off).
+
+**Design-only, not compiled.** Each file starts with `Design-only (STUB-AUDIT-1 PATSAGI-COUNCILS-BUILDS-1 council note)`. Reasons are in that header.
+
+- Post-quantum demo: `examples/council_post_quantum_demo.rs`
+- World-governance engine: `src/world_governance.rs`, `src/world_governance_engine.rs`. The adapter has no `calculate_entanglement_strength`, so the previous `unwrap_or(0.85)` call is not wired
+- Self-evolving mercy core: `src/self_evolving_mercy_core.rs`
+- Previous mercy-engine voting bodies: `src/coordinator_mercy_evaluation.rs`
+- Lean / genesis path: `src/mercy_threshold.rs`, `src/mercy_threshold_ffi.rs`, `src/genesis_gate.rs`, `src/genesis_gate_v2.rs`
+- Local orchestrator that is not the adapter type: `src/quantum_swarm_orchestrator.rs`
+- Missing crates or types: `src/tolc_integration.rs`, `src/powrush_libp2p_mesh.rs`, `src/patsagi_bridge.rs`, `src/mercy_engine_adapter.rs`, `src/council_focus.rs` (`powrush` does not export `MercyGate`), `src/council_decision.rs`, `src/petition_handler.rs`, `src/simulation_integration.rs`, `src/powrush_integration.rs`, `src/example_integration.rs`, `src/bin/council_simulator.rs`
 
 `crates/patsagi-councils`.
 
@@ -275,7 +296,7 @@ The three TODO comments in `src/orchestrator.rs` (polyhedral mode, a Riemannian 
 
 The living council crate that already builds is `crates/council` (#665). This package is the older monolith. A make-real card should not pretend they are the same crate.
 
-**Fix:** standalone `[workspace]`, pin serde/chrono/uuid, path-dep only crates that already check (`mercy` is a default member and can be a path dep; `powrush` can be a path dep). Cut `lean-sys` until a crate of that name is shown to resolve. Cut optional features that point at non-building crates. Keep reject / refine / human-override visible. A council vote must not flip Reject to Apply (already true in `crates/council`).
+**Fix:** Done in #677. Standalone `[workspace]`, serde/chrono/uuid/thiserror pinned to the versions the root workspace table already named. Path deps are `powrush` and the adapter orchestrator. `mercy` was not needed: `MercyEngine` is not in that crate's public API. `lean-sys` is cut. Optional features that pointed at non-building crates are cut. Reject, refine, and human-override are the `CouncilGateLabel` variants. A council vote does not flip Reject to Apply. This package is not `crates/council`.
 
 **Fictional parts:** post-quantum demo example name, world-governance engine, self-evolving mercy core. Label those modules design-only if they do not compile after the cut. Do not replace them with constant scores.
 

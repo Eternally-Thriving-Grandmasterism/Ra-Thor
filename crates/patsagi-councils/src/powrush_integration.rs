@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 PATSAGI-COUNCILS-BUILDS-1 council note): not compiled; it holds SimulationIntegration and WorldImpactType from world_governance.rs.
 //! # Powrush Integration Bridge — v14.15.5
 //!
 //! Single clean entry point the main Powrush simulation loop can call every cycle.

@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 PATSAGI-COUNCILS-BUILDS-1 council note): not compiled; it routes through world_governance_engine and tracing. lean-sys was not shown to resolve.
 //! Genesis Gate — v14.15.0
 //!
 //! TOLC 8 mandatory first filter for all new instantiations.

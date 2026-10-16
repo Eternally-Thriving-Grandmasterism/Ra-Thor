@@ -16,9 +16,7 @@
 
 use crate::observability::{BlockReason, ResonanceMetrics};
 use crate::tolc8::{tolc8_gate_check, Tolc8GateResult, Tolc8Scores};
-use powrush::{
-    PolicyHint, emit_after_deliberation, EmissionError,
-};
+use powrush::{emit_after_deliberation, EmissionError, PolicyHint};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 use thiserror::Error;
@@ -114,7 +112,9 @@ impl RaThorFeedbackLoop {
     /// Map telemetry into TOLC 8 scores (conservative).
     fn build_tolc8_scores(telemetry: &PowrushTelemetrySnapshot) -> Tolc8Scores {
         // Derive the three primary axes from existing signals
-        let joy = telemetry.mercy_presence_signal.max(telemetry.innovation_signal * 0.9);
+        let joy = telemetry
+            .mercy_presence_signal
+            .max(telemetry.innovation_signal * 0.9);
         let harmony = (telemetry.peaceful_resolution_signal + telemetry.ethical_floor_signal) / 2.0;
         // harmony is expected in roughly [0,1] here; convert toward [-1,1] for the mapper
         let harmony_signed = harmony * 2.0 - 1.0;
@@ -143,8 +143,8 @@ impl RaThorFeedbackLoop {
         let gate_result = tolc8_gate_check(composite);
 
         // Additional hard ethical floor (Core Covenant protection)
-        let ethical_ok = telemetry.ethical_floor_signal >= 0.55
-            && telemetry.mercy_presence_signal >= 0.40;
+        let ethical_ok =
+            telemetry.ethical_floor_signal >= 0.55 && telemetry.mercy_presence_signal >= 0.40;
 
         if !gate_result.allows_emission() || !ethical_ok {
             self.metrics.record_emission_block(BlockReason::MercyGate);
@@ -323,7 +323,9 @@ impl RaThorFeedbackLoop {
             mercy_passed: true,
             summary: format!(
                 "Mercy nudge emitted | session={} seq={} | path={}",
-                session_id, export_seq, written.display()
+                session_id,
+                export_seq,
+                written.display()
             ),
         })
     }
@@ -343,15 +345,16 @@ mod tests {
     #[test]
     fn feedback_emits_on_strong_signals() {
         let mut loop_ = RaThorFeedbackLoop::new();
-        let mut snap = PowrushTelemetrySnapshot::default();
-        snap.session_id = "test-sess-001".into();
-        snap.export_seq = 99;
-        snap.abundance_signal = 0.82;
-        snap.peaceful_resolution_signal = 0.78;
-        snap.ethical_floor_signal = 0.91;
-        snap.mercy_presence_signal = 0.88;
-        snap.council_participation_signal = 0.65;
-        snap.innovation_signal = 0.70;
+        let snap = PowrushTelemetrySnapshot {
+            session_id: "test-sess-001".into(),
+            export_seq: 99,
+            abundance_signal: 0.82,
+            peaceful_resolution_signal: 0.78,
+            ethical_floor_signal: 0.91,
+            mercy_presence_signal: 0.88,
+            council_participation_signal: 0.65,
+            innovation_signal: 0.70,
+        };
 
         let mut path = env::temp_dir();
         path.push(format!("ra_thor_fb_test_{}.json", std::process::id()));
@@ -368,11 +371,13 @@ mod tests {
     #[test]
     fn low_signals_blocked_by_tolc8_gate() {
         let mut loop_ = RaThorFeedbackLoop::new();
-        let mut snap = PowrushTelemetrySnapshot::default();
-        snap.ethical_floor_signal = 0.3;
-        snap.mercy_presence_signal = 0.2;
-        snap.abundance_signal = 0.25;
-        snap.peaceful_resolution_signal = 0.3;
+        let snap = PowrushTelemetrySnapshot {
+            ethical_floor_signal: 0.3,
+            mercy_presence_signal: 0.2,
+            abundance_signal: 0.25,
+            peaceful_resolution_signal: 0.3,
+            ..PowrushTelemetrySnapshot::default()
+        };
 
         let err = loop_.deliberate_and_emit(&snap, None);
         assert!(matches!(err, Err(FeedbackError::MercyGateFailed)));

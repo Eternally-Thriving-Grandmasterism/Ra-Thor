@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 PATSAGI-COUNCILS-BUILDS-1 council note): not compiled; interstellar-operations is not a dependency, and mercy::MercyEngine is not in the mercy public API.
 //! TOLC Integration Bridge — v14.15.0
 //!
 //! Allows the 16 Parallel PATSAGi Councils to consult the TOLC Lattice
