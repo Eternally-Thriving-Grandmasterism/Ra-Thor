@@ -109,7 +109,7 @@ mod tests {
     }
 
     #[test]
-    fn maat_proposal_below_650_is_stored_as_650() {
+    fn maat_proposal_below_current_is_rejected_and_717_stays() {
         let mut runtime = MercyGatingRuntime::new();
         assert_eq!(runtime.ma_at_threshold, 717.0);
         let proposal = CouncilTuningProposal {
@@ -120,10 +120,10 @@ mod tests {
             proposed_at_turn: 1,
         };
         let result = runtime.apply_council_tuning(&proposal);
-        assert!(result.success);
+        assert!(!result.success);
         assert_eq!(result.previous_value, 717.0);
-        assert_eq!(result.new_value, 650.0);
-        assert_eq!(runtime.ma_at_threshold, 650.0);
+        assert_eq!(result.new_value, 717.0);
+        assert_eq!(runtime.ma_at_threshold, 717.0);
     }
 
     #[test]

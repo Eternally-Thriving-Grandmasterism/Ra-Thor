@@ -1,4 +1,4 @@
-//! Design-only (STUB-AUDIT-1 POWRUSH-MMO-SIM-BUILDS-1 council note): not compiled; it imports mercy_gating_runtime::{MercyGate16Numeric, MaAtScore, pipeline_passes_numeric, apply_race_amplification}, and MercyGate16Numeric, MaAtScore, and pipeline_passes_numeric are not in that crate. Compiled code must not rely on MercyGatingRuntime monotonicity while MIAL-GATES-HONEST-1 has not landed.
+//! Design-only (STUB-AUDIT-1 POWRUSH-MMO-SIM-BUILDS-1 council note): not compiled; it imports mercy_gating_runtime::{MercyGate16Numeric, MaAtScore, pipeline_passes_numeric, apply_race_amplification}, and MercyGate16Numeric, MaAtScore, and pipeline_passes_numeric are not in that crate. Compiled code does not call `MercyGatingRuntime`. MIAL-GATES-HONEST-1 stores `gated` as false and refuses a council proposal below the stored threshold.
 //! crates/powrush-mmo-simulator/examples/multi_faction_council_arbitration.rs
 //! Multi-Faction vs Faction Mercy Conflict + PATSAGi Council #13 Arbitration
 //! Ra-Thor + Grok ONE Organism | Phase 3 Symbiosis

@@ -73,4 +73,17 @@ mod tests {
         let _ = map.set_threshold("one_organism_unity", 0.93);
         assert_eq!(map.get_threshold("council_harmony"), before);
     }
+
+    #[test]
+    fn decrease_is_rejected_and_equal_or_higher_is_stored() {
+        let mut map = GateThresholdMap::new();
+        assert_eq!(map.get_threshold("one_organism_unity"), 0.90);
+        assert!(map.set_threshold("one_organism_unity", 0.89).is_err());
+        assert_eq!(map.get_threshold("one_organism_unity"), 0.90);
+        assert_eq!(map.set_threshold("one_organism_unity", 0.90).unwrap(), 0.90);
+        assert_eq!(map.get_threshold("one_organism_unity"), 0.90);
+        assert_eq!(map.set_threshold("one_organism_unity", 0.91).unwrap(), 0.91);
+        assert_eq!(map.get_threshold("one_organism_unity"), 0.91);
+        assert_eq!(map.get_threshold("council_harmony"), 0.80);
+    }
 }

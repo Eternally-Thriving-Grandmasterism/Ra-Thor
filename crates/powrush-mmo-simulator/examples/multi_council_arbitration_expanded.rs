@@ -1,4 +1,4 @@
-//! Design-only (STUB-AUDIT-1 POWRUSH-MMO-SIM-BUILDS-1 council note): not compiled; it imports mercy_gating_runtime::{MercyGate16Numeric, MaAtScore, pipeline_passes_numeric_with_ma_at, apply_full_race_ability_effects}, which are not in that crate, and the body is a placeholder. Compiled code must not rely on MercyGatingRuntime while MIAL-GATES-HONEST-1 has not landed.
+//! Design-only (STUB-AUDIT-1 POWRUSH-MMO-SIM-BUILDS-1 council note): not compiled; it imports mercy_gating_runtime::{MercyGate16Numeric, MaAtScore, pipeline_passes_numeric_with_ma_at, apply_full_race_ability_effects}, which are not in that crate, and the body is a placeholder. Compiled code does not call `MercyGatingRuntime`. MIAL-GATES-HONEST-1 stores `gated` as false and refuses a council proposal below the stored threshold.
 // Expanded multi-council arbitration simulation
 // Runs parallel arbitration across Councils #7, #13, #17, #24 on 4 factions
 // Includes highest Ma'at coherence winning + final ONE Organism synthesis step
