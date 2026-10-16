@@ -38,16 +38,45 @@ mod tests {
     #[test]
     fn tolc7_thresholds_names_and_version_are_the_source_literals() {
         let gates = types::TOLC7Gate::all_gates();
-        assert!(gates.len() == 7);
+        assert_eq!(gates.len(), 7);
         assert!(gates.contains(&types::TOLC7Gate::Truth));
         assert_eq!(gates[0], types::TOLC7Gate::Truth);
         assert_eq!(gates[0].name(), "Truth");
         assert_eq!(gates[0].default_threshold(), 0.82);
         assert_eq!(gates[0].color(), [0.2, 0.6, 0.9]);
-        assert_eq!(
-            gates[0].description(),
-            "Undistorted perception and honest communication"
-        );
+        let descriptions = [
+            (
+                types::TOLC7Gate::Truth,
+                "Undistorted perception and honest communication",
+            ),
+            (
+                types::TOLC7Gate::Oneness,
+                "Fundamental interconnectedness of all existence",
+            ),
+            (
+                types::TOLC7Gate::Love,
+                "Radical, unconditional care for the thriving of all",
+            ),
+            (
+                types::TOLC7Gate::Compassion,
+                "Deep empathy and protective care for the vulnerable",
+            ),
+            (
+                types::TOLC7Gate::Wisdom,
+                "Clear, far-sighted discernment for long-term thriving",
+            ),
+            (
+                types::TOLC7Gate::Courage,
+                "Willingness to act in alignment with truth even when difficult",
+            ),
+            (
+                types::TOLC7Gate::Sovereignty,
+                "Respect for the autonomous self-determination of all beings",
+            ),
+        ];
+        for (gate, description) in descriptions {
+            assert_eq!(gate.description(), description);
+        }
         assert_eq!(gates[1], types::TOLC7Gate::Oneness);
         assert_eq!(gates[1].name(), "Oneness");
         assert_eq!(gates[1].default_threshold(), 0.78);

@@ -3,6 +3,7 @@
 // Public TOLC 8 names are Truth, Order, Love, Compassion, Service, Abundance, Joy, Cosmic Harmony.
 // This enum is not that list.
 // Contact: info@Rathor.ai
+// Proprietary - All Rights Reserved - Autonomicity Games Inc.
 
 use serde::{Deserialize, Serialize};
 
