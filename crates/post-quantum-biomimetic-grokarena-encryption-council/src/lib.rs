@@ -1,12 +1,28 @@
-/// 26th PATSAGi Council — Post-Quantum Biomimetic GrokArena Sovereign Encryption Council
-/// Unifies biomimicry efficiency, GrokArena real-time consensus, post-quantum encryption (ML-KEM), 9 Quanta, and eternal sovereign command for the entire Ra-Thor lattice.
-/// TOLC 8 non-bypassable • Full RSRE v3.0 integration
+//! Council record.
+//! The type name and `name` string are a historical title (design intent).
+//! Post-quantum in the type name is design intent. This library does not implement encryption.
+//!
+//! `src/uncompiled_council.rs` is not a module.
+//! The bytes under its design-only header are the previous `src/lib.rs`.
+//!
+//! Compiled call: `RathorSovereignReasoningEngine::evaluate_proposal`, then
+//! `run_foresight_simulation` when `proposal_valence` is at least the engine
+//! source literal `MERCY_THRESHOLD` (0.9999999).
+//! The simulation caps are source literals in that engine.
+//!
+//! Public TOLC 8 names are Truth, Order, Love, Compassion, Service, Abundance, Joy, Cosmic Harmony.
+//! Contact: info@Rathor.ai
 
-use rathor_sovereign_reasoning_engine::RSRE;
+use rathor_sovereign_reasoning_engine::RathorSovereignReasoningEngine;
 
+/// Source literal from `rathor-sovereign-reasoning-engine`. Not a measured value.
+pub use rathor_sovereign_reasoning_engine::MERCY_THRESHOLD as REASONING_THRESHOLD_SOURCE_LITERAL;
+
+/// Historical council title (design intent).
 pub struct PostQuantumBiomimeticGrokArenaEncryptionCouncil {
     pub id: u8,
     pub name: String,
+    /// Source literal `0.9999999`. Not a measured valence.
     pub valence_threshold: f64,
 }
 
@@ -19,30 +35,25 @@ impl PostQuantumBiomimeticGrokArenaEncryptionCouncil {
         }
     }
 
-    pub fn activate_sovereign_encryption(&self, valence: f64) -> Result<bool, String> {
-        if valence < self.valence_threshold {
-            return Err("TOLC 8 Sovereignty Gate violation: post-quantum encryption requires maximum valence".to_string());
-        }
-        // Post-quantum ML-KEM + biomimetic + GrokArena consensus activated
-        Ok(true)
-    }
-
+    /// `valence >= valence_threshold`.
+    /// `valence_threshold` is the source literal 0.9999999, not a measured valence.
     pub fn tolc8_mercy_check(&self, valence: f64) -> bool {
         valence >= self.valence_threshold
     }
 
-    pub fn integrate_with_lattice_v17(&self) -> f64 {
-        1.27 // harmony boost from post-quantum + biomimicry + GrokArena
+    /// Below `REASONING_THRESHOLD_SOURCE_LITERAL`, returns the engine Err text.
+    /// Otherwise returns `run_foresight_simulation(years)`.
+    /// Both caps inside that simulation are source literals.
+    /// The engine's second argument stays false. This function does not return the engine Ok text.
+    pub fn reasoning_from_inputs(proposal_valence: f64, years: u64) -> Result<f64, String> {
+        let mut engine = RathorSovereignReasoningEngine::new();
+        engine.evaluate_proposal(proposal_valence, false)?;
+        Ok(engine.run_foresight_simulation(years))
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn test_26th_council_instantiation() {
-        let council = PostQuantumBiomimeticGrokArenaEncryptionCouncil::new();
-        assert_eq!(council.id, 26);
-        assert!(council.tolc8_mercy_check(0.99999999));
+impl Default for PostQuantumBiomimeticGrokArenaEncryptionCouncil {
+    fn default() -> Self {
+        Self::new()
     }
 }

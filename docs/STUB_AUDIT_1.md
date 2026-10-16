@@ -35,6 +35,7 @@ These were make-real cards. `cargo check` on 2026-10-16 finished for each. They 
 | POWRUSH-MMO-SIM-BUILDS-1: `crates/powrush-mmo-simulator` | #678 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock`. Not a root member. Path deps are `../mial` and `../mercy-threshold-wasm`. Locked `cargo test --all-targets`, `cargo clippy --all-targets -- -D warnings`, and `cargo fmt --check` finished. Compiled code does not read MWPO `gated`. Three `mercy_gating_runtime` examples stay uncompiled. Resource-Based Economy stays a design thesis. |
 | SHARD-COMPOSER-PARSE-1: `crates/shard-composer` | #679 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock`. Not a root member. Locked `cargo test --all-targets`, `cargo clippy --all-targets -- -D warnings`, and `cargo fmt --check` finished. No `full` feature. Fresh valence is `0.0`. `VALENCE_SOURCE_CEILING` is the source literal `0.99999999`. |
 | KERNEL-MANIFEST-1: `crates/ra-thor-kernel`, `crates/kernel` | #680 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock` each. Not root members. No path dependency. Locked `cargo test --all-targets`, `cargo clippy --all-targets -- -D warnings`, and `cargo fmt --check` finished inside each crate. `ra-thor-kernel` release `rustflags` are removed. `dilithium_sign` is absent. `falcon_sign` is not a dependency. `kernel` does not path-depend on `lattice-conductor-v14`. |
+| REASONING-COUNCIL-WIRES-1: the 16 council crates in section 11 | #681 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock` each. Not root members. Locked `cargo test --all-targets`, `cargo clippy --all-targets -- -D warnings`, and `cargo fmt --check` finished inside each crate. `RSRE` is not a type. Compiled wires call `RathorSovereignReasoningEngine`, and, where that dependency was already declared, `ValenceVote` plus `ValenceConsensusEngine`. `Ok(true)` bodies stay uncompiled. A deliberation label comes from the vote inputs. |
 
 Two tidy leftovers on the shard crate are banked below. They did not stop `cargo check`.
 
@@ -96,7 +97,7 @@ Dependencies first. Then the smallest crates whose source already checks once th
 | 8 | `POWRUSH-MMO-SIM-BUILDS-1` (DONE, #678) | `crates/powrush-mmo-simulator` | After 4 and #668. Not the Powrush-MMO repo and not the browser client. | M (1,039 lines) | No, if standalone. |
 | 9 | `SHARD-COMPOSER-PARSE-1` (DONE, #679) | `crates/shard-composer` | Standalone `[workspace]`. The unclosed array and the missing `full` feature are gone. | S | No. |
 | 10 | `KERNEL-MANIFEST-1` (DONE, #680) | `crates/ra-thor-kernel`, `crates/kernel` | Standalone `[workspace]`. Unstable release `rustflags` are removed. Post-quantum path deps are not dependencies. `kernel` does not path-depend on v14. | S–M | No, if not a default member. |
-| 11 | `REASONING-COUNCIL-WIRES-1` | council-named crates that import crates they do not depend on | After card 1 (`rathor-sovereign-reasoning-engine`, `philotic-web-fusion`, `moebius-transformations`). Label fleet and post-quantum strings as design-only inside the same card. | S each | No, if standalone. |
+| 11 | `REASONING-COUNCIL-WIRES-1` (DONE, #681) | 16 council crates in section 11 | Standalone `[workspace]`. A compiled wire calls `RathorSovereignReasoningEngine` or the current patsagi-councils API. Previous bodies that return `Ok(true)`, and fleet, post-quantum, and 100B-year phrases, stay design-only. | S each | No, if standalone. |
 | 12 | `CONDUCTOR-LEGACY-RETIRE-1` | unversioned conductor, v13 and its examples, `tolc8-genesis-gate` | Deprecated or fictional. Do not make them the living conductor. | L on disk | No. A v14 edit would need Core. This card should not edit v14. |
 | 13 | `NEXI-PATH-RETIRE-1` | crates with `nexi = { path = "../" }` | That path is not a package. | many manifests | No. |
 | 14 | `WORKSPACE-KEY-SHELLS-1` | 165 `powrush` workspace deps, 95 sourceless manifests, string ZK and propulsion stubs | Shared missing workspace keys. Most have nothing to compile, or return constants. Design-only or leave on disk. | manifests, plus a few short files | No. Do not add them to `members`. |
@@ -393,9 +394,27 @@ Two different directories. In-repo first error, before this card:
 
 ---
 
-## 11. REASONING-COUNCIL-WIRES-1
+## 11. REASONING-COUNCIL-WIRES-1 (DONE, #681)
 
-These import `rathor_sovereign_reasoning_engine` (and sometimes `philotic_web_fusion` or `moebius_transformations`) without declaring the dependency. In-repo first error is still "not a workspace member", because that fires before rustc. The probe (empty `[workspace]`, no new deps) showed the missing crates.
+**Status:** DONE in #681. Each crate below is its own workspace (`resolver = "2"`) with a committed `Cargo.lock`. They are not root members. Locked `cargo test --all-targets`, `cargo clippy --all-targets -- -D warnings`, and `cargo fmt --check` finished inside each crate.
+
+There is no `RSRE` type in `rathor-sovereign-reasoning-engine`. Compiled code calls `RathorSovereignReasoningEngine::evaluate_proposal` and, when that call returns Ok, `run_foresight_simulation(years)`. `MERCY_THRESHOLD` is the source literal `0.9999999`. The simulation caps are source literals in that engine. The compiled function does not return the engine's Ok text.
+
+Crates that already declared `patsagi-councils` call `ValenceVote` and `ValenceConsensusEngine` from the public API that builds after #677. `DEFAULT_WEIGHTS` is `patsagi_councils::valence_consensus::DEFAULT_WEIGHTS` (it is not a crate-root re-export). `DEFAULT_VALENCE_THRESHOLD` is the source literal `0.90`. `PROGRESSIVE_FLOOR` is the source literal `0.68`. The label follows the caller axes and the mercy-block input. A mercy-block input stays `CouncilGateLabel::Reject`.
+
+Crates that named `PhiloticWeb` call `fuse_bond` and return `web_valence` for the bonds the caller supplied. Crates that named a Möbius matrix call `moebius_transformations::MoebiusMatrix::apply` as `z + shift`. `infinite-horizon-exploration-council` also calls `hyperbolic_distance`. `hyperbolic-tiling-consciousness` does not define `MoebiusMatrix`. `nalgebra` is pinned at `0.32.6` beside that matrix crate.
+
+`src/uncompiled_council.rs`, where a previous `src/lib.rs` existed, is that previous source verbatim under the design-only header. The second line is `#![rustfmt::skip]` so `cargo fmt` does not rewrite the body. The file is not a module.
+
+Design-only, not compiled: `Ok(true)` activation bodies, `integrate_pterosaur_fleet` returning the constant `1.33`, `integrate_with_lattice_v17` returning the constant `1.27`, `project_infinite_foresight` on the 31st council returning the constant `0.99999999` and ignoring `years`, the `ML-KEM-768-encapsulated` suffix, HomeFortress and propulsion strings, and 100B-year phrases. Those phrases are design intent. `crates/biomimetic-sovereign-harmony-council` had no Rust sources. Its compiled surface is `PACKAGE_VERSION_SOURCE` (the manifest version string `0.1.0`). The previous path dependencies had no caller and are not in that manifest. Biomimetic phrases in its package description are design intent.
+
+No root member was added. `mial`, `mercy_gating_runtime`, and `mercy-threshold-wasm` are not dependencies. Compiled code does not read MWPO `gated`.
+
+**Compiled:** `src/lib.rs` and `tests/exact_values.rs` in each crate.
+
+**Not compiled:** `src/uncompiled_council.rs` in the 15 crates that had a `src/lib.rs`. `biomimetic-sovereign-harmony-council` has no such file.
+
+These import `rathor_sovereign_reasoning_engine` (and sometimes `philotic_web_fusion` or `moebius_transformations`) without declaring the dependency. In-repo first error, before this card, is still "not a workspace member", because that fires before rustc. The probe (empty `[workspace]`, no new deps) showed the missing crates.
 
 | Path | Probe error |
 |------|-------------|
@@ -418,11 +437,11 @@ These path-deps are already declared, so the probe did not cover them. In-repo f
 - `crates/infinite-horizon-exploration-council`
 - `crates/sovereign-decentralized-propulsion-fleet-council`
 
-`crates/biomimetic-sovereign-harmony-council` has a `Cargo.toml` and **no** Rust sources (`no targets specified`).
+`crates/biomimetic-sovereign-harmony-council` had a `Cargo.toml` and **no** Rust sources (`no targets specified`) before this card.
 
 **Fictional, label design-only rather than implement:** post-quantum biomimetic encryption, quantum propulsion sovereignty, pterosaur fleet language, "100B-year" strings. Card 1 already showed the reasoning engine is a constant-threshold struct. Wiring that struct in does not create propulsion or post-quantum crypto.
 
-**Fix:** Use a standalone workspace, and path-dep only the card 1 leaves that actually compiled. Retire the fictional function bodies (with a council note), or gate them, instead of giving them constant `Ok(true)`.
+**Fix:** Done. Standalone workspace each. Path deps are the card 1 leaves the source actually named, plus `patsagi-councils` where that dependency was already declared. `DEFAULT_WEIGHTS` comes from `valence_consensus`. Fictional `Ok(true)` bodies stay in `src/uncompiled_council.rs` with the design-only header. They are not compiled.
 
 **Runtime / v14:** no.
 

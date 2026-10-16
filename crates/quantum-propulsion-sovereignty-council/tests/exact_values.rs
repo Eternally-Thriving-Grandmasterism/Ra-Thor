@@ -1,0 +1,103 @@
+//! Exact values for the compiled council wire.
+//! Threshold figures are source literals.
+
+use std::fs;
+use std::path::Path;
+
+use quantum_propulsion_sovereignty_council::{
+    apply_shift, QuantumPropulsionSovereigntyCouncil, REASONING_THRESHOLD_SOURCE_LITERAL,
+};
+
+const UNCOMPILED_TEXT: &str = include_str!("../src/uncompiled_council.rs");
+const UNCOMPILED_BODY_LEN: usize = 1964;
+const UNCOMPILED_BODY_CHECKSUM: u64 = 8938404029727861641;
+
+fn preserved_body() -> &'static str {
+    let marker = "#![rustfmt::skip]\n";
+    let (head, body) = UNCOMPILED_TEXT.split_once(marker).unwrap();
+    assert!(head.starts_with(
+        "//! Design-only (STUB-AUDIT-1 REASONING-COUNCIL-WIRES-1 council note): not compiled;",
+    ),);
+    assert_eq!(UNCOMPILED_TEXT.lines().nth(1), Some("#![rustfmt::skip]"));
+    body
+}
+
+fn body_checksum(body: &str) -> u64 {
+    body.bytes().fold(0u64, |acc, byte| {
+        acc.wrapping_mul(16777619).wrapping_add(u64::from(byte))
+    })
+}
+
+#[test]
+fn uncompiled_body_matches_the_preserved_bytes() {
+    let body = preserved_body();
+    assert_eq!(body.len(), UNCOMPILED_BODY_LEN);
+    assert_eq!(body_checksum(body), UNCOMPILED_BODY_CHECKSUM);
+    let lib = fs::read_to_string(Path::new(env!("CARGO_MANIFEST_DIR")).join("src/lib.rs")).unwrap();
+    assert_eq!(lib.matches("mod uncompiled_council").count(), 0);
+}
+
+#[test]
+fn record_stores_the_historical_title() {
+    let council = QuantumPropulsionSovereigntyCouncil::new();
+    assert_eq!(council.id, 20);
+    assert_eq!(council.name, "Quantum Propulsion Sovereignty Council");
+    assert_eq!(QuantumPropulsionSovereigntyCouncil::default().id, 20);
+    assert_eq!(
+        QuantumPropulsionSovereigntyCouncil::default().name,
+        council.name
+    );
+    assert_eq!(REASONING_THRESHOLD_SOURCE_LITERAL, 0.9999999);
+}
+
+#[test]
+fn reasoning_error_and_foresight_follow_the_inputs() {
+    let low_one = QuantumPropulsionSovereigntyCouncil::reasoning_from_inputs(0.5, 1).unwrap_err();
+    let low_two = QuantumPropulsionSovereigntyCouncil::reasoning_from_inputs(0.5, 2).unwrap_err();
+    assert_eq!(low_one, low_two);
+    assert_eq!(low_one, "Mercy Gate violation: valence below threshold");
+    for years in [1_u64, 2, 1_000_000] {
+        let got = QuantumPropulsionSovereigntyCouncil::reasoning_from_inputs(
+            REASONING_THRESHOLD_SOURCE_LITERAL,
+            years,
+        )
+        .unwrap();
+        let expect = (0.9999999_f64 + (years as f64).ln() * 0.0000001).min(0.99999999);
+        assert_eq!(got, expect);
+    }
+    let year_one = QuantumPropulsionSovereigntyCouncil::reasoning_from_inputs(
+        REASONING_THRESHOLD_SOURCE_LITERAL,
+        1,
+    )
+    .unwrap();
+    let year_two = QuantumPropulsionSovereigntyCouncil::reasoning_from_inputs(
+        REASONING_THRESHOLD_SOURCE_LITERAL,
+        2,
+    )
+    .unwrap();
+    assert_ne!(year_one, year_two);
+}
+
+#[test]
+fn shift_matches_the_moebius_translation() {
+    let (re, im) = apply_shift(0.5, 0.25, 2.0);
+    assert_eq!(re, 0.5 + 2.0);
+    assert_eq!(im, 0.25);
+    let (re2, im2) = apply_shift(0.5, -0.5, -0.25);
+    assert_eq!(re2, 0.5 - 0.25);
+    assert_eq!(im2, -0.5);
+}
+
+#[test]
+fn tolc8_mercy_check_follows_the_source_literal_threshold() {
+    let council = QuantumPropulsionSovereigntyCouncil::new();
+    let threshold = council.valence_threshold;
+    assert_eq!(threshold, 0.9999999);
+    let below = f64::from_bits(threshold.to_bits() - 1);
+    let above = f64::from_bits(threshold.to_bits() + 1);
+    assert!(below < threshold);
+    assert!(above > threshold);
+    assert_eq!(council.tolc8_mercy_check(below), below >= threshold);
+    assert_eq!(council.tolc8_mercy_check(threshold), above > below);
+    assert_eq!(council.tolc8_mercy_check(above), above >= threshold);
+}

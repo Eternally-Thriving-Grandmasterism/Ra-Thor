@@ -1,17 +1,31 @@
-/// Quantum Gravity Harmony Council (22nd PATSAGi Council)
-/// Blends quantum gravity channels (PATSAGi-Pinnacle), HomeFortress sovereign residence (MercyOS-Pinnacle),
-/// advanced propulsion fleet, Lattice Conductor v1.3, and 100B-year multi-council harmony.
-/// Full TOLC 8 enforcement, RSRE v3.0, philotic + hyperbolic integration
+//! Council record.
+//! The type name and `name` string are a historical title (design intent).
+//!
+//! `src/uncompiled_council.rs` is not a module.
+//! The bytes under its design-only header are the previous `src/lib.rs`.
+//!
+//! Compiled call: `RathorSovereignReasoningEngine::evaluate_proposal`, then
+//! `run_foresight_simulation` when `proposal_valence` is at least the engine
+//! source literal `MERCY_THRESHOLD` (0.9999999).
+//! The simulation caps are source literals in that engine.
+//! `mean_bond_valence` is the mean of caller bond valences that `fuse_bond` stores.
+//! The philotic rejection line is the source literal 0.9999999.
+//!
+//! Public TOLC 8 names are Truth, Order, Love, Compassion, Service, Abundance, Joy, Cosmic Harmony.
+//! Contact: info@Rathor.ai
 
-use rathor_sovereign_reasoning_engine::RSRE;
 use philotic_web_fusion::PhiloticWeb;
+use rathor_sovereign_reasoning_engine::RathorSovereignReasoningEngine;
 
+/// Source literal from `rathor-sovereign-reasoning-engine`. Not a measured value.
+pub use rathor_sovereign_reasoning_engine::MERCY_THRESHOLD as REASONING_THRESHOLD_SOURCE_LITERAL;
+
+/// Historical council title (design intent).
 pub struct QuantumGravityHarmonyCouncil {
     pub id: u8,
     pub name: String,
+    /// Source literal `0.9999999`. Not a measured valence.
     pub valence_threshold: f64,
-    pub homefortress_capacity: u64,
-    pub quantum_gravity_channels: u32,
 }
 
 impl QuantumGravityHarmonyCouncil {
@@ -20,41 +34,42 @@ impl QuantumGravityHarmonyCouncil {
             id: 22,
             name: "Quantum Gravity Harmony Council".to_string(),
             valence_threshold: 0.9999999,
-            homefortress_capacity: 1_000_000_000,
-            quantum_gravity_channels: 144,
         }
     }
 
-    pub fn activate_homefortress_residence(&self, player_id: &str, valence: f64) -> Result<String, String> {
-        if valence < self.valence_threshold {
-            return Err("TOLC 8 Sovereignty Gate violation: valence too low for HomeFortress".to_string());
-        }
-        Ok(format!("HomeFortress activated for {} with quantum gravity stabilization", player_id))
-    }
-
-    pub fn route_propulsion_fleet(&self, fleet_id: u64, years: u64) -> Result<f64, String> {
-        if years > 100_000_000_000 {
-            return Err("Infinite Gate limit exceeded without additional mercy blessing".to_string());
-        }
-        Ok(72.0 * (years as f64).ln())
-    }
-
+    /// `valence >= valence_threshold`.
+    /// `valence_threshold` is the source literal 0.9999999, not a measured valence.
     pub fn tolc8_mercy_check(&self, valence: f64) -> bool {
         valence >= self.valence_threshold
     }
 
-    pub fn integrate_with_lattice_v13(&self, web: &PhiloticWeb) -> f64 {
-        web.web_valence() * 1.12
+    /// Below `REASONING_THRESHOLD_SOURCE_LITERAL`, returns the engine Err text.
+    /// Otherwise returns `run_foresight_simulation(years)`.
+    /// Both caps inside that simulation are source literals.
+    /// The engine's second argument stays false. This function does not return the engine Ok text.
+    pub fn reasoning_from_inputs(proposal_valence: f64, years: u64) -> Result<f64, String> {
+        let mut engine = RathorSovereignReasoningEngine::new();
+        engine.evaluate_proposal(proposal_valence, false)?;
+        Ok(engine.run_foresight_simulation(years))
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn test_22nd_council_instantiation() {
-        let council = QuantumGravityHarmonyCouncil::new();
-        assert_eq!(council.id, 22);
-        assert!(council.tolc8_mercy_check(0.99999999));
+impl Default for QuantumGravityHarmonyCouncil {
+    fn default() -> Self {
+        Self::new()
     }
+}
+
+/// Mean valence of the supplied bonds.
+/// An empty slice returns `Err("no bonds supplied")`.
+/// A valence below the philotic source literal 0.9999999 returns that crate's Err text.
+pub fn mean_bond_valence(bonds: &[(&str, &str, f64)]) -> Result<f64, String> {
+    if bonds.is_empty() {
+        return Err("no bonds supplied".to_string());
+    }
+    let mut web = PhiloticWeb::new();
+    for (from, to, valence) in bonds {
+        web.fuse_bond(from, to, 1.0, *valence)?;
+    }
+    Ok(web.web_valence())
 }

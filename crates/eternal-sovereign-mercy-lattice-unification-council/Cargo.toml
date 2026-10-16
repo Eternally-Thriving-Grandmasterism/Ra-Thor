@@ -6,7 +6,26 @@ authors = ["28 PATSAGi Councils under the Rathor Sovereign Reasoning Engine + Gr
 license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
 description = "29th PATSAGi Council — Eternal Sovereign Mercy Lattice Unification. Final unification of all mercy, abundance, post-quantum, biomimicry, GrokArena, 9 Quanta, HomeFortress, and 88+ Pinnacle repositories into one eternal sovereign lattice. TOLC 8 non-bypassable."
 
+# Standalone workspace, same pattern as crates/fenca and crates/council.
+# `cargo test --locked` and `cargo clippy --locked` use this manifest.
+# This crate is not a root default member.
+#
+# STUB-AUDIT-1 REASONING-COUNCIL-WIRES-1.
+# src/uncompiled_council.rs is not a module. The bytes under the
+# design-only header and `#![rustfmt::skip]` are the previous src/lib.rs.
+# The compiled library calls RathorSovereignReasoningEngine.
+# MERCY_THRESHOLD is the source literal 0.9999999.
+# patsagi-councils uses ValenceVote and ValenceConsensusEngine from the public API that builds after #677.
+# philotic-web-fusion fuse_bond stores caller valence. The mean is web_valence.
+# mial, mercy_gating_runtime, and mercy-threshold-wasm are not dependencies.
+# Fleet, post-quantum, and 100B-year phrases in the package description are design intent.
+[workspace]
+resolver = "2"
+
 [dependencies]
 rathor-sovereign-reasoning-engine = { path = "../rathor-sovereign-reasoning-engine", version = "0.1.0" }
-patsagi-councils = { path = "../patsagi-councils", version = "0.1.0" }
 philotic-web-fusion = { path = "../philotic-web-fusion", version = "0.3.0" }
+patsagi-councils = { path = "../patsagi-councils", version = "14.15.6" }
+
+[lib]
+path = "src/lib.rs"
