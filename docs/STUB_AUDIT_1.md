@@ -30,6 +30,7 @@ These were make-real cards. `cargo check` on 2026-10-16 finished for each. They 
 | SHARED-VALENCE-DEPENDENTS-1: `crates/abundance-breath`, `crates/epiphany-bridge`, `crates/resonance-challenge`, `crates/soft-sovereign-agency`, `crates/symbiotic-membrane` | #673 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock` each. Relative path to `shared-valence-field`. Not root members. Locked `cargo build`, `cargo test`, and `cargo clippy -- -D warnings` finished. Uncompiled files stay uncompiled. `0.999999` stays a source literal. |
 | MIAL-THRESHOLD-BUILDS-1: `crates/mercy_gating_runtime`, `crates/mial`, `crates/mercy-threshold-wasm` | #674 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock` each. Relative path from `mial` to `mercy_gating_runtime`, and from `mercy-threshold-wasm` to `mial`. Not root members. Locked `cargo build`, `cargo test --all-targets`, and `cargo clippy --all-targets -- -D warnings` finished. `src/error.rs` does not exist. Uncompiled files stay uncompiled. Threshold figures stay source literals. |
 | RA-THOR-CORE-BUILDS-1: `crates/ra-thor-core` | #675 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock`. Not a root member. No path dependency. Locked `cargo build`, `cargo test --all-targets`, and `cargo clippy --all-targets -- -D warnings` finished. Compiled surface is `TOLC7Gate` plus `VERSION` and `summary`. Files that name `MercyValence` stay uncompiled. Threshold figures stay source literals. |
+| QSO-BUILDS-1: `crates/quantum-swarm-orchestrator` | #676 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock`. Not a root member. No path dependency. `self-evolution` is dropped (`../../self-evolution` has no `Cargo.toml`). Locked `cargo test --all-targets` and `cargo clippy --all-targets -- -D warnings` finished. Compiled surface is `QuantumSwarmOrchestrator` plus the local geometric modules listed in section 6. It does not implement `Clone`. Design-only files stay uncompiled. `Valence::MIN` is the source literal `0.9999999`. |
 
 Two tidy leftovers on the shard crate are banked below. They did not stop `cargo check`.
 
@@ -86,7 +87,7 @@ Dependencies first. Then the smallest crates whose source already checks once th
 | 3 | `SHARED-VALENCE-DEPENDENTS-1` (DONE, #673) | 5 path dependents of `shared-valence-field` | Depends on card 1. | S | No, if standalone. |
 | 4 | `MIAL-THRESHOLD-BUILDS-1` (DONE, #674) | `mercy_gating_runtime`, `mial`, `mercy-threshold-wasm` | `powrush-mmo-simulator` path-deps `mial` and `mercy-threshold-wasm`. The gating runtime is the path dep under `mial`. | M | No, if standalone. |
 | 5 | `RA-THOR-CORE-BUILDS-1` (DONE, #675) | `crates/ra-thor-core` | `patsagi-councils` path-deps it. | M (988 lines, 9 files) | No, if standalone. |
-| 6 | `QSO-BUILDS-1` | `crates/quantum-swarm-orchestrator` | `patsagi-councils` path-deps it. It path-deps missing `self-evolution`. | L (9,872 lines) | No, if standalone. Do not add a `self-evolution` crate. |
+| 6 | `QSO-BUILDS-1` (DONE, #676) | `crates/quantum-swarm-orchestrator` | `patsagi-councils` path-deps it. It path-deps missing `self-evolution`. | L (9,872 lines) | No, if standalone. Do not add a `self-evolution` crate. |
 | 7 | `PATSAGI-COUNCILS-BUILDS-1` | `crates/patsagi-councils` | After 5 and 6, and after `powrush` (#668). Living small council is already `crates/council`. | L (6,115 lines, 26 files) | No, if standalone. Yes if added to root `members`. |
 | 8 | `POWRUSH-MMO-SIM-BUILDS-1` | `crates/powrush-mmo-simulator` | After 4 and #668. Not the Powrush-MMO repo and not the browser client. | M (1,039 lines) | No, if standalone. |
 | 9 | `SHARD-COMPOSER-PARSE-1` | `crates/shard-composer` | TOML does not parse. One-line array break. | S | No. |
@@ -212,19 +213,42 @@ These files stay on disk and are not modules. They name types this crate does no
 
 ---
 
-## 6. QSO-BUILDS-1
+## 6. QSO-BUILDS-1 (DONE, #676)
 
-`crates/quantum-swarm-orchestrator`. In-repo first error: not a workspace member. 9,872 lines, 65 files.
+**Status:** DONE in #676. `crates/quantum-swarm-orchestrator` is its own workspace (`resolver = "2"`) with a committed `Cargo.lock`. It is not a root member. It has no path dependency. `self-evolution` was dropped. `../../self-evolution` has no `Cargo.toml`, and an optional feature was not added because Cargo still loads an optional path. No self-evolution crate was created. Locked `cargo test --all-targets` and `cargo clippy --all-targets -- -D warnings` finished inside the crate. `Valence::MIN` is the source literal `0.9999999`, not a measured value. `CURRENT_ZETA_CRITICAL_LINE_LOWER_BOUND` is the source literal `0.6725`, not a measured zeta bound. Public TOLC 8 names stay Truth, Order, Love, Compassion, Service, Abundance, Joy, Cosmic Harmony. `SEVEN_LIVING_MERCY_GATES` keeps the seven names in `src/tolc_seven_mercy_gates.rs`.
 
-Path dep `self-evolution` points at `../../self-evolution`. `crates/self-evolution` has **no** `Cargo.toml`. `docs/CRATE_CENSUS.md` already says it is not a crate and not a product. Do not add a manifest.
+In-repo first error, before that PR: not a workspace member. 9,872 lines, 65 files. `crates/patsagi-councils/Cargo.toml` path-deps `../quantum-swarm-orchestrator`. This card did not edit `patsagi-councils`.
 
-`src/orchestrator.rs` lines 58–60 are `TODO` comments for polyhedral mode, a Riemannian manifold, and resonance handlers. Not implemented.
+The three TODO comments in `src/orchestrator.rs` (polyhedral mode, a Riemannian manifold, and resonance handlers) stay unimplemented. They were not filled with a constant score.
 
-`crates/quantum` (6,906 lines of `*.rs` in the earlier forest count) is a directory with **no** `Cargo.toml`. It is not this crate. Do not promote it.
+`crates/quantum` has no `Cargo.toml`. It was not promoted. `crates/quantum-swarm` is the default member and was not edited. No v14 edit.
 
-**Fix:** standalone workspace only for the orchestrator package. Drop or feature-gate the `self-evolution` path. Leave the TODO methods unimplemented until a designed card, and do not stub them with a constant score.
+**Compiled, and what card 7 can import** from crate `ra_thor_quantum_swarm_orchestrator`:
 
-**Runtime / v14:** the default member is `crates/quantum-swarm`, a different package. This card must not replace it. No v14 edit.
+- `QuantumSwarmOrchestrator` (`new`, `Default`, `register_adapter`, `run_one_organism_cycle`, `registered_system_count`, field `version`). It does not implement `Clone`. The patsagi-councils post-quantum example calls `.clone()` on this type. That call is not satisfied here.
+- `Valence`, `GodlyIntelligenceCoherence` (the name stays; the fields are not a measured coherence), `SwarmResonance`, `EpigeneticBlessing`, `OneOrganismContext`, `OneOrganismInsight`, `MercyError`
+- `RaThorSystemAdapter`, `LatticeConductorAdapter`, `CryptoSystemAdapter`, `FractalMercyLedgerAdapter`, `GeometricResonanceReport`
+- `PolyhedralHarmonicEngine`, `PolyhedralResonanceReport`, `U57LayerDetails`
+- `RiemannianMercyManifold`, `GeometricTransportResult`, `current_zeta_critical_line_bound`
+- `riemannian_manifold::compute_christoffel_symbols`, `print_christoffel`
+- `FractalTopologyEngine`, `FractalTopologyReport`, `FractalShard`. `initialize_root(21)` builds 40 shards and max depth 3.
+- `ValenceCommitmentNode`, `build_valence_commitment_tree`, `verify_valence_commitment`
+- `TOLCGate`, `SEVEN_LIVING_MERCY_GATES`, `tolc_zero_point_resonance`, `project_through_seven_gates`, `compute_tolc_valence`, `TOLCValenceResult`
+
+`src/self_evolution_health_cycle.rs` keeps the previous crate root (health monitor, daily cycle, `SwarmAgent`). It is not a module. `QuantumSwarmBridge` is not compiled.
+
+**Design-only, not compiled.** Each file starts with `Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note)`. Reasons are in that header.
+
+- Old root and binary: `src/self_evolution_health_cycle.rs`, `src/main.rs`
+- Missing crates or modules: `src/integration.rs`, `src/quantum_swarm_bridge.rs`, `src/patsagi_integration.rs`, `src/quantum_swarm_consensus.rs`, `src/hebbian_learning_applications.rs`, `src/hybrid_aco_mercy.rs`, `src/hybrid_pso_hebbian.rs`, `src/quantum_swarm_agent.rs`, `src/quantum_swarm_convergence.rs`, `src/quantum_swarm_state.rs`, `src/quantum_swarm_orchestrator.rs`, `src/quantum_swarm_lyapunov_analysis.rs`, `src/quantum_swarm_lyapunov_theorem1.rs`, `src/quantum_swarm_lyapunov_theorem2.rs`, `src/quantum_swarm_lyapunov_theorem3.rs`, `src/quantum_swarm_lyapunov_theorem4.rs`, `src/lyapunov_stability_proofs.rs`, `src/expanded_theorems.rs`, `src/simulation_300_year.rs`
+- Alerting and storage: `src/anomaly_alerting.rs`, `src/real_time_swarm_monitoring.rs`, `src/swarm_robotics.rs`, `src/alert_database_storage.rs`, `src/postgres_alert_store.rs`, `src/notification_integrations.rs`, `src/mercy_gates_engine.rs` (its neutralize test does not match the scorer; the scorer was not changed to force a failure)
+- Quantum sources with unseeded convergence tests: `src/quantum/mod.rs`, `src/quantum/qpso.rs`, `src/quantum/quantum_walks.rs`, `src/quantum/entanglement.rs`, `src/quantum/error_correction.rs`
+- Proof and comparison text: `src/theorem1_complete_proof.rs`, `src/theorem2_complete_proof.rs`, `src/theorem3_complete_proof.rs`, `src/theorem4_complete_proof.rs`, `src/theorem4_resilience_derivation.rs`, `src/theorem5_complete_proof.rs`, `src/theorem5_planetary_eternal_simulation.rs`, `src/tolc_wuwei_bridge.rs`, `src/wuwei_theorem_full_proof.rs`, `src/classical_swarm_comparison.rs`, `src/convergence_rate_gamma.rs`, `src/gamma_sensitivity_derivation.rs`, `src/hybrid_swarm_models.rs`, `src/lyapunov_function_explicit_derivation.rs`, `src/planetary_scale_edge_cases.rs`, `src/real_swarm_examples_comparison.rs`, `src/specific_swarm_algorithms_comparison.rs`, `src/quantum_swarm_lyapunov_theorem1_full_proof.rs`, `src/quantum_swarm_lyapunov_theorem2_full_proof.rs`
+- Example that imports `lattice_conductor`: `examples/lattice_geometric_conduction_demo.rs`
+
+**Fix:** Done in #676. Standalone `[workspace]`. serde and thiserror pinned to the versions the root workspace table already named. tokio is a dev-dependency for the two examples and the async cycle test. No module was invented for `patsagi-councils`.
+
+**Runtime / v14:** the default member is `crates/quantum-swarm`, a different package. This card did not replace it. No v14 edit.
 
 **Size:** L.
 
