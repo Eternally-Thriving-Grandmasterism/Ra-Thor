@@ -10,6 +10,70 @@
 //! Files that are not modules start with the STUB-AUDIT-1 PATSAGI-COUNCILS-BUILDS-1 design-only header.
 //! `lean-sys` is not a dependency. An FFI bridge was not demonstrated.
 
+#[cfg(test)]
+#[allow(dead_code)]
+mod self_evolving_mercy_core;
+#[cfg(test)]
+#[allow(dead_code, non_camel_case_types, clippy::too_many_arguments)]
+mod world_governance;
+
+/// Test-only stand-in. `mercy::MercyEngine` is not in the mercy public API and `mercy` is not in this lock.
+#[cfg(test)]
+mod test_mercy {
+    use powrush::MercyGateStatus;
+
+    pub(crate) struct MercyEngine;
+
+    impl MercyEngine {
+        pub(crate) fn new() -> Self {
+            Self
+        }
+
+        pub(crate) async fn evaluate_action(
+            &mut self,
+            _action: &str,
+            _context: &str,
+            _cehi: f64,
+            _valence: f64,
+        ) -> Result<MercyGateStatus, String> {
+            Ok(MercyGateStatus::Passed)
+        }
+    }
+}
+
+/// Test-only stand-in. `tolc_integration` needs `interstellar-operations`, which is not a dependency.
+#[cfg(test)]
+mod test_tolc {
+    pub(crate) struct TOLCCouncilBridge;
+
+    impl TOLCCouncilBridge {
+        pub(crate) fn new() -> Self {
+            Self
+        }
+    }
+}
+
+/// Test-only stand-in for the two calls `try_evolve` makes before the swarm cycle.
+#[cfg(test)]
+mod test_mercy_ffi {
+    pub(crate) fn init_lean_formal_system() -> Result<(), String> {
+        Ok(())
+    }
+
+    pub(crate) fn verify_mercy_threshold_simplified(
+        proposal: &str,
+        _threshold: f64,
+    ) -> Result<String, String> {
+        let lower = proposal.to_lowercase();
+        if lower.contains("harm") || lower.contains("damage") || lower.contains("exploit") {
+            return Err(
+                "Proposal contains potential harm language — Lean threshold rejected".to_string(),
+            );
+        }
+        Ok("lean_simplified:test".to_string())
+    }
+}
+
 pub mod feedback_loop;
 pub mod observability;
 pub mod predictive_support;
@@ -345,6 +409,29 @@ impl PatsagiCouncilCoordinator {
 impl Default for PatsagiCouncilCoordinator {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+#[cfg(test)]
+impl PatsagiCouncilCoordinator {
+    /// Present only so `try_evolve` typechecks. The empty-registry veto returns before this runs.
+    /// A passing vote would commit an evolution if the swarm check returned a high average.
+    pub(crate) async fn conduct_voting_round(
+        &mut self,
+        proposal: &str,
+        _game: &powrush::PowrushGame,
+    ) -> Result<VotingResult, String> {
+        Ok(VotingResult {
+            proposal_id: proposal.to_string(),
+            total_votes: 16,
+            approvals: 16,
+            rejections: 0,
+            approval_rate: 1.0,
+            mercy_average: 0.97,
+            passed: true,
+            final_verdict: "test pass".to_string(),
+            votes: Vec::new(),
+        })
     }
 }
 

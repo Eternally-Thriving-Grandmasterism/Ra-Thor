@@ -59,6 +59,7 @@ impl QuantumSwarmOrchestrator {
     /// It aggregates all systems, applies resonance, measures coherence, performs mercy pruning,
     /// and will eventually distribute EpigeneticBlessings.
     ///
+    /// An empty adapter registry returns `Err(MercyError::ValenceBelowThreshold(0.0))`.
     /// A non-finite average, or an average below `Valence::MIN`, returns `MercyError::ValenceBelowThreshold`.
     ///
     /// TODO (v14.1+): Apply polyhedral mode selection based on context.tolc_order
@@ -82,7 +83,7 @@ impl QuantumSwarmOrchestrator {
         let avg_valence = if !self.adapters.is_empty() {
             total_valence / self.adapters.len() as f64
         } else {
-            1.0
+            return Err(MercyError::ValenceBelowThreshold(0.0));
         };
 
         // 2. Basic mercy pruning check (TOLC 8 aligned): reject when the average is not finite or is below Valence::MIN.
@@ -191,6 +192,12 @@ mod tests {
             Err(MercyError::ValenceBelowThreshold(value)) => value,
             other => panic!("expected ValenceBelowThreshold, got {other:?}"),
         }
+    }
+
+    #[test]
+    fn empty_registry_is_valence_below_threshold() {
+        let value = expect_below(cycle_with(vec![]));
+        assert_eq!(value, 0.0);
     }
 
     #[test]
