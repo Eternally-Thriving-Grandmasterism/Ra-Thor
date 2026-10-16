@@ -185,7 +185,7 @@ Depends on `crates/shared-valence-field` (card 1). In-repo first error for each,
 
 **Status:** DONE in #674. Each crate below is its own workspace (`resolver = "2"`) with a committed `Cargo.lock`. They are not root members. `mial` path-depends on `../mercy_gating_runtime`. `mercy-threshold-wasm` path-depends on `../mial`. Locked `cargo build`, `cargo test --all-targets`, and `cargo clippy --all-targets -- -D warnings` finished. `src/error.rs` does not exist (`MercyError` is not defined). The files named in the council note stay on disk and are not modules. `0.999999`, `0.92`, `650.0`, `0.5`, and the amplifier and gate-threshold arms are source literals, not measured results.
 
-**Core condition:** `MIAL-GATES-HONEST-1` landed in #687. `optimize_preferences` stores `gated` as false. No compiled check sets it true. `apply_council_tuning` refuses a lower value and keeps the stored value. `GateThresholdMap::set_threshold` still rejects a decrease. These crates are still not root members. Do not read `gated` as a check result. `set_gate_threshold` still stores `value.max(0.5)` and can replace a higher value.
+**Core condition:** `MIAL-GATES-HONEST-1` landed in #687. `optimize_preferences` stores `gated` as false. No compiled check sets it true. `apply_council_tuning`, `set_gate_threshold`, and `GateThresholdMap::set_threshold` refuse a non-finite value or a decrease and keep the stored value. These crates are still not root members. Do not read `gated` as a check result. `ma_at_threshold` and `gate_thresholds` are public fields, so a direct field write bypasses the method check.
 
 `crates/powrush-mmo-simulator` path-deps `mial` and `mercy-threshold-wasm`. That simulator is not this card.
 
@@ -1016,9 +1016,9 @@ Council board: https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO/
 
 ### MIAL-GATES-HONEST-1 (DONE, #687)
 
-**Status:** DONE in #687. `optimize_preferences` stores `gated` as false because no compiled check runs. `apply_council_tuning` refuses a lower value and keeps the stored one. A higher value is stored. `GateThresholdMap::set_threshold` still rejects a decrease and still accepts an equal or higher value. These crates are not root members.
+**Status:** DONE in #687. `optimize_preferences` stores `gated` as false because no compiled check runs. `apply_council_tuning`, `set_gate_threshold`, and `GateThresholdMap::set_threshold` refuse a non-finite value or a decrease and keep the stored value. An equal or higher finite value is stored. These crates are not root members.
 
-It landed before `mial`, `mercy_gating_runtime`, or `mercy-threshold-wasm` joins root members. Do not read MWPO `gated` as a check result. `set_gate_threshold` still stores `value.max(0.5)` and can replace a higher value. Recorded in #738 comment 6218764317, and in this file under cards 4 and 8.
+It landed before `mial`, `mercy_gating_runtime`, or `mercy-threshold-wasm` joins root members. Do not read MWPO `gated` as a check result. `ma_at_threshold` and `gate_thresholds` are public fields, so a direct field write bypasses the method check. Recorded in #738 comment 6218764317, and in this file under cards 4 and 8.
 
 ### SHARD-COMPOSER-KEY-REQUIRED-1 (DONE, #686)
 
