@@ -14,10 +14,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
 
       - name: Build multi-platform image (Bazel)
         run: |
@@ -28,7 +28,7 @@ jobs:
           docker load -i bazel-bin/rathor_multiarch_tarball.tar
 
       - name: Scan image with Trivy (critical/high only)
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@6abccf398f78b4c337599c0656f933d91efb91a0 # master
         with:
           image-ref: 'rathor-nexi:latest'
           format: 'sarif'
@@ -39,7 +39,7 @@ jobs:
           hide-progress: false
 
       - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@ce5e7eeac396d720fe2d802714996c8ce561e311 # v3
         with:
           sarif_file: 'trivy-results.sarif'
 

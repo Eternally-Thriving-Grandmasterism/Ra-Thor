@@ -16,15 +16,15 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 0
 
       - name: Set up Trivy
-        uses: aquasecurity/setup-trivy@v0.3.1
+        uses: aquasecurity/setup-trivy@81e514348e19b6112ce2a7e3ecbafe19c1e1f567 # v0.3.1
 
       - name: Scan Kubernetes manifests (Checkov)
-        uses: bridgecrewio/checkov-action@master
+        uses: bridgecrewio/checkov-action@6f26dc90000b74feb589a906cdfae540f5119895 # master
         with:
           directory: .
           framework: kubernetes,helm,kustomize
@@ -34,12 +34,12 @@ jobs:
           quiet: true
 
       - name: Upload Checkov SARIF
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@ce5e7eeac396d720fe2d802714996c8ce561e311 # v3
         with:
           sarif_file: checkov.sarif
 
       - name: Trivy vulnerability scanner (container images & filesystem)
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@6abccf398f78b4c337599c0656f933d91efb91a0 # master
         with:
           scan-type: 'fs'
           scan-ref: '.'
@@ -50,7 +50,7 @@ jobs:
           exit-code: '1'  # fail on critical/high
 
       - name: Upload Trivy SARIF
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@ce5e7eeac396d720fe2d802714996c8ce561e311 # v3
         with:
           sarif_file: trivy-k8s.sarif
 
@@ -62,7 +62,7 @@ jobs:
           output-file: kube-bench.sarif
 
       - name: Upload Kube-bench SARIF
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@ce5e7eeac396d720fe2d802714996c8ce561e311 # v3
         with:
           sarif_file: kube-bench.sarif
 
@@ -75,7 +75,7 @@ jobs:
           output: trufflehog-k8s.sarif
 
       - name: Upload TruffleHog SARIF
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@ce5e7eeac396d720fe2d802714996c8ce561e311 # v3
         with:
           sarif_file: trufflehog-k8s.sarif
 

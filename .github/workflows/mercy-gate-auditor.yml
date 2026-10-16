@@ -8,9 +8,9 @@ jobs:
   mercy_audit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
       - name: Run Mercy Gate Auditor
         run: |
           cargo install --path crates/core-lattice --bin mercy_gate_auditor || echo "Using xtask"

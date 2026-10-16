@@ -22,11 +22,11 @@ jobs:
         rust: [stable, beta]
         features: ["", "json"]
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@master
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master
         with:
           toolchain: ${{ matrix.rust }}
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
       - name: Cargo check (all features)
         run: cargo check -p mial --all-features
       - name: Run tests with features
@@ -38,8 +38,8 @@ jobs:
     name: Format & Docs
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
       - name: rustfmt
         run: cargo fmt --all -- --check
       - name: Docs
@@ -49,8 +49,8 @@ jobs:
     name: Zero-Hallucination & Mercy Invariant Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
       - name: Verify TruthIntegrityGridworld & TOLC alignment in code
         run: |
           grep -q "TruthIntegrityGridworld" crates/mial/src/safety_harness.rs || exit 1

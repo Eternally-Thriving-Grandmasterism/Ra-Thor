@@ -15,16 +15,16 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Set up Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
 
       - name: Cache Rust dependencies
-        uses: Swatinem/rust-cache@v2
+        uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
 
       - name: Cargo audit (dependency vulnerabilities)
-        uses: actions-rs/audit-check@v1
+        uses: actions-rs/audit-check@35b7b53b1e25b55642157ac01b4adceb5b9ebef3 # v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -40,19 +40,19 @@ jobs:
           format: sarif
 
       - name: Upload TruffleHog SARIF
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@ce5e7eeac396d720fe2d802714996c8ce561e311 # v3
         with:
           sarif_file: trufflehog.sarif
 
       - name: Run Semgrep (code security & quality)
-        uses: returntocorp/semgrep-action@v1
+        uses: returntocorp/semgrep-action@713efdd345f3035192eaa63f56867b88e63e4e5d # v1
         with:
           publishToken: ${{ secrets.SEMGREP_APP_TOKEN }}  # optional – skip if not using Semgrep cloud
           generateSarif: true
           sarifFile: semgrep.sarif
 
       - name: Upload Semgrep SARIF
-        uses: github/codeql-action/upload-sarif@v3
+        uses: github/codeql-action/upload-sarif@ce5e7eeac396d720fe2d802714996c8ce561e311 # v3
         with:
           sarif_file: semgrep.sarif
 

@@ -19,18 +19,18 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 1
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
       - name: Run Mercy Gate Auditor
         run: |
           cargo xtask mercy-gate-audit --min-valence 0.999999 --councils 13 || \
           echo "Falling back to basic audit" && cargo install --path crates/core-lattice --bin mercy_gate_auditor || true
       - name: Upload Audit Report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: mercy-gate-audit-report
           path: target/mercy-audit.json
@@ -42,7 +42,7 @@ jobs:
     needs: mercy-gate-audit
     timeout-minutes: 8
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 1
       - name: Build & Test geometric-intelligence (embedded PATSAGi Council engine)
@@ -58,7 +58,7 @@ jobs:
     needs: [mercy-gate-audit, geometric-council-validation]
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 1
       - name: Install GNU Parallel
@@ -93,7 +93,7 @@ jobs:
 
           cat /tmp/patsagi-collective-verdict.txt
       - name: Upload Collective Council Verdict
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: patsagi-council-collective-verdict
           path: /tmp/patsagi-collective-verdict.txt
@@ -107,7 +107,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 1
       - name: Determine Approval Eligibility
@@ -122,13 +122,13 @@ jobs:
           fi
       - name: Auto-approve eligible PRs
         if: steps.eligibility.outputs.auto_approve == 'true'
-        uses: hmarr/auto-approve-action@v4
+        uses: hmarr/auto-approve-action@05a696a09d381a5a0d142c755f7eacbb19eb6525 # v4
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           review-message: ${{ steps.eligibility.outputs.review_message }}
       - name: Comment on PR for manual review path
         if: steps.eligibility.outputs.auto_approve == 'false'
-        uses: actions/github-script@v7
+        uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
         with:
           script: |
             github.rest.issues.createComment({
@@ -155,7 +155,7 @@ jobs:
       name: production
       url: https://rathor.ai
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           fetch-depth: 1
       - name: Deploy to Production (placeholder — integrate with your deploy script / xtask)
