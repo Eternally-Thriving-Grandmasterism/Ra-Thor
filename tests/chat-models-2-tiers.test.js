@@ -35,8 +35,8 @@ var prompt = chat.slice(promptAt + promptMarker.length, promptEnd);
 var promptHash = crypto.createHash('sha256').update(prompt).digest('hex');
 assert(promptHash === '637a0593489cf8d84e5fd444154def670eb54eae7e36b2b52fd37dc0fb7062a9', 'SYSTEM_PROMPT bytes changed: ' + promptHash);
 
-assert(html.indexOf('Lattice Chat v14.18.x — offline-first multi-session store on your device. Workspace 14.15.6. Optional Web Crypto passphrase (PBKDF2 + AES-GCM). Capable · Bounded · Corrigible. Zero collection.') !== -1, 'chat meta zero-collection line stays');
-assert(html.indexOf('v14.18.x • workspace 14.15.6 • TOLC 8 • family bar shared') !== -1, 'chat subtitle stays');
+assert(html.indexOf('Lattice Chat — offline-first multi-session store on your device. Workspace 14.15.6. Optional Web Crypto passphrase (PBKDF2 + AES-GCM). Capable · Bounded · Corrigible. Zero collection.') !== -1, 'chat meta zero-collection line stays');
+assert(html.indexOf('workspace 14.15.6 • TOLC 8 • family bar shared') !== -1, 'chat subtitle stays');
 
 var pure = chat.slice(chat.indexOf('/* chat-models-1-pure */'), chat.indexOf('/* chat-models-1-pure-end */'));
 var store = {};
