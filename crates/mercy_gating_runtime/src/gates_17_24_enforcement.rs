@@ -1,3 +1,5 @@
+// Design-only. Not a module of mercy_gating_runtime.
+// Council note: MaAtScore is not defined in this crate. This file is not compiled.
 // Per-gate numeric enforcement for gates 17-24 (CORRECTED)
 // Proper mercy enforcement: race amplification helps but does not guarantee pass
 // Includes before/after style tests demonstrating the fix from clamping bug

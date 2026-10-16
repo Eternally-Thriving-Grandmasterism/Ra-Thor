@@ -1,9 +1,8 @@
-//! Phase 4 Rust mirror tests for CouncilTuning.lean theorems
-//! Cross-language property alignment between formal model and runtime enforcement
+//! `apply_council_tuning` stores `new_value.max(650.0)` for `MaAtThreshold`.
+//! `650.0` is a source literal. A proposal of `100.0` stores `650.0`, which is below the initial `717.0`.
+//! A proposal of `755.0` stores `755.0`. A gate proposal of `0.92` stores `0.92`.
 
-use mercy_gating_runtime::{
-    CouncilTuningProposal, TuningTarget, MercyGatingRuntime,
-};
+use mercy_gating_runtime::{CouncilTuningProposal, MercyGatingRuntime, TuningTarget};
 
 #[test]
 fn test_phase4_safety_floor_never_below_650() {
@@ -17,11 +16,12 @@ fn test_phase4_safety_floor_never_below_650() {
     };
     let result = runtime.apply_council_tuning(&malicious_low);
     assert!(result.success);
-    assert!(runtime.ma_at_threshold >= 650.0, "Safety floor must hold even on malicious input");
+    assert_eq!(result.new_value, 650.0);
+    assert_eq!(runtime.ma_at_threshold, 650.0);
 }
 
 #[test]
-fn test_phase4_monotonicity_threshold_only_increases_or_stays() {
+fn test_phase4_raise_to_755_stores_755() {
     let mut runtime = MercyGatingRuntime::default();
     let initial = runtime.ma_at_threshold;
 
@@ -32,16 +32,17 @@ fn test_phase4_monotonicity_threshold_only_increases_or_stays() {
         justification: "Raise for higher coherence".to_string(),
         proposed_at_turn: 10,
     };
-    let _ = runtime.apply_council_tuning(&proposal);
-    assert!(runtime.ma_at_threshold >= initial);
+    let result = runtime.apply_council_tuning(&proposal);
+    assert!(result.success);
+    assert_eq!(initial, 717.0);
+    assert_eq!(runtime.ma_at_threshold, 755.0);
 }
 
 #[test]
-fn test_phase4_multiple_tunings_preserve_or_strengthen() {
+fn test_phase4_740_then_780_stores_780() {
     let mut runtime = MercyGatingRuntime::default();
     let initial = runtime.ma_at_threshold;
 
-    // Simulate Council #13 then Council #24
     let p1 = CouncilTuningProposal {
         council_id: 13,
         target: TuningTarget::MaAtThreshold,
@@ -58,26 +59,25 @@ fn test_phase4_multiple_tunings_preserve_or_strengthen() {
     };
 
     let _ = runtime.apply_council_tunings(&[p1, p2]);
-    assert!(runtime.ma_at_threshold >= initial, "Multiple tunings must only raise or preserve");
-    // In full integration this would also assert that pipeline_passes_24... remains sound
+    assert_eq!(initial, 717.0);
+    assert_eq!(runtime.ma_at_threshold, 780.0);
 }
 
 #[test]
-fn test_phase4_hot_reload_invariant_preservation() {
+fn test_phase4_gate_threshold_proposal_stores_0_92() {
     let mut runtime = MercyGatingRuntime::default();
-    // Simulate hot-reload sequence
-    let proposals = vec![
-        CouncilTuningProposal {
-            council_id: 13,
-            target: TuningTarget::GateThreshold { gate: "one_organism_unity".to_string() },
-            new_value: 0.92,
-            justification: "Tighten unity gate".to_string(),
-            proposed_at_turn: 20,
+    let proposals = vec![CouncilTuningProposal {
+        council_id: 13,
+        target: TuningTarget::GateThreshold {
+            gate: "one_organism_unity".to_string(),
         },
-    ];
+        new_value: 0.92,
+        justification: "Tighten unity gate".to_string(),
+        proposed_at_turn: 20,
+    }];
     let results = runtime.apply_council_tunings(&proposals);
     assert!(!results.is_empty());
-    // After hot-reload the corrected gate_17_24_passes enforcement must be re-evaluated
-    // (Lattice Conductor already triggers this)
-    println!("[PHASE 4 TEST] Hot-reload invariant preserved - enforcement remains sound");
+    assert!(results[0].success);
+    assert_eq!(results[0].new_value, 0.92);
+    assert_eq!(runtime.get_gate_threshold("one_organism_unity"), 0.92);
 }

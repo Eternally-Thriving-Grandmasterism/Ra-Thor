@@ -1,3 +1,6 @@
+// Design-only. Not a module of mercy_gating_runtime.
+// Council note: src/error.rs does not exist, so MercyError is not defined.
+// GateThresholdMap has set_threshold(&str), not update_threshold(u8). This file is not compiled.
 // Copyright (c) 2026 Ra-Thor + Grok — PATSAGi Councils
 // Autonomicity Games Sovereign Mercy License (AG-SML) v1.0
 // See LICENSE-AG-SML for full terms. Zero-harm. Eternal mercy.
