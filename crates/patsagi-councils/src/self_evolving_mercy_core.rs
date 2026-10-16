@@ -10,9 +10,15 @@
 //! Contact: info@Rathor.ai
 //! AG-SML v1.0
 
+#[cfg(not(test))]
 use crate::mercy_threshold_ffi;
+#[cfg(test)]
+use crate::test_mercy::MercyEngine;
+#[cfg(test)]
+use crate::test_mercy_ffi as mercy_threshold_ffi;
 use crate::PatsagiCouncilCoordinator;
 use chrono::{DateTime, Utc};
+#[cfg(not(test))]
 use mercy::MercyEngine;
 use powrush::{MercyGateStatus, PowrushGame};
 use ra_thor_quantum_swarm_orchestrator::QuantumSwarmOrchestrator;
@@ -211,5 +217,41 @@ impl SelfEvolvingMercyCore {
 impl Default for SelfEvolvingMercyCore {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::PatsagiCouncilCoordinator;
+    use std::task::{Context, Poll};
+
+    fn poll_ready<F: std::future::Future>(future: F) -> F::Output {
+        let waker = std::task::Waker::noop();
+        let mut context = Context::from_waker(waker);
+        let mut future = std::pin::pin!(future);
+        match std::future::Future::poll(future.as_mut(), &mut context) {
+            Poll::Ready(value) => value,
+            Poll::Pending => panic!("try_evolve stayed pending"),
+        }
+    }
+
+    #[test]
+    fn empty_registry_veto_returns_none_without_evolution() {
+        let mut core = SelfEvolvingMercyCore::new();
+        let version = core.current_version;
+        let last_cycle = core.last_evolution_cycle;
+        assert!(core.evolution_history.is_empty());
+        assert_eq!(version, 1);
+        assert_eq!(last_cycle, 0);
+
+        let mut council = PatsagiCouncilCoordinator::new();
+        // Past the cooldown so the empty-registry cycle is the gate that returns.
+        let result = poll_ready(core.try_evolve(core.evolution_cooldown_cycles, &mut council));
+
+        assert!(result.is_none());
+        assert!(core.evolution_history.is_empty());
+        assert_eq!(core.current_version, version);
+        assert_eq!(core.last_evolution_cycle, last_cycle);
     }
 }

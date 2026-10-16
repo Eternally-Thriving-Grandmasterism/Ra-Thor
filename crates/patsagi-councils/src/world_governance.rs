@@ -9,9 +9,15 @@
 //! Contact: info@Rathor.ai
 //! AG-SML v1.0
 
+#[cfg(test)]
+use crate::test_mercy::MercyEngine;
+#[cfg(test)]
+use crate::test_tolc::TOLCCouncilBridge;
+#[cfg(not(test))]
 use crate::tolc_integration::TOLCCouncilBridge;
 use crate::CouncilFocus;
 use chrono::{DateTime, Utc};
+#[cfg(not(test))]
 use mercy::MercyEngine;
 use powrush::{AscensionLevel, Faction, MercyGateStatus, PowrushGame, ResourceType};
 use ra_thor_quantum_swarm_orchestrator::QuantumSwarmOrchestrator;
@@ -904,5 +910,56 @@ impl WorldGovernanceEngine {
 impl Default for WorldGovernanceEngine {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::task::{Context, Poll};
+
+    fn poll_ready<F: std::future::Future>(future: F) -> F::Output {
+        let waker = std::task::Waker::noop();
+        let mut context = Context::from_waker(waker);
+        let mut future = std::pin::pin!(future);
+        match std::future::Future::poll(future.as_mut(), &mut context) {
+            Poll::Ready(value) => value,
+            Poll::Pending => panic!("propose_and_approve_world_change stayed pending"),
+        }
+    }
+
+    #[test]
+    fn empty_registry_vetoes_world_change_before_impact() {
+        let mut engine = WorldGovernanceEngine::new();
+        let mut game = PowrushGame::new();
+        let joy_before: Vec<f32> = game.players.iter().map(|player| player.needs.joy).collect();
+        let mercy_before: Vec<f64> = game
+            .resources
+            .iter()
+            .map(|resource| resource.mercy_multiplier)
+            .collect();
+
+        let result = poll_ready(engine.propose_and_approve_world_change(
+            CouncilFocus::JoyAmplification,
+            "Empty registry",
+            "A proposal with no adapters registered.",
+            WorldImpactType::CulturalFestival,
+            &mut game,
+        ));
+
+        let text = result.expect("veto is an Ok rejection string");
+        assert!(text.starts_with("❌ WORLD CHANGE REJECTED"), "{text}");
+        assert!(text.contains("Swarm valence check vetoed"), "{text}");
+        assert!(engine.active_changes.is_empty());
+        assert!(engine.history.is_empty());
+        assert_eq!(engine.total_world_changes, 0);
+        let joy_after: Vec<f32> = game.players.iter().map(|player| player.needs.joy).collect();
+        let mercy_after: Vec<f64> = game
+            .resources
+            .iter()
+            .map(|resource| resource.mercy_multiplier)
+            .collect();
+        assert_eq!(joy_before, joy_after);
+        assert_eq!(mercy_before, mercy_after);
     }
 }
