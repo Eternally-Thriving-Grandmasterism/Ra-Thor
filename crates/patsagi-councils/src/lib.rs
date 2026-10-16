@@ -110,6 +110,7 @@ impl PATSAGiCouncil {
             id: Uuid::new_v4(),
             name: name.to_string(),
             focus,
+            // Source literals, not measured values.
             mercy_valence: 0.97,
             cehi: 4.82,
             last_decision: None,
@@ -318,12 +319,12 @@ impl PatsagiCouncilCoordinator {
     pub fn get_council_status_report(&self) -> String {
         let mut report =
             String::from("╔════════════════════════════════════════════════════════════╗\n");
-        report.push_str("║    16 PATSAGi COUNCILS — v14.15.11 ETERNAL GOVERNANCE     ║\n");
+        report.push_str("║  PATSAGi Councils (16 focuses, source list) — v14.15.11   ║\n");
         report.push_str("╚════════════════════════════════════════════════════════════╝\n\n");
 
         for (focus, council) in &self.councils {
             report.push_str(&format!(
-                "• {} ({:?})\n  Mercy Valence: {:.2} | CEHI: {:.2} | Decisions: {}\n\n",
+                "• {} ({:?})\n  mercy_valence (source literal): {:.2} | cehi (source literal): {:.2} | Decisions: {}\n\n",
                 council.name, focus, council.mercy_valence, council.cehi, council.decisions_made
             ));
         }

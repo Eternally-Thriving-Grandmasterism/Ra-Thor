@@ -73,7 +73,7 @@ fn main() {
                 println!("Emitted envelope (pretty):\n{}", raw);
             }
 
-            println!("\nThunder locked in. Dual-repo soft feedback organism is operational.");
+            println!("\nDemo cycle complete.");
             println!("Yoi ⚡");
         }
         Err(e) => {
