@@ -150,6 +150,8 @@ pub struct OneOrganismInsight {
 pub enum MercyError {
     #[error("Valence {0} below mercy threshold")]
     ValenceBelowThreshold(f64),
+    #[error("Valence {0} is not finite")]
+    NonFiniteValence(f64),
     #[error("Mercy gate failed: {0}")]
     GateFailed(String),
     #[error("Adapter error: {0}")]
