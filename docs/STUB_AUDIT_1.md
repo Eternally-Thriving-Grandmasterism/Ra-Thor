@@ -1,10 +1,12 @@
 # STUB-AUDIT-1
 
 **Date:** 2026-10-16
-**Tip audited:** `5c698566ce4f99b7ce8abc0df9ac34217d1164bd`
+**Tip audited (first pass):** `5c698566ce4f99b7ce8abc0df9ac34217d1164bd`
 **Workspace identity:** 14.15.6
 **Contact:** info@Rathor.ai
 **Status:** inspectable inventory. Not a certification. Not a build of the research forest.
+
+15/15 DONE. Cards 1–11 build standalone (not root members). Cards 12–15 are labels only and stay design-only or archived. Nothing here is demonstrated as a working system.
 
 This file is the canonical list of Rust manifests that do not build, or that build only as stubs. After it merges, each family below is one make-real card. This audit adds no crate, no member, and no workflow.
 
@@ -37,7 +39,7 @@ These were make-real cards. `cargo check` on 2026-10-16 finished for each. They 
 | KERNEL-MANIFEST-1: `crates/ra-thor-kernel`, `crates/kernel` | #680 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock` each. Not root members. No path dependency. Locked `cargo test --all-targets`, `cargo clippy --all-targets -- -D warnings`, and `cargo fmt --check` finished inside each crate. `ra-thor-kernel` release `rustflags` are removed. `dilithium_sign` is absent. `falcon_sign` is not a dependency. `kernel` does not path-depend on `lattice-conductor-v14`. |
 | REASONING-COUNCIL-WIRES-1: the 16 council crates in section 11 | #681 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock` each. Not root members. Locked `cargo test --all-targets`, `cargo clippy --all-targets -- -D warnings`, and `cargo fmt --check` finished inside each crate. `RSRE` is not a type. Compiled wires call `RathorSovereignReasoningEngine`, and, where that dependency was already declared, `ValenceVote` plus `ValenceConsensusEngine`. `Ok(true)` bodies stay uncompiled. A deliberation label comes from the vote inputs. |
 
-Two tidy leftovers on the shard crate are banked below. They did not stop `cargo check`.
+Two tidy leftovers on the shard crate are banked below. They did not stop `cargo check`. The last section also names the other items still banked on the council board.
 
 ---
 
@@ -1008,9 +1010,42 @@ Recorded so they are not dropped. Not large enough to lead the order. Fix only a
 
 ## Banked tidy
 
-Not make-real cards. No crate behavior changes in those tidy cards except the lines named.
+Not make-real cards. No crate behavior changes in those tidy cards except the lines named. Names below are copied from Powrush-MMO issue #738 or from this file. An item with no recorded card name is described in plain words.
+
+Council board: https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO/issues/738
+
+### MIAL-GATES-HONEST-1
+
+It must land before `mial`, `mercy_gating_runtime`, or `mercy-threshold-wasm` joins root members, and before any code reads MWPO `gated` or relies on `MercyGatingRuntime` monotonicity. Recorded in #738 comment 6218764317, and in this file under cards 4 and 8.
+
+### SHARD-COMPOSER-KEY-REQUIRED-1
+
+Core votes. When the env var is unset, the HMAC state-signing key falls back to `DEFAULT_BASE_KEY` in source. Make the key required and fail closed, with no key in source. Recorded in #738 comment 6220555628.
+
+This card needs Core. It must not add the `powrush` or `ra-thor-kernel` keys to root members by default. Cards 10 and 14 left those keys unadded. Clerk HOLD on this PR, comment 6222049417.
+
+### PATSAGI-TIDY-1
+
+Recorded in #738 comment 6219895896.
+
+- Label the constant `Valence(0.97)` in `world_governance.rs` as a source literal.
+- Rename `CouncilGateLabel` to `CouncilCheckLabel`.
+
+### RA-THOR-KERNEL-WASM-1
+
+Recorded in #738 comment 6220843372 as the example name for the wasm note. The removed `+simd128` was in profile rustflags, which stable Cargo ignores, so it never took effect. Set it under `[target.wasm32-unknown-unknown]` in `.cargo/config.toml` or in `RUSTFLAGS`, and build and test the cdylib on that target in CI.
+
+### VALENCE-CONST-2
+
+Named in the amendment that asked for this list. The 75 comments on issue #738, and this file before that amendment, do not record a scope for this name. No scope is added here.
+
+### RECYCLER-CI-1
+
+Fold `crates/fenca` tests into this job. Recorded on Ra-Thor #661, comment 6208990396. It is not a comment on issue #738. `STANDALONE-CI` below is a separate job.
 
 ### POWRUSH-TIDY-1
+
+Recorded in #738 comments 6216542444 and 6216774635, and in this section before the amendment.
 
 - README chat residue: `README.md` line 111 still ends the inner-loop section with agent-mode words (`chat`, `routine`, `handoff`). That is chat residue in the public readme.
 - Undefined `powrush` workspace deps: 165 manifests, root key absent. Covered by card 14. The tidy card should not add the key to the root workspace.
@@ -1018,16 +1053,52 @@ Not make-real cards. No crate behavior changes in those tidy cards except the li
 
 ### SHARD-GENESIS-TIDY-1
 
+Recorded in #738 comment 6216774635, and in this section before the amendment.
+
 - `sha2` is listed twice in `crates/sovereign-shard-genesis/Cargo.toml`: line 26 under `[dependencies]`, line 30 under `[dev-dependencies]`. Check still finished. Duplicate is tidy, not a failure.
 - `crates/sovereign-shard-genesis/src/v13_design.rs` line 234 uses `"/tmp/test_shard_persist.json"`. The package comment (`Cargo.toml` lines 16–19) says this file is not a module. The `/tmp` path is not on the compiled path. Tidy can delete or keep the file labelled design-only. Do not compile it back into the crate.
 
 ### STANDALONE-CI
 
-One CI job that runs `cargo test --locked` (or `cargo check`) inside `crates/fenca`, `crates/council`, `crates/powrush`, and `crates/sovereign-shard-genesis`. Needs a workflow card and Core. This audit does not add a workflow and does not edit `.github/`.
+One CI job that runs `cargo test --locked` (or `cargo check`) inside `crates/fenca`, `crates/council`, `crates/powrush`, and `crates/sovereign-shard-genesis`. Needs a workflow card and Core. This audit does not add a workflow and does not edit `.github/`. Recorded in #738 comment 6216774635, and in this section before the amendment.
+
+### Kernel tidy
+
+Recorded in #738 comment 6220843372. No separate card name besides `RA-THOR-KERNEL-WASM-1` above.
+
+- `crates/kernel/Cargo.toml` keywords: `agi`, `sovereign`, `mercy-gated`.
+- About 167 manifests still name the undefined `ra-thor-kernel` root key. Card 14 labelled those shells. It did not add the key.
+
+### Family-11 `valence_threshold`
+
+Recorded in #738 comment 6221395375. No card name. `valence_threshold` is a public field callers can lower in the 15 family-11 crates. Make it private or floor-clamped. Core votes.
+
+### QSO dependents
+
+Recorded in #738 comment 6219468432. No card name. About 150 crates declare a `quantum-swarm-orchestrator` dependency. `QuantumSwarmOrchestrator` is now the smaller adapter-based API (no `Clone`). Before any of those crates is promoted to a root member or built in CI, check it against this API.
+
+### QSO adapter fresh valence
+
+Recorded in #738 comment 6220555628. No card name. The shard-composer adapter's fresh valence is `0.0`, below `Valence::MIN`. If one is registered with the QSO orchestrator, it reports below threshold and is vetoed. Nothing compiled registers one today. Core reviews this before any code relies on adapter health.
+
+### Post-quantum headers
+
+Recorded in #738 comment 6221917153. No card name. Nine non-dilithium files in `ra-thor-post-quantum-sig` carry only the generic header. Give them the specific line `placeholder, not working crypto`.
+
+### Other board notes with no card name
+
+- `crates/xtask` still asks for removed shard-composer features (`one-organism` and the `--features <profile>` builds). #738 comment 6220555628.
+- The Already fixed closer in this file still says "shard crate". It should say shard-genesis. #738 comment 6220555628.
+- Family-11 threshold tests compare against `below >= threshold`. Use literal true/false asserts. #738 comment 6221395375.
+- `patsagi-councils` uuid 1.28 needs rustc 1.89. Declare `rust-version` or pin uuid. #738 comment 6221395375.
+- Reword grandiose descriptions in the family-11 crate manifests. #738 comment 6221395375.
+- Section 11 of this file should note that `tolc8_mercy_check` stays compiled and that `active_personas` was restored. #738 comment 6221395375.
+- The `summary()` string "Living Cosmic Tick active" stays banked. #738 comment 6219079423.
+- Non-root crates that used the removed patsagi re-exports get fixed on their own cards. #738 comment 6219895896.
 
 ---
 
-## Not demonstrated
+## Not demonstrated (first pass)
 
 - Default members were not re-built in this seat.
 - No non-member was compiled in-repo. Leaf probes compiled 7 libraries, 1 fictional council library, and an empty `geometric-intelligence` package.
