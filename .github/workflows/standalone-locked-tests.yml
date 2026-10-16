@@ -1,0 +1,100 @@
+name: standalone locked tests
+
+# Standalone packages. Not root workspace members.
+# One matrix entry per crate: cargo test --locked and cargo clippy --locked.
+# biomimetic-sovereign-harmony-council is not in this matrix.
+# STUB-AUDIT-1 section 11 records that package had no Rust sources.
+# It is not one of the 15 family-11 crates.
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/standalone-locked-tests.yml"
+      - "crates/dynamic-persona-router-council/**"
+      - "crates/eternal-nexus-revelation-council/**"
+      - "crates/eternal-sovereign-divine-spark-council/**"
+      - "crates/eternal-sovereign-infinite-horizon-council/**"
+      - "crates/eternal-sovereign-lattice-completion-council/**"
+      - "crates/eternal-sovereign-mercy-lattice-unification-council/**"
+      - "crates/eternal-sovereign-quantum-consciousness-expansion-council/**"
+      - "crates/eternal-sovereign-spark-council/**"
+      - "crates/infinite-horizon-exploration-council/**"
+      - "crates/kernel/**"
+      - "crates/mercy-quanta-sentinel-council/**"
+      - "crates/patsagi-councils/**"
+      - "crates/post-quantum-biomimetic-grokarena-encryption-council/**"
+      - "crates/quantum-gravity-harmony-council/**"
+      - "crates/quantum-propulsion-sovereignty-council/**"
+      - "crates/sovereign-decentralized-propulsion-fleet-council/**"
+      - "crates/universal-sovereign-abundance-lattice-council/**"
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/standalone-locked-tests.yml"
+      - "crates/dynamic-persona-router-council/**"
+      - "crates/eternal-nexus-revelation-council/**"
+      - "crates/eternal-sovereign-divine-spark-council/**"
+      - "crates/eternal-sovereign-infinite-horizon-council/**"
+      - "crates/eternal-sovereign-lattice-completion-council/**"
+      - "crates/eternal-sovereign-mercy-lattice-unification-council/**"
+      - "crates/eternal-sovereign-quantum-consciousness-expansion-council/**"
+      - "crates/eternal-sovereign-spark-council/**"
+      - "crates/infinite-horizon-exploration-council/**"
+      - "crates/kernel/**"
+      - "crates/mercy-quanta-sentinel-council/**"
+      - "crates/patsagi-councils/**"
+      - "crates/post-quantum-biomimetic-grokarena-encryption-council/**"
+      - "crates/quantum-gravity-harmony-council/**"
+      - "crates/quantum-propulsion-sovereignty-council/**"
+      - "crates/sovereign-decentralized-propulsion-fleet-council/**"
+      - "crates/universal-sovereign-abundance-lattice-council/**"
+
+permissions:
+  contents: read
+
+jobs:
+  locked-tests:
+    name: ${{ matrix.crate }} locked tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        crate:
+          - dynamic-persona-router-council
+          - eternal-nexus-revelation-council
+          - eternal-sovereign-divine-spark-council
+          - eternal-sovereign-infinite-horizon-council
+          - eternal-sovereign-lattice-completion-council
+          - eternal-sovereign-mercy-lattice-unification-council
+          - eternal-sovereign-quantum-consciousness-expansion-council
+          - eternal-sovereign-spark-council
+          - infinite-horizon-exploration-council
+          - kernel
+          - mercy-quanta-sentinel-council
+          - patsagi-councils
+          - post-quantum-biomimetic-grokarena-encryption-council
+          - quantum-gravity-harmony-council
+          - quantum-propulsion-sovereignty-council
+          - sovereign-decentralized-propulsion-fleet-council
+          - universal-sovereign-abundance-lattice-council
+    steps:
+      - name: Checkout
+        # actions/checkout v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Install Rust 1.89.0
+        # dtolnay/rust-toolchain SHA pin 599c45df1a24c1c63ae1129a7e59f46654b8fb66 (toolchain 1.89.0)
+        uses: dtolnay/rust-toolchain@599c45df1a24c1c63ae1129a7e59f46654b8fb66
+        with:
+          toolchain: 1.89.0
+
+      - name: Install clippy
+        run: rustup component add clippy --toolchain 1.89.0
+
+      - name: Test
+        working-directory: crates/${{ matrix.crate }}
+        run: cargo test --locked --all-targets
+
+      - name: Clippy
+        working-directory: crates/${{ matrix.crate }}
+        run: cargo clippy --locked --all-targets -- -D warnings
