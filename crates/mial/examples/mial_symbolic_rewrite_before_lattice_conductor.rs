@@ -1,3 +1,7 @@
+// Design-only. Not a cargo target.
+// Council note: this file calls methods the compiled `mial` crate does not define.
+// `autoexamples` / `autotests` are false. This file is not compiled.
+
 //! examples/mial_symbolic_rewrite_before_lattice_conductor.rs
 //!
 //! Demonstrates wiring the MWPO symbolic rewrite hook into a Lattice Conductor

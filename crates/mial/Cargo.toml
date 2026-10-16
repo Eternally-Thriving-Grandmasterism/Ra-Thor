@@ -3,11 +3,22 @@ name = "mial"
 version = "14.15.0"
 edition = "2021"
 authors = ["Sherif Samy Botros <info@Rathor.ai>", "Eternally-Thriving-Grandmasterism"]
-description = "Mercy-Augmented Intelligence Amplification Layer (MIAL) — Lattice-governed intelligence amplification + geometry mercy evaluation for Ra-Thor. Living Cosmic Tick + ONE Organism 14.15.0 readiness."
+description = "MWPO geometry scores are formulas of source literals. The valence check uses the source literal 0.999999 (not a measured value). src/mial.rs, src/safety_harness.rs, src/lattice_introspection.rs, src/integration.rs, and src/mod.rs are not modules."
 license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
-keywords = ["agi", "safety", "mercy", "alignment", "patsagi", "geometry", "one-organism"]
+keywords = ["safety", "mercy", "alignment", "patsagi", "geometry", "one-organism"]
 categories = ["science", "simulation"]
+autoexamples = false
+autotests = false
+
+# Standalone workspace, same pattern as crates/fenca, crates/council,
+# crates/powrush, and crates/sovereign-shard-genesis.
+# `cargo build --locked` and `cargo test --locked` use this manifest.
+# This crate is not a root default member.
+# mercy_gating_runtime stays a relative path dependency.
+# examples/ and tests/ are not cargo targets. They call methods this crate does not define.
+[workspace]
+resolver = "2"
 
 [dependencies]
 mercy_gating_runtime = { path = "../mercy_gating_runtime" }
@@ -20,9 +31,6 @@ serde_json = { version = "1.0", optional = true }
 default = []
 serde = ["dep:serde"]
 json = ["dep:serde", "dep:serde_json"]
-
-[dev-dependencies]
-tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
 
 [lib]
 path = "src/lib.rs"

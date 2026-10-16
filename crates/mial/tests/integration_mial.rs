@@ -1,3 +1,7 @@
+// Design-only. Not a cargo target.
+// Council note: this file calls methods the compiled `mial` crate does not define.
+// `autoexamples` / `autotests` are false. This file is not compiled.
+
 //! integration_mial.rs
 //!
 //! Advanced end-to-end integration test + living example for MIAL v13.13.0

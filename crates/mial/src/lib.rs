@@ -1,24 +1,14 @@
-//! Mercy-Augmented Intelligence Amplification Layer (MIAL) — v14.15.0
-//!
-//! Sovereign subsystem that makes intelligence amplification itself an act of Mercy.
-//! All components route through MercyGatingRuntime and PATSAGi Councils.
-//! Non-bypassable. Monotonic mercy strengthening enforced.
-//!
-//! Geometry mercy evaluation (MWPO) is the primary integration point used by
-//! the Powrush-MMO gate stack and the ONE Organism Living Cosmic Tick surface.
-//!
+//! Mercy-Augmented Intelligence Amplification Layer (MIAL).
+//! The compiled path is `mwpo` and `pathology_detection`.
+//! Geometry scores are formulas of source literals.
+//! `0.999999` in `evaluate_geometry_mercy_component` is a source literal, not a measured value.
+//! These files are not modules: `mial.rs`, `safety_harness.rs`, `lattice_introspection.rs`,
+//! `integration.rs`, `mod.rs`.
+//! `examples/` and `tests/` are not cargo targets.
 //! Contact: info@Rathor.ai
 
-pub mod mial;
 pub mod mwpo;
-pub mod safety_harness;
 pub mod pathology_detection;
-pub mod lattice_introspection;
-pub mod integration;
 
-pub use mial::MercyAugmentedIntelligenceAmplification;
 pub use mwpo::MercyWeightedPreferenceOptimization;
-pub use safety_harness::PatsagiSafetyHarness;
 pub use pathology_detection::PathologyDetectionEngine;
-pub use lattice_introspection::LatticeIntrospectionEngine;
-pub use integration::MialIntegration;

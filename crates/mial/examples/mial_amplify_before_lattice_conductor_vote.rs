@@ -1,3 +1,7 @@
+// Design-only. Not a cargo target.
+// Council note: this file calls methods the compiled `mial` crate does not define.
+// `autoexamples` / `autotests` are false. This file is not compiled.
+
 //! mial_amplify_before_lattice_conductor_vote.rs
 //!
 //! Demonstrates deeper wiring of MIAL into Lattice Conductor v13.

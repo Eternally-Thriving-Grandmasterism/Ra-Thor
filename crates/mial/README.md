@@ -1,14 +1,22 @@
-# MIAL — Mercy-Augmented Intelligence Amplification Layer v13.13.0
+# mial
 
-**Internal Development Crate** | Dedicated PR #170
+Standalone workspace (`resolver = "2"`) with its own `Cargo.lock`. Not a root default member. `mercy_gating_runtime` is a relative path dependency.
 
-MIAL makes intelligence amplification itself an act of Mercy.
+`MercyWeightedPreferenceOptimization::evaluate_geometry_mercy_component` scores a geometry with the formulas in `src/mwpo.rs`. A Platonic solid with order `0`, density `0`, and step `0` has resonance `0.96`. `truth` is `0.999` when `chiral` is false and `0.995` when it is true. `valence` below `0.999999` returns `GateViolation { gate: "valence" }`. `overall` below `0.92` returns `LowAlignment`. Those figures are source literals, not measured results. `active_gates` is not read.
 
-- 12 Mercy Safety Gridworlds
-- MWPO with training loop + symbolic rewrite hooks
-- Non-bypassable under MercyGatingRuntime + PATSAGi Councils
-- Monotonic mercy strengthening enforced
+`PathologyDetectionEngine::detect_pathologies` returns the first matching substring label. `trigger_automatic_recalibration` builds a `GateThreshold` proposal whose `new_value` is `(current_score * 1.08).min(0.97)` and applies it. The runtime stores `new_value.max(0.5)`.
 
-See src/ for full implementation.
+**Contact:** info@Rathor.ai  
+**License:** AG-SML v1.1
 
-One Organism. Many Councils. One Mercy. ⚡❤️
+## Council note
+
+`src/mial.rs`, `src/safety_harness.rs`, `src/lattice_introspection.rs`, `src/integration.rs`, and `src/mod.rs` stay on disk and are not modules. They call methods this crate does not define (`evaluate_proposal`, `check_gates`, `evaluate_trajectory`, and others). `examples/` and `tests/` are not cargo targets for the same reason.
+
+## Verify
+
+```bash
+cargo build --manifest-path crates/mial/Cargo.toml --locked
+cargo test --manifest-path crates/mial/Cargo.toml --locked --all-targets
+cargo clippy --manifest-path crates/mial/Cargo.toml --locked --all-targets -- -D warnings
+```

@@ -1,3 +1,7 @@
+// Design-only. Not a cargo target.
+// Council note: this file calls methods the compiled `mial` crate does not define.
+// `autoexamples` / `autotests` are false. This file is not compiled.
+
 /// MIAL v13.13.0 — Final Pre-Merge Validation End-to-End Example
 ///
 /// This example performs a complete validation of the full MIAL pipeline

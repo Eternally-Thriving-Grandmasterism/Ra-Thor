@@ -1,3 +1,7 @@
+// Design-only. Not a cargo target.
+// Council note: this file calls methods the compiled `mial` crate does not define.
+// `autoexamples` / `autotests` are false. This file is not compiled.
+
 //! MIAL v13.13.0 — Explicit Proposal Amplification Before Lattice Conductor / PATSAGi Council #13 Vote
 //!
 //! This example demonstrates the full pre-governance flow:

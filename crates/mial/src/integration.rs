@@ -1,3 +1,7 @@
+//! Design-only. Not a module of `mial`.
+//! Council note: this file calls methods the compiled crate does not define.
+//! It is not compiled.
+//!
 //! integration.rs — MIAL Integration with MercyGatingRuntime & PATSAGi v13.13.0
 //!
 //! Provides the clean extension points into the existing runtime.
