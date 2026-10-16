@@ -25,6 +25,7 @@ These were make-real cards. `cargo check` on 2026-10-16 finished for each. They 
 | `crates/council` | #665 | Standalone `[workspace]`. Offline `cargo check` finished in 0.82s. A proposal can fail. An admission block cannot be voted into an apply. |
 | `crates/powrush` | #668 | Standalone `[workspace]`. Online `cargo check` finished. Policy hints can be rejected. |
 | `crates/sovereign-shard-genesis` | #669 | Standalone `[workspace]`. Online `cargo check` finished. SHA-256 of explicit inputs. The v13 draft file is not a module. |
+| LEAF-BUILDS-1: `crates/legal-research-source-locked`, `crates/hyperbolic-neural-network`, `crates/hyperbolic-tiling-consciousness`, `crates/moebius-transformations`, `crates/philotic-web-fusion`, `crates/rathor-sovereign-reasoning-engine`, `crates/shared-valence-field` | #671 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock` each. Not root members. Locked `cargo build`, `cargo test`, and `cargo clippy -- -D warnings` finished. Threshold literals stay source literals. |
 
 Two tidy leftovers on the shard crate are banked below. They did not stop `cargo check`.
 
@@ -76,7 +77,7 @@ Dependencies first. Then the smallest crates whose source already checks once th
 
 | Order | Card | Crates | Why it is here | Size | Core? |
 |------:|------|--------|----------------|------|-------|
-| 1 | `LEAF-BUILDS-1` | 7 leaves that compiled in the probe | No path deps. Standalone `[workspace]` is the whole manifest fix. Still read the constant floors before calling them real. | S | No, if they stay out of root `members`. |
+| 1 | `LEAF-BUILDS-1` (DONE, #671) | 7 leaves that compiled in the probe | No path deps. Standalone `[workspace]` is the whole manifest fix. Still read the constant floors before calling them real. | S | No, if they stay out of root `members`. |
 | 2 | `ONE-ERROR-LEAVES-1` | 3 | Same manifest fix, then one Rust error each. | S | No, if standalone. |
 | 3 | `SHARED-VALENCE-DEPENDENTS-1` | 5 path dependents of `shared-valence-field` | Depends on card 1. | S | No, if standalone. |
 | 4 | `MIAL-THRESHOLD-BUILDS-1` | `mial`, `mercy-threshold-wasm` | `powrush-mmo-simulator` path-deps both. | M | No, if standalone. |
@@ -96,9 +97,11 @@ Banked tidy, not make-real of a crate: `POWRUSH-TIDY-1`, `SHARD-GENESIS-TIDY-1`,
 
 ---
 
-## 1. LEAF-BUILDS-1
+## 1. LEAF-BUILDS-1 (DONE, #671)
 
-In-repo first error for each: `current package believes it's in a workspace when it's not`.
+**Status:** DONE in #671. Each crate below is its own workspace (`resolver = "2"`) with a committed `Cargo.lock`. They are not root members. Locked `cargo build`, `cargo test`, and `cargo clippy -- -D warnings` finished. Threshold literals stay in the source and are labelled as source literals.
+
+In-repo first error for each, before that PR: `current package believes it's in a workspace when it's not`.
 
 Probe (empty `[workspace]` in `/tmp`): `cargo check` exited 0 and compiled a library.
 
