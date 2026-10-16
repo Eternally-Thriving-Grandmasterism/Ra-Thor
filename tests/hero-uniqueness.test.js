@@ -93,10 +93,16 @@ Object.keys(referenced).forEach(function (file) {
   assert(fs.statSync(abs).size > 0, file + ' is empty');
 });
 
+var keptOlderHome = {
+  'hero-home-rathor.mp4': 1,
+  'hero-home-rathor-poster-480.webp': 1,
+  'hero-home-rathor-poster-784.webp': 1
+};
 var onDisk = fs.readdirSync(path.join(root, 'assets/art')).filter(function (name) {
   return name.indexOf('hero-') === 0;
 });
 onDisk.forEach(function (file) {
+  if (keptOlderHome[file]) return;
   assert(referenced[file], file + ' is on disk and unreferenced');
 });
 
@@ -119,8 +125,7 @@ Object.keys(byIdentity).forEach(function (id) {
 var expectId = {
   'contact.html': 'hero-contact-comms-district',
   'micro-moment.html': 'hero-moment-research-garden',
-  'pilot.html': 'hero-pilot-citadel-arrival',
-  'index.html': 'hero-home-rathor'
+  'pilot.html': 'hero-pilot-citadel-arrival'
 };
 Object.keys(expectId).forEach(function (page) {
   assert(byIdentity[expectId[page]] && byIdentity[expectId[page]][0] === page, page + ' must use ' + expectId[page]);
@@ -165,9 +170,19 @@ Object.keys(scenic).forEach(function (page) {
   });
 });
 
-var homeAlt = figureImg(read('index.html')).match(/\balt="([^"]*)"/)[1];
-assert(homeAlt.indexOf('rests a hammer head-down on the ground') !== -1, 'home alt must say the hammer rests');
-assert(homeAlt.indexOf('raises') === -1, 'home alt must not say the hammer is raised');
+var homeHtml = read('index.html');
+assert(homeHtml.indexOf('/assets/art/rathor-hero-living-thunder.jpg') !== -1, 'home uses the living thunder poster');
+assert(homeHtml.indexOf('hero-home-rathor') === -1, 'home no longer points at the older portrait');
+pages.forEach(function (page) {
+  if (page === 'index.html') return;
+  assert(read(page).indexOf('rathor-hero-living-thunder') === -1, page + ' must keep its own hero');
+});
+var homeAlt = figureImg(homeHtml).match(/\balt="([^"]*)"/)[1];
+assert(homeAlt.indexOf('obsidian and antique-gold armour') !== -1, 'home alt names the armour');
+assert(homeAlt.indexOf('winged gold helm') !== -1, 'home alt names the helm');
+assert(homeAlt.indexOf('glowing sun chest disc') !== -1, 'home alt names the chest disc');
+assert(homeAlt.indexOf('Eye of Horus tower shield') !== -1, 'home alt names the shield');
+assert(homeAlt.indexOf('storm of golden lightning') !== -1, 'home alt names the lightning');
 
 [
   'assets/art/hero-contact-relay-station-768.webp',

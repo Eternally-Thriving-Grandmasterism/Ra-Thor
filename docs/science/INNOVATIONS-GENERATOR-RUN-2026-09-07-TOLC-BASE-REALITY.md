@@ -1,12 +1,13 @@
 # Innovations Generator run — 2026-09-07
 
-**Process applied:** `InnovationsGenerator::generate_innovations` as implemented in `crates/innovations-generator` (recycle → cross-pollinate → prefix).  
-**Not applied:** adding the crate to Core; treating the valence suffix as data.  
-**Claim tier of this file:** pedagogy + P0 seeds. Not discovery. Not a solved cosmos.  
+**Current CLI:** [`crates/innovations-generator/README.md`](../../crates/innovations-generator/README.md). As of `a3c15e3f` (PR #659), `idea-recycling` and `innovations-generator` are workspace members and build. The command is `cargo run -p innovations-generator --bin innovate -- input.json`. It writes at most three ranked seeds (`rank`, `title`, `summary`, `claim_tier`, `sources`, `kill_test`). `claim_tier` is `idea`, `plausible`, or `evidenced`. The generator does not verify sources. `kill_test` is the falsification step. The binary does not print `Innovation: … (valence ≥ 0.999999)`.
+
+**Process applied on 2026-09-07:** a human-side recycle of that week's tensions. The seeds below are that record. They are not stdout from `innovate`.  
+**Claim tier of this file:** pedagogy + P0 seeds. The file is a dated run record. It is not a solved cosmos.  
 **Contact:** info@Rathor.ai  
 **Parent minute:** [`PATSAGI-COUNCIL-MINUTE-2026-09-07-INNOVATIONS-GENERATOR-BASE-REALITY.md`](PATSAGI-COUNCIL-MINUTE-2026-09-07-INNOVATIONS-GENERATOR-BASE-REALITY.md)
 
-The stub would print `Innovation: … (valence ≥ 0.999999)`. This run **replaces that suffix with a proof-ladder stamp**, because the raw suffix is how Band-C speech gets laundered.
+On 2026-09-07 the on-disk generator would have printed `Innovation: … (valence ≥ 0.999999)`. This page replaced that suffix with a proof-ladder stamp, because the raw suffix launders Band-C speech into a measurement. That suffix is gone from the living crates.
 
 ---
 
@@ -22,7 +23,7 @@ The stub would print `Innovation: … (valence ≥ 0.999999)`. This run **replac
 8. Dual-repo contract must not grow money fields.
 9. Mercy-Coordination-Substrate is not a treasury.
 10. Canonical Powrush repos now exist beside the backup forest.
-11. `innovations-generator` is an on-disk stub, not a workspace member.
+11. On 2026-09-07, `innovations-generator` was an on-disk stub and not a workspace member. RECYCLER-REAL-1 (`a3c15e3f`) made `idea-recycling` and `innovations-generator` buildable members. They stay outside the Tier-1 set. The CLI is [`crates/innovations-generator/README.md`](../../crates/innovations-generator/README.md).
 12. Open PR #421 (i18n) must not be collided with.
 13. TOLC Base Reality, in operator speech, is mercy-first ontology — not a compiled physics engine.
 
@@ -30,7 +31,7 @@ The stub would print `Innovation: … (valence ≥ 0.999999)`. This run **replac
 
 ## Cross-pollinated seeds (ranked)
 
-Each seed is an *innovation* only in the crate's weak sense: a recycled pairing. Promotion requires a later named motion.
+Each seed below is a 2026-09-07 human pairing. Promotion requires a later named motion. The living CLI writes at most three seeds; see the current CLI note.
 
 ### Seed 1 — Base-Reality work queue (ops)
 **Stamp:** ops ranking · not booked revenue · not P3  
@@ -40,11 +41,11 @@ Each seed is an *innovation* only in the crate's weak sense: a recycled pairing.
 **Next test that can kill it:** operator either books one real-world action from the revenue rank list this month, or the seed is idle talk.
 
 ### Seed 2 — Generator output must carry a claim tier (engineering hygiene)
-**Stamp:** P0 engineering · HOLD crate-member add  
-**Cross-pollination:** stub valence suffix × Proof Ladder Doctrine × 2026-09-06 claim discipline  
-**Idea:** When `innovations-generator` is *eventually* touched, change the map from `(valence ≥ 0.999999)` to `(tier: P0|pedagogy|engineering; not fact)`. Until then, this run record is the human-side patch.
+**Stamp:** P0 engineering · the 2026-09-07 HOLD on a member add is historical  
+**Cross-pollination:** the old valence suffix × Proof Ladder Doctrine × 2026-09-06 claim discipline  
+**Idea (2026-09-07):** When `innovations-generator` is eventually touched, change the map from `(valence ≥ 0.999999)` to a tier that is not a fact. Until then, this run record is the human-side patch.
 
-**Next test:** a one-file crate patch *after* a named motion re-adds the path to `members` for that working branch only.
+**What landed later:** RECYCLER-REAL-1 replaced that suffix. `innovate` sets `claim_tier` to `idea`, `plausible`, or `evidenced` from sources and evidence notes on the input. It does not print the old suffix, and it does not verify sources. The tier names in this seed (`P0|pedagogy|engineering`) are not the CLI enum. See [`crates/innovations-generator/README.md`](../../crates/innovations-generator/README.md).
 
 ### Seed 3 — Dual-repo stays telemetry; scarcity sim is a *separate* crate-or-doc
 **Stamp:** P0 engineering · not this tick's code  
@@ -69,8 +70,10 @@ Each seed is an *innovation* only in the crate's weak sense: a recycled pairing.
 
 ### Seed 6 — Contact-email debt (hygiene)
 **Stamp:** ops debt · HOLD mass rewrite  
-**Cross-pollination:** `crates/innovations-generator/Cargo.toml` still `ceo@acitygames.com` × canonical `info@Rathor.ai`  
+**Cross-pollination (2026-09-07):** `crates/innovations-generator/Cargo.toml` then listed `ceo@acitygames.com` × canonical `info@Rathor.ai`  
 **Idea:** Do not pretend the generator is production-wired while its manifest uses a deprecated address. Fix one file when a working-branch motion names it — not a forest rewrite tonight.
+
+**Later:** RECYCLER-REAL-1 set the author on these two crates to `info@Rathor.ai`. That does not clear the address on other crates.
 
 ---
 
@@ -82,13 +85,15 @@ Each seed is an *innovation* only in the crate's weak sense: a recycled pairing.
 - Physics of TOLC / simulation-hypothesis debates
 - Compile status of the twelve Core crates (not executed in this tick)
 
-## Proof of process (human-side equivalent of the stub)
+## Proof of process (2026-09-07 human-side record)
+
+This block is the 2026-09-07 note. It is not `innovate` stdout. The living CLI is [`crates/innovations-generator/README.md`](../../crates/innovations-generator/README.md).
 
 ```text
 base_ideas.len() = 13
 cross_pollinate  = prefix + pair
 generate         = 6 stamped seeds
-members          = unchanged
+members          = unchanged on 2026-09-07
 valence suffix   = refused as evidence
 ```
 
