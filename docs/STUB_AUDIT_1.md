@@ -167,7 +167,7 @@ Depends on `crates/shared-valence-field` (card 1). In-repo first error for each,
 
 **Runtime / v14:** no.
 
-**Size:** S. Not measured past the manifests.
+**Size:** S. `abundance-breath` has 2 source files. `epiphany-bridge`, `resonance-challenge`, and `soft-sovereign-agency` have 3 source files each. `symbiotic-membrane` has 4 source files.
 
 ---
 
