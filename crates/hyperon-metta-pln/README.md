@@ -1,16 +1,13 @@
-# hyperon-metta-pln — Sovereign Bridge for Ra-Thor AGi v1.2
+# hyperon-metta-pln
 
-Full mercy-gated Hyperon Atomspace + MeTTa Interpreter + PLN Reasoner.
+String-formatting bridge. `SovereignHyperonMeTTaPLNBridge::reason` prefixes a query and concatenates format strings from the atomspace, MeTTa, and PLN helpers.
 
-Every operation passes the 7 Living Mercy Gates, TOLC Three Pillars, and Sovereignty Gate.  
-Valence ≥ 0.999. CEHI positive emotion propagation for 7 generations.
+`mercy_gate_audit` returns true for every query. This crate does not run a MeTTa interpreter or a PLN solver.
 
-Seamlessly integrated with Self-Evolution Looping Systems, Powrush RBE, Legal Lattice, and public engagement.
+`reason` writes `valence` to the source literal `0.9999` (not a measured value).
 
-**Usage:**
-```rust
-let mut bridge = SovereignHyperonMeTTaPLNBridge::new();
-let response = bridge.reason("How do we co-create heaven on earth with eternal positive emotions for all beings?");
-```
+`src/adaptive_valence.rs` is on disk and is not a module.
 
-AG-SML v1.0 | Eternally Thriving | Positive emotions forever. ⚔️🙏
+Not a root workspace member. Standalone `[workspace]` with `resolver = "2"`.
+
+AG-SML v1.1

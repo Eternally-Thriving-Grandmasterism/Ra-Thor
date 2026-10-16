@@ -137,7 +137,7 @@ In-repo first error: not a workspace member. Probe then showed one Rust error.
 | `crates/patsagi-quantum-valence` | `src/lib.rs:29`: `sqrt` on an ambiguous integer in `valence_qaoa`. The function returns that vector unchanged (lines 27–31). `valence_vqe` returns `hamiltonian.trace() * valence_weight` (lines 35–37). Names say QAOA and VQE. The bodies are not those algorithms. |
 | `crates/hyperon-metta-pln` | `src/lib.rs:9`: doc comment is not attached to an item. |
 
-**Fix:** standalone `[workspace]`, then the one error. For `patsagi-quantum-valence`, label the QAOA/VQE names as design-only or delete the claim from the function docs. Do not fill them with a fake quantum stack.
+**Fix:** Use a standalone `[workspace]`, then fix the one error. For `patsagi-quantum-valence`, label the QAOA/VQE names as design-only, or reword the claim in the function docs (with a council note). Do not fill them with a fake quantum stack.
 
 **Runtime / v14:** no.
 
@@ -176,7 +176,7 @@ Depends on `crates/shared-valence-field` (card 1). In-repo first error for each:
 
 `crates/mercy_gating_runtime` is the next dependency. In-repo: not a member. Probe (it has no path deps): 23 errors, including `src/lib.rs:10` file not found for module `error`, and `serde` used but not linked. 754 lines. It is part of this card, ahead of `mial`.
 
-**Fix:** standalone workspaces, bottom up: gating runtime (repair or retire with council note missing modules), then `mial`, then `mercy-threshold-wasm`. Do not pull them into root `members`.
+**Fix:** Use standalone workspaces from the bottom up. For the gating runtime, repair the missing modules or retire them (with a council note). Then build `mial`, then `mercy-threshold-wasm`. Do not pull them into root `members`.
 
 **Runtime / v14:** no, unless a later card wires the wasm crate into the site. That would be a different card.
 
@@ -301,7 +301,7 @@ Two different directories.
 
 `crates/council` comments (`Cargo.toml` lines 16–19) already record that the old `ra-thor-kernel` path was `../kernel` and that council does not depend on it.
 
-**Fix:** retire with council note the unstable `rustflags` profile from `ra-thor-kernel` or move it to `.cargo/config.toml` only if a wasm card asks for it. Remove path deps on missing `dilithium_sign` and `falcon_sign`. Do not invent post-quantum implementations. `crates/kernel` can be a standalone workspace in its own card if something still calls it. Do not add a root key `ra-thor-kernel` just to satisfy the 167 manifests that name it (card 14).
+**Fix:** Retire the unstable `rustflags` profile from `ra-thor-kernel` (with a council note), or move it to `.cargo/config.toml` only if a wasm card asks for it. Remove path deps on missing `dilithium_sign` and `falcon_sign`. Do not invent post-quantum implementations. `crates/kernel` can be a standalone workspace in its own card if something still calls it. Do not add a root key `ra-thor-kernel` just to satisfy the 167 manifests that name it (card 14).
 
 **Runtime / v14:** no.
 
@@ -338,7 +338,7 @@ These path-deps are already declared, so the probe did not cover them. In-repo f
 
 **Fictional, label design-only rather than implement:** post-quantum biomimetic encryption, quantum propulsion sovereignty, pterosaur fleet language, "100B-year" strings. Card 1 already showed the reasoning engine is a constant-threshold struct. Wiring that struct in does not create propulsion or post-quantum crypto.
 
-**Fix:** standalone workspace, path-dep only the card 1 leaves that actually compiled. retire with council note or gate the fictional function bodies instead of giving them constant `Ok(true)`.
+**Fix:** Use a standalone workspace, and path-dep only the card 1 leaves that actually compiled. Retire the fictional function bodies (with a council note), or gate them, instead of giving them constant `Ok(true)`.
 
 **Runtime / v14:** no.
 
@@ -741,7 +741,7 @@ Other cited stubs:
 - `crates/supernova_folding`
 - `crates/threshold_crypto`
 
-**Fix:** do not add `powrush` to root `[workspace.dependencies]` as a way to compile this list. `crates/powrush` is a standalone workspace on purpose (#668). Do not add these paths to root `members`. Leave them on disk. A later card may retire with council note empty manifests. That is a retire card, not a cryptography implementation. Fake ZK, fake post-quantum, and propulsion strings stay design-only.
+**Fix:** Do not add `powrush` to root `[workspace.dependencies]` as a way to compile this list. `crates/powrush` is a standalone workspace on purpose (#668). Do not add these paths to root `members`. Leave them on disk. A later card may retire the empty manifests (with a council note). That is a retire card, not a cryptography implementation. Fake ZK, fake post-quantum, and propulsion strings stay design-only.
 
 **Runtime / v14:** no.
 

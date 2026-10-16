@@ -1,18 +1,16 @@
 # patsagi-quantum-valence
 
-Port of selected valence-driven quantum algorithms from PATSAGi-Prototypes into Ra-Thor monorepo.
+Design-only names for Grover, QAOA, VQE, QFT, QPE, and surface-code QEC.
 
-## Algorithms
-- valence_grover_search
-- valence_qaoa
-- valence_vqe
-- valence_qft
-- valence_qpe
-- valence_qec_surface
+Council note: the algorithm claims are retired. The functions are not those algorithms.
 
-All modules pass through TOLC 8 Living Mercy Gates and Asclepius Theurgical Validator before integration.
+- `valence_qaoa` returns a uniform vector of length `1 << p`. Each entry is `1/sqrt(2^p)`.
+- `valence_vqe` returns `hamiltonian.trace() * valence_weight`. `ansatz_params` is not read.
+- `valence_qft` returns a zero matrix.
+- `valence_qpe` returns `0.0`. The arguments are not read.
+- `valence_qec_surface` returns a copy of `logical_qubit` on both branches.
+- `valence_grover_search` samples random bits. It is not Grover search.
 
-## Integration
-Used by Hyperbolic Tiling Consciousness Council (14th) for exponential foresight and esacheck acceleration.
+Not a root workspace member. Standalone `[workspace]` with `resolver = "2"`.
 
-AG-SML v1.0 | TOLC 8 Compliant
+AG-SML v1.1

@@ -3,7 +3,15 @@ name = "patsagi-quantum-valence"
 version = "0.1.0"
 edition = "2021"
 license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
-description = "Valence-driven quantum algorithms ported from PATSAGi-Prototypes: Grover, QAOA, VQE, QFT, QPE, QEC. Integrated with TOLC 8 and Asclepius Theurgical Validator."
+description = "Design-only names for Grover, QAOA, VQE, QFT, QPE, and QEC. valence_qaoa returns a uniform vector. valence_vqe returns trace times valence_weight. Not those algorithms."
+
+# Standalone workspace, same pattern as crates/fenca, crates/council,
+# crates/powrush, and crates/sovereign-shard-genesis.
+# `cargo build --locked` and `cargo test --locked` use this manifest.
+# This crate is not a root default member.
+# nalgebra and rand stay at the versions already written in this file.
+[workspace]
+resolver = "2"
 
 [dependencies]
 nalgebra = "0.33"
