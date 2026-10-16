@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 CONDUCTOR-LEGACY-RETIRE-1 council note): not compiled; seven LIVING_MERCY_GATES strings are a historical list, not the public TOLC 8 mercy checks; generate_seeded_state uses thread_rng so the hash is not its only input.
 //! TOLC8 Genesis Gate + Sovereign Shard Seeding Module
 //!
 //! Official "birth" mechanism for new sovereign participants in the ONE Organism.

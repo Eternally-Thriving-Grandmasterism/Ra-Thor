@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 CONDUCTOR-LEGACY-RETIRE-1 council note): not compiled; example of deprecated lattice-conductor-v13; the library is a method fragment; this card does not retarget the example onto lattice-conductor-v14.
 //! wire_mercy_crate_full.rs
 //! Full production wiring demonstration of the mercy crate into Lattice Conductor v13
 //! Shows MercyCore being blessed, participating in ticks, mercy-weighted votes, and evolution contribution.

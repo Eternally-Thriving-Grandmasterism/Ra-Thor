@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 CONDUCTOR-LEGACY-RETIRE-1 council note): not compiled; example of deprecated lattice-conductor-v13; the library is a method fragment; this card does not retarget the example onto lattice-conductor-v14.
 //! Powrush RBE v3 — Real Event Ingestion + Continuous Vote Pushing
 //!
 //! Simulates a realistic event-driven ingestion loop from Powrush (blockchain MMORPG)

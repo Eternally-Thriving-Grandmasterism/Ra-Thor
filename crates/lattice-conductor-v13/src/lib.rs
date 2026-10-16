@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 CONDUCTOR-LEGACY-RETIRE-1 council note): not compiled; crate root is a method fragment, not a library; the package stays deprecated; the living conductor is crates/lattice-conductor-v14.
         self.metrics.operations_processed += 1;
     }
 

@@ -98,7 +98,7 @@ Dependencies first. Then the smallest crates whose source already checks once th
 | 9 | `SHARD-COMPOSER-PARSE-1` (DONE, #679) | `crates/shard-composer` | Standalone `[workspace]`. The unclosed array and the missing `full` feature are gone. | S | No. |
 | 10 | `KERNEL-MANIFEST-1` (DONE, #680) | `crates/ra-thor-kernel`, `crates/kernel` | Standalone `[workspace]`. Unstable release `rustflags` are removed. Post-quantum path deps are not dependencies. `kernel` does not path-depend on v14. | S–M | No, if not a default member. |
 | 11 | `REASONING-COUNCIL-WIRES-1` (DONE, #681) | 16 council crates in section 11 | Standalone `[workspace]`. A compiled wire calls `RathorSovereignReasoningEngine` or the current patsagi-councils API. Previous bodies that return `Ok(true)`, and fleet, post-quantum, and 100B-year phrases, stay design-only. | S each | No, if standalone. |
-| 12 | `CONDUCTOR-LEGACY-RETIRE-1` | unversioned conductor, v13 and its examples, `tolc8-genesis-gate` | Deprecated or fictional. Do not make them the living conductor. | L on disk | No. A v14 edit would need Core. This card should not edit v14. |
+| 12 | `CONDUCTOR-LEGACY-RETIRE-1` (DONE, #682) | unversioned conductor, v13 and its examples, `tolc8-genesis-gate` | Labelled design-only. v13 stays deprecated. The unversioned conductor is retired. Not the living conductor. | L on disk | No. This card did not edit v14. |
 | 13 | `NEXI-PATH-RETIRE-1` | crates with `nexi = { path = "../" }` | That path is not a package. | many manifests | No. |
 | 14 | `WORKSPACE-KEY-SHELLS-1` | 165 `powrush` workspace deps, 95 sourceless manifests, string ZK and propulsion stubs | Shared missing workspace keys. Most have nothing to compile, or return constants. Design-only or leave on disk. | manifests, plus a few short files | No. Do not add them to `members`. |
 | 15 | `ARCHIVE-LINEAGE-RETIRE-1` | 98 manifests under `docs/archive/` | Copies. 76 fail loading `nexi`. | archive | No. |
@@ -449,7 +449,15 @@ These path-deps are already declared, so the probe did not cover them. In-repo f
 
 ---
 
-## 12. CONDUCTOR-LEGACY-RETIRE-1
+## 12. CONDUCTOR-LEGACY-RETIRE-1 (DONE, #682)
+
+**Status:** DONE in #682. This card labels and retires. It does not port. `crates/lattice-conductor-v14` was not edited. None of these crates is a root member. No `[workspace]` table was added. No `Cargo.lock` was added. Root `cargo metadata --locked` resolved the 15 root members. These three packages are not among them. Nothing here was compiled.
+
+`crates/lattice-conductor-v13` stays deprecated. `src/lib.rs` and the 34 files under `examples/` start with the design-only header. The bytes under that header are the previous file. `DEPRECATED.md` names `crates/lattice-conductor-v14` as the living conductor. Examples were not retargeted onto v14.
+
+`crates/lattice-conductor` (no version in the directory name) is retired. Every `.rs` file starts with the design-only header. `RETIRED.md` records the broken manifest: `anyhow = { workspace = true }` and root `[workspace.dependencies]` has no `anyhow`; path `../self-evolution` has no `Cargo.toml`; optional paths `../xai-grok-bridge` and `../symbiosis-layer` are not directories under `crates/`; default feature `full` names `hyperon-metta-pln` and `github-connector` with no matching optional dependency. This package was not merged into v14.
+
+`crates/tolc8-genesis-gate` is design-only. `src/lib.rs` starts with the design-only header. The seven `LIVING_MERCY_GATES` strings stay verbatim. They are a historical list, not the public TOLC 8 mercy checks (Truth, Order, Love, Compassion, Service, Abundance, Joy, Cosmic Harmony). `generate_seeded_state` still calls `rand::thread_rng()`, so the hash is not its only input. This crate was not pointed at v14 or at `crates/sovereign-shard-genesis`.
 
 Do not make these the conductor. Living conductor is `crates/lattice-conductor-v14`, a default member. This card labels and retires. It does not edit v14.
 
@@ -457,11 +465,11 @@ Do not make these the conductor. Living conductor is `crates/lattice-conductor-v
 
 **First error:** not a workspace member. `nalgebra = { workspace = true }` (`Cargo.toml` line 10). `DEPRECATED.md` is on disk. Description says use v14.
 
-**Source:** `src/lib.rs` line 1 is `self.metrics.operations_processed += 1;` inside a method fragment. The file does not start as a crate root. Not compiled past the manifest; the fragment is visible without cargo.
+**Source:** `src/lib.rs` line 1 is the design-only header. Line 2 is `self.metrics.operations_processed += 1;` inside a method fragment. The file does not start as a crate root. Not compiled past the manifest; the fragment is visible without cargo.
 
-**Examples:** 34 files under `crates/lattice-conductor-v13/examples/`. They are `[[example]]` targets of this package, not separate crates. `examples/basic_conductor_demo.rs` is a `println!` tick loop (lines 3–33) that prints valence fields. `examples/wire_powrush_lifecycle_manager_owning_conductor_and_gpu.rs` lines 89 and 126 are `TODO` comments for a real Powrush loop. They do not build, because the library does not build.
+**Examples:** 34 files under `crates/lattice-conductor-v13/examples/`. They are `[[example]]` targets of this package, not separate crates. Each example starts with the design-only header. `examples/basic_conductor_demo.rs` is a `println!` tick loop (lines 4–34) that prints valence fields. `examples/wire_powrush_lifecycle_manager_owning_conductor_and_gpu.rs` lines 90 and 127 are `TODO` comments for a real Powrush loop. They do not build, because the library does not build.
 
-**Fix:** leave deprecated. Do not add a `[workspace]` to revive it. Do not retarget examples onto v14 in this card.
+**Fix:** Done in #682. Left deprecated. No `[workspace]`. Examples were not retargeted onto v14.
 
 ### `crates/lattice-conductor` (no version in the directory name)
 
@@ -471,17 +479,17 @@ Do not make these the conductor. Living conductor is `crates/lattice-conductor-v
 
 This is not `lattice-conductor-v14`.
 
-**Fix:** retire. Do not merge it into v14.
+**Fix:** Done in #682. Retired. Not merged into v14. The Council note is `RETIRED.md`.
 
 ### `crates/tolc8-genesis-gate`
 
 **First error:** not a workspace member. Its manifest does not use `workspace = true`. It still sits inside the root workspace tree.
 
-**Source, not compiled:** imports `lattice_conductor_v13` and `sovereign_shard_genesis::SovereignShardGenesis` (`src/lib.rs` lines 6–7). #669 removed that v13 API from the shard crate; `src/v13_design.rs` is not a module. `LIVING_MERCY_GATES` is seven strings (lines 12–19): Radical Love, Boundless Mercy, Service, Abundance, Truth, Joy, Cosmic Harmony. That is not the public eight. `generate_seeded_state` calls `rand::thread_rng()` after hashing (line 49), so the hash is not the only input. `birth_new_shard` prints a birth log (lines 73–75).
+**Source, not compiled:** imports `lattice_conductor_v13` and `sovereign_shard_genesis::SovereignShardGenesis` (`src/lib.rs` lines 7–8). #669 removed that v13 API from the shard crate; `src/v13_design.rs` is not a module. `LIVING_MERCY_GATES` is seven strings (lines 13–20): Radical Love, Boundless Mercy, Service, Abundance, Truth, Joy, Cosmic Harmony. That is not the public eight. `generate_seeded_state` calls `rand::thread_rng()` after hashing (line 50), so the hash is not the only input. `birth_new_shard` prints a birth log (lines 74–76). The strings are unchanged.
 
-**Fix:** design-only. Do not point it at v14 and do not pretend the seven strings are TOLC 8 mercy checks (Mercy Gates in code). The shard crate that builds is `crates/sovereign-shard-genesis`.
+**Fix:** Done in #682. Design-only header on `src/lib.rs`. Not pointed at v14. The seven strings are not TOLC 8 mercy checks (Mercy Gates in code). The shard crate that builds is `crates/sovereign-shard-genesis`. This card does not point `tolc8-genesis-gate` at that crate.
 
-**Runtime / v14:** a wire into v14 needs Core. This card should not do that.
+**Runtime / v14:** a wire into v14 needs Core. This card did not do that.
 
 **Size:** v13 examples plus library are large on disk (about 1,864 lines of library `*.rs`, 34 example files). Unversioned conductor is 3,066 lines. `tolc8-genesis-gate` is one file. The card is a label, not a port.
 

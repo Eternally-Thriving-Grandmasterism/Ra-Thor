@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 CONDUCTOR-LEGACY-RETIRE-1 council note): not compiled; example of deprecated lattice-conductor-v13; the library is a method fragment; this card does not retarget the example onto lattice-conductor-v14.
 //! orchestrate_one_organism_full.rs
 //! Production-grade top-level orchestrator for the ONE Organism.
 //! Uses trait objects + ConductorRegistry for pluggable components.

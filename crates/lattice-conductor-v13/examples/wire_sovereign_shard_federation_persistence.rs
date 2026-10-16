@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 CONDUCTOR-LEGACY-RETIRE-1 council note): not compiled; example of deprecated lattice-conductor-v13; the library is a method fragment; this card does not retarget the example onto lattice-conductor-v14.
 //! wire_sovereign_shard_federation_persistence.rs
 //! Demonstrates SovereignShardFederation with offline mode, full reconciliation protocol,
 //! persistent storage (save/load), and collective operations as part of ONE Organism.
