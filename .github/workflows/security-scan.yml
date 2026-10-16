@@ -24,7 +24,7 @@ jobs:
         uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
 
       - name: Cargo audit (dependency vulnerabilities)
-        uses: actions-rs/audit-check@35b7b53b1e25b55642157ac01b4adceb5b9ebef3 # v1
+        uses: rustsec/audit-check@69366f33c96575abad1ee0dba8212993eecbe998 # v2.0.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -32,12 +32,10 @@ jobs:
         run: cargo clippy --all-targets -- -D warnings
 
       - name: TruffleHog secret scanning
-        uses: trufflesecurity/trufflehog@v3
+        uses: trufflesecurity/trufflehog@e76dff8a7e57d6df0c60ad8cbf5d5cba505a8fc9 # v3.99.2
         with:
           path: ./
           extra_args: --exclude-paths .trufflehog-ignore.txt
-          output: trufflehog.sarif
-          format: sarif
 
       - name: Upload TruffleHog SARIF
         uses: github/codeql-action/upload-sarif@ce5e7eeac396d720fe2d802714996c8ce561e311 # v3
