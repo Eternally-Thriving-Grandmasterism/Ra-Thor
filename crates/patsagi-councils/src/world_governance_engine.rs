@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 PATSAGI-COUNCILS-BUILDS-1 council note): not compiled; it calls MercyThresholdChecker, lean-sys was not shown to resolve, and tracing is not a dependency. The FFI bridge is not active.
 //! World Governance Engine — v14.15.0
 //!
 //! Instantiation surface with verified mercy threshold integration.

@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 PATSAGI-COUNCILS-BUILDS-1 council note): not compiled; mercy::MercyEngine is not in the mercy public API (that crate exports MercyCore), and tolc_integration needs interstellar-operations, which is not a dependency. The adapter type has no calculate_entanglement_strength, so the previous unwrap_or(0.85) call is not wired.
 //! # WorldGovernanceEngine — v14.15.0
 //!
 //! Living heart of Powrush-MMO world governance under the 16 PATSAGi Councils.
@@ -13,7 +14,7 @@ use crate::CouncilFocus;
 use chrono::{DateTime, Utc};
 use mercy::MercyEngine;
 use powrush::{AscensionLevel, Faction, MercyGateStatus, PowrushGame, ResourceType};
-use quantum_swarm_orchestrator::QuantumSwarmOrchestrator;
+use ra_thor_quantum_swarm_orchestrator::QuantumSwarmOrchestrator;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use thiserror::Error;
@@ -97,7 +98,9 @@ pub enum WorldImpactType {
 
 #[derive(Debug, Error)]
 pub enum PmsError {
-    #[error("Ra-Thor lattice rejected action: mercy valence {valence:.2} < threshold {threshold:.2}")]
+    #[error(
+        "Ra-Thor lattice rejected action: mercy valence {valence:.2} < threshold {threshold:.2}"
+    )]
     LatticeRejection { valence: f64, threshold: f64 },
     #[error("Quantum swarm consensus too low: {consensus:.1}%")]
     SwarmConsensusTooLow { consensus: f64 },
@@ -201,7 +204,12 @@ impl FactionHarmonyMatrix {
         (base_risk - harmony_mitigation).clamp(0.05, 0.92)
     }
 
-    pub fn prevent_war(&mut self, faction_a: Faction, faction_b: Faction, mercy_valence: f64) -> bool {
+    pub fn prevent_war(
+        &mut self,
+        faction_a: Faction,
+        faction_b: Faction,
+        mercy_valence: f64,
+    ) -> bool {
         let risk = self.calculate_war_risk(faction_a, faction_b);
         if risk > 0.55 && mercy_valence > 0.78 {
             self.reduce_tension(faction_a, 0.25);
@@ -320,7 +328,11 @@ impl QuantumMercyField {
 
     pub fn propagate_to_factions(&self, harmony: &mut FactionHarmonyMatrix) {
         for faction in harmony.harmony_scores.keys().cloned().collect::<Vec<_>>() {
-            harmony.boost_harmony(faction, self.mercy_propagation_rate * 0.6, self.field_strength);
+            harmony.boost_harmony(
+                faction,
+                self.mercy_propagation_rate * 0.6,
+                self.field_strength,
+            );
         }
     }
 }
@@ -479,7 +491,10 @@ impl FactionCulturalDynamics {
             *s = (*s + mercy_valence * 0.18).min(0.98);
         }
         self.festival_bonus = 1.22;
-        format!("Cultural festival hosted by {:?}. Festival bonus active.", faction)
+        format!(
+            "Cultural festival hosted by {:?}. Festival bonus active.",
+            faction
+        )
     }
 }
 
@@ -516,8 +531,14 @@ impl FactionAIStrategyManager {
         let mut strategies = HashMap::new();
         strategies.insert(Faction::HarmonyWeavers, FactionAIStrategy::MercyFirst);
         strategies.insert(Faction::TruthSeekers, FactionAIStrategy::QuantumSynergy);
-        strategies.insert(Faction::AbundanceSeekers, FactionAIStrategy::BalancedAbundance);
-        strategies.insert(Faction::AscensionPath, FactionAIStrategy::DiplomaticAlliance);
+        strategies.insert(
+            Faction::AbundanceSeekers,
+            FactionAIStrategy::BalancedAbundance,
+        );
+        strategies.insert(
+            Faction::AscensionPath,
+            FactionAIStrategy::DiplomaticAlliance,
+        );
         Self {
             current_strategies: strategies,
             strategy_scores: HashMap::new(),
@@ -534,11 +555,11 @@ impl FactionAIStrategyManager {
         resource_pressure: f64,
         cehi: f64,
     ) -> FactionAIStrategy {
-        let score = (0.9 + mercy_valence * 0.3 + harmony * 0.2 + quantum_entanglement * 0.15
-            + joy * 0.01
-            - resource_pressure * 0.2
-            + cehi * 0.05)
-            .clamp(0.35, 1.95);
+        let score =
+            (0.9 + mercy_valence * 0.3 + harmony * 0.2 + quantum_entanglement * 0.15 + joy * 0.01
+                - resource_pressure * 0.2
+                + cehi * 0.05)
+                .clamp(0.35, 1.95);
         self.strategy_scores.insert(faction, score);
 
         let new_strategy = if mercy_valence > 0.92 {
@@ -688,28 +709,26 @@ impl WorldGovernanceEngine {
             expires_at_cycle: game.current_cycle.saturating_add(50),
         };
 
-        let swarm_decision = self
+        let swarm_decision = match self
             .quantum_swarm
-            .reach_consensus(description, 16)
+            .run_one_organism_cycle(ra_thor_quantum_swarm_orchestrator::OneOrganismContext {
+                cycle_id: game.current_cycle,
+                tolc_order: 8,
+                base_valence: ra_thor_quantum_swarm_orchestrator::Valence(0.97),
+                patsagi_insight: Some(description.to_string()),
+            })
             .await
-            .unwrap_or(0.82);
-
-        let quantum_entanglement = self
-            .quantum_swarm
-            .calculate_entanglement_strength(16)
-            .await
-            .unwrap_or(0.85);
-        self.faction_economy
-            .apply_quantum_entanglement(quantum_entanglement);
+        {
+            Ok(insight) => insight.average_valence,
+            Err(ra_thor_quantum_swarm_orchestrator::MercyError::ValenceBelowThreshold(value)) => {
+                value
+            }
+            Err(err) => return Err(err.to_string()),
+        };
 
         let status = self
             .mercy_engine
-            .evaluate_action(
-                description,
-                "World Governance + TOLC",
-                4.82,
-                0.97,
-            )
+            .evaluate_action(description, "World Governance + TOLC", 4.82, 0.97)
             .await
             .map_err(|e| e.to_string())?;
 
@@ -752,8 +771,7 @@ impl WorldGovernanceEngine {
             WorldImpactType::CulturalFestival | WorldImpactType::AllianceFormed => {
                 self.nectar_economy.bloom(proposal.nectar_amount);
                 for player in &mut game.players {
-                    player.needs.joy =
-                        (player.needs.joy + proposal.joy_boost * 0.5).min(100.0);
+                    player.needs.joy = (player.needs.joy + proposal.joy_boost * 0.5).min(100.0);
                 }
                 Ok(format!(
                     "Joy / nectar impact applied (+{:.1} joy bias, nectar bloom #{})",
@@ -809,13 +827,23 @@ impl WorldGovernanceEngine {
             Faction::AbundanceSeekers,
             Faction::AscensionPath,
         ] {
-            let avg_harmony = *self.faction_harmony.harmony_scores.get(&faction).unwrap_or(&0.72);
+            let avg_harmony = *self
+                .faction_harmony
+                .harmony_scores
+                .get(&faction)
+                .unwrap_or(&0.72);
             let q_ent = self.faction_economy.quantum_entanglement_bonus;
             let joy = game.get_faction_joy(faction);
             let pressure = game.get_resource_pressure(faction);
             let cehi = game.get_faction_cehi(faction);
             self.faction_ai_strategies.choose_strategy(
-                faction, 0.94, avg_harmony, q_ent, joy, pressure, cehi,
+                faction,
+                0.94,
+                avg_harmony,
+                q_ent,
+                joy,
+                pressure,
+                cehi,
             );
             let r = self.faction_ai_strategies.execute_strategy(
                 faction,

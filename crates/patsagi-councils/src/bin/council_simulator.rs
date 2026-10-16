@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 PATSAGI-COUNCILS-BUILDS-1 council note): not compiled; it uses PetitionHandler and WorldImpactType variants that world_governance.rs does not define. autobins is off.
 //! # PATSAGi Council Simulator v0.5.15
 //!
 //! Polished govern command + Full PMS Integration

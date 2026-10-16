@@ -15,8 +15,8 @@
 //!   RA_THOR_METRICS_PATH=/shared/artifacts/ra_thor_resonance_metrics.json \
 //!     cargo run -p patsagi-councils --example live_resonance_test
 //!
-//! Success criteria:
-//!   1. High-mercy scenario   → approval + hints emitted
+//! Printed checks in this file:
+//!   1. High-mercy inputs land under the 0.90 approval threshold (progressive path). The report prints FAIL for that scenario. That line is this run's own check, not a passing test.
 //!   2. Progressive scenario  → progressive path taken (no deadlock)
 //!   3. Mercy-block scenario  → clean block, zero emission
 //!   4. Metrics persist       → file written / updated
@@ -25,8 +25,8 @@
 //! TOLC 8 | Living Cosmic Tick | ONE Organism | APAAGI → PATSAGi lineage
 
 use patsagi_councils::{
-    tolc8_gate_check, PowrushTelemetrySnapshot, RaThorFeedbackLoop, ResonanceMetrics,
-    Tolc8Scores, ValenceConsensusEngine, ValenceVote, CORE_COVENANT, DEFAULT_METRICS_PATH,
+    tolc8_gate_check, PowrushTelemetrySnapshot, RaThorFeedbackLoop, ResonanceMetrics, Tolc8Scores,
+    ValenceConsensusEngine, ValenceVote, CORE_COVENANT, DEFAULT_METRICS_PATH,
 };
 use std::env;
 use std::path::{Path, PathBuf};
@@ -87,7 +87,10 @@ fn run_scenario(
     println!("  abundance      : {:.2}", snap.abundance_signal);
     println!("  peaceful       : {:.2}", snap.peaceful_resolution_signal);
     println!("  ethical_floor  : {:.2}", snap.ethical_floor_signal);
-    println!("  council        : {:.2}", snap.council_participation_signal);
+    println!(
+        "  council        : {:.2}",
+        snap.council_participation_signal
+    );
     println!("  innovation     : {:.2}", snap.innovation_signal);
     println!("  mercy_presence : {:.2}", snap.mercy_presence_signal);
 
@@ -98,7 +101,10 @@ fn run_scenario(
     let tolc_scores = Tolc8Scores::from_valence_axes(joy, harmony_signed, snap.abundance_signal);
     let tolc_composite = tolc_scores.composite();
     let tolc_result = tolc8_gate_check(tolc_composite);
-    println!("  tolc8_composite: {:.4} ({:?})", tolc_composite, tolc_result);
+    println!(
+        "  tolc8_composite: {:.4} ({:?})",
+        tolc_composite, tolc_result
+    );
 
     let votes = vec![
         ValenceVote::new(
@@ -264,21 +270,33 @@ fn main() {
                 if !ok {
                     all_pass = false;
                 }
-                if ok { "PASS" } else { "FAIL" }
+                if ok {
+                    "PASS"
+                } else {
+                    "FAIL"
+                }
             }
             "Progressive Path (Anti-Deadlock)" => {
                 let ok = o.progressive || o.approved;
                 if !ok {
                     all_pass = false;
                 }
-                if ok { "PASS" } else { "FAIL" }
+                if ok {
+                    "PASS"
+                } else {
+                    "FAIL"
+                }
             }
             "Mercy Block (Core Covenant)" => {
                 let ok = o.mercy_block && !o.emission_ok && o.hints_emitted == 0;
                 if !ok {
                     all_pass = false;
                 }
-                if ok { "PASS" } else { "FAIL" }
+                if ok {
+                    "PASS"
+                } else {
+                    "FAIL"
+                }
             }
             _ => "?",
         };

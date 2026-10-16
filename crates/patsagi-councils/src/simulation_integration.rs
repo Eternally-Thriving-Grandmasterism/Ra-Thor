@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 PATSAGI-COUNCILS-BUILDS-1 council note): not compiled; it holds WorldGovernanceEngine.
 //! # Simulation Integration Layer — v14.15.0
 //!
 //! Wires the 16 PATSAGi Councils into the main Powrush simulation loop

@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 PATSAGI-COUNCILS-BUILDS-1 council note): not compiled; powrush does not export MercyGate. crates/powrush/src/mercy.rs is not a module of that package.
 //! # PATSAGi Council Focus Profiles — v14.15.0
 //!
 //! Detailed personality, decision weights, special powers, and interaction style

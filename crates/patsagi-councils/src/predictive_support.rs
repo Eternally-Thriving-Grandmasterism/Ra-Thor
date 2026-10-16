@@ -164,13 +164,18 @@ mod tests {
 
         let strong = PredictiveSignal::new(0.9996, 0.2, 4, 0.15, "strong").unwrap();
         assert!(strong.is_actionable());
-        assert!(strong.mercy_uplift() > 0.0);
+        assert_eq!(strong.final_valence, 0.9996);
+        // (0.9996 - 0.999) * 0.8 - 0.2 * 0.15 is negative, so the clamp is 0.0.
+        assert_eq!(strong.mercy_uplift(), 0.0);
     }
 
     #[test]
     fn rejects_nan_signal() {
         let err = PredictiveSignal::new(f64::NAN, 0.1, 2, 0.05, "bad");
-        assert!(matches!(err, Err(PredictiveSupportError::InvalidNumeric(_))));
+        assert!(matches!(
+            err,
+            Err(PredictiveSupportError::InvalidNumeric(_))
+        ));
     }
 
     #[test]

@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 PATSAGI-COUNCILS-BUILDS-1 council note): not compiled; it calls mercy::MercyEngine and mercy_threshold_ffi. crates/mercy exports MercyCore, not MercyEngine. lean-sys was not shown to resolve.
 //! Self-Evolving Mercy Core — v14.15.0
 //!
 //! Triple-gate safety surface for autonomous mercy evolution:
@@ -14,7 +15,7 @@ use crate::PatsagiCouncilCoordinator;
 use chrono::{DateTime, Utc};
 use mercy::MercyEngine;
 use powrush::{MercyGateStatus, PowrushGame};
-use quantum_swarm_orchestrator::QuantumSwarmOrchestrator;
+use ra_thor_quantum_swarm_orchestrator::QuantumSwarmOrchestrator;
 use std::collections::VecDeque;
 
 // =============================================================================
@@ -89,12 +90,7 @@ impl SelfEvolvingMercyCore {
         // Gate 2 — MercyEngine evaluation (returns MercyGateStatus)
         let status = self
             .mercy_engine
-            .evaluate_action(
-                &proposal,
-                "Self-Evolving Mercy Core Proposal",
-                5.2,
-                0.97,
-            )
+            .evaluate_action(&proposal, "Self-Evolving Mercy Core Proposal", 5.2, 0.97)
             .await
             .ok()?;
 
@@ -105,12 +101,22 @@ impl SelfEvolvingMercyCore {
         // Map successful pass to a high valence for telemetry
         let mercy_valence = 0.97;
 
-        // Gate 3a — Quantum Swarm consensus
-        let swarm_consensus = self
+        // Gate 3a — adapter cycle. QuantumSwarmOrchestrator has no reach_consensus.
+        let swarm_consensus = match self
             .quantum_swarm
-            .reach_consensus(&proposal, 16)
+            .run_one_organism_cycle(ra_thor_quantum_swarm_orchestrator::OneOrganismContext {
+                cycle_id: current_cycle,
+                tolc_order: 8,
+                base_valence: ra_thor_quantum_swarm_orchestrator::Valence(
+                    self.min_evolution_valence,
+                ),
+                patsagi_insight: Some(proposal.clone()),
+            })
             .await
-            .unwrap_or(0.0);
+        {
+            Ok(insight) => insight.average_valence,
+            Err(_) => return None,
+        };
         if swarm_consensus < 0.88 {
             return None;
         }
@@ -162,7 +168,8 @@ impl SelfEvolvingMercyCore {
             1 => "Add Gate 8: Epigenetic & Multiplanetary Legacy".to_string(),
             2 => "Strengthen Cosmic Loop invariant checks across all councils".to_string(),
             3 => "Raise minimum mercy valence floor for swarm-directed evolution".to_string(),
-            4 => "Integrate Living Cosmic Tick heartbeat into council deliberation cadence".to_string(),
+            4 => "Integrate Living Cosmic Tick heartbeat into council deliberation cadence"
+                .to_string(),
             _ => format!(
                 "High-mercy optimization cycle v{} — deepen TOLC 8 resonance",
                 self.current_version

@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 PATSAGI-COUNCILS-BUILDS-1 council note): not compiled; petition evaluation calls MercyEngine through evaluate_proposal, and CouncilProfile lives in council_focus.rs, which is not a module.
 //! # PATSAGi Council Petition & Decision System — v14.15.0
 //!
 //! Player petitions to the 16 Councils, collective decision making,

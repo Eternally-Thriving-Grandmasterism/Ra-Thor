@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 PATSAGI-COUNCILS-BUILDS-1 council note): not compiled; this file defines a different QuantumSwarmOrchestrator than ra_thor_quantum_swarm_orchestrator::QuantumSwarmOrchestrator. It depends on GenesisGate and tracing. The adapter type is not Clone.
 //! Quantum Swarm Orchestrator — v14.15.0
 //!
 //! Coordinates PATSAGi Councils + swarm node expansion.

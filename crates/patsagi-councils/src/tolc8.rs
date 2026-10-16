@@ -178,6 +178,9 @@ pub enum Tolc8GateResult {
 
 impl Tolc8GateResult {
     pub fn allows_emission(self) -> bool {
-        matches!(self, Tolc8GateResult::FormalPass | Tolc8GateResult::ProgressivePass)
+        matches!(
+            self,
+            Tolc8GateResult::FormalPass | Tolc8GateResult::ProgressivePass
+        )
     }
 }

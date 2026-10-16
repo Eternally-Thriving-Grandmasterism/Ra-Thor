@@ -213,6 +213,7 @@ impl SecuritySignal {
         )
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn try_new_with_domain(
         source_label: &str,
         risk_tier: SecurityRiskTier,
@@ -247,7 +248,10 @@ impl SecuritySignal {
 
     pub fn is_actionable(&self) -> bool {
         self.blocked
-            || matches!(self.risk_tier, SecurityRiskTier::High | SecurityRiskTier::Critical)
+            || matches!(
+                self.risk_tier,
+                SecurityRiskTier::High | SecurityRiskTier::Critical
+            )
             || self.risk_score >= 0.70
     }
 
@@ -301,10 +305,7 @@ impl SecuritySignal {
 
 /// Apply security signal across councils with focus-weighted soft valence pressure.
 pub fn apply_security_pressure(
-    councils: &mut std::collections::HashMap<
-        super::CouncilFocus,
-        super::PATSAGiCouncil,
-    >,
+    councils: &mut std::collections::HashMap<super::CouncilFocus, super::PATSAGiCouncil>,
     signal: &SecuritySignal,
 ) -> Result<usize, SecuritySupportError> {
     if !signal.is_actionable() {
@@ -340,7 +341,10 @@ mod tests {
         .unwrap();
         assert!(s.is_actionable());
         assert!(s.valence_pressure() > 0.0);
-        assert_eq!(s.decide_verdict(), SecurityCouncilVerdict::UpholdBlockInvestigate);
+        assert_eq!(
+            s.decide_verdict(),
+            SecurityCouncilVerdict::UpholdBlockInvestigate
+        );
     }
 
     #[test]
@@ -372,12 +376,21 @@ mod tests {
     #[test]
     fn rejects_bad_score() {
         let err = SecuritySignal::try_new("x", SecurityRiskTier::High, f64::NAN, &[], 0, true, "m");
-        assert!(matches!(err, Err(SecuritySupportError::InvalidRiskScore(_))));
+        assert!(matches!(
+            err,
+            Err(SecuritySupportError::InvalidRiskScore(_))
+        ));
     }
 
     #[test]
     fn domain_from_label() {
-        assert_eq!(SecurityDomainProfile::from_label("classroom-lab"), SecurityDomainProfile::Education);
-        assert_eq!(SecurityDomainProfile::from_label("research-hub"), SecurityDomainProfile::Research);
+        assert_eq!(
+            SecurityDomainProfile::from_label("classroom-lab"),
+            SecurityDomainProfile::Education
+        );
+        assert_eq!(
+            SecurityDomainProfile::from_label("research-hub"),
+            SecurityDomainProfile::Research
+        );
     }
 }

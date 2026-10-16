@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 PATSAGI-COUNCILS-BUILDS-1 council note): not compiled; it holds WorldGovernanceEngine and calls the mercy-engine voting path.
 //! # PATSAGi Council Petition Handler — v14.15.0
 //!
 //! High-level interface between human players / game loop and the

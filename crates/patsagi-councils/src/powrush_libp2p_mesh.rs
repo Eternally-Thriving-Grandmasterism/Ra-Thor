@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 PATSAGI-COUNCILS-BUILDS-1 council note): not compiled; libp2p is not a dependency, ra_thor_mercy is not a package name (the package is mercy), and powrush_multiplayer is not a module.
 //! Powrush libp2p Federated Mesh — v14.15.0
 //!
 //! Real-time Voice-Skin sync layer + gossip mesh for multiplayer.

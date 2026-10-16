@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 PATSAGI-COUNCILS-BUILDS-1 council note): not compiled; it is the Lean FFI helper. lean-sys was not shown to resolve, and a formatted lean_proof string is not a machine-checked proof.
 //! Mercy Threshold FFI — v14.15.0
 //!
 //! Lean 4 + Coq HoTT FFI bridge for Mercy Threshold Verification.

@@ -203,8 +203,7 @@ impl ResonanceMetrics {
         let tmp = target.with_extension("json.tmp");
         {
             let mut f = fs::File::create(&tmp)?;
-            let json = serde_json::to_string_pretty(self)
-                .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
+            let json = serde_json::to_string_pretty(self).map_err(std::io::Error::other)?;
             f.write_all(json.as_bytes())?;
             f.sync_all()?;
         }
@@ -233,20 +232,12 @@ impl ResonanceMetrics {
     }
 
     /// Convenience: record + immediately persist (best-effort).
-    pub fn record_emission_success_and_save(
-        &mut self,
-        hints: usize,
-        path: Option<&Path>,
-    ) {
+    pub fn record_emission_success_and_save(&mut self, hints: usize, path: Option<&Path>) {
         self.record_emission_success(hints);
         let _ = self.save(path);
     }
 
-    pub fn record_emission_block_and_save(
-        &mut self,
-        reason: BlockReason,
-        path: Option<&Path>,
-    ) {
+    pub fn record_emission_block_and_save(&mut self, reason: BlockReason, path: Option<&Path>) {
         self.record_emission_block(reason);
         let _ = self.save(path);
     }

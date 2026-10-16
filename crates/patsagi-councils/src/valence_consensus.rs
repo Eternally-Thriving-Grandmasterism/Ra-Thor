@@ -107,6 +107,20 @@ impl ValenceVote {
     }
 }
 
+/// Gate label for one deliberation in this crate.
+///
+/// This package is patsagi-councils. It is not crates/council.
+/// `Reject` stays `Reject`. A later vote does not replace it with `Apply`.
+/// `Refine` is the progressive path. `HumanOverride` is the hold for a person.
+/// It is not an apply.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CouncilGateLabel {
+    Reject,
+    Refine,
+    HumanOverride,
+    Apply,
+}
+
 /// Final consensus result — always progressive when mercy holds.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ValenceConsensusResult {
@@ -121,6 +135,36 @@ pub struct ValenceConsensusResult {
     pub final_verdict: String,
     pub votes: Vec<ValenceVote>,
     pub core_covenant_honored: bool,
+}
+
+impl ValenceConsensusResult {
+    /// Reject, refine, human-override, or apply.
+    /// A mercy block is Reject even when `avg_valence` is above the threshold.
+    pub fn gate_label(&self) -> CouncilGateLabel {
+        if self.has_mercy_block {
+            CouncilGateLabel::Reject
+        } else if self.approved {
+            CouncilGateLabel::Apply
+        } else if self.progressive {
+            CouncilGateLabel::Refine
+        } else {
+            CouncilGateLabel::HumanOverride
+        }
+    }
+}
+
+/// A recorded Reject stays Reject.
+/// Later yes-votes are ignored and do not change that label to Apply.
+pub fn council_vote_after_reject(
+    prior: CouncilGateLabel,
+    votes: &[ValenceVote],
+    engine: &ValenceConsensusEngine,
+    proposal: &str,
+) -> CouncilGateLabel {
+    if prior == CouncilGateLabel::Reject {
+        return CouncilGateLabel::Reject;
+    }
+    engine.deliberate(proposal, votes.to_vec()).gate_label()
 }
 
 /// The valence-optimized consensus engine.
@@ -182,9 +226,7 @@ impl ValenceConsensusEngine {
         // Core Covenant: mercy_block (protection of innocence) is always honored.
         // Pure obstruction without mercy grounding does not force deadlock.
         let approved = avg_valence >= self.threshold && !has_mercy_block;
-        let progressive = !approved
-            && !has_mercy_block
-            && avg_valence >= self.progressive_floor;
+        let progressive = !approved && !has_mercy_block && avg_valence >= self.progressive_floor;
 
         let final_verdict = if approved {
             format!(
@@ -260,12 +302,7 @@ impl ValenceConsensusEngine {
 }
 
 /// Quick helper used by higher layers (feedback loop, world governance).
-pub fn quick_valence_check(
-    joy: f64,
-    harmony: f64,
-    abundance: f64,
-    threshold: f64,
-) -> (f64, bool) {
+pub fn quick_valence_check(joy: f64, harmony: f64, abundance: f64, threshold: f64) -> (f64, bool) {
     let vote = ValenceVote::new("quick", joy, harmony, abundance, false);
     (vote.valence, vote.valence >= threshold)
 }
@@ -311,5 +348,58 @@ mod tests {
         assert!(!res.approved);
         assert!(res.has_mercy_block);
         assert!(res.final_verdict.contains("MERCY BLOCK"));
+        assert_eq!(res.gate_label(), CouncilGateLabel::Reject);
+    }
+
+    #[test]
+    fn a_council_vote_does_not_flip_reject_to_apply() {
+        let engine = ValenceConsensusEngine::new();
+        let yes = vec![
+            ValenceVote::new("Truth", 1.0, 1.0, 1.0, false),
+            ValenceVote::new("Order", 1.0, 1.0, 1.0, false),
+        ];
+        let held = council_vote_after_reject(
+            CouncilGateLabel::Reject,
+            &yes,
+            &engine,
+            "unanimous yes after reject",
+        );
+        assert_eq!(held, CouncilGateLabel::Reject);
+
+        let fresh = council_vote_after_reject(
+            CouncilGateLabel::HumanOverride,
+            &yes,
+            &engine,
+            "same yes votes with no prior reject",
+        );
+        assert_eq!(fresh, CouncilGateLabel::Apply);
+
+        let blocked = engine.deliberate(
+            "mercy block at valence 1",
+            vec![ValenceVote::new("Truth", 1.0, 1.0, 1.0, true)],
+        );
+        assert_eq!(blocked.avg_valence, 1.0);
+        assert_eq!(blocked.avg_joy, 1.0);
+        assert_eq!(blocked.gate_label(), CouncilGateLabel::Reject);
+        assert!(!blocked.approved);
+        assert!(!blocked.progressive);
+
+        let refine = engine.deliberate(
+            "progressive path",
+            vec![ValenceVote::new("Service", 1.0, 1.0, 0.0, false)],
+        );
+        assert_eq!(refine.avg_valence, 0.75);
+        assert_eq!(refine.gate_label(), CouncilGateLabel::Refine);
+        assert!(!refine.approved);
+
+        let review = engine.deliberate(
+            "held for a person",
+            vec![ValenceVote::new("Joy", 0.0, -1.0, 0.0, false)],
+        );
+        assert_eq!(review.avg_valence, 0.0);
+        assert_eq!(review.avg_joy, 0.0);
+        assert_eq!(review.gate_label(), CouncilGateLabel::HumanOverride);
+        assert!(!review.approved);
+        assert!(!review.has_mercy_block);
     }
 }

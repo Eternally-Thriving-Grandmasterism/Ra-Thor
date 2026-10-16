@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 PATSAGI-COUNCILS-BUILDS-1 council note): not compiled; it calls verify_mercy_threshold and describes a Lean FFI seal. lean-sys was not shown to resolve.
 //! Genesis Gate v2 — TOLC 8 Evolved Instantiation Surface — v14.15.0
 //!
 //! Lean-verified + sacred geometry (Zalgaller / Johnson / Platonic / Hyperbolic)
