@@ -1,3 +1,8 @@
+//! Design-only. Not a module of `ra-thor-core`.
+//! Council note: this file names `MercyValence`, `NoveltyScore`, `BloomIntensity`, and `PlasticityReport`, which this crate does not define.
+//! The source method name `set_merry_gating` is unchanged.
+//! It is not compiled.
+//!
 // crates/ra-thor-core/src/traits/plasticity.rs
 // Ra-Thor™ Plasticity Engine Traits — Absolute Pure Truth Edition
 // Multi-timescale, objective-function-free, mercy-gated Hebbian plasticity interface

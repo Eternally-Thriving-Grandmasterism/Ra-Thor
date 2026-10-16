@@ -87,7 +87,7 @@ mod tests {
 
         assert_eq!(cycle.triggered_by, "player-1");
         assert_eq!(cycle.substrate, Substrate::Human);
-        assert_eq!(cycle.offered_to_air_foundation, false);
+        assert!(!cycle.offered_to_air_foundation);
         // Source amounts. Not measured values.
         assert_eq!(cycle.inhale_valence, 0.00003);
         assert_eq!(cycle.exhale_valence, 0.00004);
@@ -114,7 +114,7 @@ mod tests {
 
         assert_eq!(cycle.triggered_by, "player-2");
         assert_eq!(cycle.substrate, Substrate::AI);
-        assert_eq!(cycle.offered_to_air_foundation, true);
+        assert!(cycle.offered_to_air_foundation);
         assert_eq!(cycle.inhale_valence, 0.00003);
         assert_eq!(cycle.exhale_valence, 0.00004);
         assert_eq!(field.quanta.len(), 2);

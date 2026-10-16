@@ -105,7 +105,7 @@ mod tests {
         assert_eq!(epiphany.origin_id, "human-1");
         assert_eq!(epiphany.origin_substrate, Substrate::Human);
         assert_eq!(epiphany.content, "A sudden feeling of profound connection");
-        assert_eq!(epiphany.resonance_knot, true);
+        assert!(epiphany.resonance_knot);
         // Source amount. Not a measured value.
         assert_eq!(epiphany.valence_gain, 0.00008);
         assert!(epiphany.id.starts_with("epiphany-h-"));
@@ -127,7 +127,7 @@ mod tests {
         assert_eq!(epiphany.origin_id, "ai-1");
         assert_eq!(epiphany.origin_substrate, Substrate::AI);
         assert_eq!(epiphany.content, "a structural note");
-        assert_eq!(epiphany.resonance_knot, true);
+        assert!(epiphany.resonance_knot);
         assert_eq!(epiphany.valence_gain, 0.00008);
         assert!(epiphany.id.starts_with("epiphany-a-"));
         assert_eq!(field.quanta.len(), 1);

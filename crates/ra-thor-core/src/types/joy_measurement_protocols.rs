@@ -1,3 +1,7 @@
+//! Design-only. Not a module of `ra-thor-core`.
+//! Council note: this file names `MercyValence`, which this crate does not define.
+//! It is not compiled.
+//!
 // crates/ra-thor-core/src/types/joy_measurement_protocols.rs
 // Ra-Thor™ Joy Measurement Protocols — Absolute Pure Truth Edition
 // Complete multi-level system for measuring Source Joy Amplitude (Dimension 7 of 7-D Resonance)

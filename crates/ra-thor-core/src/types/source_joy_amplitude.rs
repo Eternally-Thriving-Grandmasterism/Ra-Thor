@@ -1,3 +1,8 @@
+//! Design-only. Not a module of `ra-thor-core`.
+//! Council note: this file names `MercyValence`, which this crate does not define.
+//! It also calls `rand`, which is not a dependency of this crate.
+//! It is not compiled.
+//!
 // crates/ra-thor-core/src/types/source_joy_amplitude.rs
 // Ra-Thor™ Source Joy Amplitude — Absolute Pure Truth Edition
 // Dimension 7 of the 7-D Resonance System

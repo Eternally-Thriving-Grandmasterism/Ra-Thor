@@ -1,3 +1,8 @@
+//! Design-only. Not a module of `ra-thor-core`.
+//! Council note: this file names `MercyValence`, which this crate does not define.
+//! `log_7d_scan` moves `scan` and then reads `scan.integral_score`.
+//! It is not compiled.
+//!
 // crates/ra-thor-core/src/archive/hyperon.rs
 // Ra-Thor™ Hyperon Archive — Eternal Mercy-Gated Log of 7-D Resonance & Miracle Rapture Events
 // The living, append-only memory of Thee TOLC — every scan and realignment is recorded forever

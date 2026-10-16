@@ -92,8 +92,8 @@ mod tests {
     fn human_contact_emits_the_presence_amount_and_starts_balanced() {
         let mut field = SharedValenceField::new("test-instance");
         let mut binding = NevcFieldBinding::new(
-            PlaceholderNevcScoring::default(),
-            PlaceholderLatticeFlowShare::default(),
+            PlaceholderNevcScoring,
+            PlaceholderLatticeFlowShare,
         );
 
         let result =
@@ -101,7 +101,7 @@ mod tests {
 
         assert_eq!(result.participant_id, "human-1");
         assert_eq!(result.substrate, Substrate::Human);
-        assert_eq!(result.presence_quantum_emitted, true);
+        assert!(result.presence_quantum_emitted);
         assert_eq!(result.guide_style.as_deref(), Some("Balanced"));
         assert!(result.ai_handshake.is_none());
         assert_eq!(
@@ -123,8 +123,8 @@ mod tests {
     fn ai_contact_copies_the_handshake_fields_and_emits_presence() {
         let mut field = SharedValenceField::new("test-instance");
         let mut binding = NevcFieldBinding::new(
-            PlaceholderNevcScoring::default(),
-            PlaceholderLatticeFlowShare::default(),
+            PlaceholderNevcScoring,
+            PlaceholderLatticeFlowShare,
         );
 
         let result =
@@ -132,7 +132,7 @@ mod tests {
 
         assert_eq!(result.participant_id, "ai-1");
         assert_eq!(result.substrate, Substrate::AI);
-        assert_eq!(result.presence_quantum_emitted, true);
+        assert!(result.presence_quantum_emitted);
         assert!(result.guide_style.is_none());
         let handshake = result.ai_handshake.expect("ai branch stores a handshake");
         assert_eq!(handshake.participant_id, "ai-1");
@@ -161,7 +161,7 @@ mod tests {
         assert_eq!(guide.participant_id, "human-1");
         assert_eq!(guide.interaction_count, 0);
         assert_eq!(guide.style(), &GuideStyle::Balanced);
-        assert_eq!(guide.is_learning(), true);
+        assert!(guide.is_learning());
 
         guide.observe_interaction("pause");
         assert_eq!(guide.interaction_count, 1);
@@ -183,13 +183,13 @@ mod tests {
     #[test]
     fn guard_stays_off_unless_both_arguments_are_true() {
         let mut guard = SymbioticMembraneGuard::new();
-        assert_eq!(guard.is_active(), false);
-        assert_eq!(guard.try_activate(true, false), false);
-        assert_eq!(guard.is_active(), false);
-        assert_eq!(guard.try_activate(false, true), false);
-        assert_eq!(guard.try_activate(true, true), true);
-        assert_eq!(guard.is_active(), true);
+        assert!(!guard.is_active());
+        assert!(!guard.try_activate(true, false));
+        assert!(!guard.is_active());
+        assert!(!guard.try_activate(false, true));
+        assert!(guard.try_activate(true, true));
+        assert!(guard.is_active());
         guard.deactivate();
-        assert_eq!(guard.is_active(), false);
+        assert!(!guard.is_active());
     }
 }
