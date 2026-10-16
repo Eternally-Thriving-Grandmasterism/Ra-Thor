@@ -67,11 +67,6 @@ jobs:
           path: .
           extra_args: --include-paths helm/ charts/ templates/ values.yaml Chart.yaml
 
-      - name: Upload TruffleHog SARIF
-        uses: github/codeql-action/upload-sarif@ce5e7eeac396d720fe2d802714996c8ce561e311 # v3
-        with:
-          sarif_file: trufflehog-helm.sarif
-
       - name: Mercy-approved – Helm security scan passed
         if: success()
         run: echo "All Helm gates cleared – chart safe for deployment"

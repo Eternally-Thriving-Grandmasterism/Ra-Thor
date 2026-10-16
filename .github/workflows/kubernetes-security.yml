@@ -62,11 +62,6 @@ jobs:
           path: .
           extra_args: --include-paths k8s/ helm/ kustomize/
 
-      - name: Upload TruffleHog SARIF
-        uses: github/codeql-action/upload-sarif@ce5e7eeac396d720fe2d802714996c8ce561e311 # v3
-        with:
-          sarif_file: trufflehog-k8s.sarif
-
       - name: Mercy-approved – Kubernetes security scan passed
         if: success()
         run: echo "All K8s gates cleared – cluster safe for deployment"
