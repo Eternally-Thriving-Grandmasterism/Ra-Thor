@@ -81,3 +81,9 @@ jobs:
           cargo check -p ra-thor-one-organism --features web-demo
           cargo check -p ra-thor-one-organism --features github-live
           cargo check -p ra-thor-one-organism --features extended-live
+
+      - name: Test idea-recycling
+        run: cargo test -p idea-recycling -- --nocapture
+
+      - name: Test innovations-generator
+        run: cargo test -p innovations-generator -- --nocapture
