@@ -1,49 +1,36 @@
-//! Outcome Applicator for Council Decisions.
+//! Record a proposal title only when the session passed.
 //!
-//! This module is responsible for applying approved council decisions
-//! back into the Ra-Thor lattice (Powrush economy, kernel state, domain lattices, etc.).
+//! A rejection leaves the log unchanged. This crate does not write into
+//! another crate's kernel.
 
-use crate::council_session::{CouncilProposal, CouncilSessionResult};
-use crate::voting::VoteResult;
+use crate::council_session::CouncilSessionResult;
 
-use ra_thor_kernel::Kernel;
-use tracing::info;
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct OutcomeLog {
+    pub applied_titles: Vec<String>,
+}
 
-/// Applies the result of a council session to the living lattice.
-pub async fn apply_outcome_to_lattice(
-    vote_result: &VoteResult,
-    proposal: &CouncilProposal,
-    kernel: &mut Kernel,
-) {
-    if !vote_result.passed {
-        info!(
-            "Council proposal '{}' was not approved. No changes applied.",
-            proposal.title
+pub fn apply_outcome(log: &mut OutcomeLog, result: &CouncilSessionResult) {
+    if result.passed {
+        log.applied_titles.push(result.proposal.title.clone());
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::council_session::{example_disable_loop, example_record_note, CouncilSession};
+
+    #[test]
+    fn only_a_passed_session_is_recorded() {
+        let mut log = OutcomeLog::default();
+        let good = CouncilSession::deliberate(example_record_note());
+        let bad = CouncilSession::deliberate(example_disable_loop());
+        apply_outcome(&mut log, &good);
+        apply_outcome(&mut log, &bad);
+        assert_eq!(
+            log.applied_titles,
+            vec!["Record the research note".to_string()]
         );
-        return;
     }
-
-    info!(
-        "Council APPROVED proposal: '{}'. Applying outcome to the lattice...",
-        proposal.title
-    );
-
-    // === Example of lattice updates (expand this significantly over time) ===
-
-    // 1. Update kernel state / global parameters
-    kernel.apply_council_decision(proposal).await;
-
-    // 2. Trigger Powrush economy adjustments (if relevant)
-    // TODO: Call into powrush-mmo-simulator when ready
-
-    // 3. Update TOLC resonance parameters if high-impact decision
-    if proposal.impact_level > 0.7 {
-        kernel.trigger_tolc_resonance_update(proposal.complexity).await;
-    }
-
-    // 4. Log the successful application
-    info!(
-        "Outcome of council session successfully applied to the lattice. Proposal: {}",
-        proposal.title
-    );
 }

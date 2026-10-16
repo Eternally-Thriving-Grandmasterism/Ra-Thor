@@ -1,117 +1,33 @@
-//! council — Full PATSAGi-Pinnacle AGI Council Simulator
+//! council — a deterministic vote on one proposal.
 //!
-//! Executable simulation and governance layer for the 13+ PATSAGi Councils.
-//! Phase 4: additive `lattice_v14_guard` Cosmic Loop pre-session probe.
+//! Three standing members weigh token overlap with the proposal text.
+//! A majority of yes votes can pass. An empty proposal, a cosmic-loop
+//! disable attempt, or a layer 0 disable attempt is rejected, and the
+//! vote cannot turn that rejection into an apply.
+//!
+//! This crate does not call lattice-conductor-v14, kernel, or mercy.
+//! Those crates are outside this standalone workspace.
 //! Contact: info@Rathor.ai
 
+pub mod coherence;
 pub mod council_session;
 pub mod deliberation;
-pub mod voting;
-pub mod coherence;
-pub mod outcome_applicator;
 pub mod lattice_v14_guard;
-
-// Rich council member profiles + expanded TOLC affinity mechanics
 pub mod member_profiles;
+pub mod outcome_applicator;
 pub mod tolc;
+pub mod voting;
 
-pub use council_session::{CouncilSession, CouncilSessionResult, CouncilProposal};
-pub use coherence::GodlyIntelligenceCoherence;
-pub use lattice_v14_guard::{ensure_cosmic_loop_for_session, proposal_respects_cosmic_loop};
-
-pub use member_profiles::{CouncilMemberProfile, get_all_profiles, load_demo_profiles};
-pub use tolc::{
-    TolcOrder, TolcAffinity, calculate_tolc_resonance,
-    can_trigger_mercy_override, advance_tolc_order, default_tolc_affinity,
+pub use coherence::compute_session_coherence;
+pub use council_session::{
+    example_disable_loop, example_record_note, CouncilProposal, CouncilSession,
+    CouncilSessionResult,
 };
-
-// Legacy WASM surface — gated so native Cosmic Loop probes always compile.
-#[cfg(feature = "wasm")]
-mod wasm_surface {
-    use super::*;
-    use ra_thor_common::{mercy_integrate, FractalSubCore};
-    use ra_thor_mercy::MercyEngine;
-    use ra_thor_fenca::FencaEternalCheck;
-    use ra_thor_cache::RealTimeAlerting;
-    use serde_json::json;
-    use wasm_bindgen::prelude::*;
-
-    #[wasm_bindgen]
-    pub struct PatsagiCouncil;
-
-    #[wasm_bindgen]
-    impl PatsagiCouncil {
-        #[wasm_bindgen(js_name = "runFullCouncilSession")]
-        pub async fn run_full_council_session(
-            proposal: String,
-            context: JsValue,
-        ) -> Result<JsValue, JsValue> {
-            if !crate::ensure_cosmic_loop_for_session() {
-                return Err(JsValue::from_str("Cosmic Loop not ready — session blocked"));
-            }
-            if !crate::proposal_respects_cosmic_loop(&proposal) {
-                return Err(JsValue::from_str(
-                    "Proposal blocked by CouncilArbitrationEngine (Cosmic Loop identity)",
-                ));
-            }
-
-            mercy_integrate!(PatsagiCouncil, context).await?;
-
-            if !FencaEternalCheck::run_full_eternal_check(&proposal, "patsagi_council").await? {
-                return Err(JsValue::from_str(
-                    "FENCA Eternal Check FAILED — council session blocked",
-                ));
-            }
-
-            let valence = MercyEngine::compute_valence(&proposal);
-            if valence < 0.9999999 {
-                return Err(JsValue::from_str(
-                    "Radical Love gate FAILED — council session blocked",
-                ));
-            }
-
-            let session_result = CouncilSession::new(
-                vec![],
-                MercyEngine::default(),
-                Default::default(),
-                Default::default(),
-            )
-            .run_session(CouncilProposal {
-                id: uuid::Uuid::new_v4(),
-                title: proposal.clone(),
-                description: proposal.clone(),
-                complexity: 0.75,
-                impact_level: 0.85,
-            })
-            .await;
-
-            let result = json!({
-                "council_mode": "13+ Unanimous Thriving",
-                "proposal": proposal,
-                "vote": if session_result.passed {
-                    "13/13 YES — Full Unanimous Thriving Consensus"
-                } else {
-                    "Session blocked by mercy gates"
-                },
-                "valence_score": session_result.mercy_valence,
-                "cosmic_loop": "ENFORCED",
-                "final_decision": if session_result.passed { "APPROVED" } else { "BLOCKED" },
-                "final_coherence": session_result.final_coherence,
-            });
-
-            RealTimeAlerting::log(format!(
-                "PATSAGi Council Session executed for proposal: {}",
-                proposal
-            ))
-            .await;
-
-            Ok(JsValue::from_serde(&result).unwrap())
-        }
-    }
-
-    impl FractalSubCore for PatsagiCouncil {
-        async fn integrate(js_payload: JsValue) -> Result<JsValue, JsValue> {
-            Ok(js_payload)
-        }
-    }
-}
+pub use deliberation::{MemberOpinion, MemberVote};
+pub use lattice_v14_guard::{
+    ensure_cosmic_loop_for_session, proposal_respects_cosmic_loop, proposal_respects_layer0,
+};
+pub use member_profiles::{standing_profiles, CouncilMemberProfile};
+pub use outcome_applicator::{apply_outcome, OutcomeLog};
+pub use tolc::{calculate_tolc_resonance, TOLC_8};
+pub use voting::{conduct_voting, VoteResult};
