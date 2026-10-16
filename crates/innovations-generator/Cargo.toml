@@ -2,16 +2,14 @@
 name = "innovations-generator"
 version = "0.1.0"
 edition = "2021"
-authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+authors = ["Sherif Samy Botros <info@Rathor.ai>"]
 license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
-description = "Innovations Generator — Higher-order idea synthesis and eternal self-evolution engine for Ra-Thor"
+description = "Ranks at most three idea seeds, each with a claim tier and a kill test."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 
+# RECYCLER-REAL-1: common, mercy, fenca, and spartan_valence are not dependencies.
+# idea-recycling is the only crate dependency. The `innovate` binary is src/bin/innovate.rs.
 [dependencies]
 idea-recycling = { path = "../idea-recycling" }
-ra-thor-mercy = { path = "../mercy" }
-ra-thor-fenca = { path = "../fenca" }
-ra-thor-common = { path = "../common" }
-tokio = { version = "1.38", features = ["full"] }
-serde = { version = "1.0", features = ["derive"] }
-tracing = "0.1"
-thiserror = "1.0"
+serde = { workspace = true }
+serde_json = { workspace = true }
