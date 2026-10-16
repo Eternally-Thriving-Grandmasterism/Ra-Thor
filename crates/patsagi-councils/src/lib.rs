@@ -415,7 +415,7 @@ impl Default for PatsagiCouncilCoordinator {
 #[cfg(test)]
 impl PatsagiCouncilCoordinator {
     /// Present only so `try_evolve` typechecks. The empty-registry veto returns before this runs.
-    /// A passing vote would commit an evolution if the swarm gate returned a high average.
+    /// A passing vote would commit an evolution if the swarm check returned a high average.
     pub(crate) async fn conduct_voting_round(
         &mut self,
         proposal: &str,

@@ -1,4 +1,4 @@
-//! Design-only (STUB-AUDIT-1 PATSAGI-COUNCILS-BUILDS-1 council note): not compiled; mercy::MercyEngine is not in the mercy public API (that crate exports MercyCore), and tolc_integration needs interstellar-operations, which is not a dependency. The adapter type has no calculate_entanglement_strength, so the previous unwrap_or(0.85) call is not wired.
+//! Design-only (STUB-AUDIT-1 PATSAGI-COUNCILS-BUILDS-1 council note): compiled only under cfg(test); mercy::MercyEngine is not in the mercy public API (that crate exports MercyCore), and tolc_integration needs interstellar-operations, which is not a dependency. The adapter type has no calculate_entanglement_strength, so the previous unwrap_or(0.85) call is not wired.
 //! # WorldGovernanceEngine — v14.15.0
 //!
 //! Living heart of Powrush-MMO world governance under the 16 PATSAGi Councils.
@@ -932,6 +932,24 @@ mod tests {
     fn empty_registry_vetoes_world_change_before_impact() {
         let mut engine = WorldGovernanceEngine::new();
         let mut game = PowrushGame::new();
+        let field_strength = engine.quantum_mercy_field.field_strength;
+        let entanglement_level = engine.quantum_mercy_field.entanglement_level;
+        let last_pulse = engine.quantum_mercy_field.last_pulse;
+        let harmony_scores = engine.faction_harmony.harmony_scores.clone();
+        let tension_levels = engine.faction_harmony.tension_levels.clone();
+        let synergy_bonus = engine.faction_harmony.synergy_bonus;
+        let war_risk = engine.faction_harmony.war_risk;
+        let last_peace_treaty = engine.faction_harmony.last_peace_treaty;
+        let harmony_decay_rate = engine.faction_harmony.harmony_decay_rate;
+        let mercy_influence_multiplier = engine.faction_harmony.mercy_influence_multiplier;
+        let resource_multipliers = engine.faction_economy.resource_multipliers.clone();
+        let trade_efficiency = engine.faction_economy.trade_efficiency.clone();
+        let scarcity_resistance = engine.faction_economy.scarcity_resistance.clone();
+        let mercy_economy_bonus = engine.faction_economy.mercy_economy_bonus;
+        let quantum_entanglement_bonus = engine.faction_economy.quantum_entanglement_bonus;
+        let quantum_inflation_rate = engine.faction_economy.quantum_inflation_rate;
+        let mercy_trade_routes = engine.faction_economy.mercy_trade_routes.clone();
+        let bloom_count = engine.nectar_economy.bloom_count;
         let joy_before: Vec<f32> = game.players.iter().map(|player| player.needs.joy).collect();
         let mercy_before: Vec<f64> = game
             .resources
@@ -947,9 +965,52 @@ mod tests {
             &mut game,
         ));
 
-        let text = result.expect("veto is an Ok rejection string");
-        assert!(text.starts_with("❌ WORLD CHANGE REJECTED"), "{text}");
-        assert!(text.contains("Swarm valence check vetoed"), "{text}");
+        assert_eq!(engine.quantum_mercy_field.field_strength, field_strength);
+        assert_eq!(
+            engine.quantum_mercy_field.entanglement_level,
+            entanglement_level
+        );
+        assert_eq!(engine.quantum_mercy_field.last_pulse, last_pulse);
+        assert!(engine.quantum_mercy_field.last_pulse.is_none());
+        assert_eq!(engine.faction_harmony.harmony_scores, harmony_scores);
+        assert_eq!(engine.faction_harmony.tension_levels, tension_levels);
+        assert_eq!(engine.faction_harmony.synergy_bonus, synergy_bonus);
+        assert_eq!(engine.faction_harmony.war_risk, war_risk);
+        assert_eq!(engine.faction_harmony.last_peace_treaty, last_peace_treaty);
+        assert_eq!(
+            engine.faction_harmony.harmony_decay_rate,
+            harmony_decay_rate
+        );
+        assert_eq!(
+            engine.faction_harmony.mercy_influence_multiplier,
+            mercy_influence_multiplier
+        );
+        assert_eq!(
+            engine.faction_economy.resource_multipliers,
+            resource_multipliers
+        );
+        assert_eq!(engine.faction_economy.trade_efficiency, trade_efficiency);
+        assert_eq!(
+            engine.faction_economy.scarcity_resistance,
+            scarcity_resistance
+        );
+        assert_eq!(
+            engine.faction_economy.mercy_economy_bonus,
+            mercy_economy_bonus
+        );
+        assert_eq!(
+            engine.faction_economy.quantum_entanglement_bonus,
+            quantum_entanglement_bonus
+        );
+        assert_eq!(
+            engine.faction_economy.quantum_inflation_rate,
+            quantum_inflation_rate
+        );
+        assert_eq!(
+            engine.faction_economy.mercy_trade_routes,
+            mercy_trade_routes
+        );
+        assert_eq!(engine.nectar_economy.bloom_count, bloom_count);
         assert!(engine.active_changes.is_empty());
         assert!(engine.history.is_empty());
         assert_eq!(engine.total_world_changes, 0);
@@ -961,5 +1022,8 @@ mod tests {
             .collect();
         assert_eq!(joy_before, joy_after);
         assert_eq!(mercy_before, mercy_after);
+        let text = result.expect("veto is an Ok rejection string");
+        assert!(text.starts_with("❌ WORLD CHANGE REJECTED"), "{text}");
+        assert!(text.contains("Swarm valence check vetoed"), "{text}");
     }
 }

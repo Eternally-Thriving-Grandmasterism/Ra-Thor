@@ -1,4 +1,4 @@
-//! Design-only (STUB-AUDIT-1 PATSAGI-COUNCILS-BUILDS-1 council note): not compiled; it calls mercy::MercyEngine and mercy_threshold_ffi. crates/mercy exports MercyCore, not MercyEngine. lean-sys was not shown to resolve.
+//! Design-only (STUB-AUDIT-1 PATSAGI-COUNCILS-BUILDS-1 council note): compiled only under cfg(test); it calls mercy::MercyEngine and mercy_threshold_ffi. crates/mercy exports MercyCore, not MercyEngine. lean-sys was not shown to resolve.
 //! Self-Evolving Mercy Core — v14.15.0
 //!
 //! Triple-gate safety surface for autonomous mercy evolution:
@@ -246,7 +246,7 @@ mod tests {
         assert_eq!(last_cycle, 0);
 
         let mut council = PatsagiCouncilCoordinator::new();
-        // Past the cooldown so the empty-registry cycle is the gate that returns.
+        // Past the cooldown so the empty-registry cycle is the swarm check that returns.
         let result = poll_ready(core.try_evolve(core.evolution_cooldown_cycles, &mut council));
 
         assert!(result.is_none());
