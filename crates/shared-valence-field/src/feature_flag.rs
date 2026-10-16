@@ -1,26 +1,18 @@
-//! feature_flag.rs
-//! Soft feature-flag control for Shared Valence Field
-//! Phase B — Living Valence Organism
-//! AG-SML v1.0 | Contact: info@Rathor.ai
+//! Flag defaults to off. `try_activate` stores `On` only when both bool arguments are true.
+//! Contact: info@Rathor.ai
 
 /// Canonical feature flag name (must match playbook)
 pub const SHARED_VALENCE_FIELD_FLAG: &str = "shared_valence_field";
 
 /// Simple runtime flag check (will later bind to the sealed SoftPolicyState / feature-flag system)
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum FlagState {
+    #[default]
     Off,
     On,
 }
 
-impl Default for FlagState {
-    fn default() -> Self {
-        FlagState::Off // default off per playbook
-    }
-}
-
-/// Guard that ensures the Shared Valence Field only activates when the flag is On
-/// and all success criteria (valence floor, dual-repo health) are met
+/// Flag wrapper. `is_active` is true only after `try_activate` stored `On`.
 pub struct SharedValenceFieldGuard {
     pub state: FlagState,
 }
@@ -36,7 +28,7 @@ impl SharedValenceFieldGuard {
         self.state == FlagState::On
     }
 
-    /// Activate only after success criteria are verified (valence metrics + dual-repo health)
+    /// Stores `On` only when both arguments are true. Does not measure valence.
     pub fn try_activate(&mut self, valence_ok: bool, dual_repo_healthy: bool) -> bool {
         if valence_ok && dual_repo_healthy {
             self.state = FlagState::On;
@@ -49,5 +41,11 @@ impl SharedValenceFieldGuard {
 
     pub fn deactivate(&mut self) {
         self.state = FlagState::Off;
+    }
+}
+
+impl Default for SharedValenceFieldGuard {
+    fn default() -> Self {
+        Self::new()
     }
 }

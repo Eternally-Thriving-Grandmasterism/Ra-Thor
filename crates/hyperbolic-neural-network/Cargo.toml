@@ -4,7 +4,15 @@ version = "0.3.0"
 edition = "2021"
 authors = ["18 PATSAGi Councils under the Rathor Sovereign Reasoning Engine"]
 license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
-description = "Hyperbolic Neural Network Layer for Rathor.ai v13.2.0 — Brain-like embedding with exponential capacity, Möbius gyrovector support, TOLC 8 Result handling"
+description = "tanh of an input prefix. forward returns Err when valence is below the threshold constant 0.9999999 (a source literal, not a measured value)."
+
+# Standalone workspace, same pattern as crates/fenca, crates/council,
+# crates/powrush, and crates/sovereign-shard-genesis.
+# `cargo build --locked` and `cargo test --locked` use this manifest.
+# This crate is not a root default member.
+# nalgebra stays at the version already written in this file. It is not read by src/lib.rs.
+[workspace]
+resolver = "2"
 
 [dependencies]
 nalgebra = "0.32"

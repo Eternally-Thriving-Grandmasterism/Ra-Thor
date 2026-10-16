@@ -4,8 +4,15 @@ version = "0.1.0"
 edition = "2021"
 license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
 authors = ["Sherif Samy Botros <info@Rathor.ai>"]
-description = "Shared Valence Field — real-time multi-substrate metabolic substrate of the Living Valence Organism (NEVC binding)"
+description = "In-memory field. new sets collective_valence to the source literal 0.999999 (not a measured value). emit floors with .max(0.999999)."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+
+# Standalone workspace, same pattern as crates/fenca, crates/council,
+# crates/powrush, and crates/sovereign-shard-genesis.
+# `cargo build --locked` and `cargo test --locked` use this manifest.
+# This crate is not a root default member.
+[workspace]
+resolver = "2"
 
 [dependencies]
 serde = { version = "1.0", features = ["derive"] }
