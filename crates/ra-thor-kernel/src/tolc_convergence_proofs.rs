@@ -1,3 +1,5 @@
+//! Design-only (STUB-AUDIT-1 KERNEL-MANIFEST-1 council note): not compiled; several predicates return the literal true, `theorems_passed` is the literal 12, and `eternal_guarantee` is a source string rather than a demonstrated result. This file is not a module.
+
 use wasm_bindgen::prelude::*;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;

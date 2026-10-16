@@ -1,3 +1,5 @@
+//! Design-only (STUB-AUDIT-1 KERNEL-MANIFEST-1 council note): not compiled; it imports `crate::mercy`, `crate::common`, and `crate::quantum`, which this crate does not define, and it assigns the source literal `0.9999999`.
+
 use crate::mercy::MercyLangGates;
 use crate::common::{RealTimeAlerting, RecyclingSystem};
 use crate::quantum::PostQuantumMercyShield;

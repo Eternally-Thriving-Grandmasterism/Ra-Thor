@@ -34,6 +34,7 @@ These were make-real cards. `cargo check` on 2026-10-16 finished for each. They 
 | PATSAGI-COUNCILS-BUILDS-1: `crates/patsagi-councils` | #677 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock`. Not a root member. Path deps are `../powrush` and `../quantum-swarm-orchestrator` (package `ra-thor-quantum-swarm-orchestrator`). `ra-thor-core` is not imported. `mercy` is not a dependency (`MercyCore` is the public type; `MercyEngine` is not). `lean-sys` is cut. Optional paths `real-estate-lattice`, `ra-thor-post-quantum-sig`, and `interstellar-operations` are cut. Locked `cargo test --all-targets` and `cargo clippy --all-targets -- -D warnings` finished. A recorded Reject is not flipped to Apply. This package is not `crates/council`. Design-only files stay uncompiled. |
 | POWRUSH-MMO-SIM-BUILDS-1: `crates/powrush-mmo-simulator` | #678 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock`. Not a root member. Path deps are `../mial` and `../mercy-threshold-wasm`. Locked `cargo test --all-targets`, `cargo clippy --all-targets -- -D warnings`, and `cargo fmt --check` finished. Compiled code does not read MWPO `gated`. Three `mercy_gating_runtime` examples stay uncompiled. Resource-Based Economy stays a design thesis. |
 | SHARD-COMPOSER-PARSE-1: `crates/shard-composer` | #679 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock`. Not a root member. Locked `cargo test --all-targets`, `cargo clippy --all-targets -- -D warnings`, and `cargo fmt --check` finished. No `full` feature. Fresh valence is `0.0`. `VALENCE_SOURCE_CEILING` is the source literal `0.99999999`. |
+| KERNEL-MANIFEST-1: `crates/ra-thor-kernel`, `crates/kernel` | (DONE) | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock` each. Not root members. No path dependency. Locked `cargo test --all-targets`, `cargo clippy --all-targets -- -D warnings`, and `cargo fmt --check` finished inside each crate. `ra-thor-kernel` release `rustflags` are removed. `dilithium_sign` is absent. `falcon_sign` is not a dependency. `kernel` does not path-depend on `lattice-conductor-v14`. |
 
 Two tidy leftovers on the shard crate are banked below. They did not stop `cargo check`.
 
@@ -94,7 +95,7 @@ Dependencies first. Then the smallest crates whose source already checks once th
 | 7 | `PATSAGI-COUNCILS-BUILDS-1` (DONE, #677) | `crates/patsagi-councils` | After 5 and 6, and after `powrush` (#668). Living small council is already `crates/council`. | L (6,115 lines, 26 files) | No, if standalone. Yes if added to root `members`. |
 | 8 | `POWRUSH-MMO-SIM-BUILDS-1` (DONE, #678) | `crates/powrush-mmo-simulator` | After 4 and #668. Not the Powrush-MMO repo and not the browser client. | M (1,039 lines) | No, if standalone. |
 | 9 | `SHARD-COMPOSER-PARSE-1` (DONE, #679) | `crates/shard-composer` | Standalone `[workspace]`. The unclosed array and the missing `full` feature are gone. | S | No. |
-| 10 | `KERNEL-MANIFEST-1` | `crates/ra-thor-kernel`, `crates/kernel` | Unstable `rustflags`, missing path deps. Separate from the undefined workspace key `ra-thor-kernel`. | S–M | No, if not a default member. |
+| 10 | `KERNEL-MANIFEST-1` (DONE) | `crates/ra-thor-kernel`, `crates/kernel` | Standalone `[workspace]`. Unstable release `rustflags` are removed. Post-quantum path deps are not dependencies. `kernel` does not path-depend on v14. | S–M | No, if not a default member. |
 | 11 | `REASONING-COUNCIL-WIRES-1` | council-named crates that import crates they do not depend on | After card 1 (`rathor-sovereign-reasoning-engine`, `philotic-web-fusion`, `moebius-transformations`). Label fleet and post-quantum strings as design-only inside the same card. | S each | No, if standalone. |
 | 12 | `CONDUCTOR-LEGACY-RETIRE-1` | unversioned conductor, v13 and its examples, `tolc8-genesis-gate` | Deprecated or fictional. Do not make them the living conductor. | L on disk | No. A v14 edit would need Core. This card should not edit v14. |
 | 13 | `NEXI-PATH-RETIRE-1` | crates with `nexi = { path = "../" }` | That path is not a package. | many manifests | No. |
@@ -367,18 +368,24 @@ The manifest also used `workspace = true` for package fields and for `ra-thor-me
 
 ---
 
-## 10. KERNEL-MANIFEST-1
+## 10. KERNEL-MANIFEST-1 (DONE)
 
-Two different directories.
+**Status:** DONE. `crates/ra-thor-kernel` and `crates/kernel` are each their own workspace (`resolver = "2"`) with a committed `Cargo.lock`. They are not root members. Neither crate has a path dependency. Locked `cargo test --all-targets`, `cargo clippy --all-targets -- -D warnings`, and `cargo fmt --check` finished inside each crate. `ra-thor-kernel` no longer sets `[profile.release] rustflags`. Cargo 1.99.1 rejects that key unless the unstable `profile-rustflags` feature is enabled. The simd128 flags are not copied to `.cargo/config.toml`. `../dilithium_sign` is not a directory. `crates/falcon_sign` is on disk and uses workspace keys, including `ra-thor-kernel`, so it is not a standalone build and is not a path dependency. This card does not add post-quantum code. `kernel` does not path-depend on `lattice-conductor-v14` (a root member, not a standalone workspace). This card does not edit v14. No root key `ra-thor-kernel` is added. `PACKAGE_VERSION_SOURCE` is the source string `14.15.0`. `MERCY_DECAY_SOURCE_LITERAL` is `0.92`, `MERCY_OFFSET_SOURCE_LITERAL` is `0.08`, and `MERCY_CLAMP_SOURCE_CEILING` is `4.0`. Those figures are source literals, not measured valence.
+
+**Compiled:** `crates/ra-thor-kernel/src/lib.rs`, `crates/ra-thor-kernel/tests/exact_values.rs`, `crates/kernel/src/lib.rs`, `crates/kernel/tests/exact_values.rs`.
+
+**Not compiled:** `crates/ra-thor-kernel/src/mercy_ethics_core.rs` (`let t olc_mercy` does not parse), `crates/ra-thor-kernel/src/tolc_convergence_proofs.rs` (literal `true` predicates and `theorems_passed` literal `12`). In `crates/kernel`: `lib.rs` (not `src/lib.rs`), `src/absolute_truth_enforcer.rs`, `src/fenca.rs`, `src/lattice_v14_boot.rs`, `src/meta_orchestrator.rs`, `src/permanence_code_loop.rs`, `src/root_core_orchestrator.rs`, `src/sub_core_trait.rs`, `src/tolc_core_enforcer.rs`, `src/wasm_boot.rs`.
+
+Two different directories. In-repo first error, before this card:
 
 | Path | First error |
 |------|-------------|
-| `crates/ra-thor-kernel` | `profile-rustflags` is required and is not stable in Cargo 1.99.1. `[profile.release] rustflags` is set at `Cargo.toml` lines 18–24. Path deps `../dilithium_sign` and `../falcon_sign` do not exist (no such directories). |
+| `crates/ra-thor-kernel` | `profile-rustflags` is required and is not stable in Cargo 1.99.1. `[profile.release] rustflags` was set in `Cargo.toml`. Path dep `../dilithium_sign` has no directory. `../falcon_sign` is on disk at this tip and does not build standalone. |
 | `crates/kernel` | not a workspace member. 499 lines, 10 files. Package name is `kernel`. Root workspace.dependencies does **not** define a key `ra-thor-kernel`. |
 
 `crates/council` comments (`Cargo.toml` lines 16–19) already record that the old `ra-thor-kernel` path was `../kernel` and that council does not depend on it.
 
-**Fix:** Retire the unstable `rustflags` profile from `ra-thor-kernel` (with a council note), or move it to `.cargo/config.toml` only if a wasm card asks for it. Remove path deps on missing `dilithium_sign` and `falcon_sign`. Do not invent post-quantum implementations. `crates/kernel` can be a standalone workspace in its own card if something still calls it. Do not add a root key `ra-thor-kernel` just to satisfy the 167 manifests that name it (card 14).
+**Fix:** Done. The unstable `rustflags` key is removed from `ra-thor-kernel` (council note in that crate's `Cargo.toml` and README). It is not moved to `.cargo/config.toml`. Path deps on `dilithium_sign` and `falcon_sign` are not in the manifest. Post-quantum implementations are not added. `crates/kernel` is its own standalone workspace in this card. No root key `ra-thor-kernel` is added for the manifests that name it (card 14).
 
 **Runtime / v14:** no.
 

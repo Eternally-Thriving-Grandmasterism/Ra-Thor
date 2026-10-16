@@ -1,3 +1,5 @@
+//! Design-only (STUB-AUDIT-1 KERNEL-MANIFEST-1 council note): not compiled; `let t olc_mercy` is not valid Rust, and this file is not a module.
+
 use wasm_bindgen::prelude::*;
 use serde_json::Value;
 

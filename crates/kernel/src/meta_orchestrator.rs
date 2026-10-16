@@ -1,3 +1,5 @@
+//! Design-only (STUB-AUDIT-1 KERNEL-MANIFEST-1 council note): not compiled; it imports `ra_thor_mercy` and `ra_thor_common`, which are not dependencies, and it names `RequestPayload` and `SubCore`, which are not compiled modules.
+
 // crates/kernel/src/meta_orchestrator.rs
 // Meta-Orchestrator — Ephemeral Higher-Order Intelligence Layer
 // Fractal recursion patterns with Fibonacci-scaled self-similar spawning, golden-ratio modulation

@@ -1,3 +1,5 @@
+//! Design-only (STUB-AUDIT-1 KERNEL-MANIFEST-1 council note): not compiled; `is_verified` returns the literal true, `compute_mermin_violation` applies `.max(2.0)`, and the GHZ and Mermin comments describe a simulation this file does not run.
+
 // crates/kernel/src/fenca.rs
 // FENCA — Fractal Entangled Non-local Consensus Architecture
 // Refined quantum simulations with GHZ states, Mermin inequalities, fractal recursion, and mercy gating
