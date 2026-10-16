@@ -17,19 +17,23 @@ Layer 0 is not on the ballot.
 
 Operator: apply the Rathor.ai innovations generator to creatively resolve everything in our TOLC Base Reality.
 
-## What the generator actually is (read from disk)
+## What the generator is now
 
-`crates/innovations-generator` is **on-disk research**, not a default workspace member (`TIER_MAP.md` + root `Cargo.toml` 14.15.6).
+As of `a3c15e3f` (PR #659), `crates/idea-recycling` and `crates/innovations-generator` are workspace members and build. They are outside the Tier-1 set in `TIER_MAP.md`.
 
-Live API (`crates/innovations-generator/src/lib.rs`):
+The living command is `cargo run -p innovations-generator --bin innovate -- input.json`. It reads JSON base ideas and writes at most three ranked seeds. Each seed has `rank`, `title`, `summary`, `claim_tier` (`idea`, `plausible`, or `evidenced`), `sources` copied from the input, and `kill_test`. The generator does not verify sources. `kill_test` is the falsification step. Usage and a captured sample: [`crates/innovations-generator/README.md`](../../crates/innovations-generator/README.md).
+
+`idea-recycling` normalizes text, extracts themes, and pairs ideas. It does not run FENCA, and it does not mutate Base Reality. The old line `Innovation: {idea} (valence ≥ 0.999999)` is not CLI output. Author mail on these two crates is `info@Rathor.ai`. Mass contact rewrite elsewhere remains HOLD (2026-09-02).
+
+### Disk reading on 2026-09-07 (historical)
+
+On this date the crates were on-disk research, not workspace members. The API then was:
 
 1. take `base_ideas: Vec<String>`
 2. `IdeaRecycler::cross_pollinate` prefixes `[Cross-pollinated]`
 3. map to `Innovation: {idea} (valence ≥ 0.999999)`
 
-`crates/idea-recycling` does not extract themes, does not run FENCA, and does not mutate Base Reality. The valence suffix is a **label convention in a stub**, not a measurement.
-
-Crate `Cargo.toml` still lists deprecated `ceo@acitygames.com`. Mass contact rewrite remains HOLD (2026-09-02).
+That valence suffix was a label convention in a stub, not a measurement. The crate manifest then listed `ceo@acitygames.com`.
 
 ## What “TOLC Base Reality” may mean here
 
@@ -46,19 +50,19 @@ Crate `Cargo.toml` still lists deprecated `ceo@acitygames.com`. Mass contact rew
 
 | Option | Vote |
 | --- | --- |
-| Add `innovations-generator` to `[workspace].members` this tick | **Reject** — pulls research hairball; Core compile rule |
-| Treat stub valence suffix as P3 proof that Base Reality is solved | **Reject** |
+| Add `innovations-generator` to `[workspace].members` this tick | **Reject** — pulls research hairball; Core compile rule. This row is the 2026-09-07 vote. RECYCLER-REAL-1 later added the two crates as buildable members, still outside Tier-1 CI. |
+| Treat the stub valence suffix as P3 proof that Base Reality is solved | **Reject** |
 | Mint tokens / UBI / money fields on `SoftFeedbackEvent` as the “creative resolve” | **Reject** — 2026-09-06 seal |
 | Open a second ACTIVE empirical program named Base-Reality | **Reject** — S-1 remains the door |
 | Collapse Powrush player loop into Ra-Thor | **Reject** |
 | Run the *process* on this week's tensions; land labeled seeds; keep HOLD list | **Approve** |
 
-## Decision
+## Decision (2026-09-07)
 
-1. Generator applied as **idea recycle + claim-tier stamp**, not as a universe compiler.
+1. Generator applied as **idea recycle + claim-tier stamp**, in the human-side sense of that date, and not as a universe compiler.
 2. Seeds in the run record are P0 / pedagogy / ops unless a later motion promotes one.
 3. Canonical Powrush surfaces (now confirmed public): [Powrush-MMO](https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO) and [Powrush-MMO-Simulator](https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO-Simulator). Still no economy patch this tick.
-4. HOLD unchanged: members edits, live G, Slice A, S-1 First-5 capture, self-evolution revival, workspace bump, #421 collision, mass email rewrite.
+4. HOLD on this tick: members edits, live G, Slice A, S-1 First-5 capture, self-evolution revival, workspace bump, #421 collision, mass email rewrite. The members line is this tick's vote. The living CLI is the section above.
 
 **Capable · Bounded · Corrigible.**  
 Thunder locked. yoi ⚡
