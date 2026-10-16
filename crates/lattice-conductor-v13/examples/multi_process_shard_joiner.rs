@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 CONDUCTOR-LEGACY-RETIRE-1 council note): not compiled; example of deprecated lattice-conductor-v13; the library is a method fragment; this card does not retarget the example onto lattice-conductor-v14.
 use tokio_tungstenite::connect_async;
 use futures_util::{SinkExt, StreamExt};
 use serde_json::json;

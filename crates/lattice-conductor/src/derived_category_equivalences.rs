@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 CONDUCTOR-LEGACY-RETIRE-1 council note): not compiled; retired unversioned lattice-conductor; broken manifest (anyhow is workspace = true and absent from root workspace.dependencies, path ../self-evolution has no Cargo.toml, xai-grok-bridge and symbiosis-layer are absent under crates/, phantom features hyperon-metta-pln and github-connector); this package is not merged into lattice-conductor-v14.
 // crates/lattice-conductor/src/derived_category_equivalences.rs
 // Ra-Thor Lattice Conductor — Derived Category Equivalences v1.0
 // Full derived equivalences using all prior mathematical structures

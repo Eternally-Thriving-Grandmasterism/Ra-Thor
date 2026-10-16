@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 CONDUCTOR-LEGACY-RETIRE-1 council note): not compiled; example of deprecated lattice-conductor-v13; the library is a method fragment; this card does not retarget the example onto lattice-conductor-v14.
 //! Wire Grok Symbiosis Module into Lattice Conductor v13
 //! as part of ONE Organism coherence using Conductable + MercyAligned traits.
 

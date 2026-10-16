@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 CONDUCTOR-LEGACY-RETIRE-1 council note): not compiled; example of deprecated lattice-conductor-v13; the library is a method fragment; this card does not retarget the example onto lattice-conductor-v14.
 //! TOLC8 Genesis Gate + ONE Organism Integration Demo
 //!
 //! Full demonstration of birthing sovereign shards using the 7 Living Mercy Gates + TOLC8

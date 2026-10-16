@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 CONDUCTOR-LEGACY-RETIRE-1 council note): not compiled; example of deprecated lattice-conductor-v13; the library is a method fragment; this card does not retarget the example onto lattice-conductor-v14.
 //! wire_unified_patsagi_council_lattice.rs
 //! Unified PATSAGi Council Lattice — Dynamic super-bridge with deepened Quantum Swarm integration
 

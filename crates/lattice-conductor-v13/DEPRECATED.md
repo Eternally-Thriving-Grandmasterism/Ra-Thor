@@ -28,3 +28,8 @@ Details: [`../lattice-conductor-v14/MIGRATION_v13_to_v14.md`](../lattice-conduct
 Kept in workspace temporarily (quiet hold). No removal until Phase 2 is fully green.
 
 Contact: info@Rathor.ai
+
+## Council note (STUB-AUDIT-1 CONDUCTOR-LEGACY-RETIRE-1)
+
+This card leaves the package deprecated. It does not add a `[workspace]` table, does not revive the library, and does not retarget the 34 examples onto v14. `src/lib.rs` stays a method fragment under a design-only header. Each example file has the same kind of header. The lines under those headers are unchanged. The living conductor is `crates/lattice-conductor-v14`.
+

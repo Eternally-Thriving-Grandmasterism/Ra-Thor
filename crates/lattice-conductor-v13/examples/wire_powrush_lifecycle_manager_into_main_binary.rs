@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 CONDUCTOR-LEGACY-RETIRE-1 council note): not compiled; example of deprecated lattice-conductor-v13; the library is a method fragment; this card does not retarget the example onto lattice-conductor-v14.
 /// AG-SML v1.0 — Autonomicity Games Sovereign Mercy License
 /// Copyright (c) 2016–2026 Sherif Samy Botros / Autonomicity Games Inc.
 ///

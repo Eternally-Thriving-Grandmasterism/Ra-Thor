@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 CONDUCTOR-LEGACY-RETIRE-1 council note): not compiled; retired unversioned lattice-conductor; broken manifest (anyhow is workspace = true and absent from root workspace.dependencies, path ../self-evolution has no Cargo.toml, xai-grok-bridge and symbiosis-layer are absent under crates/, phantom features hyperon-metta-pln and github-connector); this package is not merged into lattice-conductor-v14.
 // crates/lattice-conductor/src/hypercohomology.rs
 // Ra-Thor Lattice Conductor — Hypercohomology of Complexes v4.0
 // Deep Mathematical Exploration: Hypercohomology H^n(X, K^•) for a complex K^• of sheaves
