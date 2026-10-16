@@ -1,46 +1,39 @@
 [package]
 name = "shard-composer"
-version.workspace = true
-authors.workspace = true
-edition.workspace = true
-license.workspace = true
-description = "High-level feature unification for Ra-Thor Sovereign Shards (ONE Organism + Focused compositions)"
-repository.workspace = true
+version = "14.15.6"
+edition = "2021"
+authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
+license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
+description = "Standalone shard composer. ShardComposerAdapter stores blessing arithmetic from caller inputs. patsagi-councils is re-exported as patsagi."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 publish = false
 
+# Standalone workspace, same pattern as crates/fenca, crates/council,
+# crates/powrush, and crates/quantum-swarm-orchestrator.
+# `cargo test --locked` and `cargo clippy --locked` use this manifest.
+# This crate is not a root default member.
+#
+# Path dependencies are packages that already build standalone:
+#   ../quantum-swarm-orchestrator (package ra-thor-quantum-swarm-orchestrator)
+#   ../patsagi-councils
+# geometric-intelligence has no library. It is not a dependency.
+# real-estate-lattice is not a standalone build. It is not a dependency.
+# crates/mercy is a root member. It is not a path dependency.
+# serde, serde_json, sha2, hmac, and hkdf are pinned here.
+# No `full` feature. quantum-swarm-orchestrator has no `full` feature.
+# patsagi-councils has no `full` feature. Cargo still loads an optional
+# path, so crates that do not build standalone are not optional dependencies.
+[workspace]
+resolver = "2"
+
 [dependencies]
-ra-thor-mercy = { workspace = true }
-ra-thor-quantum-swarm-orchestrator = { path = "../quantum-swarm-orchestrator", optional = true }
-serde = { workspace = true, optional = true }
-serde_json = { workspace = true, optional = true }
-sha2 = { version = "0.10", optional = true }
-hmac = { version = "0.12", optional = true }
-hkdf = { version = "0.12", optional = true }
+ra-thor-quantum-swarm-orchestrator = { path = "../quantum-swarm-orchestrator" }
+patsagi-councils = { path = "../patsagi-councils" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sha2 = "0.10"
+hmac = "0.12"
+hkdf = "0.12"
 
-geometric-intelligence = { path = "../geometric-intelligence", optional = true }
-real-estate-lattice = { path = "../real-estate-lattice", optional = true }
-quantum-swarm-orchestrator = { path = "../quantum-swarm-orchestrator", optional = true }
-patsagi-councils = { path = "../patsagi-councils", optional = true }
-
-[features]
-default = []
-full = [
-    "geometric-intelligence/full",
-    "real-estate-lattice/full",
-    "quantum-swarm-orchestrator/full",
-    "patsagi-councils/full",
-]
-
-focused-real-estate = [
-    "geometric-intelligence/focused-geometry",
-    "real-estate-lattice/focused-real-estate",
-    "patsagi-councils",
-]
-
-focused-geometry = [
-    "geometric-intelligence/focused-geometry",
-
-real-estate = ["focused-real-estate"]
-geometry = ["focused-geometry"]
-
-one-organism = ["ra-thor-quantum-swarm-orchestrator", "serde", "serde_json", "sha2", "hmac", "hkdf"]
+[lib]
+path = "src/lib.rs"
