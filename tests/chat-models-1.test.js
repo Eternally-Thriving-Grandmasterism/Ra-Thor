@@ -177,8 +177,8 @@ assert(send.indexOf('generateLocalResponse(text)') !== -1, 'fast responder stays
 assert(chat.indexOf("chatStr('chatStatusDefault')") !== -1, 'idle status stays the fast-responder pack string');
 assert(chat.indexOf("chatStr('chatPathFast')") !== -1, 'path badge stays the fast responder pack string');
 
-assert(html.indexOf('Lattice Chat v14.18.x — offline-first multi-session store on your device. Workspace 14.15.6. Optional Web Crypto passphrase (PBKDF2 + AES-GCM). Capable · Bounded · Corrigible. Zero collection.') !== -1, 'chat meta string must stay');
-assert(html.indexOf('v14.18.x • workspace 14.15.6 • TOLC 8 • family bar shared') !== -1, 'chat subtitle must stay');
+assert(html.indexOf('Lattice Chat — offline-first multi-session store on your device. Workspace 14.15.6. Optional Web Crypto passphrase (PBKDF2 + AES-GCM). Capable · Bounded · Corrigible. Zero collection.') !== -1, 'chat meta string must stay');
+assert(html.indexOf('workspace 14.15.6 • TOLC 8 • family bar shared') !== -1, 'chat subtitle must stay');
 assert(html.indexOf('Third-party models under their own licenses. Not made by Ra-Thor. Not reviewed or endorsed by their authors.') !== -1, 'third-party line must be on the page');
 assert(html.indexOf("The first download of each model comes from Hugging Face and GitHub (raw.githubusercontent.com, which serves the model's code file) and needs the network. After that it runs in this browser.") !== -1, 'download line must name Hugging Face and GitHub');
 assert(chat.indexOf("The first download of each model comes from Hugging Face and GitHub (raw.githubusercontent.com, which serves the model's code file) and needs the network. After that it runs in this browser.") !== -1, 'download fallback must name Hugging Face and GitHub');

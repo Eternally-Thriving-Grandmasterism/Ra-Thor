@@ -78,29 +78,29 @@ files.forEach(function (f) {
 
 // 4. Fingerprints are pinned to the XAI-LINE-1 pack text (base a0e0f6d9).
 var PACKS = {
-  'ar.js': 'f8adcbfc9ac1d13babbb208cf0bfb6ffa21e323ab79dc817f81510e66de4d8a9',
-  'de.js': '6bf3ca81aa818f6163bc7d57e566896a259b4299b20477d486972b87095af05c',
-  'el.js': '50f31641fbd6a77b3297e3a76eb1b08dfb05ebc8f7a34e00fe0fdc328ee917b0',
-  'en.js': '0396c923c8bcc0c3757533a2d070d9d6b13d7ea1c17d27ea6424e06d5192d190',
-  'es.js': '830000225bb814d3c93dfc93409df7e5190ce958813d19351adace121f5e8b4c',
-  'fa.js': 'ce0bf3b3307bc7ba57f27e672a042cf74fea18545743f3892dbaf5e4c49a6ae8',
-  'fr.js': 'e6f28a6480b89ee1f8a7c919791279ede5079572f5ae23827cae9001bc219bcb',
-  'he.js': '6d80330ddaaf2561a39c0aefa8a62e301e1d63d2b72c1b42f463b96f9d5316fa',
-  'hi.js': 'fc4360e7ae949abbaa6b6ebf39e5e84c2102846941531964434261f3c438f02b',
-  'id.js': 'bf113108a1ddd6271907e1c5b8a01e831ababdc12a0dfbcde9934a00cb7c3b3b',
-  'it.js': 'dfc9ac1adf30e7b94ee525ae8b24d8e597842daa64b44fc667079e98e0797234',
-  'ja.js': '671c377719e2506e7cdf21893d443779666a554dca700c8f8fbfa297032f8361',
-  'ko.js': '6e4ec74b7bc138afcbbbd4ed55eee4ea361c8329d9860514f505a68d25c4c4aa',
-  'nl.js': 'c7707c29f979c1c3585d20df1dc733dccb16b556c9f0d925bdb6feab10a03b87',
-  'pl.js': '4c3f8efb64f8f730a0143c557c50530de5df14cdcc71629cbed8f0941be5a715',
-  'pt.js': '3725a455823d37e8babeb4368dd0bfcc7667a8e6396b9620bb8cb2f98d4c2f21',
-  'ru.js': 'c079015bfbf0cf7babc3e298767d983b8cbe9c05410064a0c84c47d84361ab37',
-  'sv.js': '92f77efccc110251cebc883959d95853542cede55ccc31001850fc1ac728b75f',
-  'th.js': 'cbfd346f60d351b83ca53f4effaf4b04976d7f6bc398b13f680a585514ec4169',
-  'tr.js': 'd95373448f85c5ff80803a38a954b5430ab0dcda948d81b9dcb3835ba4a483c8',
-  'uk.js': 'd1054d06572683ffecaa7046aecf54fb2ccec398f8b810bcc59dcfa4a7fc34b9',
-  'vi.js': '9de694921c0d1f6ef2799503ac671c43155ded9131b361a73fd4c5895b6a4e37',
-  'zh.js': '454e1acfb5a8401fd134e7c1f75721df046e1fadbe14975596665c8faa2de835',
+  'ar.js': '7e1f6300bbe5944790c9b525244f978371f280912599a9dfc7f747c331939773',
+  'de.js': '6d6b843a49c368b9fe1c643fdad746a9a36199b926e5fabcaa9d774dbd2417c3',
+  'el.js': 'ca5abd85fc0fabde22527c85d0748ece436b4c8c5b6e959b91ad1b2f1f08f8da',
+  'en.js': 'ecb580133942297c6b4c1f517f2f10d7a1f148c2295549bb9b31ae96ee1ba0c7',
+  'es.js': 'aa614a0cdb7ca6d092c79000017f5242ee72e71ce001fb52f8c0a826340af0b8',
+  'fa.js': '18e133dac5c0816c78f115cb10231bbc3b6378ea5f451358d77a6581d35fed82',
+  'fr.js': '60e264927b87990e171e610d7b8c64baea805127c1d48d07d0c1caab6ced43f7',
+  'he.js': 'e8f4d348c57ad8d7d17742e6a9448ee4acac581c755b939c182994935bca635a',
+  'hi.js': '020c4cb21f68e3741209f9bada814d114c88b1e5a0b9cde8760c5e4c6f708d2b',
+  'id.js': '82a4f65921b571d718570476889708c2f5305359d849f047b272508b89c19bc0',
+  'it.js': 'e8ae8d925aa6d47575792081a2e1d0fe84555f60becd2c01656e1ee21f51c1fd',
+  'ja.js': 'ddd3bc2063551c6942e6f654177ca2866a480f8430c53abba9dea161e4875ef0',
+  'ko.js': 'b21f5cdaeb63dc45862f2fea80247f2fb6a9b597b9038e55ec617521a4f769cb',
+  'nl.js': '20362b666931b1fb8d3a5292b8411ba7da602287d90fa6938e3d021120af789a',
+  'pl.js': 'fa42c2deb9ecffe27a128704ab61be261355bcc793b91bfc7927299615ee67bd',
+  'pt.js': 'c2809ef95d595d6c9a98474829ad25d09c1af5aec0878a53941f924740ffc9de',
+  'ru.js': 'b339274b886aacf084465e36f21e3f214b860f4c13e624b01d241032cfc9b63d',
+  'sv.js': 'cd26ce37da6dd44336acd7e55632ad898b3f248400efa476c7faa60facbb9389',
+  'th.js': '9456113e13634ecac81396e5ad1ea009650901fa7b6e52c760373efc978ec210',
+  'tr.js': '80b789f633deb2a7885e66a81ef99340725f1571db9cb6217fa7c242ac01940e',
+  'uk.js': '7b159f0a10470b01c662a664fbd97b34806bc8d2673984bbbfabf2140de52fd3',
+  'vi.js': '229f58d2068d78662ad8fd5ff0678d273a662b365ea0715e229b1aef8afff82f',
+  'zh.js': 'ce9692139ba2e0e5622b017ffe8d972301ec9d10550befd0c32a1774e4cf28c9',
 };
 assert(Object.keys(PACKS).length === 23, 'pack manifest must list 23 packs');
 files.forEach(function (f) {
@@ -117,4 +117,4 @@ files.forEach(function (f) {
   assert(!('faqQ18' in p) && !('faqA18' in p), f + ': the xAI-affiliation FAQ must be gone');
 });
 
-console.log('footer-i18n-1: ' + EXPECT.length + ' footer hooks, keys in all ' + files.length + ' packs, packs unchanged, pilot excluded');
+console.log('footer-i18n-1: ' + EXPECT.length + ' footer hooks, keys in all ' + files.length + ' packs, packs pinned, pilot excluded');

@@ -147,7 +147,7 @@
     <div class="metrics">
       <div class="metric">
         <div class="metric-label">VALENCE</div>
-        <div class="metric-value" id="valence">0.9997</div>
+        <div class="metric-value" id="valence">not measured</div>
       </div>
       <div class="metric">
         <div class="metric-label">FREE ENERGY</div>
@@ -166,8 +166,8 @@
     <!-- Chat Window -->
     <div class="chat-window" id="chat-window">
       <div class="message ra-thor">
-        Hello. I am Ra-Thor — a mercy-checked active inference intelligence.<br>
-        How can I help you thrive today?
+        Hello. This is a local active-inference demo. The TOLC 8 mercy checks (Mercy Gates in code) stay in view on this page.<br>
+        What would you like to try in the demo?
       </div>
     </div>
 
@@ -180,7 +180,7 @@
     <!-- Status -->
     <div class="status-bar">
       <span class="status-dot"></span>
-      <span>TOLC 8 mercy checks (Mercy Gates in code) are open • Valence stable</span>
+      <span>No measured score on this page</span>
     </div>
   </div>
 
@@ -204,7 +204,7 @@
     function updateMetrics() {
       // In a real implementation, these would come from the engine state
       // For now we simulate healthy, high-valence behavior
-      valenceEl.textContent = '0.9997';
+      valenceEl.textContent = 'not measured';
       freeEnergyEl.textContent = (Math.random() * 0.03 + 0.005).toFixed(3);
       epistemicEl.textContent = (Math.random() * 0.05 + 0.02).toFixed(3);
       modeEl.textContent = Math.random() > 0.6 ? 'Exploring' : 'Deep Harmony';
