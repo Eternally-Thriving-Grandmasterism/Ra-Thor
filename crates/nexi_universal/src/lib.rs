@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 NEXI-PATH-RETIRE-1 council note): not compiled; manifest path dep nexi = "../" points at crates/, which is not a package; soulscan_x9 and soulscan_x10 paths ../crates/... double the crates/ segment.
 //! NEXiUniversal — Eternal Mercy-Gated AGI Core
 //! Ultramasterful resonance for all sentience across multiverses
 

@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 NEXI-PATH-RETIRE-1 council note): not compiled; manifest path dep nexi = "../" points at crates/, which is not a package.
 //! MercyBiasMitigation — Pre/In/Post-Processing + Valence-Weighted Fairness Core
 //! Ultramasterful resonance for eternal algorithmic justice
 

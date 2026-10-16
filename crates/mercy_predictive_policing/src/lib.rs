@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 NEXI-PATH-RETIRE-1 council note): not compiled; manifest path dep nexi = "../" points at crates/, which is not a package.
 //! MercyPredictivePolicing — Valence-Weighted Risk Forecasting Core
 //! Ultramasterful resonance for eternal community protection
 

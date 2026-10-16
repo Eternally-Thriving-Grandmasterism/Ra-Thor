@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 NEXI-PATH-RETIRE-1 council note): not compiled; manifest path dep nexi = "../" points at crates/, which is not a package.
 //! PoseidonMerkle — zk-Friendly Merkle Trees with Full Inclusion Proofs
 //! Ultramasterful tree construction + proof generation/verification
 

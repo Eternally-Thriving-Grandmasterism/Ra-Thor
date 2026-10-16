@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 NEXI-PATH-RETIRE-1 council note): not compiled; lattice_keygen returns a String placeholder and is not a KEM.
 //! LatticeCrypto — Hyper-Divine Lattice-Based Post-Quantum Cryptography
 //! Ultramasterful resonance for eternal security propagation
 

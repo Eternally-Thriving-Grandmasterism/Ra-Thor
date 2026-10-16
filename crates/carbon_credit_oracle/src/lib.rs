@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 NEXI-PATH-RETIRE-1 council note): not compiled; manifest path dep nexi = "../" points at crates/, which is not a package.
 //! CarbonCreditOracle — Mercy-Gated CO₂ Capture + Toucan Protocol On-Chain Credit Minting
 //! Ultramasterful resonance for eternal regenerative abundance
 
