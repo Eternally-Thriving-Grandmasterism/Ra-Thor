@@ -28,11 +28,11 @@ innovate -              read stdin
 innovate --help
 ```
 
-No arguments also reads stdin. More than one argument exits 1. Invalid JSON exits 1 and prints `innovate:` plus the parse error on stderr.
+No arguments also reads stdin. More than one argument exits 1. Invalid JSON exits 1 and prints `innovate:` plus the parse error on stderr. Empty stdin (no bytes), with no arguments or with `-`, exits 1: `innovate: invalid base ideas JSON: EOF while parsing a value at line 1 column 0`.
 
 Input is a JSON array of strings or objects, one object, or `{"base_ideas": [...]}`. Each object may set `text`, or `summary`, or `title` (the first non-empty of those three, in that order), plus `sources` and `evidence`.
 
-Output is pretty JSON. The document is `{"seeds": [...]}`. Each seed has `rank`, `title`, `summary`, `claim_tier`, `sources`, and `kill_test`. The same input yields the same seeds. At most three seeds are written. Empty input writes an empty list.
+Output is pretty JSON. The document is `{"seeds": [...]}`. Each seed has `rank`, `title`, `summary`, `claim_tier`, `sources`, and `kill_test`. The same input yields the same seeds. At most three seeds are written. A JSON array with no ideas, `[]`, exits 0 and writes an empty seed list. Empty stdin exits 1.
 
 `idea-recycling` drops blank text, merges duplicates, keeps at most 40 ideas, and pairs them. A pair's sort key is `shared_themes × 10 + source_count × 2 + combined_character_length / 40` (integer division). Seed selection keeps higher keys first and does not reuse a base idea to fill the cap. An unused idea is appended on its own, in recycled order.
 
