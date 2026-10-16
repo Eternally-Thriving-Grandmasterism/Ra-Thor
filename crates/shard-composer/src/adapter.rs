@@ -581,7 +581,7 @@ mod tests {
         let result = poll_ready(orchestrator.run_one_organism_cycle(OneOrganismContext {
             cycle_id: 1,
             tolc_order: 8,
-            base_valence: Valence(0.0),
+            base_valence: Valence(1.0),
             patsagi_insight: None,
         }));
         match result {

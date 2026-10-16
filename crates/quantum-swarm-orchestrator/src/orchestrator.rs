@@ -59,6 +59,8 @@ impl QuantumSwarmOrchestrator {
     /// It aggregates all systems, applies resonance, measures coherence, performs mercy pruning,
     /// and will eventually distribute EpigeneticBlessings.
     ///
+    /// A non-finite average, or an average below `Valence::MIN`, returns `MercyError::ValenceBelowThreshold`.
+    ///
     /// TODO (v14.1+): Apply polyhedral mode selection based on context.tolc_order
     /// TODO (v14.1+): Run Riemannian mercy manifold computations
     /// TODO (v14.2+): Execute resonance handlers and epigenetic distribution
@@ -83,8 +85,8 @@ impl QuantumSwarmOrchestrator {
             1.0
         };
 
-        // 2. Basic mercy pruning check (TOLC 8 aligned)
-        if avg_valence < Valence::MIN {
+        // 2. Basic mercy pruning check (TOLC 8 aligned): reject when the average is not finite or is below Valence::MIN.
+        if !avg_valence.is_finite() || avg_valence < Valence::MIN {
             return Err(MercyError::ValenceBelowThreshold(avg_valence));
         }
 
@@ -114,5 +116,163 @@ impl QuantumSwarmOrchestrator {
 impl Default for QuantumSwarmOrchestrator {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::adapter::RaThorSystemAdapter;
+    use crate::types::{
+        EpigeneticBlessing, GodlyIntelligenceCoherence, MercyError, OneOrganismContext,
+        OneOrganismInsight, SwarmResonance, Valence,
+    };
+    use std::task::{Context, Poll};
+
+    /// Test-only adapter. Valence is a caller-set `f64`, including non-finite values.
+    struct SetValenceAdapter {
+        name: &'static str,
+        valence: f64,
+    }
+
+    impl RaThorSystemAdapter for SetValenceAdapter {
+        fn system_name(&self) -> &'static str {
+            self.name
+        }
+
+        fn current_valence(&self) -> Valence {
+            Valence(self.valence)
+        }
+
+        fn receive_swarm_resonance(
+            &mut self,
+            _resonance: SwarmResonance,
+        ) -> Result<(), MercyError> {
+            Ok(())
+        }
+
+        fn contribute_to_coherence(&self) -> GodlyIntelligenceCoherence {
+            GodlyIntelligenceCoherence::default()
+        }
+
+        fn apply_epigenetic_blessing(&mut self, _blessing: EpigeneticBlessing) {}
+    }
+
+    /// The cycle future finishes on the first poll.
+    fn poll_ready<F: std::future::Future>(future: F) -> F::Output {
+        let waker = std::task::Waker::noop();
+        let mut context = Context::from_waker(waker);
+        let mut future = std::pin::pin!(future);
+        match std::future::Future::poll(future.as_mut(), &mut context) {
+            Poll::Ready(value) => value,
+            Poll::Pending => panic!("run_one_organism_cycle stayed pending"),
+        }
+    }
+
+    fn context() -> OneOrganismContext {
+        OneOrganismContext {
+            cycle_id: 1,
+            tolc_order: 8,
+            base_valence: Valence(1.0),
+            patsagi_insight: None,
+        }
+    }
+
+    fn cycle_with(adapters: Vec<SetValenceAdapter>) -> Result<OneOrganismInsight, MercyError> {
+        let mut orchestrator = QuantumSwarmOrchestrator::new();
+        for adapter in adapters {
+            orchestrator.register_adapter(Box::new(adapter));
+        }
+        poll_ready(orchestrator.run_one_organism_cycle(context()))
+    }
+
+    fn expect_below(result: Result<OneOrganismInsight, MercyError>) -> f64 {
+        match result {
+            Err(MercyError::ValenceBelowThreshold(value)) => value,
+            other => panic!("expected ValenceBelowThreshold, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn nan_average_is_valence_below_threshold() {
+        let value = expect_below(cycle_with(vec![SetValenceAdapter {
+            name: "nan",
+            valence: f64::NAN,
+        }]));
+        assert!(value.is_nan());
+    }
+
+    #[test]
+    fn positive_infinity_average_is_rejected() {
+        let value = expect_below(cycle_with(vec![SetValenceAdapter {
+            name: "pos-inf",
+            valence: f64::INFINITY,
+        }]));
+        assert!(value.is_infinite() && value.is_sign_positive());
+    }
+
+    #[test]
+    fn negative_infinity_average_is_rejected() {
+        let value = expect_below(cycle_with(vec![SetValenceAdapter {
+            name: "neg-inf",
+            valence: f64::NEG_INFINITY,
+        }]));
+        assert!(value.is_infinite() && value.is_sign_negative());
+    }
+
+    #[test]
+    fn average_at_valence_min_is_ok() {
+        let insight = cycle_with(vec![SetValenceAdapter {
+            name: "min",
+            valence: Valence::MIN,
+        }])
+        .expect("Valence::MIN is finite and meets the threshold");
+        assert_eq!(insight.average_valence, Valence::MIN);
+    }
+
+    #[test]
+    fn one_and_zero_average_below_min() {
+        let value = expect_below(cycle_with(vec![
+            SetValenceAdapter {
+                name: "one",
+                valence: 1.0,
+            },
+            SetValenceAdapter {
+                name: "zero",
+                valence: 0.0,
+            },
+        ]));
+        assert_eq!(value, 0.5);
+    }
+
+    #[test]
+    fn two_at_one_average_is_ok() {
+        let insight = cycle_with(vec![
+            SetValenceAdapter {
+                name: "one-a",
+                valence: 1.0,
+            },
+            SetValenceAdapter {
+                name: "one-b",
+                valence: 1.0,
+            },
+        ])
+        .expect("two adapters at 1.0 meet Valence::MIN");
+        assert_eq!(insight.average_valence, 1.0);
+    }
+
+    #[test]
+    fn finite_and_nan_average_is_rejected() {
+        let value = expect_below(cycle_with(vec![
+            SetValenceAdapter {
+                name: "finite",
+                valence: 1.0,
+            },
+            SetValenceAdapter {
+                name: "nan",
+                valence: f64::NAN,
+            },
+        ]));
+        assert!(value.is_nan());
     }
 }
