@@ -1,230 +1,350 @@
-//! Sovereign Shard Genesis v13.8.8
+//! Deterministic shard genesis.
 //!
-//! Self-sovereign, mercy-gated shards that participate in the ONE Organism
-//! via Conductable + MercyAligned traits and ConductorRegistry blessing.
-//! Deepened with native Quantum Swarm integration, full offline reconciliation,
-//! multi-shard federation, and persistent storage.
+//! [`GenesisInput::mint`] hashes explicit fields with SHA-256 and can fail.
+//! [`ShardGenesis`] rejects a duplicate shard id. [`GenesisRecord::verify`]
+//! checks the same rules again, including a stored record whose hash does
+//! not match its fields.
+//!
+//! Domain string: [`GENESIS_DOMAIN`] (`ra-thor-shard-genesis-v1`).
+//!
+//! The v13 conductor draft (blessing, quantum-swarm participation, mercy
+//! scores) is `src/v13_design.rs`. That file is not a module of this crate.
+//! This crate does not call `lattice-conductor-v14`.
+//! Contact: info@Rathor.ai
 
-use lattice_conductor_v13::{
-    Conductable, ConductorRegistry, GeometricState, MercyAligned, MercyWeightedVote, SystemBlessing,
-};
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
-use std::fs::File;
-use std::io::{Read, Write};
-use std::path::Path;
+use sha2::{Digest, Sha256};
+use std::collections::HashSet;
+use thiserror::Error;
 
-/// A self-sovereign shard that can run independently while staying connected to the central ONE Organism.
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct SovereignShard {
+/// Domain label mixed into every content hash.
+pub const GENESIS_DOMAIN: &str = "ra-thor-shard-genesis-v1";
+
+/// Parents a config accepts. Each entry is a non-empty trimmed id.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct GenesisConfig {
+    pub config_id: String,
+    pub allowed_parents: Vec<String>,
+}
+
+/// Explicit inputs for one shard. Minting trims every field.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct GenesisInput {
     pub shard_id: String,
     pub name: String,
-    pub parent_conductor_id: u32,
-    pub state: GeometricState,
-    pub mercy_alignment: f64,
-    pub evolution_level: f64,
-    pub quantum_swarm_participation: bool,
-    pub quantum_swarm_resonance: f64,
-    pub local_tick_count: u64,
-    pub offline_mode: bool,
+    pub parent_id: String,
+    pub config: GenesisConfig,
 }
 
-impl SovereignShard {
-    pub fn new(shard_id: &str, name: &str, parent_conductor_id: u32) -> Self {
-        Self {
-            shard_id: shard_id.to_string(),
-            name: name.to_string(),
-            parent_conductor_id,
-            state: GeometricState {
-                valence: 1.0,
-                mercy_score: 0.95,
-                tolc_alignment: 1.0,
-                evolution_level: 0.1,
-            },
-            mercy_alignment: 0.95,
-            evolution_level: 0.1,
-            quantum_swarm_participation: true,
-            quantum_swarm_resonance: 0.82,
-            local_tick_count: 0,
-            offline_mode: false,
+/// A minted shard. `content_hash` is lowercase hex SHA-256 of [`GenesisRecord::canonical_preimage`].
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct GenesisRecord {
+    pub shard_id: String,
+    pub name: String,
+    pub parent_id: String,
+    pub config_id: String,
+    pub allowed_parents: Vec<String>,
+    pub content_hash: String,
+}
+
+/// Shards minted together. Order is the order they were admitted.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
+#[serde(deny_unknown_fields)]
+pub struct ShardGenesis {
+    records: Vec<GenesisRecord>,
+}
+
+/// Why minting, admit, or verify failed.
+#[derive(Debug, Clone, PartialEq, Eq, Error)]
+pub enum GenesisError {
+    #[error("empty shard id")]
+    EmptyShardId,
+    #[error("empty shard name")]
+    EmptyName,
+    #[error("duplicate shard id: {0}")]
+    DuplicateShardId(String),
+    #[error("field has leading or trailing whitespace")]
+    NotTrimmed,
+    #[error("bad parent: {0}")]
+    BadParent(ParentFault),
+    #[error("bad config: {0}")]
+    BadConfig(ConfigFault),
+    #[error("hash mismatch for shard {0}")]
+    HashMismatch(String),
+}
+
+/// A parent id this crate refuses.
+#[derive(Debug, Clone, PartialEq, Eq, Error)]
+pub enum ParentFault {
+    #[error("empty parent id")]
+    Empty,
+    #[error("shard cannot parent itself")]
+    SelfParent,
+    #[error("parent is not in the config allow-list")]
+    NotAllowed,
+}
+
+/// A config this crate refuses.
+#[derive(Debug, Clone, PartialEq, Eq, Error)]
+pub enum ConfigFault {
+    #[error("empty config id")]
+    EmptyConfigId,
+    #[error("no allowed parents")]
+    NoAllowedParents,
+    #[error("empty allowed parent")]
+    EmptyAllowedParent,
+    #[error("duplicate allowed parent: {0}")]
+    DuplicateAllowedParent(String),
+}
+
+/// JSON parse failure, or a record that does not verify.
+#[derive(Debug, Error)]
+pub enum LoadError {
+    #[error("json: {0}")]
+    Json(#[from] serde_json::Error),
+    #[error(transparent)]
+    Genesis(#[from] GenesisError),
+}
+
+impl GenesisInput {
+    /// Trim fields, check them, and hash the canonical preimage.
+    ///
+    /// The same input mints the same record. No clock and no random source.
+    pub fn mint(&self) -> Result<GenesisRecord, GenesisError> {
+        let config = normalize_config(&self.config)?;
+        let shard_id = trimmed(&self.shard_id)
+            .ok_or(GenesisError::EmptyShardId)?
+            .to_string();
+        let name = trimmed(&self.name)
+            .ok_or(GenesisError::EmptyName)?
+            .to_string();
+        let parent_id = trimmed(&self.parent_id)
+            .ok_or(GenesisError::BadParent(ParentFault::Empty))?
+            .to_string();
+        if parent_id == shard_id {
+            return Err(GenesisError::BadParent(ParentFault::SelfParent));
         }
+        if !config
+            .allowed_parents
+            .iter()
+            .any(|parent| parent == &parent_id)
+        {
+            return Err(GenesisError::BadParent(ParentFault::NotAllowed));
+        }
+        let record = GenesisRecord {
+            shard_id,
+            name,
+            parent_id,
+            config_id: config.config_id,
+            allowed_parents: config.allowed_parents,
+            content_hash: String::new(),
+        };
+        let content_hash = sha256_hex(&record.canonical_preimage());
+        let record = GenesisRecord {
+            content_hash,
+            ..record
+        };
+        debug_assert!(record.verify().is_ok());
+        Ok(record)
+    }
+}
+
+impl GenesisRecord {
+    /// Length-prefixed UTF-8 fields. The hash is not part of the preimage.
+    ///
+    /// Order: domain, shard id, name, parent id, config id, parent count,
+    /// then each allowed parent. Lengths are big-endian `u64`.
+    pub fn canonical_preimage(&self) -> Vec<u8> {
+        let mut buf = Vec::new();
+        push_str(&mut buf, GENESIS_DOMAIN);
+        push_str(&mut buf, &self.shard_id);
+        push_str(&mut buf, &self.name);
+        push_str(&mut buf, &self.parent_id);
+        push_str(&mut buf, &self.config_id);
+        buf.extend_from_slice(&(self.allowed_parents.len() as u64).to_be_bytes());
+        for parent in &self.allowed_parents {
+            push_str(&mut buf, parent);
+        }
+        buf
     }
 
-    pub fn enable_offline_mode(&mut self) { self.offline_mode = true; }
-    pub fn disable_offline_mode(&mut self) { self.offline_mode = false; }
-    pub fn is_offline(&self) -> bool { self.offline_mode }
-
-    pub fn shard_tick(&mut self) {
-        self.local_tick_count += 1;
-        let base_evo = if self.offline_mode { 0.003 } else { 0.005 };
-        self.state.evolution_level += base_evo;
-        self.state.mercy_score = (self.state.mercy_score + if self.offline_mode { 0.001 } else { 0.002 }).min(1.2);
-
-        if self.quantum_swarm_participation {
-            let resonance_boost = self.quantum_swarm_resonance * 0.004;
-            self.state.evolution_level += resonance_boost;
-            self.evolution_level += resonance_boost * 0.6;
-            if self.local_tick_count % 3 == 0 {
-                self.mercy_alignment = (self.mercy_alignment + 0.008).min(1.35);
+    /// Re-check stored fields and the content hash.
+    pub fn verify(&self) -> Result<(), GenesisError> {
+        require_stored(&self.shard_id, GenesisError::EmptyShardId)?;
+        require_stored(&self.name, GenesisError::EmptyName)?;
+        require_stored(&self.parent_id, GenesisError::BadParent(ParentFault::Empty))?;
+        if self.parent_id == self.shard_id {
+            return Err(GenesisError::BadParent(ParentFault::SelfParent));
+        }
+        require_stored(
+            &self.config_id,
+            GenesisError::BadConfig(ConfigFault::EmptyConfigId),
+        )?;
+        if self.allowed_parents.is_empty() {
+            return Err(GenesisError::BadConfig(ConfigFault::NoAllowedParents));
+        }
+        let mut seen = HashSet::new();
+        for parent in &self.allowed_parents {
+            require_stored(
+                parent,
+                GenesisError::BadConfig(ConfigFault::EmptyAllowedParent),
+            )?;
+            if !seen.insert(parent.clone()) {
+                return Err(GenesisError::BadConfig(
+                    ConfigFault::DuplicateAllowedParent(parent.clone()),
+                ));
             }
         }
+        if !self
+            .allowed_parents
+            .iter()
+            .any(|parent| parent == &self.parent_id)
+        {
+            return Err(GenesisError::BadParent(ParentFault::NotAllowed));
+        }
+        let expect = sha256_hex(&self.canonical_preimage());
+        if self.content_hash != expect {
+            return Err(GenesisError::HashMismatch(self.shard_id.clone()));
+        }
+        Ok(())
     }
 
-    pub fn apply_council_voted_evolution(&mut self, boost: f64) {
-        self.evolution_level += boost;
-        self.state.evolution_level += boost * 0.5;
+    pub fn to_json(&self) -> Result<String, serde_json::Error> {
+        serde_json::to_string(self)
     }
 
-    pub fn participate_in_quantum_swarm(&mut self, intensity: f64) {
-        if self.quantum_swarm_participation {
-            let effective = intensity.clamp(0.1, 1.0);
-            self.quantum_swarm_resonance = (self.quantum_swarm_resonance + effective * 0.1).clamp(0.5, 1.4);
-            self.state.evolution_level += effective * 0.08;
-            self.mercy_alignment = (self.mercy_alignment + effective * 0.03).min(1.4);
-            println!("[SovereignShard] Quantum Swarm participation intensified | resonance: {:.3}", self.quantum_swarm_resonance);
+    /// Parse one record and [`GenesisRecord::verify`] it.
+    pub fn from_json_checked(text: &str) -> Result<Self, LoadError> {
+        let record: Self = serde_json::from_str(text)?;
+        record.verify()?;
+        Ok(record)
+    }
+}
+
+impl ShardGenesis {
+    pub fn new() -> Self {
+        Self {
+            records: Vec::new(),
         }
     }
 
-    pub fn reconcile_with_conductor(&mut self, conductor_state: &GeometricState, conductor_mercy: f64) {
-        if self.offline_mode { self.disable_offline_mode(); }
-        self.state.mercy_score = (self.state.mercy_score * 0.55 + conductor_mercy * 0.45).clamp(0.5, 1.5);
-        self.state.valence = (self.state.valence * 0.7 + conductor_state.valence * 0.3).clamp(0.5, 1.8);
-        self.evolution_level = (self.evolution_level + conductor_state.evolution_level * 0.2).max(self.evolution_level);
-        self.state.tolc_alignment = (self.state.tolc_alignment + 0.01).min(1.1);
-        self.quantum_swarm_resonance = (self.quantum_swarm_resonance * 0.95 + 0.05).min(1.3);
-    }
-
-    pub fn save_to_file<P: AsRef<Path>>(&self, path: P) -> std::io::Result<()> {
-        let json = serde_json::to_string_pretty(self)?;
-        let mut file = File::create(path)?;
-        file.write_all(json.as_bytes())
-    }
-
-    pub fn load_from_file<P: AsRef<Path>>(path: P) -> std::io::Result<Self> {
-        let mut file = File::open(path)?;
-        let mut contents = String::new();
-        file.read_to_string(&mut contents)?;
-        serde_json::from_str(&contents)
-    }
-}
-
-impl Conductable for SovereignShard {
-    fn system_id(&self) -> &'static str { "sovereign_shard" }
-    fn system_name(&self) -> &'static str { "Sovereign Shard" }
-    fn on_conductor_tick(&mut self, conductor_state: &GeometricState) {
-        if !self.offline_mode {
-            self.state.valence = (self.state.valence + conductor_state.valence * 0.1).clamp(0.5, 1.8);
+    /// Mint every input. The first failure is returned and nothing is kept.
+    pub fn from_inputs(inputs: &[GenesisInput]) -> Result<Self, GenesisError> {
+        let mut genesis = Self::new();
+        for input in inputs {
+            genesis.admit(input)?;
         }
-    }
-    fn get_mercy_state(&self) -> Option<f64> { Some(self.mercy_alignment) }
-}
-
-impl MercyAligned for SovereignShard {
-    fn apply_mercy_influence(&mut self, vote: &MercyWeightedVote) {
-        let consensus = vote.compute_consensus();
-        self.mercy_alignment = (self.mercy_alignment + consensus * 0.1).clamp(0.6, 1.3);
-        self.state.mercy_score = (self.state.mercy_score + consensus * 0.05).clamp(0.5, 1.5);
-    }
-    fn current_mercy_score(&self) -> f64 { self.mercy_alignment }
-}
-
-pub struct SovereignShardGenesis;
-
-impl SovereignShardGenesis {
-    pub fn genesis_shard(
-        &self,
-        shard_id: &str,
-        name: &str,
-        parent_conductor_id: u32,
-        registry: &mut ConductorRegistry,
-    ) -> (SovereignShard, SystemBlessing) {
-        let mut shard = SovereignShard::new(shard_id, name, parent_conductor_id);
-        let blessing = registry.bless_system(
-            &shard.shard_id,
-            shard.mercy_alignment,
-            "Sovereign Shard auto-blessed at genesis — ONE Organism participant",
-        );
-        (shard, blessing)
-    }
-}
-
-#[derive(Debug, Default)]
-pub struct SovereignShardFederation {
-    pub shards: HashMap<String, SovereignShard>,
-}
-
-impl SovereignShardFederation {
-    pub fn new() -> Self { Self { shards: HashMap::new() } }
-
-    pub fn add_shard(&mut self, shard: SovereignShard) { self.shards.insert(shard.shard_id.clone(), shard); }
-    pub fn remove_shard(&mut self, shard_id: &str) -> Option<SovereignShard> { self.shards.remove(shard_id) }
-    pub fn get_shard(&self, shard_id: &str) -> Option<&SovereignShard> { self.shards.get(shard_id) }
-    pub fn get_shard_mut(&mut self, shard_id: &str) -> Option<&mut SovereignShard> { self.shards.get_mut(shard_id) }
-
-    pub fn tick_all(&mut self) {
-        for shard in self.shards.values_mut() { shard.shard_tick(); }
+        Ok(genesis)
     }
 
-    pub fn reconcile_all_with_conductor(&mut self, conductor_state: &GeometricState, conductor_mercy: f64) {
-        for shard in self.shards.values_mut() { shard.reconcile_with_conductor(conductor_state, conductor_mercy); }
+    /// Mint one input and append it. A duplicate id leaves the set unchanged.
+    pub fn admit(&mut self, input: &GenesisInput) -> Result<(), GenesisError> {
+        let record = input.mint()?;
+        if self
+            .records
+            .iter()
+            .any(|existing| existing.shard_id == record.shard_id)
+        {
+            return Err(GenesisError::DuplicateShardId(record.shard_id));
+        }
+        self.records.push(record);
+        Ok(())
     }
 
-    pub fn collective_mercy_score(&self) -> f64 {
-        if self.shards.is_empty() { return 0.0; }
-        self.shards.values().map(|s| s.mercy_alignment).sum::<f64>() / self.shards.len() as f64
+    pub fn records(&self) -> &[GenesisRecord] {
+        &self.records
+    }
+
+    /// Verify each record, then reject a repeated shard id.
+    pub fn validate(&self) -> Result<(), GenesisError> {
+        for record in &self.records {
+            record.verify()?;
+        }
+        let mut seen = HashSet::new();
+        for record in &self.records {
+            if !seen.insert(record.shard_id.clone()) {
+                return Err(GenesisError::DuplicateShardId(record.shard_id.clone()));
+            }
+        }
+        Ok(())
+    }
+
+    pub fn to_json(&self) -> Result<String, serde_json::Error> {
+        serde_json::to_string(self)
+    }
+
+    /// Parse a set and [`ShardGenesis::validate`] it.
+    pub fn from_json_checked(text: &str) -> Result<Self, LoadError> {
+        let genesis: Self = serde_json::from_str(text)?;
+        genesis.validate()?;
+        Ok(genesis)
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_sovereign_shard_genesis_and_blessing() {
-        let mut registry = ConductorRegistry::new();
-        let genesis = SovereignShardGenesis;
-        let (shard, blessing) = genesis.genesis_shard("shard-alpha-001", "Alpha Sovereign Shard", 0, &mut registry);
-        assert!(registry.is_blessed("shard-alpha-001"));
-        assert_eq!(blessing.mercy_alignment, 0.95);
+fn normalize_config(config: &GenesisConfig) -> Result<GenesisConfig, GenesisError> {
+    let config_id = trimmed(&config.config_id)
+        .ok_or(GenesisError::BadConfig(ConfigFault::EmptyConfigId))?
+        .to_string();
+    if config.allowed_parents.is_empty() {
+        return Err(GenesisError::BadConfig(ConfigFault::NoAllowedParents));
     }
-
-    #[test]
-    fn test_offline_mode_and_reconciliation() {
-        let mut shard = SovereignShard::new("shard-beta-002", "Beta Shard", 0);
-        shard.enable_offline_mode();
-        shard.shard_tick();
-        let conductor_state = GeometricState { valence: 1.2, mercy_score: 1.0, tolc_alignment: 1.0, evolution_level: 0.5 };
-        shard.reconcile_with_conductor(&conductor_state, 1.0);
-        assert!(!shard.is_offline());
+    let mut allowed_parents = Vec::with_capacity(config.allowed_parents.len());
+    let mut seen = HashSet::new();
+    for parent in &config.allowed_parents {
+        let parent = trimmed(parent)
+            .ok_or(GenesisError::BadConfig(ConfigFault::EmptyAllowedParent))?
+            .to_string();
+        if !seen.insert(parent.clone()) {
+            return Err(GenesisError::BadConfig(
+                ConfigFault::DuplicateAllowedParent(parent),
+            ));
+        }
+        allowed_parents.push(parent);
     }
+    Ok(GenesisConfig {
+        config_id,
+        allowed_parents,
+    })
+}
 
-    #[test]
-    fn test_federation_and_collective() {
-        let mut fed = SovereignShardFederation::new();
-        fed.add_shard(SovereignShard::new("shard-1", "Shard One", 0));
-        fed.add_shard(SovereignShard::new("shard-2", "Shard Two", 0));
-        fed.tick_all();
-        assert_eq!(fed.shards.len(), 2);
-        assert!(fed.collective_mercy_score() > 0.9);
+fn trimmed(value: &str) -> Option<&str> {
+    let trimmed = value.trim();
+    if trimmed.is_empty() {
+        None
+    } else {
+        Some(trimmed)
     }
+}
 
-    #[test]
-    fn test_persistence_roundtrip() {
-        let shard = SovereignShard::new("shard-persist-003", "Persist Shard", 0);
-        let path = "/tmp/test_shard_persist.json";
-        let _ = shard.save_to_file(path);
-        let loaded = SovereignShard::load_from_file(path).expect("load failed");
-        assert_eq!(loaded.shard_id, "shard-persist-003");
-        let _ = std::fs::remove_file(path);
+fn require_stored(value: &str, empty: GenesisError) -> Result<(), GenesisError> {
+    if value.trim().is_empty() {
+        return Err(empty);
     }
+    if value != value.trim() {
+        return Err(GenesisError::NotTrimmed);
+    }
+    Ok(())
+}
 
-    #[test]
-    fn test_quantum_swarm_deep_integration() {
-        let mut shard = SovereignShard::new("shard-qs-004", "Quantum Shard", 0);
-        let initial_evo = shard.state.evolution_level;
-        shard.participate_in_quantum_swarm(0.9);
-        shard.shard_tick();
-        assert!(shard.state.evolution_level > initial_evo);
-        assert!(shard.quantum_swarm_resonance > 0.8);
+fn push_str(buf: &mut Vec<u8>, value: &str) {
+    let bytes = value.as_bytes();
+    buf.extend_from_slice(&(bytes.len() as u64).to_be_bytes());
+    buf.extend_from_slice(bytes);
+}
+
+fn sha256_hex(bytes: &[u8]) -> String {
+    hex_encode(Sha256::digest(bytes).as_slice())
+}
+
+fn hex_encode(bytes: &[u8]) -> String {
+    const HEX: &[u8; 16] = b"0123456789abcdef";
+    let mut out = String::with_capacity(bytes.len() * 2);
+    for byte in bytes {
+        out.push(char::from(HEX[usize::from(byte >> 4)]));
+        out.push(char::from(HEX[usize::from(byte & 0x0f)]));
     }
+    out
 }
