@@ -99,7 +99,7 @@ Dependencies first. Then the smallest crates whose source already checks once th
 | 10 | `KERNEL-MANIFEST-1` (DONE, #680) | `crates/ra-thor-kernel`, `crates/kernel` | Standalone `[workspace]`. Unstable release `rustflags` are removed. Post-quantum path deps are not dependencies. `kernel` does not path-depend on v14. | S–M | No, if not a default member. |
 | 11 | `REASONING-COUNCIL-WIRES-1` (DONE, #681) | 16 council crates in section 11 | Standalone `[workspace]`. A compiled wire calls `RathorSovereignReasoningEngine` or the current patsagi-councils API. Previous bodies that return `Ok(true)`, and fleet, post-quantum, and 100B-year phrases, stay design-only. | S each | No, if standalone. |
 | 12 | `CONDUCTOR-LEGACY-RETIRE-1` (DONE, #682) | unversioned conductor, v13 and its examples, `tolc8-genesis-gate` | Labelled design-only. v13 stays deprecated. The unversioned conductor is retired. Not the living conductor. | L on disk | No. This card did not edit v14. |
-| 13 | `NEXI-PATH-RETIRE-1` (DONE, #NEXI13PR) | 51 crates: the 50 with `nexi = { path = "../" }`, plus `crates/lattice_crypto` | Labelled design-only. The path still points at `crates/`, which is not a package. No `nexi` package was created. `lattice_keygen` returns a String placeholder and is not a KEM. | 54 `.rs` files | No. |
+| 13 | `NEXI-PATH-RETIRE-1` (DONE, #683) | 51 crates: the 50 with `nexi = { path = "../" }`, plus `crates/lattice_crypto` | Labelled design-only. The path still points at `crates/`, which is not a package. No `nexi` package was created. `lattice_keygen` returns a String placeholder and is not a KEM. | 54 `.rs` files | No. |
 | 14 | `WORKSPACE-KEY-SHELLS-1` | 165 `powrush` workspace deps, 95 sourceless manifests, string ZK and propulsion stubs | Shared missing workspace keys. Most have nothing to compile, or return constants. Design-only or leave on disk. | manifests, plus a few short files | No. Do not add them to `members`. |
 | 15 | `ARCHIVE-LINEAGE-RETIRE-1` | 98 manifests under `docs/archive/` | Copies. 76 fail loading `nexi`. | archive | No. |
 
@@ -495,9 +495,9 @@ This is not `lattice-conductor-v14`.
 
 ---
 
-## 13. NEXI-PATH-RETIRE-1 (DONE, #NEXI13PR)
+## 13. NEXI-PATH-RETIRE-1 (DONE, #683)
 
-**Status:** DONE in #NEXI13PR. This card labels. It does not port. It does not make any of these crates build. No `Cargo.toml` was edited. No `nexi` package was created. No `Cargo.toml` was added at `crates/`. No `[workspace]` table was added. No `Cargo.lock` was added. `crates/nexi_universal` stays off root members and default members. Root `cargo metadata --locked` resolved the same 15 root members. Nothing here was compiled. `docs/archive/` was not edited.
+**Status:** DONE in #683. This card labels. It does not port. It does not make any of these crates build. No `Cargo.toml` was edited. No `nexi` package was created. No `Cargo.toml` was added at `crates/`. No `[workspace]` table was added. No `Cargo.lock` was added. `crates/nexi_universal` stays off root members and default members. Root `cargo metadata --locked` resolved the same 15 root members. Nothing here was compiled. `docs/archive/` was not edited.
 
 `nexi = { path = "../" }` from a crate under `crates/<name>/` resolves to `crates/`, which has no `Cargo.toml`. Root `Cargo.toml` already says `nexi_universal` has broken path deps. That sentence was already in the root manifest. This card did not edit it.
 
@@ -562,7 +562,7 @@ Plus `crates/lattice_crypto` (`src/lib.rs`). Its manifest does not declare `nexi
 
 **In-repo first error**, before this card, is usually the missing workspace key (many of these also say `workspace = true`), which fires before Cargo reports the bad path. The bad path was read from the manifest. It was not reached by rustc. This card did not re-run rustc on these files.
 
-**Fix:** Done in #NEXI13PR. No `nexi` package was created to satisfy the path. The crates are labelled design-only. `crates/nexi_universal` stays off default members.
+**Fix:** Done in #683. No `nexi` package was created to satisfy the path. The crates are labelled design-only. `crates/nexi_universal` stays off default members.
 
 **Runtime / v14:** no.
 
