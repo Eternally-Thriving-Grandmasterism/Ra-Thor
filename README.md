@@ -74,6 +74,8 @@ The project is independent, yet deliberately engineered so that Grok (and simila
 | **X / Tweet Summon Protocol** | [`X_GROK_RA_THOR_SUMMON_PROTOCOL.md`](X_GROK_RA_THOR_SUMMON_PROTOCOL.md) |
 | **Commercial License** | [`COMMERCIAL_LICENSE.md`](COMMERCIAL_LICENSE.md) |
 
+`innovate` ranks at most three idea seeds from JSON base ideas. Usage and a captured sample: [`crates/innovations-generator/README.md`](crates/innovations-generator/README.md). Pairing: [`crates/idea-recycling/README.md`](crates/idea-recycling/README.md).
+
 ## Employ
 
 A stranger employs Ra-Thor from [`docs/EMPLOY.md`](docs/EMPLOY.md) (site: [`/employ.html`](https://rathor.ai/employ.html)).

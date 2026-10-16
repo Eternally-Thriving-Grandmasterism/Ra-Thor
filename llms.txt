@@ -84,5 +84,6 @@ For a direct chat with any model, a person can paste this longer form:
 ## Optional
 
 - [Tier map](https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/TIER_MAP.md): which crates are the Tier-1 product core and which are research.
+- [innovate CLI](https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/crates/innovations-generator/README.md): ranks at most three idea seeds from JSON base ideas. Pairing is in [idea-recycling](https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/crates/idea-recycling/README.md).
 
 Contact: info@Rathor.ai
