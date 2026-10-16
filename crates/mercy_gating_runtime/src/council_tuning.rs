@@ -349,6 +349,41 @@ mod tests {
         assert_eq!(runtime.get_gate_threshold("one_organism_unity"), 0.90);
     }
 
+    // `-0.0` is finite. The stored Ma'at value is 717.0, and `-0.0 < 717.0`,
+    // so `apply_council_tuning` refuses it on the `< current` check and keeps 717.0.
+    #[test]
+    fn negative_zero_ma_at_proposal_is_refused_and_717_stays() {
+        let mut runtime = MercyGatingRuntime::new();
+        let result = runtime.apply_council_tuning(&ma_at_proposal(-0.0));
+        assert!(!result.success);
+        assert_eq!(result.previous_value, 717.0);
+        assert_eq!(result.new_value, 717.0);
+        assert_eq!(runtime.ma_at_threshold, 717.0);
+    }
+
+    // `-0.0` is finite. The stored named value is 0.90, and `-0.0 < 0.90`,
+    // so the GateThreshold arm refuses it on the `< current` check and keeps 0.90.
+    #[test]
+    fn negative_zero_named_proposal_is_refused_and_0_90_stays() {
+        let mut runtime = MercyGatingRuntime::new();
+        let result = runtime.apply_council_tuning(&named_proposal(-0.0));
+        assert!(!result.success);
+        assert_eq!(result.previous_value, 0.90);
+        assert_eq!(result.new_value, 0.90);
+        assert_eq!(runtime.get_gate_threshold("one_organism_unity"), 0.90);
+    }
+
+    // `-0.0` is finite. `set_gate_threshold` refuses it because `-0.0 < 0.90`.
+    // The stored value stays 0.90.
+    #[test]
+    fn negative_zero_named_setter_is_refused_and_0_90_stays() {
+        let mut runtime = MercyGatingRuntime::new();
+        assert!(runtime
+            .set_gate_threshold("one_organism_unity".to_string(), -0.0)
+            .is_err());
+        assert_eq!(runtime.get_gate_threshold("one_organism_unity"), 0.90);
+    }
+
     #[test]
     fn setter_refuses_a_decrease_and_a_non_finite_value() {
         let mut runtime = MercyGatingRuntime::new();

@@ -440,6 +440,34 @@ fn round_trip_overwrite_under_the_same_base_works() {
     );
 }
 
+#[test]
+fn save_to_file_leaves_no_temp_file_on_success() {
+    let _guard = lock_hmac_env();
+    set_hmac_fixture(HMAC_FIXTURE_32);
+    let path = temp_path("atomic-success");
+    let _ = fs::remove_file(&path);
+    blessed_adapter()
+        .save_to_file(&path)
+        .expect("save writes the target");
+    assert!(path.is_file(), "target exists after save");
+    let parent = path.parent().expect("target parent");
+    let target_name = path
+        .file_name()
+        .expect("target file name")
+        .to_string_lossy()
+        .into_owned();
+    let tmp = path.with_file_name(format!("{target_name}.tmp"));
+    assert!(!tmp.exists(), "temp remains at {}", tmp.display());
+    let leftovers: Vec<String> = fs::read_dir(parent)
+        .expect("read target directory")
+        .filter_map(|entry| entry.ok())
+        .map(|entry| entry.file_name().to_string_lossy().into_owned())
+        .filter(|name| name.starts_with(&target_name) && name != &target_name)
+        .collect();
+    let _ = fs::remove_file(&path);
+    assert!(leftovers.is_empty(), "temp file left behind: {leftovers:?}");
+}
+
 fn assert_overwrite_message(err: &std::io::Error) {
     let message = err.to_string();
     assert!(message.contains("failed verification"), "{message}");

@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 authors = ["21 PATSAGi Councils under the Rathor Sovereign Reasoning Engine + MercyOS-Pinnacle & PATSAGi-Pinnacle integration"]
 license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
-description = "21st PATSAGi Council — MercyQuanta Sentinel (9 Mercy Quanta + SoulScan-X9 emotional intent proof + DivineChecksum-9 + Sentinel Mirror + Post-Quantum ML-KEM alignment). Full TOLC 8, valence gating from PATSAGi fleet councils, RSRE v3.0 integration."
+description = "Standalone package mercy-quanta-sentinel-council. Compiled valence check uses the source literal 0.9999999. Not a measured result."
 
 # Standalone workspace, same pattern as crates/fenca and crates/council.
 # `cargo test --locked` and `cargo clippy --locked` use this manifest.
@@ -17,7 +17,7 @@ description = "21st PATSAGi Council — MercyQuanta Sentinel (9 Mercy Quanta + S
 # MERCY_THRESHOLD is the source literal 0.9999999.
 # philotic-web-fusion fuse_bond stores caller valence. The mean is web_valence.
 # mial, mercy_gating_runtime, and mercy-threshold-wasm are not dependencies.
-# Fleet, post-quantum, and 100B-year phrases in the package description are design intent.
+# The package description names the compiled valence check. 0.9999999 is a source literal.
 [workspace]
 resolver = "2"
 

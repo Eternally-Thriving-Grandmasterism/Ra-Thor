@@ -45,7 +45,7 @@ pub use crate::tolc8::{
     TOLC8_VALENCE_THRESHOLD,
 };
 pub use crate::valence_consensus::{
-    council_vote_after_reject, quick_valence_check, CouncilGateLabel, ValenceConsensusEngine,
+    council_vote_after_reject, quick_valence_check, CouncilCheckLabel, ValenceConsensusEngine,
     ValenceConsensusResult, ValenceVote, CORE_COVENANT, DEFAULT_VALENCE_THRESHOLD,
     PROGRESSIVE_FLOOR,
 };
@@ -350,7 +350,7 @@ impl Default for PatsagiCouncilCoordinator {
 
 pub mod prelude {
     pub use super::{
-        council_vote_after_reject, tolc8_gate_check, BlockReason, CouncilFocus, CouncilGateLabel,
+        council_vote_after_reject, tolc8_gate_check, BlockReason, CouncilCheckLabel, CouncilFocus,
         CouncilPolicyHint, CouncilVote, FeedbackCycleResult, FeedbackError, MetricsHandle,
         PATSAGiCouncil, PatsagiCouncilCoordinator, PowrushTelemetrySnapshot, PredictiveSignal,
         PredictiveSupportError, QuantumSwarmOrchestrator, RaThorFeedbackLoop, ResonanceMetrics,

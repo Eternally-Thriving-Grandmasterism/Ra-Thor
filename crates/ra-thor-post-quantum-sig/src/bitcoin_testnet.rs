@@ -1,4 +1,5 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
+//! placeholder, not working crypto
 //! Bitcoin Testnet Integration — RHPQS v0.1.0
 //! Mercy-Gated Post-Quantum Signatures for Bitcoin Transactions
 //!
