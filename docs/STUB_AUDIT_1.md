@@ -1018,7 +1018,9 @@ Council board: https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO/
 
 It must land before `mial`, `mercy_gating_runtime`, or `mercy-threshold-wasm` joins root members, and before any code reads MWPO `gated` or relies on `MercyGatingRuntime` monotonicity. Recorded in #738 comment 6218764317, and in this file under cards 4 and 8.
 
-### SHARD-COMPOSER-KEY-REQUIRED-1
+### SHARD-COMPOSER-KEY-REQUIRED-1 (DONE, #686)
+
+**Status:** DONE in #686. `DEFAULT_BASE_KEY` is deleted. Non-test source has no key literal. `RA_THOR_HMAC_BASE_KEY` must be at least 32 bytes. Unset, empty, or shorter: `save_to_file` returns an `io::Error` that names the variable, and `load_from_file` does not accept the signed file.
 
 Core votes. When the env var is unset, the HMAC state-signing key falls back to `DEFAULT_BASE_KEY` in source. Make the key required and fail closed, with no key in source. Recorded in #738 comment 6220555628.
 
