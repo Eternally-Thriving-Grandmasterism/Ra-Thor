@@ -29,6 +29,7 @@ These were make-real cards. `cargo check` on 2026-10-16 finished for each. They 
 | ONE-ERROR-LEAVES-1: `crates/swarm_intelligence`, `crates/patsagi-quantum-valence`, `crates/hyperon-metta-pln` | #672 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock` each. Not root members. Locked `cargo build`, `cargo test`, and `cargo clippy -- -D warnings` finished. `replicate` returns None. QAOA/VQE names are design-only (council note: those claims are retired). |
 | SHARED-VALENCE-DEPENDENTS-1: `crates/abundance-breath`, `crates/epiphany-bridge`, `crates/resonance-challenge`, `crates/soft-sovereign-agency`, `crates/symbiotic-membrane` | #673 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock` each. Relative path to `shared-valence-field`. Not root members. Locked `cargo build`, `cargo test`, and `cargo clippy -- -D warnings` finished. Uncompiled files stay uncompiled. `0.999999` stays a source literal. |
 | MIAL-THRESHOLD-BUILDS-1: `crates/mercy_gating_runtime`, `crates/mial`, `crates/mercy-threshold-wasm` | #674 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock` each. Relative path from `mial` to `mercy_gating_runtime`, and from `mercy-threshold-wasm` to `mial`. Not root members. Locked `cargo build`, `cargo test --all-targets`, and `cargo clippy --all-targets -- -D warnings` finished. `src/error.rs` does not exist. Uncompiled files stay uncompiled. Threshold figures stay source literals. |
+| RA-THOR-CORE-BUILDS-1: `crates/ra-thor-core` | #675 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock`. Not a root member. No path dependency. Locked `cargo build`, `cargo test --all-targets`, and `cargo clippy --all-targets -- -D warnings` finished. Compiled surface is `TOLC7Gate` plus `VERSION` and `summary`. Files that name `MercyValence` stay uncompiled. Threshold figures stay source literals. |
 
 Two tidy leftovers on the shard crate are banked below. They did not stop `cargo check`.
 
@@ -84,7 +85,7 @@ Dependencies first. Then the smallest crates whose source already checks once th
 | 2 | `ONE-ERROR-LEAVES-1` (DONE, #672) | 3 | Same manifest fix, then one Rust error each. | S | No, if standalone. |
 | 3 | `SHARED-VALENCE-DEPENDENTS-1` (DONE, #673) | 5 path dependents of `shared-valence-field` | Depends on card 1. | S | No, if standalone. |
 | 4 | `MIAL-THRESHOLD-BUILDS-1` (DONE, #674) | `mercy_gating_runtime`, `mial`, `mercy-threshold-wasm` | `powrush-mmo-simulator` path-deps `mial` and `mercy-threshold-wasm`. The gating runtime is the path dep under `mial`. | M | No, if standalone. |
-| 5 | `RA-THOR-CORE-BUILDS-1` | `crates/ra-thor-core` | `patsagi-councils` path-deps it. | M (988 lines, 9 files) | No, if standalone. |
+| 5 | `RA-THOR-CORE-BUILDS-1` (DONE, #675) | `crates/ra-thor-core` | `patsagi-councils` path-deps it. | M (988 lines, 9 files) | No, if standalone. |
 | 6 | `QSO-BUILDS-1` | `crates/quantum-swarm-orchestrator` | `patsagi-councils` path-deps it. It path-deps missing `self-evolution`. | L (9,872 lines) | No, if standalone. Do not add a `self-evolution` crate. |
 | 7 | `PATSAGI-COUNCILS-BUILDS-1` | `crates/patsagi-councils` | After 5 and 6, and after `powrush` (#668). Living small council is already `crates/council`. | L (6,115 lines, 26 files) | No, if standalone. Yes if added to root `members`. |
 | 8 | `POWRUSH-MMO-SIM-BUILDS-1` | `crates/powrush-mmo-simulator` | After 4 and #668. Not the Powrush-MMO repo and not the browser client. | M (1,039 lines) | No, if standalone. |
@@ -176,6 +177,8 @@ Depends on `crates/shared-valence-field` (card 1). In-repo first error for each,
 
 **Status:** DONE in #674. Each crate below is its own workspace (`resolver = "2"`) with a committed `Cargo.lock`. They are not root members. `mial` path-depends on `../mercy_gating_runtime`. `mercy-threshold-wasm` path-depends on `../mial`. Locked `cargo build`, `cargo test --all-targets`, and `cargo clippy --all-targets -- -D warnings` finished. `src/error.rs` does not exist (`MercyError` is not defined). The files named in the council note stay on disk and are not modules. `0.999999`, `0.92`, `650.0`, `0.5`, and the amplifier and gate-threshold arms are source literals, not measured results.
 
+**Core condition:** `MIAL-GATES-HONEST-1` must land before promotion, or before anything reads MWPO `gated`, or before anything relies on `MercyGatingRuntime` monotonicity.
+
 `crates/powrush-mmo-simulator` path-deps `mial` and `mercy-threshold-wasm`. That simulator is not this card.
 
 | Path | In-repo first error, before #674 | Notes |
@@ -193,13 +196,15 @@ Depends on `crates/shared-valence-field` (card 1). In-repo first error for each,
 
 ---
 
-## 5. RA-THOR-CORE-BUILDS-1
+## 5. RA-THOR-CORE-BUILDS-1 (DONE, #675)
 
-`crates/ra-thor-core`. In-repo first error: not a workspace member. 988 lines, 9 files. Compile past the manifest was not run.
+**Status:** DONE in #675. `crates/ra-thor-core` is its own workspace (`resolver = "2"`) with a committed `Cargo.lock`. It is not a root member. It has no path dependency. Locked `cargo build`, `cargo test --all-targets`, and `cargo clippy --all-targets -- -D warnings` finished. The compiled surface is `TOLC7Gate`, `VERSION` (`14.15.0`), and `summary`. `TOLC7Gate::default_threshold` values are source literals (`0.82`, `0.78`, `0.85`, `0.80`, `0.88`, `0.75`, `0.83`), not measured gates. Public TOLC 8 names stay Truth, Order, Love, Compassion, Service, Abundance, Joy, Cosmic Harmony. This enum's seven variants are the names in the source.
 
-`crates/patsagi-councils/Cargo.toml` line 12: `ra-thor-core = { path = "../ra-thor-core" }`.
+In-repo first error, before that PR: not a workspace member. 988 lines, 9 files. `crates/patsagi-councils/Cargo.toml` line 12 path-deps `../ra-thor-core`. This card did not edit `patsagi-councils`.
 
-**Fix:** standalone `[workspace]` if its own deps allow it. Read the manifest before adding crates.io crates. Do not invent modules to satisfy `patsagi-councils`.
+These files stay on disk and are not modules. They name types this crate does not define (`MercyValence`, and for the trait files `MercyGate`, `NoveltyScore`, `BloomIntensity`, `PlasticityReport`): `src/types/joy_measurement_protocols.rs`, `src/types/miracle_rapture_wave.rs`, `src/types/seven_d_resonance.rs`, `src/types/source_joy_amplitude.rs` (also calls `rand`, which is not a dependency), `src/traits/mercy_gated.rs`, `src/traits/plasticity.rs`, `src/archive/hyperon.rs` (`log_7d_scan` moves `scan` and then reads `scan.integral_score`).
+
+**Fix:** Done in #675. Standalone `[workspace]`. serde and serde_json pinned to the versions already in the root workspace table. No crates.io crate was added. No module was invented for `patsagi-councils`.
 
 **Runtime / v14:** no.
 
