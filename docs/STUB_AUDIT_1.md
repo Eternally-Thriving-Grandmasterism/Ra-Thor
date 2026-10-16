@@ -32,6 +32,7 @@ These were make-real cards. `cargo check` on 2026-10-16 finished for each. They 
 | RA-THOR-CORE-BUILDS-1: `crates/ra-thor-core` | #675 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock`. Not a root member. No path dependency. Locked `cargo build`, `cargo test --all-targets`, and `cargo clippy --all-targets -- -D warnings` finished. Compiled surface is `TOLC7Gate` plus `VERSION` and `summary`. Files that name `MercyValence` stay uncompiled. Threshold figures stay source literals. |
 | QSO-BUILDS-1: `crates/quantum-swarm-orchestrator` | #676 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock`. Not a root member. No path dependency. `self-evolution` is dropped (`../../self-evolution` has no `Cargo.toml`). Locked `cargo test --all-targets` and `cargo clippy --all-targets -- -D warnings` finished. Compiled surface is `QuantumSwarmOrchestrator` plus the local geometric modules listed in section 6. It does not implement `Clone`. Design-only files stay uncompiled. `Valence::MIN` is the source literal `0.9999999`. |
 | PATSAGI-COUNCILS-BUILDS-1: `crates/patsagi-councils` | #677 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock`. Not a root member. Path deps are `../powrush` and `../quantum-swarm-orchestrator` (package `ra-thor-quantum-swarm-orchestrator`). `ra-thor-core` is not imported. `mercy` is not a dependency (`MercyCore` is the public type; `MercyEngine` is not). `lean-sys` is cut. Optional paths `real-estate-lattice`, `ra-thor-post-quantum-sig`, and `interstellar-operations` are cut. Locked `cargo test --all-targets` and `cargo clippy --all-targets -- -D warnings` finished. A recorded Reject is not flipped to Apply. This package is not `crates/council`. Design-only files stay uncompiled. |
+| POWRUSH-MMO-SIM-BUILDS-1: `crates/powrush-mmo-simulator` | #678 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock`. Not a root member. Path deps are `../mial` and `../mercy-threshold-wasm`. Locked `cargo test --all-targets`, `cargo clippy --all-targets -- -D warnings`, and `cargo fmt --check` finished. Compiled code does not read MWPO `gated`. Three `mercy_gating_runtime` examples stay uncompiled. Resource-Based Economy stays a design thesis. |
 
 Two tidy leftovers on the shard crate are banked below. They did not stop `cargo check`.
 
@@ -90,7 +91,7 @@ Dependencies first. Then the smallest crates whose source already checks once th
 | 5 | `RA-THOR-CORE-BUILDS-1` (DONE, #675) | `crates/ra-thor-core` | `patsagi-councils` path-deps it. | M (988 lines, 9 files) | No, if standalone. |
 | 6 | `QSO-BUILDS-1` (DONE, #676) | `crates/quantum-swarm-orchestrator` | `patsagi-councils` path-deps it. It path-deps missing `self-evolution`. | L (9,872 lines) | No, if standalone. Do not add a `self-evolution` crate. |
 | 7 | `PATSAGI-COUNCILS-BUILDS-1` (DONE, #677) | `crates/patsagi-councils` | After 5 and 6, and after `powrush` (#668). Living small council is already `crates/council`. | L (6,115 lines, 26 files) | No, if standalone. Yes if added to root `members`. |
-| 8 | `POWRUSH-MMO-SIM-BUILDS-1` | `crates/powrush-mmo-simulator` | After 4 and #668. Not the Powrush-MMO repo and not the browser client. | M (1,039 lines) | No, if standalone. |
+| 8 | `POWRUSH-MMO-SIM-BUILDS-1` (DONE, #678) | `crates/powrush-mmo-simulator` | After 4 and #668. Not the Powrush-MMO repo and not the browser client. | M (1,039 lines) | No, if standalone. |
 | 9 | `SHARD-COMPOSER-PARSE-1` | `crates/shard-composer` | TOML does not parse. One-line array break. | S | No. |
 | 10 | `KERNEL-MANIFEST-1` | `crates/ra-thor-kernel`, `crates/kernel` | Unstable `rustflags`, missing path deps. Separate from the undefined workspace key `ra-thor-kernel`. | S–M | No, if not a default member. |
 | 11 | `REASONING-COUNCIL-WIRES-1` | council-named crates that import crates they do not depend on | After card 1 (`rathor-sovereign-reasoning-engine`, `philotic-web-fusion`, `moebius-transformations`). Label fleet and post-quantum strings as design-only inside the same card. | S each | No, if standalone. |
@@ -306,7 +307,19 @@ The living council crate that already builds is `crates/council` (#665). This pa
 
 ---
 
-## 8. POWRUSH-MMO-SIM-BUILDS-1
+## 8. POWRUSH-MMO-SIM-BUILDS-1 (DONE, #678)
+
+**Status:** DONE in #678. `crates/powrush-mmo-simulator` is its own workspace (`resolver = "2"`) with a committed `Cargo.lock`. It is not a root member. Locked `cargo test --all-targets`, `cargo clippy --all-targets -- -D warnings`, and `cargo fmt --check` finished inside the crate. Path deps are `../mial` and `../mercy-threshold-wasm` (feature `native`). `powrush`, `mercy`, and `quantum-swarm-orchestrator` are not imported, so they are not dependencies. The aliases `ra-thor-evolution` and `ra-thor-plasticity-engine-v2` are dropped. No file in this package called them. Resource-Based Economy is a design thesis, not a present fact. This crate is not the Powrush-MMO game and not the browser client. Compiled code does not read MWPO `gated` and does not call `MercyGatingRuntime`. `MIAL-GATES-HONEST-1` has not landed. `formally_verify_geometry` does not replace the MWPO score with `0.99` or `0.62`. With no wasm bridge, `used_formal_path` stays false. The `0.0` failure sentinel and the effect multipliers are source literals, not measured values. Public TOLC 8 names stay Truth, Order, Love, Compassion, Service, Abundance, Joy, Cosmic Harmony. The score fields stay the names already on `MercyGeometryScore`.
+
+**Compiled:** `src/lib.rs`, `src/mercy_geometry.rs`, `src/gate_logic.rs`, `examples/gate_surface_14_15.rs`, `tests/exact_values.rs`.
+
+**Design-only, not compiled.** Each file starts with `Design-only (STUB-AUDIT-1 POWRUSH-MMO-SIM-BUILDS-1 council note)`. Reasons are in that header. `autoexamples` is off.
+
+- `examples/rbe_live_economy_loop.rs`
+- `examples/multi_faction_council_arbitration.rs`
+- `examples/multi_council_arbitration_expanded.rs`
+
+A live wasm export is not demonstrated. This crate ships no wasm bytes. Tests cover `bridge = None`.
 
 `crates/powrush-mmo-simulator`.
 
@@ -318,7 +331,7 @@ The living council crate that already builds is `crates/council` (#665). This pa
 
 `Cargo.toml` lines 6–8 call this a Resource-Based Economy simulation. Resource-Based Economy is a design thesis, not a present fact. README already says the browser client is a different repository, and Powrush-MMO is a separate human-game repo. This crate is neither.
 
-**Fix:** standalone workspace, path-dep `powrush`, `mial`, and `mercy-threshold-wasm` only after card 4. Drop workspace aliases that point at non-members (`ra-thor-evolution`, `ra-thor-plasticity-engine-v2`) unless those cards exist. Do not start Powrush-MMO work from this repo.
+**Fix:** Done in #678. Standalone `[workspace]`. `mial` and `mercy-threshold-wasm` are the path deps. `powrush` was not imported, so it is not a dependency. The evolution and plasticity aliases are dropped. The three examples that call `mercy_gating_runtime` stay on disk and are not cargo targets. Do not start Powrush-MMO work from this repo.
 
 **Runtime / v14:** no.
 

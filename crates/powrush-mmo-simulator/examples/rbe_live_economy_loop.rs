@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 POWRUSH-MMO-SIM-BUILDS-1 council note): not compiled; it calls mercy_gating_runtime and names RBEconomy, ResourceTransaction, current_gates, and RBETransactionResult, which this crate does not define. Compiled code must not rely on MercyGatingRuntime while MIAL-GATES-HONEST-1 has not landed. Resource-Based Economy is a design thesis, not a present fact.
 // Live RBE Economy Loop with Mercy Gating
 // Phase 3 integration
 

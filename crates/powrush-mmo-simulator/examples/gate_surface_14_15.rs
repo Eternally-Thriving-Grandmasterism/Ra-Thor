@@ -1,13 +1,11 @@
-//! Gate Surface 14.15.0 — Living Cosmic Tick Demo
+//! Library demo for the powrush-mmo-simulator public surface — v14.15.0
 //!
-//! Demonstrates the full public surface of the Powrush-MMO simulator:
-//!   1. Mercy geometry evaluation (MWPO path)
-//!   2. Gate effects computation + synergies
-//!   3. System reactions (abundance, harmony, GPU modulation)
-//!   4. Simulation tick with risk/reward
+//! Prints one MWPO evaluation, the effect multipliers, and one tick with no wasm bridge.
+//! The printed figures are source literals from those formulas, not measured values.
+//! This example is not the Powrush-MMO game and not the browser client.
 //!
-//! Run with:
-//!   cargo run -p powrush-mmo-simulator --example gate_surface_14_15
+//! Run from this crate directory:
+//!   cargo run --example gate_surface_14_15
 //!
 //! Contact: info@Rathor.ai
 
@@ -20,9 +18,8 @@ use powrush_mmo_simulator::{
 };
 
 fn main() {
-    println!("══════════════════════════════════════════════════════════════");
-    println!("  Powrush-MMO Gate Surface 14.15.0 — Living Cosmic Tick Demo");
-    println!("══════════════════════════════════════════════════════════════\n");
+    println!("powrush-mmo-simulator demo 14.15.0");
+    println!("MWPO scores and effect multipliers. Source literals, not measured values.\n");
 
     // -------------------------------------------------------------------------
     // 1. Build a high-quality geometry + mercy context
@@ -52,19 +49,37 @@ fn main() {
 
     println!("{}", evaluation.summary());
     println!("  → is_thriving       : {}", evaluation.is_thriving());
-    println!("  → composite health  : {:.3}", composite_gate_health(&evaluation));
+    println!(
+        "  → composite health  : {:.3}",
+        composite_gate_health(&evaluation)
+    );
     println!("  → should evolve     : {}", evaluation.should_evolve);
-    println!("  → apply blessing    : {}", evaluation.should_apply_blessing);
-    println!("  → trigger evolution : {}", should_trigger_mercy_evolution(&evaluation));
+    println!(
+        "  → apply blessing    : {}",
+        evaluation.should_apply_blessing
+    );
+    println!(
+        "  → trigger evolution : {}",
+        should_trigger_mercy_evolution(&evaluation)
+    );
     println!();
 
     // -------------------------------------------------------------------------
     // 3. System reactions
     // -------------------------------------------------------------------------
     println!("System Reactions:");
-    println!("  abundance multiplier : {:.2}x", abundance_system_reaction(&evaluation));
-    println!("  faction harmony      : {:.2}x", faction_harmony_reaction(&evaluation));
-    println!("  GPU mercy modulation : {:.2}x", gpu_mercy_modulation(&evaluation));
+    println!(
+        "  abundance multiplier : {:.2}x",
+        abundance_system_reaction(&evaluation)
+    );
+    println!(
+        "  faction harmony      : {:.2}x",
+        faction_harmony_reaction(&evaluation)
+    );
+    println!(
+        "  GPU mercy modulation : {:.2}x",
+        gpu_mercy_modulation(&evaluation)
+    );
     println!();
 
     // -------------------------------------------------------------------------
@@ -72,13 +87,31 @@ fn main() {
     // -------------------------------------------------------------------------
     let effects = compute_gate_effects(&evaluation);
     println!("Gate Effects:");
-    println!("  resource_multiplier        : {:.3}", effects.resource_multiplier);
-    println!("  evolution_stability        : {:.3}", effects.evolution_stability);
-    println!("  cooperation_bonus          : {:.3}", effects.cooperation_bonus);
-    println!("  information_accuracy       : {:.3}", effects.information_accuracy);
-    println!("  harmony_stability          : {:.3}", effects.harmony_stability);
+    println!(
+        "  resource_multiplier        : {:.3}",
+        effects.resource_multiplier
+    );
+    println!(
+        "  evolution_stability        : {:.3}",
+        effects.evolution_stability
+    );
+    println!(
+        "  cooperation_bonus          : {:.3}",
+        effects.cooperation_bonus
+    );
+    println!(
+        "  information_accuracy       : {:.3}",
+        effects.information_accuracy
+    );
+    println!(
+        "  harmony_stability          : {:.3}",
+        effects.harmony_stability
+    );
     println!("  morale_bonus               : {:.3}", effects.morale_bonus);
-    println!("  geometry_structural_bonus  : {:.3}", effects.geometry_structural_bonus);
+    println!(
+        "  geometry_structural_bonus  : {:.3}",
+        effects.geometry_structural_bonus
+    );
     println!();
 
     // -------------------------------------------------------------------------
@@ -128,7 +161,5 @@ fn main() {
     println!("  dominant gate : {}", debug.dominant_gate);
     println!("  synergy level : {:.2}", debug.synergy_level);
 
-    println!("\n══════════════════════════════════════════════════════════════");
-    println!("  Gate Surface 14.15.0 demo complete. Living Cosmic Tick active.");
-    println!("══════════════════════════════════════════════════════════════");
+    println!("\nDemo finished. No wasm bridge was supplied. No living tick was measured.");
 }
