@@ -256,19 +256,21 @@ fn encode_hex(bytes: &[u8]) -> String {
     out
 }
 
+// `len() % 2` and `chunks_exact` stay usable before Rust 1.88.
+#[allow(clippy::manual_is_multiple_of, clippy::chunks_exact_to_as_chunks)]
 fn decode_hex(text: &str) -> Option<Vec<u8>> {
-    if !text.len().is_multiple_of(2) {
-        return None;
+    if text.len() % 2 == 0 {
+        let bytes = text.as_bytes();
+        let mut out = Vec::with_capacity(bytes.len() / 2);
+        for pair in bytes.chunks_exact(2) {
+            let hi = hex_nibble(pair[0])?;
+            let lo = hex_nibble(pair[1])?;
+            out.push((hi << 4) | lo);
+        }
+        Some(out)
+    } else {
+        None
     }
-    let bytes = text.as_bytes();
-    let mut out = Vec::with_capacity(bytes.len() / 2);
-    let (pairs, _) = bytes.as_chunks::<2>();
-    for pair in pairs {
-        let hi = hex_nibble(pair[0])?;
-        let lo = hex_nibble(pair[1])?;
-        out.push((hi << 4) | lo);
-    }
-    Some(out)
 }
 
 fn hex_nibble(byte: u8) -> Option<u8> {
@@ -388,6 +390,7 @@ mod tests {
 
         for (label, version) in [("older", 2u32), ("newer", 9u32)] {
             let path = temp_path(label);
+            adapter.version = version;
             let data = serde_json::to_value(&adapter).expect("adapter serializes");
             let signature = ShardComposerAdapter::sign_data(&data);
             let signed = SignedState {
