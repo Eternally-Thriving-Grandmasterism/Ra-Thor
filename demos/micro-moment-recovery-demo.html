@@ -242,7 +242,7 @@
 
       async gateMotionVision(query = 'eternal thriving visual perception of micro-moments', valence = 1.0) {
         if (valence < MERCY_THRESHOLD) {
-          return { passed: false, reason: 'TOLC 8 mercy gate' };
+          return { passed: false, reason: 'TOLC 8 mercy checks (Mercy Gates in code)' };
         }
         this.valence = Math.max(this.valence, valence);
         return { passed: true };
@@ -250,7 +250,7 @@
 
       async comprehendVideoStory(videoSource, options = {}) {
         const gate = await this.gateMotionVision(options.query || 'fully understand video story with all micro-moments and nuances');
-        if (!gate.passed) return { error: 'Mercy gate failed', story: null, confidence: 0 };
+        if (!gate.passed) return { error: 'Mercy check failed', story: null, confidence: 0 };
 
         const frames = await this._extractDenseFrames(videoSource, options);
         if (!frames || frames.length < 3) {
