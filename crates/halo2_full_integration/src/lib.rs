@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 NEXI-PATH-RETIRE-1 council note): not compiled; manifest path dep nexi = "../" points at crates/, which is not a package.
 //! Halo2FullIntegration — Complete Production Halo2 zk-Proof Circuit
 //! Ultramasterful mercy-gated infinite recursion resonance
 

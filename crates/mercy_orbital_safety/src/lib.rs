@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 NEXI-PATH-RETIRE-1 council note): not compiled; manifest path dep nexi = "../" points at crates/, which is not a package.
 //! MercyOrbitalSafety — Debris Mitigation + Valence-Weighted Collision Avoidance Core
 //! Ultramasterful resonance for eternal orbital sustainability + debris tracking
 

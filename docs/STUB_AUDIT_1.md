@@ -99,7 +99,7 @@ Dependencies first. Then the smallest crates whose source already checks once th
 | 10 | `KERNEL-MANIFEST-1` (DONE, #680) | `crates/ra-thor-kernel`, `crates/kernel` | Standalone `[workspace]`. Unstable release `rustflags` are removed. Post-quantum path deps are not dependencies. `kernel` does not path-depend on v14. | S–M | No, if not a default member. |
 | 11 | `REASONING-COUNCIL-WIRES-1` (DONE, #681) | 16 council crates in section 11 | Standalone `[workspace]`. A compiled wire calls `RathorSovereignReasoningEngine` or the current patsagi-councils API. Previous bodies that return `Ok(true)`, and fleet, post-quantum, and 100B-year phrases, stay design-only. | S each | No, if standalone. |
 | 12 | `CONDUCTOR-LEGACY-RETIRE-1` (DONE, #682) | unversioned conductor, v13 and its examples, `tolc8-genesis-gate` | Labelled design-only. v13 stays deprecated. The unversioned conductor is retired. Not the living conductor. | L on disk | No. This card did not edit v14. |
-| 13 | `NEXI-PATH-RETIRE-1` | crates with `nexi = { path = "../" }` | That path is not a package. | many manifests | No. |
+| 13 | `NEXI-PATH-RETIRE-1` (DONE, #683) | 51 crates: the 50 with `nexi = { path = "../" }`, plus `crates/lattice_crypto` | Labelled design-only. The path still points at `crates/`, which is not a package. No `nexi` package was created. `lattice_keygen` returns a String placeholder and is not a KEM. | 54 `.rs` files | No. |
 | 14 | `WORKSPACE-KEY-SHELLS-1` | 165 `powrush` workspace deps, 95 sourceless manifests, string ZK and propulsion stubs | Shared missing workspace keys. Most have nothing to compile, or return constants. Design-only or leave on disk. | manifests, plus a few short files | No. Do not add them to `members`. |
 | 15 | `ARCHIVE-LINEAGE-RETIRE-1` | 98 manifests under `docs/archive/` | Copies. 76 fail loading `nexi`. | archive | No. |
 
@@ -495,25 +495,78 @@ This is not `lattice-conductor-v14`.
 
 ---
 
-## 13. NEXI-PATH-RETIRE-1
+## 13. NEXI-PATH-RETIRE-1 (DONE, #683)
 
-`nexi = { path = "../" }` from a crate under `crates/<name>/` resolves to `crates/`, which has no `Cargo.toml`. Root `Cargo.toml` already says `nexi_universal` has broken path deps.
+**Status:** DONE in #683. This card labels. It does not port. It does not make any of these crates build. No `Cargo.toml` was edited. No `nexi` package was created. No `Cargo.toml` was added at `crates/`. No `[workspace]` table was added. No `Cargo.lock` was added. `crates/nexi_universal` stays off root members and default members. Root `cargo metadata --locked` resolved the same 15 root members. Nothing here was compiled. `docs/archive/` was not edited.
 
-Observed missing-path rows include, among others:
+`nexi = { path = "../" }` from a crate under `crates/<name>/` resolves to `crates/`, which has no `Cargo.toml`. Root `Cargo.toml` already says `nexi_universal` has broken path deps. That sentence was already in the root manifest. This card did not edit it.
 
-- `crates/nexi_universal` (`nexi`, and `soulscan_x9` / `soulscan_x10` via `../crates/...`, which doubles the `crates/` segment)
-- `crates/carbon_credit_oracle`, `crates/divine_checksum_9`, `crates/grok_arena_pinnacle`, `crates/halo2_full_integration`, `crates/legacy_fenca`, `crates/poseidon_hash`, `crates/poseidon_merkle`, `crates/prometheus_forge`, `crates/sentinel_mirror`, `crates/sustainable_space_propulsion`, `crates/whitesmiths_anvil`
-- many `mercy_*` manifests in the same list (orbital, shield, starliner, governance, liquid democracy, quadratic funding)
+**Labelled: 51 crates, 54 `.rs` files.** Every `.rs` file under each crate starts with `Design-only (STUB-AUDIT-1 NEXI-PATH-RETIRE-1 council note)`. The bytes under that header are the previous file. Every crate in this list already had at least one `.rs` file, so no `DESIGN_ONLY.md` was added.
 
-`crates/lattice_crypto/src/lib.rs` lines 17–24: `lattice_keygen` returns a `String` and the doc says "Kyber/Dilithium stub". That is not a KEM.
+Fifty crates whose `Cargo.toml` declares `nexi = { path = "../" }`. The header on these files says that path points at `crates/`, which is not a package:
 
-**In-repo first error** for these is usually the missing workspace key (they also say `workspace = true`), which fires before Cargo reports the bad path. The bad path was read from the manifest. It was not reached by rustc.
+- `crates/bulletproofs_aggregation` (`src/lib.rs`)
+- `crates/carbon_credit_oracle` (`src/lib.rs`)
+- `crates/deeper_gadgets` (`src/lib.rs`)
+- `crates/divine_checksum_9` (`src/lib.rs`)
+- `crates/futarchy_belief_markets` (`src/lib.rs`)
+- `crates/futarchy_governance` (`src/lib.rs`)
+- `crates/futarchy_oracle` (`src/lib.rs`)
+- `crates/futarchy_outcome_prediction` (`src/lib.rs`)
+- `crates/grok_arena_pinnacle` (`src/lib.rs`, `src/futarchy_hyperplonk.rs`)
+- `crates/halo2_full_integration` (`src/lib.rs`)
+- `crates/hyperplonk_recursion` (`src/lib.rs`)
+- `crates/legacy_fenca` (`crates/legacy_fenca/src/lib.rs` only; that nested file is not the package `src/lib.rs`)
+- `crates/mercy_bias_mitigation` (`src/lib.rs`)
+- `crates/mercy_biojet` (`src/lib.rs`)
+- `crates/mercy_cygnus_missions` (`src/lib.rs`)
+- `crates/mercy_dragon_crs` (`src/lib.rs`)
+- `crates/mercy_dream_chaser` (`src/lib.rs`)
+- `crates/mercy_falcon_heavy` (`src/lib.rs`)
+- `crates/mercy_governance` (`src/lib.rs`)
+- `crates/mercy_home_fortress` (`src/lib.rs`)
+- `crates/mercy_liquid_democracy` (`src/lib.rs`)
+- `crates/mercy_mev_servicing` (`src/lib.rs`)
+- `crates/mercy_orbital_cleanup` (`src/lib.rs`)
+- `crates/mercy_orbital_refuel` (`src/lib.rs`)
+- `crates/mercy_orbital_safety` (`src/lib.rs`)
+- `crates/mercy_orbital_servicing` (`src/lib.rs`)
+- `crates/mercy_os_aviation` (`src/lib.rs`)
+- `crates/mercy_os_principles` (`src/lib.rs`, `src/layers/hyperplonk_recursion.rs`)
+- `crates/mercy_predictive_policing` (`src/lib.rs`)
+- `crates/mercy_quadratic_funding` (`src/lib.rs`)
+- `crates/mercy_quadratic_voting` (`src/lib.rs`)
+- `crates/mercy_raptor_engine` (`src/lib.rs`)
+- `crates/mercy_shield_deployment` (`src/lib.rs`)
+- `crates/mercy_shield_law_enforcement` (`src/lib.rs`)
+- `crates/mercy_space_governance` (`src/lib.rs`)
+- `crates/mercy_starfish_servicing` (`src/lib.rs`)
+- `crates/mercy_starliner_crew` (`src/lib.rs`)
+- `crates/mercy_t_rex_engines` (`src/lib.rs`)
+- `crates/mercy_vulcan_centaur` (`src/lib.rs`)
+- `crates/mercy_zero` (`src/lib.rs`)
+- `crates/multivariate_crypto` (`src/lib.rs`)
+- `crates/nexi_universal` (`src/lib.rs`)
+- `crates/poseidon_hash` (`src/lib.rs`)
+- `crates/poseidon_merkle` (`src/lib.rs`)
+- `crates/prometheus_forge` (`src/lib.rs`)
+- `crates/sentinel_mirror` (`src/lib.rs`)
+- `crates/soulscan_x10` (`src/lib.rs`)
+- `crates/soulscan_x9` (`src/lib.rs`, `src/laughing_man_valence.rs`)
+- `crates/sustainable_space_propulsion` (`src/lib.rs`)
+- `crates/whitesmiths_anvil` (`src/lib.rs`)
 
-**Fix:** do not create a `nexi` package to satisfy the path. Label the crates design-only. `crates/nexi_universal` stays off default members.
+`crates/nexi_universal` is one of those 50. Its header also records the doubled soulscan paths. `Cargo.toml` still sets `soulscan_x9 = { path = "../crates/soulscan_x9" }` and `soulscan_x10 = { path = "../crates/soulscan_x10" }`. From `crates/nexi_universal/` those paths double the `crates/` segment. This card did not redirect them.
+
+Plus `crates/lattice_crypto` (`src/lib.rs`). Its manifest does not declare `nexi = { path = "../" }`. Line 1 is the design-only header. Lines 18–25 are the previous lines 17–24. `lattice_keygen` returns a `String`. The doc on that function says "Kyber/Dilithium stub". That return is a placeholder. It is not a KEM.
+
+**In-repo first error**, before this card, is usually the missing workspace key (many of these also say `workspace = true`), which fires before Cargo reports the bad path. The bad path was read from the manifest. It was not reached by rustc. This card did not re-run rustc on these files.
+
+**Fix:** Done in #683. No `nexi` package was created to satisfy the path. The crates are labelled design-only. `crates/nexi_universal` stays off default members.
 
 **Runtime / v14:** no.
 
-**Size:** many short manifests. Not a port.
+**Size:** 51 crates, 54 `.rs` files. Not a port.
 
 ---
 

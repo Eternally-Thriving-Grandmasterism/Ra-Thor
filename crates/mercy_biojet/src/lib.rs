@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 NEXI-PATH-RETIRE-1 council note): not compiled; manifest path dep nexi = "../" points at crates/, which is not a package.
 //! MercyBioJet — Algae-Derived Zero-Emission SAF Core
 //! Ultramasterful async pipeline + cradle-to-cradle + Halo2 ZK-Proof provenance
 
