@@ -1123,6 +1123,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "idea-recycling"
+version = "0.2.0"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "idna"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1164,6 +1171,15 @@ dependencies = [
  "portable-atomic",
  "unicode-width 0.2.2",
  "web-time",
+]
+
+[[package]]
+name = "innovations-generator"
+version = "0.1.0"
+dependencies = [
+ "idea-recycling",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

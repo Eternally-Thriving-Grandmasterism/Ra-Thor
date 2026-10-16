@@ -4,15 +4,11 @@ version = "0.2.0"
 edition = "2021"
 authors = ["Sherif Samy Botros <info@Rathor.ai>"]
 license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
-description = "Idea Recycling System — Wisdom extraction, mercy-weighted scoring, FENCA verification, and cross-pollination engine for the living Ra-Thor lattice"
+description = "Normalizes base ideas, extracts themes, and pairs them for ranked seeds."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 
+# RECYCLER-REAL-1: path deps on mercy, fenca, spartan_valence, and common are
+# removed. common has no Cargo.toml. The stub never called the others, and
+# spartan_valence points at workspace keys that are not in the root manifest.
 [dependencies]
-ra-thor-mercy = { path = "../mercy" }
-ra-thor-fenca = { path = "../fenca" }
-ra-thor-common = { path = "../common" }
-ra-thor-valence = { path = "../spartan_valence" }
-tokio = { version = "1.38", features = ["full"] }
-serde = { version = "1.0", features = ["derive"] }
-tracing = "0.1"
-thiserror = "1.0"
-async-trait = "0.1"
+serde = { workspace = true }
