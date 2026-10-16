@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; uses ra_thor_legal_lattice and ra_thor_plasticity_engine_v2. Those crates are not dependencies.
 //! # ACO + Mercy Hybrid Swarm — Refined Production Version
 //!
 //! **Ant Colony Optimization with strict mercy-gating on every pheromone update.**

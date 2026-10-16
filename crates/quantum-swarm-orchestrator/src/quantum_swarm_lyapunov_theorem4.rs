@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; uses quantum_swarm_convergence, which is not a module.
 //! # Quantum Swarm Lyapunov Proof for Theorem 4
 //!
 //! **Rigorous stability proof for Theorem 4: Robustness to Partial Gate Failure

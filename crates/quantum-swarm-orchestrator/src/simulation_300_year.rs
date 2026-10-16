@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; uses quantum_swarm_convergence and quantum_swarm_lyapunov_theorem3, which are not modules.
 //! # 300-Year Quantum Swarm Trajectory Simulation
 //!
 //! **The definitive long-term projection of the Ra-Thor Quantum Swarm from 2026 to 2326.**

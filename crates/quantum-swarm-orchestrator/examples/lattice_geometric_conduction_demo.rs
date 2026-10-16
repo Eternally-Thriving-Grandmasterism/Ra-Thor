@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; imports lattice_conductor, which is not a dependency, and it is not an example target.
 //! crates/quantum-swarm-orchestrator/examples/lattice_geometric_conduction_demo.rs
 //!
 //! v14.4 Demo: Lattice Conductor + Polyhedral Geometric Resonance

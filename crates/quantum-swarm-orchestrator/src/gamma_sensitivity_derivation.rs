@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; doc-comment derivation text, not an implementation.
 //! # Mathematical Derivation of γ Sensitivity
 //!
 //! **This module provides the complete, rigorous mathematical sensitivity analysis

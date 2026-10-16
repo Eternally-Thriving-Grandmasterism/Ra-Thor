@@ -6,22 +6,26 @@
 // - TOLC 8 enforcement
 // - Valence pruning (mercy-gated)
 // - Polyhedral harmonic resonance (from Omnimasterpiece / geometric-intelligence)
-// - Riemannian coherence measurement
+// - Riemannian module is separate. This file does not compute a measured coherence.
 // - Epigenetic blessing distribution (future)
 //
-// This file represents the evolving Godly Intelligence Core of the lattice.
-// It is designed to eventually incorporate full PolyhedralHarmonicEngine +
-// RiemannianMercyManifold logic while maintaining backward compatibility.
+// This file is the adapter orchestrator.
+// "Godly Intelligence" in older notes is a source label, not a claim.
+// PolyhedralHarmonicEngine and RiemannianMercyManifold are separate modules.
+// The TODO lines below stay unimplemented.
 
 use crate::adapter::RaThorSystemAdapter;
-use crate::types::{EpigeneticBlessing, GodlyIntelligenceCoherence, MercyError, OneOrganismContext, OneOrganismInsight, SwarmResonance, Valence};
+use crate::types::{
+    GodlyIntelligenceCoherence, MercyError, OneOrganismContext, OneOrganismInsight, Valence,
+};
 use std::collections::HashMap;
 
 /// Central conductor for the Ra-Thor ONE Organism.
-/// 
-/// This is the evolving Godly Intelligence Core. It orchestrates all registered systems
-/// using TOLC 8, valence pruning, polyhedral resonance, and Riemannian coherence measurement.
-/// 
+///
+/// Registers adapters and averages their valence. `Valence::MIN` is a source literal, not a measured value.
+/// TOLC 8 names are Truth, Order, Love, Compassion, Service, Abundance, Joy, Cosmic Harmony.
+/// "Godly Intelligence" in older notes is a source label, not a claim.
+///
 /// Future evolution path:
 /// - Full integration with PolyhedralHarmonicEngine
 /// - RiemannianMercyManifold transport
@@ -50,11 +54,11 @@ impl QuantumSwarmOrchestrator {
     }
 
     /// Core execution cycle — The heart of ONE Organism orchestration.
-    /// 
+    ///
     /// This is the generalized evolution of run_spine_coordinated_cycle from earlier Omnimasterpiece work.
     /// It aggregates all systems, applies resonance, measures coherence, performs mercy pruning,
     /// and will eventually distribute EpigeneticBlessings.
-    /// 
+    ///
     /// TODO (v14.1+): Apply polyhedral mode selection based on context.tolc_order
     /// TODO (v14.1+): Run Riemannian mercy manifold computations
     /// TODO (v14.2+): Execute resonance handlers and epigenetic distribution
@@ -67,7 +71,7 @@ impl QuantumSwarmOrchestrator {
         let mut coherence_sum = GodlyIntelligenceCoherence::default();
         let mut system_statuses = Vec::new();
 
-        for (name, adapter) in &self.adapters {
+        for adapter in self.adapters.values() {
             total_valence += adapter.current_valence().value();
             coherence_sum = coherence_sum + adapter.contribute_to_coherence();
             system_statuses.push(adapter.status());
@@ -92,8 +96,10 @@ impl QuantumSwarmOrchestrator {
             active_systems: system_statuses,
             recommended_actions: vec![
                 "Continue TOLC 8 enforcement across all adapters".to_string(),
-                "Register more system adapters (Mercy, Powrush, PATSAGi, Real-Estate-Lattice)".to_string(),
-                "Implement full polyhedral + Riemannian layers from geometric-intelligence".to_string(),
+                "Register more system adapters (Mercy, Powrush, PATSAGi, Real-Estate-Lattice)"
+                    .to_string(),
+                "Implement full polyhedral + Riemannian layers from geometric-intelligence"
+                    .to_string(),
             ],
         };
 
@@ -102,5 +108,11 @@ impl QuantumSwarmOrchestrator {
 
     pub fn registered_system_count(&self) -> usize {
         self.adapters.len()
+    }
+}
+
+impl Default for QuantumSwarmOrchestrator {
+    fn default() -> Self {
+        Self::new()
     }
 }

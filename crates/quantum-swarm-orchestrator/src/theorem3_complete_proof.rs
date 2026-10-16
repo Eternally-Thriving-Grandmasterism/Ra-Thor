@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; doc-comment proof text, not an implementation.
 //! # Theorem 3 — Complete Rigorous Proof (Definitive Version)
 //!
 //! **This is the final, self-contained, fully rigorous mathematical proof of

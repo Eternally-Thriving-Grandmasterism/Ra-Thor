@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; analyze takes SwarmSnapshot from real_time_swarm_monitoring, and that module calls QuantumSwarmOrchestrator::get_state, which the compiled orchestrator does not define.
 //! # Anomaly Alerting for Ra-Thor Quantum Swarm
 //!
 //! **Production-grade real-time anomaly detection and alerting.**

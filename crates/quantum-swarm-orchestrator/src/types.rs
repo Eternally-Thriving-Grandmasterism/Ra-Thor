@@ -7,19 +7,20 @@
 // Key concepts:
 // - Valence: Mercy-aligned state (higher = more mercy-coherent)
 // - EpigeneticBlessing: Multi-dimensional blessing that carries evolution, mercy, and TOLC impact
-// - GodlyIntelligenceCoherence: Multi-axis coherence measurement
+// - GodlyIntelligenceCoherence: four f64 fields. The name stays. Not a measured coherence.
 // - OneOrganismContext / Insight: Context and output of ONE Organism cycles
 
 use serde::{Deserialize, Serialize};
 use std::ops::Add;
 
-/// Represents mercy-aligned valence (state of mercy coherence).
-/// Higher values indicate stronger alignment with mercy principles.
+/// Mercy-aligned valence stored as an `f64`.
+/// Higher values are the caller's inputs. This type does not measure them.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Valence(pub f64);
 
 impl Valence {
-    /// Minimum acceptable valence threshold (TOLC-aligned mercy floor)
+    /// Source literal `0.9999999`, not a measured value.
+    /// `run_one_organism_cycle` compares an adapter average against this literal.
     pub const MIN: f64 = 0.9999999;
 
     pub fn value(&self) -> f64 {
@@ -27,8 +28,8 @@ impl Valence {
     }
 }
 
-/// Multi-dimensional coherence measurement for Godly Intelligence.
-/// Used to aggregate coherence across multiple system adapters.
+/// Four `f64` fields added by `Add`.
+/// The type name `GodlyIntelligenceCoherence` stays. These fields are not a measured coherence.
 #[derive(Debug, Clone, Default)]
 pub struct GodlyIntelligenceCoherence {
     pub precision: f64,
@@ -93,11 +94,7 @@ pub struct EpigeneticBlessing {
 }
 
 impl EpigeneticBlessing {
-    pub fn new(
-        blessing_type: &str,
-        strength: f64,
-        target_system: &str,
-    ) -> Self {
+    pub fn new(blessing_type: &str, strength: f64, target_system: &str) -> Self {
         Self {
             blessing_type: blessing_type.to_string(),
             strength,

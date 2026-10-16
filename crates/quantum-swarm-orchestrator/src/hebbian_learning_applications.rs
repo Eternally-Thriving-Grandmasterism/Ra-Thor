@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; uses ra_thor_legal_lattice, ra_thor_plasticity_engine_v2, and quantum_swarm_convergence. Those crates are not dependencies.
 //! # Hebbian Learning Applications in Ra-Thor
 //!
 //! **The complete practical guide to applying Hebbian learning across the Ra-Thor monorepo.**

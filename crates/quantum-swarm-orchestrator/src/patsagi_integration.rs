@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; uses powrush::patsagi_councils and mercy::MercyGateStatus. Those crates are not dependencies.
 //! # PATSAGi Integration for Quantum Swarm Orchestrator
 //!
 //! Brings the full PATSAGi Council system into the core quantum swarm layer.

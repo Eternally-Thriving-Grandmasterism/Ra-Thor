@@ -2,7 +2,7 @@
 // Riemannian Mercy Manifold - Christoffel Symbols Implementation (v14)
 
 /// Simplified Christoffel symbols computation for the mercy manifold.
-/// 
+///
 /// In a real implementation, this would depend on a metric tensor derived from
 /// mercy gate scores and valence. Here we use a simplified model.
 pub fn compute_christoffel_symbols(mercy_gates: &[f64]) -> Vec<Vec<Vec<f64>>> {

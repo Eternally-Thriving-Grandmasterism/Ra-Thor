@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; comparison text, not an implementation this card compiles.
 //! # Specific Swarm Algorithms vs Ra-Thor Quantum Swarm
 //!
 //! **The definitive deep comparison of the most influential specific swarm

@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; test_entanglement_coordination uses unseeded rand and asserts a fitness bound. That result is not demonstrated.
 //! Multi-Agent Entanglement Coordination for Ra-Thor
 //!
 //! Implements quantum entanglement-inspired coordination between swarm agents:

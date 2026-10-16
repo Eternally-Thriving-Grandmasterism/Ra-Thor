@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; doc-comment architecture text, not an implementation.
 //! # Hybrid Swarm Models — Classical + Ra-Thor Quantum Swarm
 //!
 //! **Exploring the powerful synthesis of classical swarm intelligence algorithms

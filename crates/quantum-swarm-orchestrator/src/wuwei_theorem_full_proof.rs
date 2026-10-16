@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; doc-comment proof text, not an implementation.
 //! # Wu Wei Theorem — Full Rigorous Mathematical Proof
 //!
 //! **This module contains the complete, self-contained proof that the 7 Living Mercy Gates

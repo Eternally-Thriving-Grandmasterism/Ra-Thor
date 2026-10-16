@@ -24,7 +24,9 @@ pub struct ValenceCommitmentNode {
 }
 
 /// Build a recursive valence commitment tree from the current fractal topology.
-pub fn build_valence_commitment_tree(engine: &FractalTopologyEngine) -> Option<ValenceCommitmentNode> {
+pub fn build_valence_commitment_tree(
+    engine: &FractalTopologyEngine,
+) -> Option<ValenceCommitmentNode> {
     // For the sketch we only need the root for now.
     // Full version will walk the entire hierarchy.
     let max_depth = engine.current_max_depth();

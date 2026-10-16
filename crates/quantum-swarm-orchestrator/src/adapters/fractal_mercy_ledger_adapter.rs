@@ -90,11 +90,7 @@ impl FractalMercyLedgerAdapter {
 
     /// Convenience: build GeometricResonanceReport from a local PolyhedralResonanceReport
     /// and receive it in one step.
-    pub fn receive_from_polyhedral(
-        &mut self,
-        poly: &PolyhedralResonanceReport,
-        tolc_order: u32,
-    ) {
+    pub fn receive_from_polyhedral(&mut self, poly: &PolyhedralResonanceReport, tolc_order: u32) {
         let mut report = GeometricResonanceReport::from(poly);
         report.tolc_order = tolc_order;
         self.receive_geometric_resonance(report);
@@ -148,7 +144,7 @@ impl RaThorSystemAdapter for FractalMercyLedgerAdapter {
     fn apply_epigenetic_blessing(&mut self, blessing: EpigeneticBlessing) {
         self.blessing_count = self.blessing_count.saturating_add(1);
         println!(
-            "[FractalMercyLedger] Applied epigenetic blessing: {} (strength {:.3}) [#{]]",
+            "[FractalMercyLedger] Applied epigenetic blessing: {} (strength {:.3}) [#{}]",
             blessing.blessing_type, blessing.strength, self.blessing_count
         );
 

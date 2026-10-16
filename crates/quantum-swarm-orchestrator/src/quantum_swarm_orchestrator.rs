@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; uses quantum_swarm_agent, quantum_swarm_state, ra_thor_legal_lattice, and ra_thor_plasticity_engine_v2. Those are not dependencies.
 //! # Quantum Swarm Orchestrator (Main Engine)
 //!
 //! **The beating heart of the Ra-Thor Quantum Swarm.**

@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; doc-comment proof text, not an implementation.
 //! # Full Rigorous Proof of Theorem 2 — Monotonic Free-Energy Descent
 //!
 //! **This module contains the complete, self-contained mathematical derivation

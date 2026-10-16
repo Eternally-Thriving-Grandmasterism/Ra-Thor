@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; test_advanced_qpso_convergence uses unseeded rand and asserts a fitness bound. That result is not demonstrated.
 //! Advanced Quantum Particle Swarm Optimization (QPSO) for Ra-Thor
 //!
 //! This module implements a production-grade quantum-enhanced PSO with:

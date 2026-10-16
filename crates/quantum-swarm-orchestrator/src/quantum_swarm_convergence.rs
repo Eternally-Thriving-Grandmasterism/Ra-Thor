@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; uses ra_thor_legal_lattice, ra_thor_plasticity_engine_v2, and crate::quantum_swarm_state::SwarmState. The comment says that module is to be created. It was not created.
 //! # Quantum Swarm Convergence
 //!
 //! **Rigorous mathematical derivation of convergence guarantees for the

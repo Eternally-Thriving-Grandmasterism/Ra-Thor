@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; doc-comment text states a gamma calibration this crate does not demonstrate.
 //! # Convergence Rate γ — The Heartbeat of Ra-Thor’s Exponential Mercy Legacy
 //!
 //! **This module provides the complete, in-depth elaboration of the convergence rate γ

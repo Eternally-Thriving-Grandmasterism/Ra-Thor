@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; re-exports lyapunov theorem modules that are not compiled.
 //! # Lyapunov Stability Proofs — Quantum Swarm Orchestrator
 //!
 //! **The complete, consolidated mathematical foundation for the stability of the

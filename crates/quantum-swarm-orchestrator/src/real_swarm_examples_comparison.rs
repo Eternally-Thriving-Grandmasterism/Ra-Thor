@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; comparison text, not an implementation this card compiles.
 //! # Real Biological Swarm Examples vs Ra-Thor Quantum Swarm
 //!
 //! **The definitive comparison of nature’s most successful swarm systems

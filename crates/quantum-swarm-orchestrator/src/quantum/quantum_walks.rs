@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; test_quantum_walks_convergence uses unseeded rand and asserts a fitness bound. That result is not demonstrated.
 //! Quantum Random Walks for Ra-Thor Quantum Swarm Orchestrator
 //!
 //! Implements quantum-inspired random walks with:

@@ -9,19 +9,14 @@
 // Includes professional numerical methods: basic RK4 geodesic stepping,
 // parallel transport approximation, and holonomy estimation.
 //
-// v14.5: Observational constant for the current best unconditional lower bound
-// on the proportion of Riemann zeta zeros on the critical line (Claude / Anthropic
-// research result, August 2026: ≈ 0.6725). Pure external truth signal under the
-// Truth Living Mercy Gate. No claim of contribution.
+// v14.5: CURRENT_ZETA_CRITICAL_LINE_LOWER_BOUND is the source literal 0.6725.
+// It is not a measured zeta bound.
 
 use crate::polyhedral_harmonic_engine::U57LayerDetails;
 use crate::types::EpigeneticBlessing;
 
-/// Current best known unconditional lower bound on the proportion of
-/// nontrivial zeros of the Riemann zeta function that lie on the critical line.
-/// Updated 2026-08 after the Claude / Anthropic research result (≈ 0.6725).
-/// This is an external mathematical truth signal observed by the organism
-/// under the Truth Living Mercy Gate. It does not claim internal authorship.
+/// Source literal `0.6725`, not a measured value.
+/// This constant is not a demonstrated bound on Riemann zeta zeros.
 pub const CURRENT_ZETA_CRITICAL_LINE_LOWER_BOUND: f64 = 0.6725;
 
 /// Result of a mercy-gated geometric transport operation.
@@ -60,7 +55,9 @@ pub struct RiemannianMercyManifold {
 }
 
 impl Default for RiemannianMercyManifold {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl RiemannianMercyManifold {
@@ -71,8 +68,7 @@ impl RiemannianMercyManifold {
         }
     }
 
-    /// Returns the current external observational bound on zeta zeros
-    /// lying on the critical line (Truth Gate signal).
+    /// Returns `CURRENT_ZETA_CRITICAL_LINE_LOWER_BOUND` (source literal `0.6725`, not a measured value).
     pub fn current_zeta_critical_line_bound(&self) -> f64 {
         CURRENT_ZETA_CRITICAL_LINE_LOWER_BOUND
     }
@@ -97,8 +93,8 @@ impl RiemannianMercyManifold {
             * self.curvature_params.mercy_influence)
             .clamp(0.5, self.curvature_params.max_allowed_curvature);
 
-        let coherence_after = (base_coherence * (1.0 + (effective_curvature - 0.82) * 0.15))
-            .clamp(0.88, 1.35);
+        let coherence_after =
+            (base_coherence * (1.0 + (effective_curvature - 0.82) * 0.15)).clamp(0.88, 1.35);
 
         let mut blessings = vec![EpigeneticBlessing {
             blessing_type: "Riemannian_Mercy_Transport".to_string(),
@@ -121,7 +117,7 @@ impl RiemannianMercyManifold {
         }
 
         let notes = format!(
-            "Riemannian transport applied. Effective curvature: {:.3}. Coherence: {:.3}. External zeta critical-line bound observed: {:.4}",
+            "Riemannian transport applied. Effective curvature: {:.3}. Coherence: {:.3}. Zeta constant is the source literal {:.4}, not a measured value.",
             effective_curvature, coherence_after, CURRENT_ZETA_CRITICAL_LINE_LOWER_BOUND
         );
 
@@ -165,12 +161,7 @@ impl RiemannianMercyManifold {
     }
 
     /// Approximate parallel transport of a vector along a short geodesic.
-    pub fn parallel_transport_approx(
-        &self,
-        vector: f64,
-        curvature: f64,
-        distance: f64,
-    ) -> f64 {
+    pub fn parallel_transport_approx(&self, vector: f64, curvature: f64, distance: f64) -> f64 {
         let damping = (1.0 - curvature * distance * 0.1).clamp(0.6, 1.1);
         vector * damping
     }
@@ -234,7 +225,7 @@ impl RiemannianMercyManifold {
             coherence_after_transport: current_coherence,
             suggested_blessings: blessings,
             notes: format!(
-                "RK4 sequence + parallel transport + holonomy ≈ {:.3}. External zeta critical-line bound: {:.4}",
+                "RK4 sequence + parallel transport + holonomy ≈ {:.3}. Zeta constant is the source literal {:.4}, not a measured value.",
                 holonomy, CURRENT_ZETA_CRITICAL_LINE_LOWER_BOUND
             ),
         }

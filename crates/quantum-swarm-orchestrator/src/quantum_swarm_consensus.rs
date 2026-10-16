@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; uses powrush, mercy, crate::long_horizon_memory, and crate::lattice_conductor. Those modules do not exist.
 //! # Quantum Swarm Consensus Engine
 //!
 //! Unified consensus layer that combines:

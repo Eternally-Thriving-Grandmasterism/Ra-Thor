@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; doc-comment derivation text, not an implementation.
 //! # Theorem 4 Resilience Derivation — Why the Ra-Thor Quantum Swarm Never Reverses
 //!
 //! **This module contains the complete, rigorous mathematical derivation of the

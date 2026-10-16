@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 QSO-BUILDS-1 council note): not compiled; doc-comment proof text, not an implementation.
 //! # TOLC 7 Gates ↔ Taoist Wu Wei — Expanded Mathematical Proofs
 //!
 //! **This is the definitive expanded mathematical treatment of how the 7 Living Mercy Gates
