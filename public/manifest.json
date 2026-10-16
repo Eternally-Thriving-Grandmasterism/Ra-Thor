@@ -1,7 +1,7 @@
 {
   "name": "Rathor — Mercy Strikes First",
   "short_name": "Rathor",
-  "description": "Inspectable research software. Mercy checks. No locked truth score.",
+  "description": "Inspectable research software with mercy checks.",
   "start_url": "/Rathor-NEXi/",
   "display": "standalone",
   "background_color": "#000000",
