@@ -1,36 +1,16 @@
-//! crates/powrush/src/lib.rs — v14.15.1
-//! Powrush RBE + governance compatibility surface for PATSAGi Councils.
-//! Living Cosmic Tick + ONE Organism readiness. Contact: info@Rathor.ai
+//! powrush — policy hint emission for the Ra-Thor side of the Powrush bridge.
 //!
-//! Policy Hint Emission (ra_thor_policy_hint_v1) sealed for dual-repo RTT bridge.
+//! The default build is `governance_types` and `policy_hint_emission`
+//! (schema `ra_thor_policy_hint_v1`). A hint that fails validation is not written.
+//! This crate does not run an MMO, and it does not apply hints to a live world.
 //!
-//! Player loop lives in GitHub Powrush-MMO, not here. Do not grow this crate into
-//! a second MMO. Public surface stays governance + policy_hint_emission + compatibility.
+//! Sources that need bevy or nalgebra, and the stub game modules, stay on disk.
+//! They are not `mod`ded here. `src/bin` is not a cargo target.
+//! Contact: info@Rathor.ai
 
-pub mod clifford_healing_fields;
-pub mod npc;
-pub mod simulation;
-pub mod economy;
-pub mod powrush_mmo_core;
-pub mod device_capability;
-pub mod experience_tier;
-pub mod ui_adaptation;
-pub mod virtual_joystick;
 pub mod governance_types;
 pub mod policy_hint_emission;
 
-pub use device_capability::{DeviceCapability, Platform, InputMethod, DeviceCapabilityPlugin};
-pub use experience_tier::{ExperienceTier, ExperienceTierPlugin};
-pub use ui_adaptation::{UiAdaptation, UiAdaptationPlugin};
-pub use virtual_joystick::{
-    VirtualJoystick, VirtualJoystickPlugin, JoystickMoveEvent, PredictedState,
-    ReplayLogger, DeterministicReplayLog, ReplayEntry,
-    MerkleTree, MerkleProof,
-    TargetedSparseMerkleTree, TargetedSparseProof, compute_state_checksum,
-};
-pub use simulation::{Position, predict_move_position};
-
-// PATSAGi / WorldGovernance closed-loop surface
 pub use governance_types::{
     AscensionLevel, Faction, MercyGateStatus, Player, PlayerNeeds, PowrushGame, ResourceType,
     WorldResource,
@@ -38,7 +18,6 @@ pub use governance_types::{
 
 // Dual-repo soft feedback emission (Ra-Thor → Powrush-MMO)
 pub use policy_hint_emission::{
-    PolicyHint, PolicyHintEnvelope, EmissionError,
-    emit_policy_hints, emit_after_deliberation, conservative_mercy_presence,
-    CLOSED_CATEGORIES, SCHEMA_V1, DEFAULT_EMISSION_PATH,
+    conservative_mercy_presence, emit_after_deliberation, emit_policy_hints, EmissionError,
+    PolicyHint, PolicyHintEnvelope, CLOSED_CATEGORIES, DEFAULT_EMISSION_PATH, SCHEMA_V1,
 };

@@ -4,22 +4,22 @@ version = "14.15.0"
 edition = "2021"
 authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
 license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
-description = "Powrush RBE engine — Resource-Based Economy core for Ra-Thor. Clifford Healing Fields + geometric mercy communion. Living Cosmic Tick + ONE Organism 14.15 readiness."
+description = "Policy hint emission (ra_thor_policy_hint_v1). A hint can be rejected. Design-only game modules are not in this build."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+autobins = false
+autotests = false
+
+# Standalone workspace, same pattern as crates/fenca and crates/council.
+# `cargo build --locked` and `cargo test --locked` use this manifest.
+# This crate is not a root default member.
+#
+# Bevy and nalgebra are not dependencies. Modules that need them, and the
+# stub game sources, stay on disk and are not compiled. autobins and
+# autotests are off so src/bin and tests/ are not cargo targets.
+[workspace]
+resolver = "2"
 
 [dependencies]
-nalgebra.workspace = true
-serde = { workspace = true, features = ["derive"] }
-serde_json = "1.0"
-thiserror.workspace = true
-geometric-intelligence = { path = "../geometric-intelligence" }
-
-[dev-dependencies]
-
-[features]
-default = []
-mmo = []
-full-clifford = []  # Enable when mature CGA Motor sandwich-product is available
-
-# Powrush RBE v2.1 + Clifford Healing Fields
-# Production MMO launch + geometric mercy communion across organisms
-# Integrated with RSRE, PATSAGi Councils, Thunder Lattice, MIAL, ONE Organism 14.15
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "1"

@@ -1,3 +1,16 @@
+# Status
+
+The default build of this crate is `governance_types` and policy hint emission (`ra_thor_policy_hint_v1`).
+
+```bash
+cargo build --manifest-path crates/powrush/Cargo.toml --locked
+cargo test --manifest-path crates/powrush/Cargo.toml --locked
+```
+
+The game, the MMO server, and the bevy modules described below are design-only. They are not compiled. The `cargo run` commands in this file are not a working quick start.
+
+---
+
 **✅ Perfect, Mate!**  
 
 Here is the **final file — File 12 of 12**.
