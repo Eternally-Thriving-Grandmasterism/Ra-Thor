@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Comprehensive Unit & Integration Tests for RREL Canada Pilot Module
 //! v14.3 Execution Stabilization — AlphaProMega Real Estate Inc. Ontario Pilot
 //!

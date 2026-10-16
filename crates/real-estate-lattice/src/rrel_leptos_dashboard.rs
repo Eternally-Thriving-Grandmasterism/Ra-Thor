@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! RREL Leptos Dashboard — Deeper Wiring (v14.3)
 //! Now supports enriched data from AttomDataProvider + caching + Geometric Harmony (v14.4)
 

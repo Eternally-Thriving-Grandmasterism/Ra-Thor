@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define; placeholder, not a working proof system.
 //! BulletproofsRange — Logarithmic Range + Aggregation + Recursive Composition
 //! Ultramasterful Halo2 gadget for infinite-depth recursive aggregation
 

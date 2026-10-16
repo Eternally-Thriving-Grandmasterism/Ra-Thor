@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Quantum Real Estate Valuation Engine
 //! Derived from RREL documentation (April 29, 2026)
 //! Combines quantum swarm consensus, mercy valence, regulatory risk, and CEHI scoring

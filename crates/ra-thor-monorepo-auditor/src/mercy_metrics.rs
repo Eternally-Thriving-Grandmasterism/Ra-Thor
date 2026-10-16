@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key ra-thor-kernel that the root does not define.
 use serde::{Deserialize, Serialize};
 
 /// Structured mercy-aligned metrics for a crate or the full monorepo.

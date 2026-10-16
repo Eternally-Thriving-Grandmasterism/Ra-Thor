@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define; placeholder, not a working proof system.
 //! PlonkRecursion — Halo2 Folding/IVC Techniques for Infinite Recursion
 //! Ultramasterful composition for eternal proof-of-proof resonance
 

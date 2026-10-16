@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key ra-thor-kernel that the root does not define.
 //! Audit Health Metrics
 //!
 //! Provides observability into the quality and trends of audits performed by ra-thor-monorepo-auditor.

@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 // crates/aether_shades/src/truth_filter_core.rs
 // Ra-Thor™ Aether-Shades Truth Filter Core — Absolute Pure Truth Edition (Fully Implemented)
 // Real-time, mercy-gated AR truth perception filter

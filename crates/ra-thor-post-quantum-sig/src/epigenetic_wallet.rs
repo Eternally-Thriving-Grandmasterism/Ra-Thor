@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Epigenetic Wallet State Module — RHPQS v0.1.0 (Enhanced)
 //! Ra-Thor Native Feature: Wallets that evolve with CEHI
 //! Multi-Generational Signature Inheritance • Advanced Quantum Drift Healing • Mercy-Gated Evolution

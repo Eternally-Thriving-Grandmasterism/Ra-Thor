@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Integration tests for mercy_merlin_engine + mercy_lang_compiler
 //! Verifies clean TOLC + active inference + predictive coding wiring
 

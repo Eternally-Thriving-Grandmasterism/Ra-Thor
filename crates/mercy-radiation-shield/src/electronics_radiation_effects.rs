@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Electronics Radiation Effects — SREL v0.5.21 (Nth Degree)
 //! Now fully powered by TOLC 7 Gates nth-degree mapping + real space data
 

@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 use ra_thor_mercy::MercyEngine;
 use ra_thor_quantum_swarm_orchestrator::QuantumSwarmOrchestrator;
 use powrush::PowrushGame;

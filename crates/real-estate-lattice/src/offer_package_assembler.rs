@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Offer Package Assembler for Ontario Real Estate Lattice (RREL)
 //! Assembles complete, validated offer packages from classified deal + property data.
 //! Mercy-gated assembly with clear recommendations.

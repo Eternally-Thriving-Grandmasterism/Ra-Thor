@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Ontario Pilot Demo — RREL v14.3
 //!
 //! Demonstrates the new stabilized v14.3 Real Estate Lattice capabilities:

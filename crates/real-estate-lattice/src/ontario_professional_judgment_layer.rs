@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! crates/real-estate-lattice/src/ontario_professional_judgment_layer.rs
 //!
 //! Ontario Professional Judgment Layer v14.4.1

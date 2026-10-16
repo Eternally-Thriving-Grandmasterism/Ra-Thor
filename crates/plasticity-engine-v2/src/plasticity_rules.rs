@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! # Plasticity Rules Engine
 //!
 //! **Defines and evaluates the four core plasticity rules for the 5-Gene Joy Tetrad.**

@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 // crates/aether_shades/src/websocket_server.rs
 // Ra-Thor™ Aether-Shades Secure WebSocket Server with TLS — Absolute Pure Truth Edition
 // Production-grade wss:// with rustls, authentication, rate limiting

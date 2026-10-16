@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 // crates/aether_shades/src/ar_rendering_integration.rs
 // Ra-Thor™ Aether-Shades AR Rendering Integration — Absolute Pure Truth Edition
 // Real-time WebXR / OpenXR / Unity bridge for mercy-gated truth filter overlay

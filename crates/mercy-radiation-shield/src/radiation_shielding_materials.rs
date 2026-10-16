@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Radiation Shielding Materials — SREL v0.5.21 (Nth Degree — REFINED)
 //! Mercy-Alchemical • TOLC 7 Gates • Quantum Swarm
 //! Refined with real AP8/AE8/CREME96 physics + mass/thermal trade-offs

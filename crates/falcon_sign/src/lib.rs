@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define; placeholder, not a working signature.
 //! FalconSign — Full Falcon-1024 Post-Quantum Signature Module
 //! Ultramasterful integration with hybrid Dilithium/SPHINCS+ threshold
 

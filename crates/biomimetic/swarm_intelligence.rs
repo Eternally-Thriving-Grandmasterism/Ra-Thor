@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 // crates/biomimetic/swarm_intelligence.rs
 // Biomimetic Optimization Engine + Swarm Intelligence
 // Multi-algorithm living optimizer: PSO, ACO, ABC, Mycelial, Whale, von Neumann replication

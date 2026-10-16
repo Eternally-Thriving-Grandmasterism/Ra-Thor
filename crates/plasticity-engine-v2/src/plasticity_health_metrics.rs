@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Plasticity Health Metrics
 //!
 //! Provides observability into how effective the plasticity rules are performing

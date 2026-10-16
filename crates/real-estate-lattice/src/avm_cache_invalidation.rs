@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Redis Streams based Invalidation for AVM Cache (Reliable Version)
 //!
 //! Upgraded from Pub/Sub to Redis Streams for durability, replayability,

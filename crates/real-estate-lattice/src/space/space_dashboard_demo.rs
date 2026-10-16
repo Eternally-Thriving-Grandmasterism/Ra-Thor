@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Unified Space Real Estate + PCB Dashboard Demo — SREL v0.5.21 (Nth Degree)
 //! Runs all 6 space engines + full Ra-Thor PCB status in one view
 

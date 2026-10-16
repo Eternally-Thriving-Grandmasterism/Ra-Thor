@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Ra-Thor PCB Radiation Protection Bridge — SREL v0.5.21 (Nth Degree)
 //! Direct integration for MercySolar-PCB (ESP32-S3 MPPT firmware)
 //! Real space data + TMR/ECC/scrubbing + conformal coating recommendations

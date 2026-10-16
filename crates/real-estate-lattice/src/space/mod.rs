@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Space Real Estate Lattice (SREL) — TOLC 7 Gates Radiation Mapping wired into every engine
 
 pub mod orbital_habitat_engine;

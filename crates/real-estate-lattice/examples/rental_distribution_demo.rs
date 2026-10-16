@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Rental Income Distribution Demo — RREL v0.5.21
 //! Demonstrates mercy-gated, quantum-swarm automated rental income distribution to fractional owners
 

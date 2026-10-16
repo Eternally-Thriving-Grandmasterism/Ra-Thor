@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! # Hebbian Reinforcement Module
 //!
 //! **The fourth and most granular plasticity rule in the Ra-Thor Plasticity Engine v2.**

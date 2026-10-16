@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Lawyer Report Generator (Markdown-first) for Real Estate Lattice
 //!
 //! Generates clean, professional Markdown reports suitable for direct lawyer use

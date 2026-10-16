@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Insurance Claim & Risk Mitigation Demo — RREL v0.5.21
 //! Demonstrates mercy-gated insurance claim processing with proactive risk reduction
 

@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! TOLC + Mercy Merlin Reasoning Integration for ra-thor-meta-intelligence
 //!
 //! This module provides helpers that allow the Self-Improvement Orchestrator

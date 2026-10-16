@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! USA Pilot Demo — RREL v14.3 (with ATTOM Caching)
 //!
 //! Demonstrates process_usa_offer_flow with AttomDataProvider + caching.

@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! USA Regulatory Engine — RREL v14.3
 //! Federal + State Compliance Layer for All 50 States
 //! Enhanced with additional regulatory edge cases

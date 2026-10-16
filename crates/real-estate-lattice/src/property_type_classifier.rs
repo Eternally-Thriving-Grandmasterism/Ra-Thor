@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Property Type Classifier for Ontario Real Estate Lattice (RREL)
 //!
 //! Production-grade classification system for Ontario properties.

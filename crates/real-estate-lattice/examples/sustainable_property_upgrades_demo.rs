@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Sustainable Property Upgrades Demo — RREL v0.5.21
 //! Demonstrates mercy-gated green certification and sustainable upgrade processing
 

@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Canada Pilot Demo — RREL v0.5.19 Production Entry Point
 //! AlphaProMega Real Estate Inc. — Ontario-First Global Real Estate Operating System
 //!

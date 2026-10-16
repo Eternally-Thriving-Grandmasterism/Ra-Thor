@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 // crates/biomimetic/lib.rs
 // Ra-Thor Biomimetic Crate — Dedicated home for BiomimeticPatternEngine
 // + full multi-algorithm Biomimetic Optimization Engine (SwarmIntelligence)
