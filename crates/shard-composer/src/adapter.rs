@@ -7,7 +7,8 @@
 //! `load_from_file` then does not accept the signed payload.
 //! `save_to_file` also leaves an existing file untouched when that file does not
 //! verify under the current base. That call returns an error and writes nothing.
-//! A save that passes that check writes a temp file in the same directory, then renames it over the target.
+//! A save that passes that check writes a unique temp file in the same directory, syncs it, then renames it over the target.
+//! If that write or sync fails, the temp file is removed and the original error is returned.
 //! Scale numbers below are source coefficients, not measured rates.
 //! `GodlyIntelligenceCoherence` keeps its name. The four fields are recorded totals.
 
@@ -20,9 +21,10 @@ use ra_thor_quantum_swarm_orchestrator::{
 use serde::{Deserialize, Serialize};
 use sha2::Sha256;
 use std::env;
-use std::fs;
-use std::io;
+use std::fs::{self, File, OpenOptions};
+use std::io::{self, Write};
 use std::path::Path;
+use std::sync::atomic::{AtomicU64, Ordering};
 
 const CURRENT_VERSION: u32 = 3;
 
@@ -298,9 +300,18 @@ fn hmac_base_key_error() -> io::Error {
     io::Error::new(io::ErrorKind::InvalidInput, hmac_base_key_message())
 }
 
-/// Writes `bytes` to `{filename}.tmp` in the target directory, then renames that file over `path`.
+/// Writes `bytes` to a unique temp file in the target directory, syncs it, then renames it over `path`.
 /// The overwrite guard runs before this function.
+/// A failed write or sync removes that temp file and returns the original error.
+/// On unix the parent directory is synced after the rename.
 fn write_temp_then_rename(path: &Path, bytes: &[u8]) -> io::Result<()> {
+    write_unique_temp_then_rename(path, |file| file.write_all(bytes))
+}
+
+fn write_unique_temp_then_rename(
+    path: &Path,
+    write_bytes: impl FnOnce(&mut File) -> io::Result<()>,
+) -> io::Result<()> {
     let parent = path
         .parent()
         .filter(|dir| !dir.as_os_str().is_empty())
@@ -308,14 +319,52 @@ fn write_temp_then_rename(path: &Path, bytes: &[u8]) -> io::Result<()> {
     let file_name = path
         .file_name()
         .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "save path has no file name"))?;
-    let mut tmp_name = file_name.to_os_string();
-    tmp_name.push(".tmp");
-    let tmp_path = parent.join(tmp_name);
-    fs::write(&tmp_path, bytes)?;
+    let tmp_path = parent.join(unique_temp_name(file_name));
+    let mut file = OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(&tmp_path)?;
+    if let Err(err) = write_bytes(&mut file) {
+        return Err(abort_temp(file, &tmp_path, err));
+    }
+    if let Err(err) = file.sync_all() {
+        return Err(abort_temp(file, &tmp_path, err));
+    }
+    drop(file);
     if let Err(err) = fs::rename(&tmp_path, path) {
         let _ = fs::remove_file(&tmp_path);
         return Err(err);
     }
+    sync_parent_dir(parent)
+}
+
+fn unique_temp_name(file_name: &std::ffi::OsStr) -> std::ffi::OsString {
+    static TEMP_FILE_SEQ: AtomicU64 = AtomicU64::new(0);
+    let pid = std::process::id();
+    let nanos = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|duration| duration.as_nanos())
+        .unwrap_or(0);
+    let seq = TEMP_FILE_SEQ.fetch_add(1, Ordering::Relaxed);
+    let mut tmp_name = std::ffi::OsString::from(".");
+    tmp_name.push(file_name);
+    tmp_name.push(format!(".{pid}.{nanos}.{seq}.tmp"));
+    tmp_name
+}
+
+fn abort_temp(file: File, tmp_path: &Path, err: io::Error) -> io::Error {
+    drop(file);
+    let _ = fs::remove_file(tmp_path);
+    err
+}
+
+#[cfg(unix)]
+fn sync_parent_dir(parent: &Path) -> io::Result<()> {
+    File::open(parent)?.sync_all()
+}
+
+#[cfg(not(unix))]
+fn sync_parent_dir(_parent: &Path) -> io::Result<()> {
     Ok(())
 }
 
@@ -349,6 +398,8 @@ fn encode_hex(bytes: &[u8]) -> String {
 }
 
 // `len() % 2` and `chunks_exact` stay usable before Rust 1.88.
+// Those clippy names are newer than 1.89.0. `unknown_lints` keeps this allow on 1.89.0.
+#[allow(unknown_lints)]
 #[allow(clippy::manual_is_multiple_of, clippy::chunks_exact_to_as_chunks)]
 fn decode_hex(text: &str) -> Option<Vec<u8>> {
     if text.len() % 2 == 0 {
@@ -548,5 +599,70 @@ mod tests {
                 assert_eq!(loaded.last_resonance_intensity(), Some(0.5));
             }
         });
+    }
+
+    #[test]
+    fn two_renames_leave_only_the_target() {
+        let dir =
+            std::env::temp_dir().join(format!("shard-composer-two-rename-{}", std::process::id()));
+        let _ = fs::remove_dir_all(&dir);
+        fs::create_dir_all(&dir).expect("create directory");
+        let path = dir.join("state.json");
+        write_temp_then_rename(&path, b"one").expect("first write");
+        write_temp_then_rename(&path, b"two").expect("second write");
+        assert_eq!(fs::read(&path).expect("read target"), b"two");
+        let names = dir_names(&dir);
+        let _ = fs::remove_dir_all(&dir);
+        assert_eq!(names, vec!["state.json".to_string()]);
+    }
+
+    #[test]
+    fn failed_write_removes_the_temp_and_names_differ() {
+        let dir =
+            std::env::temp_dir().join(format!("shard-composer-fail-write-{}", std::process::id()));
+        let _ = fs::remove_dir_all(&dir);
+        fs::create_dir_all(&dir).expect("create directory");
+        let path = dir.join("state.json");
+        let fixed = "state.json.tmp".to_string();
+        let prefix = format!(".state.json.{}.", std::process::id());
+        let mut seen = Vec::new();
+        for _ in 0..2 {
+            let mut during = Vec::new();
+            let err = write_unique_temp_then_rename(&path, |file| {
+                file.write_all(b"partial")?;
+                during = dir_names(&dir);
+                Err(io::Error::other("injected write failure"))
+            })
+            .expect_err("write failure");
+            assert_eq!(err.kind(), io::ErrorKind::Other);
+            assert_eq!(err.to_string(), "injected write failure");
+            assert_eq!(during.len(), 1, "{during:?}");
+            let name = during.pop().expect("temp name");
+            assert_ne!(name, fixed);
+            assert!(name.starts_with(&prefix), "{name}");
+            assert!(name.ends_with(".tmp"), "{name}");
+            assert!(!dir.join(&name).exists(), "temp remains: {name}");
+            assert!(!path.exists(), "target must not be written");
+            let left = dir_names(&dir);
+            assert!(left.is_empty(), "temp file left behind: {left:?}");
+            seen.push(name);
+        }
+        assert_ne!(seen[0], seen[1]);
+        let _ = fs::remove_dir_all(&dir);
+    }
+
+    fn dir_names(dir: &Path) -> Vec<String> {
+        let mut names: Vec<String> = fs::read_dir(dir)
+            .expect("read directory")
+            .map(|entry| {
+                entry
+                    .expect("entry")
+                    .file_name()
+                    .to_string_lossy()
+                    .into_owned()
+            })
+            .collect();
+        names.sort();
+        names
     }
 }
