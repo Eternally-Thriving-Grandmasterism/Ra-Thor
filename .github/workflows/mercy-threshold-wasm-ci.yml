@@ -13,10 +13,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Install Lean 4
-        uses: leanprover/lean-action@v1
+        uses: leanprover/lean-action@24581d74d674803a25a81b10b059c5c0cdd344c6 # v1
 
       - name: Build Lean package + generate WASM
         run: |
@@ -24,7 +24,7 @@ jobs:
           ./scripts/build-mercy-threshold-wasm.sh
 
       - name: Setup Rust
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
         with:
           targets: wasm32-unknown-unknown
 
@@ -40,7 +40,7 @@ jobs:
         run: cargo build -p mercy-threshold-wasm --features wasm --target wasm32-unknown-unknown --release
 
       - name: Upload generated WASM
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: mercy-threshold-wasm
