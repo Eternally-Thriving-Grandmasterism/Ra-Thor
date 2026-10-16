@@ -1,24 +1,21 @@
 //! shard-composer
 //!
-//! High-level unification crate for Ra-Thor Sovereign Shards.
+//! `ShardComposerAdapter` records blessing arithmetic on
+//! `ra-thor-quantum-swarm-orchestrator`.
+//! A fresh adapter stores valence `0.0`.
+//! `VALENCE_SOURCE_CEILING` is a source ceiling, not a measured valence.
+//! `GodlyIntelligenceCoherence` keeps its name. The four fields are recorded impacts, not a measured coherence.
+//! `patsagi-councils` is re-exported as `patsagi`. This package is not `crates/council`.
+//! Public TOLC 8 names are Truth, Order, Love, Compassion, Service, Abundance, Joy, Cosmic Harmony.
+//!
+//! Not path dependencies: `geometric-intelligence` (no library), `real-estate-lattice`
+//! (not a standalone build), `crates/mercy` (root member).
+//! This package defines no `full` feature. `quantum-swarm-orchestrator` has no `full` feature.
+//! `patsagi-councils` has no `full` feature. The re-export uses the public API that builds.
+//! Contact: info@Rathor.ai
 
-pub use ra_thor_mercy as mercy;
-
-#[cfg(feature = "geometric-intelligence")]
-pub use geometric_intelligence as geometric;
-
-#[cfg(feature = "real-estate-lattice")]
-pub use real_estate_lattice as real_estate;
-
-#[cfg(feature = "quantum-swarm-orchestrator")]
-pub use ra_thor_quantum_swarm_orchestrator as quantum_swarm;
-
-#[cfg(feature = "patsagi-councils")]
-pub use patsagi_councils as patsagi;
-
-// ONE Organism participation
-#[cfg(feature = "one-organism")]
 pub mod adapter;
 
-#[cfg(feature = "one-organism")]
-pub use adapter::ShardComposerAdapter;
+pub use adapter::{ShardComposerAdapter, VALENCE_SOURCE_CEILING};
+pub use patsagi_councils as patsagi;
+pub use ra_thor_quantum_swarm_orchestrator as quantum_swarm;

@@ -33,6 +33,7 @@ These were make-real cards. `cargo check` on 2026-10-16 finished for each. They 
 | QSO-BUILDS-1: `crates/quantum-swarm-orchestrator` | #676 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock`. Not a root member. No path dependency. `self-evolution` is dropped (`../../self-evolution` has no `Cargo.toml`). Locked `cargo test --all-targets` and `cargo clippy --all-targets -- -D warnings` finished. Compiled surface is `QuantumSwarmOrchestrator` plus the local geometric modules listed in section 6. It does not implement `Clone`. Design-only files stay uncompiled. `Valence::MIN` is the source literal `0.9999999`. |
 | PATSAGI-COUNCILS-BUILDS-1: `crates/patsagi-councils` | #677 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock`. Not a root member. Path deps are `../powrush` and `../quantum-swarm-orchestrator` (package `ra-thor-quantum-swarm-orchestrator`). `ra-thor-core` is not imported. `mercy` is not a dependency (`MercyCore` is the public type; `MercyEngine` is not). `lean-sys` is cut. Optional paths `real-estate-lattice`, `ra-thor-post-quantum-sig`, and `interstellar-operations` are cut. Locked `cargo test --all-targets` and `cargo clippy --all-targets -- -D warnings` finished. A recorded Reject is not flipped to Apply. This package is not `crates/council`. Design-only files stay uncompiled. |
 | POWRUSH-MMO-SIM-BUILDS-1: `crates/powrush-mmo-simulator` | #678 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock`. Not a root member. Path deps are `../mial` and `../mercy-threshold-wasm`. Locked `cargo test --all-targets`, `cargo clippy --all-targets -- -D warnings`, and `cargo fmt --check` finished. Compiled code does not read MWPO `gated`. Three `mercy_gating_runtime` examples stay uncompiled. Resource-Based Economy stays a design thesis. |
+| SHARD-COMPOSER-PARSE-1: `crates/shard-composer` | #679 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock`. Not a root member. Locked `cargo test --all-targets`, `cargo clippy --all-targets -- -D warnings`, and `cargo fmt --check` finished. No `full` feature. Fresh valence is `0.0`. `VALENCE_SOURCE_CEILING` is the source literal `0.99999999`. |
 
 Two tidy leftovers on the shard crate are banked below. They did not stop `cargo check`.
 
@@ -92,7 +93,7 @@ Dependencies first. Then the smallest crates whose source already checks once th
 | 6 | `QSO-BUILDS-1` (DONE, #676) | `crates/quantum-swarm-orchestrator` | `patsagi-councils` path-deps it. It path-deps missing `self-evolution`. | L (9,872 lines) | No, if standalone. Do not add a `self-evolution` crate. |
 | 7 | `PATSAGI-COUNCILS-BUILDS-1` (DONE, #677) | `crates/patsagi-councils` | After 5 and 6, and after `powrush` (#668). Living small council is already `crates/council`. | L (6,115 lines, 26 files) | No, if standalone. Yes if added to root `members`. |
 | 8 | `POWRUSH-MMO-SIM-BUILDS-1` (DONE, #678) | `crates/powrush-mmo-simulator` | After 4 and #668. Not the Powrush-MMO repo and not the browser client. | M (1,039 lines) | No, if standalone. |
-| 9 | `SHARD-COMPOSER-PARSE-1` | `crates/shard-composer` | TOML does not parse. One-line array break. | S | No. |
+| 9 | `SHARD-COMPOSER-PARSE-1` (DONE, #679) | `crates/shard-composer` | Standalone `[workspace]`. The unclosed array and the missing `full` feature are gone. | S | No. |
 | 10 | `KERNEL-MANIFEST-1` | `crates/ra-thor-kernel`, `crates/kernel` | Unstable `rustflags`, missing path deps. Separate from the undefined workspace key `ra-thor-kernel`. | S–M | No, if not a default member. |
 | 11 | `REASONING-COUNCIL-WIRES-1` | council-named crates that import crates they do not depend on | After card 1 (`rathor-sovereign-reasoning-engine`, `philotic-web-fusion`, `moebius-transformations`). Label fleet and post-quantum strings as design-only inside the same card. | S each | No, if standalone. |
 | 12 | `CONDUCTOR-LEGACY-RETIRE-1` | unversioned conductor, v13 and its examples, `tolc8-genesis-gate` | Deprecated or fictional. Do not make them the living conductor. | L on disk | No. A v14 edit would need Core. This card should not edit v14. |
@@ -339,11 +340,15 @@ A live wasm export is not demonstrated. This crate ships no wasm bytes. Tests co
 
 ---
 
-## 9. SHARD-COMPOSER-PARSE-1
+## 9. SHARD-COMPOSER-PARSE-1 (DONE, #679)
+
+**Status:** DONE in #679. `crates/shard-composer` is its own workspace (`resolver = "2"`) with a committed `Cargo.lock`. It is not a root member. Locked `cargo test --all-targets`, `cargo clippy --all-targets -- -D warnings`, and `cargo fmt --check` finished inside the crate. Path deps are `../quantum-swarm-orchestrator` (package `ra-thor-quantum-swarm-orchestrator`) and `../patsagi-councils`. `geometric-intelligence` has no library. `real-estate-lattice` is not a standalone build. `crates/mercy` is a root member. Those three are not path dependencies. The `full` feature is not defined. `quantum-swarm-orchestrator` has no `full` feature. `patsagi-councils` has no `full` feature. No file in this crate named a patsagi item that #677 removed. The re-export is `patsagi_councils as patsagi`. A fresh adapter stores valence `0.0`. `VALENCE_SOURCE_CEILING` is the source literal `0.99999999`, not a measured valence. `contribute_to_coherence` copies recorded impacts. A fresh adapter's four fields are `0.0`. Public TOLC 8 names stay Truth, Order, Love, Compassion, Service, Abundance, Joy, Cosmic Harmony. Both Rust sources compile. No file was deleted. No file is labelled design-only.
+
+**Compiled:** `src/lib.rs`, `src/adapter.rs`, `tests/exact_values.rs`.
 
 `crates/shard-composer`.
 
-**First error:** TOML parse. `Cargo.toml` lines 40–43. The `focused-geometry` array is not closed, so line 43 is `unexpected '=' in array`.
+**In-repo first error, before #679:** TOML parse. `Cargo.toml` lines 40–43. The `focused-geometry` array was not closed, so line 43 was `unexpected '=' in array`.
 
 ```
 focused-geometry = [
@@ -352,9 +357,9 @@ focused-geometry = [
 real-estate = ["focused-real-estate"]
 ```
 
-The manifest also uses `workspace = true` for package fields and for `ra-thor-mercy`, `serde`, `serde_json`. After the bracket is fixed, the next error is the membership / missing-key class. Not compiled.
+The manifest also used `workspace = true` for package fields and for `ra-thor-mercy`, `serde`, `serde_json`. After the bracket was fixed, the next error was the membership / missing-key class. Not compiled before #679.
 
-**Fix:** close the array. Then decide whether the crate should be a standalone workspace. `geometric-intelligence` has no library (see card 1). Do not enable the `full` feature against crates that do not build.
+**Fix:** Done in #679. Standalone `[workspace]`. The unclosed array is closed by removing the feature list. `quantum-swarm-orchestrator/full` is not enabled. `geometric-intelligence` has no library (see card 1). `real-estate-lattice` and `crates/mercy` are not path dependencies. `patsagi-councils` is re-exported as it builds after #677.
 
 **Runtime / v14:** no.
 
