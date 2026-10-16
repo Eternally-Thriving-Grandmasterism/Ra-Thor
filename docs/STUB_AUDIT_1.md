@@ -100,7 +100,7 @@ Dependencies first. Then the smallest crates whose source already checks once th
 | 11 | `REASONING-COUNCIL-WIRES-1` (DONE, #681) | 16 council crates in section 11 | Standalone `[workspace]`. A compiled wire calls `RathorSovereignReasoningEngine` or the current patsagi-councils API. Previous bodies that return `Ok(true)`, and fleet, post-quantum, and 100B-year phrases, stay design-only. | S each | No, if standalone. |
 | 12 | `CONDUCTOR-LEGACY-RETIRE-1` (DONE, #682) | unversioned conductor, v13 and its examples, `tolc8-genesis-gate` | Labelled design-only. v13 stays deprecated. The unversioned conductor is retired. Not the living conductor. | L on disk | No. This card did not edit v14. |
 | 13 | `NEXI-PATH-RETIRE-1` (DONE, #683) | 51 crates: the 50 with `nexi = { path = "../" }`, plus `crates/lattice_crypto` | Labelled design-only. The path still points at `crates/`, which is not a package. No `nexi` package was created. `lattice_keygen` returns a String placeholder and is not a KEM. | 54 `.rs` files | No. |
-| 14 | `WORKSPACE-KEY-SHELLS-1` | 165 `powrush` workspace deps, 95 sourceless manifests, string ZK and propulsion stubs | Shared missing workspace keys. Most have nothing to compile, or return constants. Design-only or leave on disk. | manifests, plus a few short files | No. Do not add them to `members`. |
+| 14 | `WORKSPACE-KEY-SHELLS-1` (DONE, #684) | 165 `powrush` workspace deps, 95 sourceless manifests, string ZK and propulsion stubs | Labelled design-only. 207 `.rs` files. 94 `DESIGN_ONLY.md` files. Skipped compiled: `biomimetic-sovereign-harmony-council`. No root key added. | manifests, plus a few short files | No. Do not add them to `members`. |
 | 15 | `ARCHIVE-LINEAGE-RETIRE-1` | 98 manifests under `docs/archive/` | Copies. 76 fail loading `nexi`. | archive | No. |
 
 Banked tidy, not make-real of a crate: `POWRUSH-TIDY-1`, `SHARD-GENESIS-TIDY-1`, `STANDALONE-CI`. See the last section.
@@ -570,7 +570,15 @@ Plus `crates/lattice_crypto` (`src/lib.rs`). Its manifest does not declare `nexi
 
 ---
 
-## 14. WORKSPACE-KEY-SHELLS-1
+## 14. WORKSPACE-KEY-SHELLS-1 (DONE, #684)
+
+**Status:** DONE in #684. This card labels. It does not make any of these crates build. No `Cargo.toml` was edited. No `[workspace]` table was added. No `Cargo.lock` was added. No root key `powrush`, `patsagi-councils`, or `ra-thor-kernel` was added. `crates/powrush` was not edited. Root `cargo metadata --locked` resolved the same 15 root members.
+
+**.rs files labelled:** 207. Each new header is one line, `Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note)`. The bytes under that header are the previous file. 40 `.rs` files that already started with `Design-only (STUB-AUDIT-1` were left unchanged, including `lattice_crypto`, `multivariate_crypto`, `soulscan_x9`, `soulscan_x10`, and `mercy_biojet`. The four propulsion files say efficiency and compliance values are constants, not drive performance. Crypto stub headers say the file is a placeholder, not a working proof system, signature, or KEM. `mercy-organism` names the missing key `ra-thor-powrush`. `ra-thor-monorepo-auditor` names the missing key `ra-thor-kernel`.
+
+**DESIGN_ONLY.md files added:** 94. Council note: manifest only; no sources; nothing to compile; names do not describe a working implementation. Their `Cargo.toml` files were not edited.
+
+**Skipped: compiled:** `crates/biomimetic-sovereign-harmony-council`. It is a standalone `[workspace]` with a committed `Cargo.lock` from #681, and it has sources. It was not labelled not compiled. No `DESIGN_ONLY.md` was added there.
 
 One root cause: non-members inherit workspace keys the root does not define. Cargo stops there. Making 165 crates into root members would not make them build, and it would break Core Tier-1, because Cargo loads every member manifest.
 
