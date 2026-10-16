@@ -178,12 +178,12 @@ Depends on `crates/shared-valence-field` (card 1). In-repo first error for each,
 
 `crates/powrush-mmo-simulator` path-deps `mial` and `mercy-threshold-wasm`. That simulator is not this card.
 
-| Path | In-repo first error | Notes |
+| Path | In-repo first error, before #674 | Notes |
 |------|---------------------|-------|
 | `crates/mial` | not a workspace member | Path-deps `../mercy_gating_runtime`. 1,416 lines, 16 files. |
-| `crates/mercy-threshold-wasm` | not a workspace member | Path-deps `../mial`. 232 lines. Feature `native` is what the simulator asks for. Unknown whether that feature is more than a name. |
+| `crates/mercy-threshold-wasm` | not a workspace member | Path-deps `../mial`. 232 lines. Feature `native` is the default. It loads caller-supplied wasm bytes and calls MWPO. It does not embed a proof. |
 
-`crates/mercy_gating_runtime` is the next dependency. In-repo: not a member. Probe (it has no path deps): 23 errors, including `src/lib.rs:10` file not found for module `error`, and `serde` used but not linked. 754 lines. It is part of this card, ahead of `mial`.
+`crates/mercy_gating_runtime` is the dependency under `mial`. Before #674 it was not a member. The probe (no path deps) reported 23 errors, including `src/lib.rs:10` file not found for module `error`, and `serde` used but not linked. 754 lines. That missing file was not created.
 
 **Fix:** Done in #674. Standalone workspaces from the bottom up. The missing `error` module was not created. Callers of `MercyError`, and the other files that name types this crate does not define, are labelled design-only and are not modules (council note in the PR body and in each crate README). `mial` and `mercy-threshold-wasm` then build. They are not root `members`.
 
