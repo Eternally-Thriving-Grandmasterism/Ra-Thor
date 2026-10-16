@@ -5,6 +5,8 @@
 //! It must be at least 32 bytes. This file has no key.
 //! An unset, empty, or shorter value makes `save_to_file` return an error.
 //! `load_from_file` then does not accept the signed payload.
+//! `save_to_file` also leaves an existing file untouched when that file does not
+//! verify under the current base. That call returns an error and writes nothing.
 //! Scale numbers below are source coefficients, not measured rates.
 //! `GodlyIntelligenceCoherence` keeps its name. The four fields are recorded totals.
 
@@ -170,7 +172,31 @@ impl ShardComposerAdapter {
             data,
         };
         let json = serde_json::to_string_pretty(&signed).map_err(io::Error::other)?;
+        // Signing succeeded. Refuse to replace a file this base cannot verify.
+        // Nothing is renamed or deleted. A missing path is created.
+        Self::refuse_unverified_overwrite(path)?;
         fs::write(path, json)
+    }
+
+    fn refuse_unverified_overwrite(path: &Path) -> io::Result<()> {
+        match fs::read_to_string(path) {
+            Err(err) if err.kind() == io::ErrorKind::NotFound => Ok(()),
+            Err(_) => Err(unverified_overwrite_error(path)),
+            Ok(content) => {
+                if Self::signed_json_verifies(&content) {
+                    Ok(())
+                } else {
+                    Err(unverified_overwrite_error(path))
+                }
+            }
+        }
+    }
+
+    fn signed_json_verifies(content: &str) -> bool {
+        let Ok(signed) = serde_json::from_str::<SignedState>(content) else {
+            return false;
+        };
+        Self::verify_signature(&signed.data, &signed.signature)
     }
 
     pub fn load_from_file(path: &Path) -> Self {
@@ -258,6 +284,16 @@ fn hmac_base_key_error() -> io::Error {
     io::Error::new(
         io::ErrorKind::InvalidInput,
         format!("{ENV_HMAC_KEY} is unset, empty, or shorter than {MIN_HMAC_BASE_KEY_BYTES} bytes"),
+    )
+}
+
+fn unverified_overwrite_error(path: &Path) -> io::Error {
+    io::Error::new(
+        io::ErrorKind::InvalidData,
+        format!(
+            "existing file {} failed verification and must be moved aside or restored with the right key first",
+            path.display()
+        ),
     )
 }
 

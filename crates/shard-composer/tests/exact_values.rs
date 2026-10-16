@@ -375,6 +375,78 @@ fn load_from_file_rejects_file_signed_under_a_different_base() {
     );
 }
 
+#[test]
+fn save_under_a_different_base_refuses_to_overwrite() {
+    let _guard = lock_hmac_env();
+    set_hmac_fixture(HMAC_FIXTURE_32);
+    let path = temp_path("overwrite-other-base");
+    blessed_adapter()
+        .save_to_file(&path)
+        .expect("save under fixture A");
+    let before = fs::read(&path).expect("read signed bytes");
+    set_hmac_fixture(HMAC_FIXTURE_B);
+    let err = ShardComposerAdapter::new()
+        .save_to_file(&path)
+        .expect_err("a different base must not overwrite");
+    assert_eq!(err.kind(), ErrorKind::InvalidData);
+    assert_overwrite_message(&err);
+    assert_eq!(fs::read(&path).expect("file remains"), before);
+    let _ = fs::remove_file(&path);
+}
+
+#[test]
+fn save_after_unset_key_load_rejection_refuses_to_overwrite() {
+    let _guard = lock_hmac_env();
+    set_hmac_fixture(HMAC_FIXTURE_32);
+    let path = temp_path("overwrite-after-unset");
+    blessed_adapter()
+        .save_to_file(&path)
+        .expect("save under fixture A");
+    unset_hmac_fixture();
+    let loaded = ShardComposerAdapter::load_from_file(&path);
+    assert_fresh(&loaded);
+    let before = fs::read(&path).expect("read signed bytes");
+    set_hmac_fixture(HMAC_FIXTURE_B);
+    let err = loaded
+        .save_to_file(&path)
+        .expect_err("save after a rejected load must not overwrite");
+    assert_eq!(err.kind(), ErrorKind::InvalidData);
+    assert_overwrite_message(&err);
+    assert_eq!(fs::read(&path).expect("file remains"), before);
+    let _ = fs::remove_file(&path);
+}
+
+#[test]
+fn round_trip_overwrite_under_the_same_base_works() {
+    let _guard = lock_hmac_env();
+    set_hmac_fixture(HMAC_FIXTURE_32);
+    let path = temp_path("overwrite-same-base");
+    let adapter = blessed_adapter();
+    adapter.save_to_file(&path).expect("first save");
+    let mut updated = adapter.clone();
+    updated.apply_epigenetic_blessing(blessing(1.0, 0.0, 0.5));
+    updated
+        .save_to_file(&path)
+        .expect("overwrite under the same base");
+    let loaded = ShardComposerAdapter::load_from_file(&path);
+    let _ = fs::remove_file(&path);
+    assert_eq!(loaded.blessings_received(), 2);
+    assert_eq!(loaded.blessings_received(), updated.blessings_received());
+    assert_eq!(loaded.evolution_level(), updated.evolution_level());
+    assert_eq!(loaded.current_valence(), updated.current_valence());
+    assert_eq!(
+        loaded.recorded_tolc_impact(),
+        updated.recorded_tolc_impact()
+    );
+}
+
+fn assert_overwrite_message(err: &std::io::Error) {
+    let message = err.to_string();
+    assert!(message.contains("failed verification"), "{message}");
+    assert!(message.contains("moved aside"), "{message}");
+    assert!(message.contains("restored with the right key"), "{message}");
+}
+
 fn blessed_adapter() -> ShardComposerAdapter {
     let mut adapter = ShardComposerAdapter::new();
     adapter.apply_epigenetic_blessing(blessing(1.0, 2.0, 0.25));

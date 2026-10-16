@@ -18,6 +18,7 @@ export RA_THOR_HMAC_BASE_KEY="your-strong-secret-at-least-32-bytes"
 - The value must be set and at least 32 bytes. Unset, empty, non-UTF-8, or shorter than 32 bytes fails closed.
 - `save_to_file` returns an `io::Error` whose message names `RA_THOR_HMAC_BASE_KEY`. It does not write the file.
 - `load_from_file` does not accept a signed file in that case. It returns a fresh adapter. It does not panic.
+- `save_to_file` refuses to overwrite an existing file that does not verify under the current base. The `io::Error` is `InvalidData`. The message says the existing file failed verification and must be moved aside or restored with the right key first. No bytes are written. A missing path, or a file that verifies, is saved as usual. Nothing is renamed or deleted.
 - There is no default key in source, and no fallback key.
 - The HMAC key is derived with HKDF-SHA256. The info label is `shard-composer-hmac-v1`. That label separates this file format. It is not a key.
 - A file signed under one base is rejected under a different base. Rejection means the signed fields are not loaded. The file on disk is left as it was.
