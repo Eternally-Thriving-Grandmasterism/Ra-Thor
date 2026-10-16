@@ -20,7 +20,10 @@ pub struct StructuredView {
     pub constraints: Vec<String>,
 }
 
-pub fn render(agency: &SoftSovereignAgency, content: &str) -> (Option<PoeticView>, Option<StructuredView>) {
+pub fn render(
+    agency: &SoftSovereignAgency,
+    content: &str,
+) -> (Option<PoeticView>, Option<StructuredView>) {
     match agency.current_view() {
         ViewMode::Poetic | ViewMode::Fluid => (
             Some(PoeticView {
@@ -38,7 +41,8 @@ pub fn render(agency: &SoftSovereignAgency, content: &str) -> (Option<PoeticView
                 constraints: vec![
                     // 0.999999 is a source literal, not a measured value.
                     // This file is not a module, so this string is not emitted.
-                    "source literal valence floor 0.999999 (not a measured value)".to_string(),
+                    "TOLC 8 source literal valence floor 0.999999 (not a measured value)"
+                        .to_string(),
                     "Invitation-only guidance".to_string(),
                     "Full sovereignty preserved".to_string(),
                 ],

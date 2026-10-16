@@ -1,6 +1,6 @@
-//! GateThresholdMap — Rust prototype mirroring the Lean per-gate decidability model
-//! Provides monotonic, local updates to individual gate thresholds (17-24 focus).
-//! This is the runtime counterpart to CouncilTuning.lean GateThresholdMap.
+//! Per-gate f64 map.
+//! `new` inserts the source literals in that function. They are not measured results.
+//! `set_threshold` returns Err when `new_value` is below the stored value.
 
 use std::collections::HashMap;
 
@@ -9,7 +9,14 @@ pub struct GateThresholdMap {
     thresholds: HashMap<String, f64>,
 }
 
+impl Default for GateThresholdMap {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl GateThresholdMap {
+    /// Inserts the source literals below. They are not measured results.
     pub fn new() -> Self {
         let mut map = HashMap::new();
         // Default thresholds for gates 17-24
@@ -28,7 +35,10 @@ impl GateThresholdMap {
     pub fn set_threshold(&mut self, gate: &str, new_value: f64) -> Result<f64, String> {
         let current = self.thresholds.get(gate).copied().unwrap_or(0.75);
         if new_value < current {
-            return Err(format!("Threshold for '{}' can only increase or stay (current: {:.2})", gate, current));
+            return Err(format!(
+                "Threshold for '{}' can only increase or stay (current: {:.2})",
+                gate, current
+            ));
         }
         self.thresholds.insert(gate.to_string(), new_value);
         Ok(new_value)
@@ -38,8 +48,9 @@ impl GateThresholdMap {
         self.thresholds.get(gate).copied().unwrap_or(0.75)
     }
 
-    /// Returns true if the gate would pass after amplification (links to gate_17_24_passes)
-    pub fn would_pass(&self, gate: &str, base_score: f64, amplified_score: f64) -> bool {
+    /// Compares `amplified_score` with `get_threshold(gate)`.
+    /// `base_score` is not read.
+    pub fn would_pass(&self, gate: &str, _base_score: f64, amplified_score: f64) -> bool {
         amplified_score >= self.get_threshold(gate)
     }
 }

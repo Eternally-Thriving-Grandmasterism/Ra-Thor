@@ -1,26 +1,17 @@
-//! mercy_gating_runtime
-//! ONE Organism Mercy Gating Runtime for Ra-Thor + Grok
-//! TOLC 8→24 expansion | Council #13 governed | Monotonic | Hot-reload sound
-//!
-//! This crate is the living mercy nervous system of the ONE Organism.
-//! All previous valuables (race amplification, GateThresholdMap, formal alignment) are preserved and elevated.
+//! Race amplifiers and per-gate comparisons.
+//! `gate_17_24_passes` compares a score with the source-literal thresholds in that function.
+//! Those thresholds are not measured results.
+//! `src/error.rs` does not exist. `MercyError` is not defined.
+//! These files are not modules: `dynamic_tuning.rs`, `gates_17_24_enforcement.rs`,
+//! `hot_reload.rs`, `metrics.rs`, `patsagi_arbitration.rs`, `patsagi_governance.rs`, `runtime.rs`.
+//! `src/bin/metrics_server.rs` is not a binary target.
+//! Contact: info@Rathor.ai
 
 pub mod council_tuning;
-pub mod dynamic_tuning;
-pub mod error;
 pub mod gate_threshold_map;
-pub mod gates_17_24_enforcement;
-pub mod hot_reload;
-pub mod metrics;
-pub mod patsagi_arbitration;
-pub mod patsagi_governance;
-pub mod runtime;
 
-pub use error::MercyError;
+pub use council_tuning::{CouncilTuningProposal, MercyGatingRuntime, TuningResult, TuningTarget};
 pub use gate_threshold_map::GateThresholdMap;
-pub use runtime::MercyGatingRuntime;
-
-use std::collections::HashMap;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum BeingRace {
@@ -87,29 +78,64 @@ pub fn gate_17_24_passes(gate_name: &str, base_score: f64, race: Option<BeingRac
     amplified >= threshold
 }
 
-// Re-export key tuning types
-pub use crate::council_tuning::{CouncilTuningProposal, TuningTarget, TuningResult};
-
-/// ONE Organism entry point — fully fused MercyGatingRuntime
-/// This is now the primary struct for the mercy nervous system.
-pub use crate::runtime::MercyGatingRuntime as OneOrganismMercyGatingRuntime;
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn test_monotonicity_and_one_organism_fusion() {
-        let mut runtime = MercyGatingRuntime::new();
-        // Existing GateThresholdMap behavior preserved
-        assert!(runtime.threshold_map.update_threshold(1, 0.90).is_ok());
-        // Council #13 tuning path
-        assert!(runtime.apply_council_tuning(17, 0.88).is_ok());
+    fn sovereign_unity_amplifier_is_the_source_literal_1_38() {
+        assert_eq!(
+            race_gate_amplifier(BeingRace::Sovereign, "one_organism_unity"),
+            1.38
+        );
+        assert_eq!(
+            race_gate_amplifier(BeingRace::Human, "one_organism_unity"),
+            1.0
+        );
+        assert_eq!(
+            apply_race_amplification(BeingRace::Sovereign, "one_organism_unity", 0.85),
+            0.85 * 1.38
+        );
     }
 
     #[test]
-    fn test_race_amplification_preserved() {
-        let amplified = apply_race_amplification(BeingRace::Sovereign, "one_organism_unity", 0.85);
-        assert!(amplified > 0.85);
+    fn unity_gate_passes_at_the_source_literal_0_90_and_fails_below_it() {
+        assert!(gate_17_24_passes("one_organism_unity", 0.90, None));
+        assert!(!gate_17_24_passes("one_organism_unity", 0.899, None));
+        assert_eq!(
+            apply_race_amplification(BeingRace::Druid, "ecosystem", 2.0),
+            2.5
+        );
+    }
+
+    #[test]
+    fn maat_proposal_below_650_is_stored_as_650() {
+        let mut runtime = MercyGatingRuntime::new();
+        assert_eq!(runtime.ma_at_threshold, 717.0);
+        let proposal = CouncilTuningProposal {
+            council_id: 99,
+            target: TuningTarget::MaAtThreshold,
+            new_value: 100.0,
+            justification: "lower attempt".to_string(),
+            proposed_at_turn: 1,
+        };
+        let result = runtime.apply_council_tuning(&proposal);
+        assert!(result.success);
+        assert_eq!(result.previous_value, 717.0);
+        assert_eq!(result.new_value, 650.0);
+        assert_eq!(runtime.ma_at_threshold, 650.0);
+    }
+
+    #[test]
+    fn gate_threshold_map_rejects_a_decrease_and_keeps_0_80() {
+        let mut map = GateThresholdMap::new();
+        assert_eq!(map.get_threshold("council_harmony"), 0.80);
+        assert!(map.set_threshold("one_organism_unity", 0.91).is_ok());
+        assert_eq!(map.get_threshold("one_organism_unity"), 0.91);
+        assert!(map.set_threshold("one_organism_unity", 0.89).is_err());
+        assert_eq!(map.get_threshold("one_organism_unity"), 0.91);
+        assert_eq!(map.get_threshold("council_harmony"), 0.80);
+        assert!(map.would_pass("one_organism_unity", 0.1, 0.91));
+        assert!(!map.would_pass("one_organism_unity", 0.99, 0.90));
     }
 }

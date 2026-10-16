@@ -93,7 +93,7 @@ mod tests {
         assert_eq!(challenge.difficulty, 0.9);
         assert_eq!(challenge.participant_id, "player-1");
         assert_eq!(challenge.substrate, Substrate::Human);
-        assert_eq!(challenge.resolved, false);
+        assert!(!challenge.resolved);
 
         let outcome = challenge.resolve(true, &mut field);
         let gain = 0.00005 * (1.0 - 0.9);
@@ -105,7 +105,7 @@ mod tests {
                 panic!("expected ResonanceRaised, got {insight}");
             }
         }
-        assert_eq!(challenge.resolved, true);
+        assert!(challenge.resolved);
         assert_eq!(field.quanta.len(), 1);
         assert_eq!(field.quanta[0].amount, gain);
         assert_eq!(field.quanta[0].emitter_id, "player-1");
@@ -122,7 +122,7 @@ mod tests {
         let before = field.observe();
         let mut challenge = ResonanceChallenge::new("player-1", Substrate::AI, &field);
         let outcome = challenge.resolve(false, &mut field);
-        assert_eq!(challenge.resolved, true);
+        assert!(challenge.resolved);
         assert_eq!(challenge.substrate, Substrate::AI);
         assert_eq!(field.quanta.len(), 0);
         assert_eq!(field.observe(), before);
@@ -185,7 +185,7 @@ mod tests {
         assert_eq!(
             view.constraints,
             vec![
-                "source literal valence floor 0.999999 (not a measured value)".to_string(),
+                "TOLC 8 source literal valence floor 0.999999 (not a measured value)".to_string(),
                 "Zero-loss softer path always available".to_string(),
                 "Equal contribution weight".to_string(),
             ]
@@ -197,13 +197,13 @@ mod tests {
     #[test]
     fn guard_stays_off_unless_both_arguments_are_true() {
         let mut guard = ResonanceChallengeGuard::new();
-        assert_eq!(guard.is_active(), false);
-        assert_eq!(guard.try_activate(true, false), false);
-        assert_eq!(guard.is_active(), false);
-        assert_eq!(guard.try_activate(false, true), false);
-        assert_eq!(guard.try_activate(true, true), true);
-        assert_eq!(guard.is_active(), true);
+        assert!(!guard.is_active());
+        assert!(!guard.try_activate(true, false));
+        assert!(!guard.is_active());
+        assert!(!guard.try_activate(false, true));
+        assert!(guard.try_activate(true, true));
+        assert!(guard.is_active());
         guard.deactivate();
-        assert_eq!(guard.is_active(), false);
+        assert!(!guard.is_active());
     }
 }

@@ -3,11 +3,19 @@ name = "mercy-threshold-wasm"
 version = "14.15.0"
 edition = "2021"
 authors = ["Sherif Samy Botros <info@Rathor.ai>", "Eternally-Thriving-Grandmasterism"]
-description = "WASM-portable Mercy Threshold enforcement bridge for Ra-Thor / MIAL. Hybrid Lean WASM path + native Rust mial path. Living Cosmic Tick + ONE Organism 14.15.0 readiness."
+description = "With feature native, loads caller-supplied wasm bytes and looks up export names. It does not embed a proof. Missing score exports return the source literal 0.0. The native helper calls mial MWPO."
 license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
-keywords = ["mercy", "threshold", "lean", "wasm", "ra-thor", "one-organism"]
+keywords = ["mercy", "threshold", "wasm", "ra-thor", "one-organism"]
 categories = ["wasm", "simulation"]
+
+# Standalone workspace, same pattern as crates/fenca, crates/council,
+# crates/powrush, and crates/sovereign-shard-genesis.
+# `cargo build --locked` and `cargo test --locked` use this manifest.
+# This crate is not a root default member.
+# mial stays a relative path dependency. Default features include native.
+[workspace]
+resolver = "2"
 
 [lib]
 crate-type = ["cdylib", "rlib"]

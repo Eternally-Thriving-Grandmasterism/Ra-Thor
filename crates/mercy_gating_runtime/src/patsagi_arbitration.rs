@@ -1,3 +1,7 @@
+//! Design-only. Not a module of mercy_gating_runtime.
+//! Council note: SlashingPolicy and CouncilReputation are not defined in this crate.
+//! This file is not compiled.
+//!
 //! PATSAGi Arbitration with reputation-based slashing as default + recovery
 
 // ... existing code ...

@@ -1,3 +1,6 @@
+// Design-only. Not a module of mercy_gating_runtime.
+// Council note: these functions only call tracing, and tracing is not a dependency.
+// This file is not compiled.
 // Copyright (c) 2026 Ra-Thor + Grok — PATSAGi Councils
 // Autonomicity Games Sovereign Mercy License (AG-SML) v1.0
 // See LICENSE-AG-SML for full terms. Zero-harm. Eternal mercy.

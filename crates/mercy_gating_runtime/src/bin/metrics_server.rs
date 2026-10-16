@@ -1,3 +1,8 @@
+//! Design-only. Not a binary target (`autobins = false`).
+//! Council note: `ArbitrationMetrics` is not defined in this crate.
+//! `0.82` below is a source literal in sample JSON, not a measured success rate.
+//! This file is not compiled.
+//!
 //! Axum server with live metrics + reputation exposure
 
 use axum::{extract::State, routing::get, Json, Router};

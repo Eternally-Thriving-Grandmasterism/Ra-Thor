@@ -1,3 +1,7 @@
+//! Design-only. Not a module of `mial`.
+//! Council note: this file calls methods the compiled crate does not define.
+//! It is not compiled.
+//!
 //! Mercy-Augmented Intelligence Amplification Layer (MIAL) v13.13.0
 //!
 //! Sovereign subsystem that makes intelligence amplification itself an act of Mercy.

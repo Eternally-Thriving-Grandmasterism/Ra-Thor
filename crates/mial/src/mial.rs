@@ -1,3 +1,7 @@
+//! Design-only. Not a module of `mial`.
+//! Council note: this file calls methods the compiled crate does not define.
+//! It is not compiled.
+//!
 //! mial.rs — Mercy-Augmented Intelligence Amplification Layer (MIAL) v13.13.0
 //!
 //! Core orchestration for safe, mercy-governed intelligence amplification.

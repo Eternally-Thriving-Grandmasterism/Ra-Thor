@@ -41,7 +41,7 @@ pub fn render_dual_path(
                 objective: "Multi-objective optimisation under mercy constraints".to_string(),
                 constraints: vec![
                     // 0.999999 is a source literal, not a measured value.
-                    "source literal valence floor 0.999999 (not a measured value)".to_string(),
+                    "TOLC 8 source literal valence floor 0.999999 (not a measured value)".to_string(),
                     "Zero-loss softer path always available".to_string(),
                     "Equal contribution weight".to_string(),
                 ],

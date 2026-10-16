@@ -1,3 +1,7 @@
+//! Design-only. Not a module of `mial`.
+//! Council note: this file calls methods the compiled crate does not define.
+//! It is not compiled.
+//!
 //! lattice_introspection.rs — Lattice Introspection & Hybrid Circuit Verification v13.13.0
 //!
 //! Provides runtime verification that neural/symbolic components respect active Mercy Gates.

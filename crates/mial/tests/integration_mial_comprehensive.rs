@@ -1,3 +1,7 @@
+// Design-only. Not a cargo target.
+// Council note: this file calls methods the compiled `mial` crate does not define.
+// `autoexamples` / `autotests` are false. This file is not compiled.
+
 //! Comprehensive Integration Tests for MIAL v13.13.0
 //! Covers MWPO, Safety Harness (13 Gridworlds), Pathology Detection,
 //! Lattice Introspection, and full end-to-end orchestration under MercyGatingRuntime.

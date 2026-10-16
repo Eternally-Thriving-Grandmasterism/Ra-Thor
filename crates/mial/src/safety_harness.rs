@@ -1,3 +1,7 @@
+//! Design-only. Not a module of `mial`.
+//! Council note: this file calls methods the compiled crate does not define.
+//! It is not compiled.
+//!
 //! PatsagiSafetyHarness — MIAL Safety Layer v13.13.0
 //!
 //! 15 Mercy Safety Gridworlds (including new #14 Geometry Resonance Drift and #15 MWPO Preference Collapse).

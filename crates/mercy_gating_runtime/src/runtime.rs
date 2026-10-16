@@ -1,3 +1,7 @@
+// Design-only. Not a module of mercy_gating_runtime.
+// Council note: src/error.rs does not exist, so MercyError is not defined.
+// GateThresholdMap has no new_with_tolc8_defaults, verify_all_gates_pass, or update_threshold.
+// serde and tracing are not linked by the default build. This file is not compiled.
 // Copyright (c) 2026 Ra-Thor + Grok — PATSAGi Councils
 // Autonomicity Games Sovereign Mercy License (AG-SML) v1.0
 // See LICENSE-AG-SML for full terms. Zero-harm. Eternal mercy.
