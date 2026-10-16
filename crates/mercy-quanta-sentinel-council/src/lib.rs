@@ -1,17 +1,29 @@
-/// 21st PATSAGi Council — MercyQuanta Sentinel Council
-/// Derived from MercyOS-Pinnacle (9 Mercy Quanta, SoulScan-X9, DivineChecksum-9, Sentinel Mirror, ML-KEM post-quantum)
-/// + PATSAGi-Pinnacle (Valence Councils, Fleet/Nonlinear/Powrush Valence, MercyShield, philotic bonding, tolc_layers)
-/// TOLC 8 non-bypassable • 9 Quanta zk-provable • Positive emotion valence gating
+//! Council record.
+//! The type name and `name` string are a historical title (design intent).
+//!
+//! `src/uncompiled_council.rs` is not a module.
+//! The bytes under its design-only header are the previous `src/lib.rs`.
+//!
+//! Compiled call: `RathorSovereignReasoningEngine::evaluate_proposal`, then
+//! `run_foresight_simulation` when `proposal_valence` is at least the engine
+//! source literal `MERCY_THRESHOLD` (0.9999999).
+//! The simulation caps are source literals in that engine.
+//! `mean_bond_valence` is the mean of caller bond valences that `fuse_bond` stores.
+//! The philotic rejection line is the source literal 0.9999999.
+//!
+//! Public TOLC 8 names are Truth, Order, Love, Compassion, Service, Abundance, Joy, Cosmic Harmony.
+//! Contact: info@Rathor.ai
 
-use rathor_sovereign_reasoning_engine::RSRE;
 use philotic_web_fusion::PhiloticWeb;
+use rathor_sovereign_reasoning_engine::RathorSovereignReasoningEngine;
 
+/// Source literal from `rathor-sovereign-reasoning-engine`. Not a measured value.
+pub use rathor_sovereign_reasoning_engine::MERCY_THRESHOLD as REASONING_THRESHOLD_SOURCE_LITERAL;
+
+/// Historical council title (design intent).
 pub struct MercyQuantaSentinelCouncil {
     pub id: u8,
     pub name: String,
-    pub mercy_quanta_layers: u8, // 9
-    pub valence_threshold: f64,
-    pub post_quantum_enabled: bool,
 }
 
 impl MercyQuantaSentinelCouncil {
@@ -19,49 +31,41 @@ impl MercyQuantaSentinelCouncil {
         Self {
             id: 21,
             name: "MercyQuanta Sentinel Council".to_string(),
-            mercy_quanta_layers: 9,
-            valence_threshold: 0.9999999,
-            post_quantum_enabled: true,
         }
     }
 
-    /// SoulScan-X9 emotional waveform intent proof + DivineChecksum-9 resonance
-    pub fn soulscan_divinechecksum_validate(&self, emotional_waveform: &[f64], valence: f64) -> Result<bool, String> {
-        if valence < self.valence_threshold {
-            return Err("TOLC 8 Sovereignty Gate + MercyShield violation".to_string());
-        }
-        // 9-layer Mercy Quanta projection (simplified zk-provable)
-        let quanta_score = emotional_waveform.iter().sum::<f64>() / 9.0;
-        if quanta_score < 0.92 { return Err("Mercy Quanta alignment below threshold".to_string()); }
-        Ok(true)
-    }
-
-    /// Sentinel Mirror infinite recursion watch + Post-Quantum ML-KEM
-    pub fn sentinel_mirror_postquantum_check(&self, input: &[u8]) -> Result<Vec<u8>, String> {
-        if !self.post_quantum_enabled { return Err("Post-quantum layer disabled".to_string()); }
-        // Placeholder for ML-KEM encapsulation (in production: use pqcrypto or similar)
-        let mut output = input.to_vec();
-        output.extend_from_slice(b"ML-KEM-768-encapsulated");
-        Ok(output)
-    }
-
-    pub fn integrate_patsagi_valence_fleet(&self, web: &PhiloticWeb, fleet_valence: f64) -> f64 {
-        // Nonlinear valence council fusion from PATSAGi-Pinnacle patterns
-        web.web_valence() * fleet_valence * 1.09 // 9% mercy boost
-    }
-
-    pub fn tolc8_mercy_check(&self, valence: f64) -> bool {
-        valence >= self.valence_threshold
+    /// Below `REASONING_THRESHOLD_SOURCE_LITERAL`, returns the engine Err text.
+    /// Otherwise returns `run_foresight_simulation(years)`.
+    /// Both caps inside that simulation are source literals.
+    /// The engine's second argument stays false. This function does not return the engine Ok text.
+    pub fn reasoning_from_inputs(proposal_valence: f64, years: u64) -> Result<f64, String> {
+        let mut engine = RathorSovereignReasoningEngine::new();
+        engine.evaluate_proposal(proposal_valence, false)?;
+        Ok(engine.run_foresight_simulation(years))
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn test_21st_council_instantiation() {
-        let council = MercyQuantaSentinelCouncil::new();
-        assert_eq!(council.id, 21);
-        assert!(council.tolc8_mercy_check(0.99999999));
+impl Default for MercyQuantaSentinelCouncil {
+    fn default() -> Self {
+        Self::new()
     }
 }
+
+/// Mean valence of the supplied bonds.
+/// An empty slice returns `Err("no bonds supplied")`.
+/// A valence below the philotic source literal 0.9999999 returns that crate's Err text.
+pub fn mean_bond_valence(bonds: &[(&str, &str, f64)]) -> Result<f64, String> {
+    if bonds.is_empty() {
+        return Err("no bonds supplied".to_string());
+    }
+    let mut web = PhiloticWeb::new();
+    for (from, to, valence) in bonds {
+        web.fuse_bond(from, to, 1.0, *valence)?;
+    }
+    Ok(web.web_valence())
+}
+
+/// Byte length of the previous `src/lib.rs` body preserved in `src/uncompiled_council.rs`.
+pub const UNCOMPILED_BODY_LEN: usize = 2651;
+/// Fold of that preserved body: `acc = acc * 16777619 + byte` in `u64`.
+pub const UNCOMPILED_BODY_CHECKSUM: u64 = 2995851825076722868;

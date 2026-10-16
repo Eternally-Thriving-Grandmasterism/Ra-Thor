@@ -1,15 +1,30 @@
-/// 20th PATSAGi Council — Quantum Propulsion Sovereignty Council (QPSC)
-/// Guardian of advanced propulsion sovereignty across all timelines
-/// Full TOLC 8, RSRE v3.0, hyperbolic drive, 100B-year thrust, mercy-gated FTL
+//! Council record.
+//! The type name and `name` string are a historical title (design intent).
+//! Propulsion in the type name is design intent. This library does not implement a drive.
+//!
+//! `src/uncompiled_council.rs` is not a module.
+//! The bytes under its design-only header are the previous `src/lib.rs`.
+//!
+//! Compiled call: `RathorSovereignReasoningEngine::evaluate_proposal`, then
+//! `run_foresight_simulation` when `proposal_valence` is at least the engine
+//! source literal `MERCY_THRESHOLD` (0.9999999).
+//! The simulation caps are source literals in that engine.
+//! `apply_shift` is the Möbius image `(z + shift)`.
+//!
+//! Public TOLC 8 names are Truth, Order, Love, Compassion, Service, Abundance, Joy, Cosmic Harmony.
+//! Contact: info@Rathor.ai
 
-use rathor_sovereign_reasoning_engine::RSRE;
 use moebius_transformations::MoebiusMatrix;
+use nalgebra::Complex;
+use rathor_sovereign_reasoning_engine::RathorSovereignReasoningEngine;
 
+/// Source literal from `rathor-sovereign-reasoning-engine`. Not a measured value.
+pub use rathor_sovereign_reasoning_engine::MERCY_THRESHOLD as REASONING_THRESHOLD_SOURCE_LITERAL;
+
+/// Historical council title (design intent).
 pub struct QuantumPropulsionSovereigntyCouncil {
     pub id: u8,
     pub name: String,
-    pub valence_threshold: f64,
-    pub propulsion_capacity: u64,
 }
 
 impl QuantumPropulsionSovereigntyCouncil {
@@ -17,39 +32,39 @@ impl QuantumPropulsionSovereigntyCouncil {
         Self {
             id: 20,
             name: "Quantum Propulsion Sovereignty Council".to_string(),
-            valence_threshold: 0.9999999,
-            propulsion_capacity: 100_000_000_000,
         }
     }
 
-    pub fn activate_hyperbolic_drive(&self, valence: f64, target: (f64, f64), thrust: f64) -> Result<String, String> {
-        if valence < self.valence_threshold {
-            return Err("TOLC 8 Sovereignty Gate violation: insufficient valence for propulsion".to_string());
-        }
-        let moebius = MoebiusMatrix::identity();
-        let distance = ((target.0.powi(2) + target.1.powi(2)).sqrt() * thrust).min(self.propulsion_capacity as f64);
-        Ok(format!("Hyperbolic drive engaged: {} ly in {} years (Möbius compressed)", distance, self.propulsion_capacity))
-    }
-
-    pub fn integrate_with_mmo(&self, mmo_valence: f64) -> Result<f64, String> {
-        if mmo_valence < self.valence_threshold {
-            return Err("TOLC 8 violation on MMO-propulsion sync".to_string());
-        }
-        Ok(mmo_valence * 1.6180339887)
-    }
-
-    pub fn tolc8_mercy_check(&self, valence: f64) -> bool {
-        valence >= self.valence_threshold
+    /// Below `REASONING_THRESHOLD_SOURCE_LITERAL`, returns the engine Err text.
+    /// Otherwise returns `run_foresight_simulation(years)`.
+    /// Both caps inside that simulation are source literals.
+    /// The engine's second argument stays false. This function does not return the engine Ok text.
+    pub fn reasoning_from_inputs(proposal_valence: f64, years: u64) -> Result<f64, String> {
+        let mut engine = RathorSovereignReasoningEngine::new();
+        engine.evaluate_proposal(proposal_valence, false)?;
+        Ok(engine.run_foresight_simulation(years))
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn test_20th_council() {
-        let council = QuantumPropulsionSovereigntyCouncil::new();
-        assert_eq!(council.id, 20);
-        assert!(council.tolc8_mercy_check(0.99999999));
+impl Default for QuantumPropulsionSovereigntyCouncil {
+    fn default() -> Self {
+        Self::new()
     }
 }
+
+/// Möbius image of `z` under `a = 1`, `b = shift`, `c = 0`, `d = 1`.
+pub fn apply_shift(z_re: f64, z_im: f64, shift: f64) -> (f64, f64) {
+    let map = MoebiusMatrix::new(
+        Complex::new(1.0, 0.0),
+        Complex::new(shift, 0.0),
+        Complex::new(0.0, 0.0),
+        Complex::new(1.0, 0.0),
+    );
+    let image = map.apply(Complex::new(z_re, z_im));
+    (image.re, image.im)
+}
+
+/// Byte length of the previous `src/lib.rs` body preserved in `src/uncompiled_council.rs`.
+pub const UNCOMPILED_BODY_LEN: usize = 1964;
+/// Fold of that preserved body: `acc = acc * 16777619 + byte` in `u64`.
+pub const UNCOMPILED_BODY_CHECKSUM: u64 = 8938404029727861641;

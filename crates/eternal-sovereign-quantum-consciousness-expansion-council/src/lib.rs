@@ -1,8 +1,35 @@
-/// 33rd PATSAGi Council — Eternal Sovereign Quantum Consciousness Expansion
-/// Quantum consciousness layers, TOLC 8, RSRE v3.0 + full encryption
+//! Council record.
+//! The type name and `name` string are a historical title (design intent).
+//!
+//! `src/uncompiled_council.rs` is not a module.
+//! The bytes under its design-only header are the previous `src/lib.rs`.
+//!
+//! Compiled call: `RathorSovereignReasoningEngine::evaluate_proposal`, then
+//! `run_foresight_simulation` when `proposal_valence` is at least the engine
+//! source literal `MERCY_THRESHOLD` (0.9999999).
+//! The simulation caps are source literals in that engine.
+//! `council_from_axes` calls `ValenceVote` and `ValenceConsensusEngine`.
+//! `DEFAULT_VALENCE_THRESHOLD` is the source literal 0.90.
+//! `PROGRESSIVE_FLOOR` is the source literal 0.68.
+//! The label follows those inputs, including a mercy-block input.
+//!
+//! Public TOLC 8 names are Truth, Order, Love, Compassion, Service, Abundance, Joy, Cosmic Harmony.
+//! Contact: info@Rathor.ai
 
-use rathor_sovereign_reasoning_engine::RSRE;
+use patsagi_councils::{ValenceConsensusEngine, ValenceVote};
+use rathor_sovereign_reasoning_engine::RathorSovereignReasoningEngine;
 
+/// Source literal from `rathor-sovereign-reasoning-engine`. Not a measured value.
+pub use rathor_sovereign_reasoning_engine::MERCY_THRESHOLD as REASONING_THRESHOLD_SOURCE_LITERAL;
+
+/// Source literals from the current patsagi-councils API. Not measured valence.
+/// `DEFAULT_VALENCE_THRESHOLD` is 0.90. `PROGRESSIVE_FLOOR` is 0.68.
+pub use patsagi_councils::{
+    valence_consensus::DEFAULT_WEIGHTS, CouncilGateLabel, DEFAULT_VALENCE_THRESHOLD,
+    PROGRESSIVE_FLOOR,
+};
+
+/// Historical council title (design intent).
 pub struct EternalSovereignQuantumConsciousnessExpansionCouncil {
     pub id: u8,
     pub name: String,
@@ -16,25 +43,52 @@ impl EternalSovereignQuantumConsciousnessExpansionCouncil {
         }
     }
 
-    pub fn activate_quantum_consciousness_expansion(&self, valence: f64) -> Result<bool, String> {
-        if valence < 0.9999999 {
-            return Err("TOLC 8 violation: valence below threshold".to_string());
+    /// Below `REASONING_THRESHOLD_SOURCE_LITERAL`, returns the engine Err text.
+    /// Otherwise returns `run_foresight_simulation(years)`.
+    /// Both caps inside that simulation are source literals.
+    /// The engine's second argument stays false. This function does not return the engine Ok text.
+    pub fn reasoning_from_inputs(proposal_valence: f64, years: u64) -> Result<f64, String> {
+        let mut engine = RathorSovereignReasoningEngine::new();
+        engine.evaluate_proposal(proposal_valence, false)?;
+        Ok(engine.run_foresight_simulation(years))
+    }
+
+    /// One-vote deliberation. `valence` and `label` follow the caller axes and `mercy_block`.
+    pub fn council_from_axes(
+        &self,
+        proposal: &str,
+        joy: f64,
+        harmony: f64,
+        abundance: f64,
+        mercy_block: bool,
+    ) -> CouncilDeliberation {
+        let vote = ValenceVote::new(self.name.clone(), joy, harmony, abundance, mercy_block);
+        let valence = vote.valence;
+        let result = ValenceConsensusEngine::new().deliberate(proposal, vec![vote]);
+        let label = result.gate_label();
+        CouncilDeliberation {
+            proposal: result.proposal,
+            valence,
+            label,
         }
-        Ok(true)
-    }
-
-    pub fn tolc8_mercy_check(&self, valence: f64) -> bool {
-        valence >= 0.9999999
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn test_33rd_council_instantiation() {
-        let council = EternalSovereignQuantumConsciousnessExpansionCouncil::new();
-        assert_eq!(council.id, 33);
-        assert!(council.tolc8_mercy_check(0.99999999));
+impl Default for EternalSovereignQuantumConsciousnessExpansionCouncil {
+    fn default() -> Self {
+        Self::new()
     }
 }
+
+/// Deliberation record. `valence` is the weighted composite of the caller axes.
+#[derive(Debug, PartialEq)]
+pub struct CouncilDeliberation {
+    pub proposal: String,
+    pub valence: f64,
+    pub label: CouncilGateLabel,
+}
+
+/// Byte length of the previous `src/lib.rs` body preserved in `src/uncompiled_council.rs`.
+pub const UNCOMPILED_BODY_LEN: usize = 1158;
+/// Fold of that preserved body: `acc = acc * 16777619 + byte` in `u64`.
+pub const UNCOMPILED_BODY_CHECKSUM: u64 = 4224777634110254869;
