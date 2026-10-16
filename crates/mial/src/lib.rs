@@ -1,6 +1,7 @@
 //! Mercy-Augmented Intelligence Amplification Layer (MIAL).
 //! The compiled path is `mwpo` and `pathology_detection`.
 //! Geometry scores are formulas of source literals.
+//! `optimize_preferences` stores `gated` as false. No compiled check sets it true.
 //! `0.999999` in `evaluate_geometry_mercy_component` is a source literal, not a measured value.
 //! These files are not modules: `mial.rs`, `safety_harness.rs`, `lattice_introspection.rs`,
 //! `integration.rs`, `mod.rs`.

@@ -1,8 +1,9 @@
 //! Substring labels, plus a `CouncilTuningProposal` applied on an owned runtime.
 //! `detect_pathologies` returns the first matching label. It does not score a model.
 //! The `< 0.65` branch is not reached: `< 0.70` returns `goal_drift_detected` first.
-//! `trigger_automatic_recalibration` stores `new_value.max(0.5)` through `MercyGatingRuntime`.
-//! `0.5` is a source literal in that runtime, not a measured floor.
+//! `trigger_automatic_recalibration` applies a `GateThreshold` proposal.
+//! `apply_council_tuning` keeps the stored value when `new_value` is non-finite or lower, and this method returns `Err` in that case.
+//! A missing name reports `0.75` from `get_gate_threshold`. `0.75` is that function's source literal, not a measured floor.
 
 use mercy_gating_runtime::{CouncilTuningProposal, MercyGatingRuntime, TuningTarget};
 
@@ -56,7 +57,7 @@ impl PathologyDetectionEngine {
 
     /// Builds a `GateThreshold` proposal and applies it.
     /// `new_value` is `(current_score * 1.08).min(0.97)`. `1.08` and `0.97` are source literals.
-    /// The runtime then stores `new_value.max(0.5)`. That can replace a higher threshold.
+    /// The runtime keeps the stored threshold when `new_value` is non-finite or lower, and this method returns `Err`.
     pub fn trigger_automatic_recalibration(
         &mut self,
         pathology: &str,
@@ -71,7 +72,7 @@ impl PathologyDetectionEngine {
             },
             new_value: new_threshold,
             justification: format!(
-                "Pathology '{pathology}' detected. Stored threshold is new_value.max(0.5)."
+                "Pathology '{pathology}' detected. A non-finite or lower new_value is refused and the stored threshold stays."
             ),
             proposed_at_turn: 0,
         };

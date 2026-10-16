@@ -4,6 +4,7 @@
 //! `evaluate_geometry_mercy_component` rejects `valence` below the source literal `0.999999`.
 //! It does not read `MercyContext::active_gates`.
 //! This type does not call `MercyGatingRuntime`.
+//! `optimize_preferences` stores `gated` as false. No compiled check in this file sets it true.
 //! Contact: info@Rathor.ai
 
 use nalgebra::Matrix4;
@@ -124,6 +125,7 @@ impl MercyWeightedPreferenceOptimization {
     /// Scores each preference as `geometry_proxy * weight * context.valence`.
     /// A missing weight uses the source literal `0.9`.
     /// `active_gates` is not read.
+    /// `gated` is false. This function does not run a check.
     pub fn optimize_preferences(
         &mut self,
         preferences: &[Preference],
@@ -151,8 +153,8 @@ impl MercyWeightedPreferenceOptimization {
                 OptimizedAction {
                     preference: p,
                     mercy_score: score,
-                    // Stored as the literal true. This function does not run a gate.
-                    gated: true,
+                    // No compiled check runs here. Fail closed.
+                    gated: false,
                 }
             })
             .collect();
@@ -296,8 +298,9 @@ pub struct Preference {
     pub geometry_hint: Option<GeometryParams>,
 }
 
-/// Scored preference. `gated` is the literal stored by `optimize_preferences` (`true`).
-/// That literal is not a gate result.
+/// Scored preference.
+/// `gated` is false unless a compiled check ran and passed.
+/// `optimize_preferences` does not run a check, so it stores false.
 #[derive(Debug, Clone)]
 pub struct OptimizedAction {
     pub preference: Preference,
@@ -413,9 +416,35 @@ mod tests {
         assert_eq!(actions.len(), 1);
         assert_eq!(actions[0].preference.id, 7);
         assert_eq!(actions[0].mercy_score, 0.85 * 0.98 * 1.0);
-        assert!(actions[0].gated);
+        assert!(!actions[0].gated);
         assert_eq!(mwpo.mercy_weights.get("truth"), Some(&0.98));
         assert_eq!(mwpo.mercy_weights.get("radical_love"), Some(&1.0));
+    }
+
+    #[test]
+    fn stored_flag_is_false_when_no_check_ran() {
+        let mut mwpo = MercyWeightedPreferenceOptimization::new();
+        let actions = mwpo
+            .optimize_preferences(
+                &[
+                    Preference {
+                        id: 1,
+                        mercy_axis: "truth".into(),
+                        weight: 1.0,
+                        geometry_hint: None,
+                    },
+                    Preference {
+                        id: 2,
+                        mercy_axis: "missing-axis".into(),
+                        weight: 1.0,
+                        geometry_hint: Some(platonic_zero()),
+                    },
+                ],
+                &context(1.0),
+            )
+            .expect("no check runs");
+        assert_eq!(actions.len(), 2);
+        assert!(actions.iter().all(|action| !action.gated));
     }
 
     #[test]

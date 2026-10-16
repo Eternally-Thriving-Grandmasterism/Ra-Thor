@@ -185,7 +185,7 @@ Depends on `crates/shared-valence-field` (card 1). In-repo first error for each,
 
 **Status:** DONE in #674. Each crate below is its own workspace (`resolver = "2"`) with a committed `Cargo.lock`. They are not root members. `mial` path-depends on `../mercy_gating_runtime`. `mercy-threshold-wasm` path-depends on `../mial`. Locked `cargo build`, `cargo test --all-targets`, and `cargo clippy --all-targets -- -D warnings` finished. `src/error.rs` does not exist (`MercyError` is not defined). The files named in the council note stay on disk and are not modules. `0.999999`, `0.92`, `650.0`, `0.5`, and the amplifier and gate-threshold arms are source literals, not measured results.
 
-**Core condition:** `MIAL-GATES-HONEST-1` must land before promotion, or before anything reads MWPO `gated`, or before anything relies on `MercyGatingRuntime` monotonicity.
+**Core condition:** `MIAL-GATES-HONEST-1` landed in #687. `optimize_preferences` stores `gated` as false. No compiled check sets it true. `apply_council_tuning`, `set_gate_threshold`, and `GateThresholdMap::set_threshold` refuse a non-finite value or a decrease and keep the stored value. These crates are still not root members. Do not read `gated` as a check result. `ma_at_threshold` and `gate_thresholds` are public fields, so a direct field write bypasses the method check.
 
 `crates/powrush-mmo-simulator` path-deps `mial` and `mercy-threshold-wasm`. That simulator is not this card.
 
@@ -314,7 +314,7 @@ The living council crate that already builds is `crates/council` (#665). This pa
 
 ## 8. POWRUSH-MMO-SIM-BUILDS-1 (DONE, #678)
 
-**Status:** DONE in #678. `crates/powrush-mmo-simulator` is its own workspace (`resolver = "2"`) with a committed `Cargo.lock`. It is not a root member. Locked `cargo test --all-targets`, `cargo clippy --all-targets -- -D warnings`, and `cargo fmt --check` finished inside the crate. Path deps are `../mial` and `../mercy-threshold-wasm` (feature `native`). `powrush`, `mercy`, and `quantum-swarm-orchestrator` are not imported, so they are not dependencies. The aliases `ra-thor-evolution` and `ra-thor-plasticity-engine-v2` are dropped. No file in this package called them. Resource-Based Economy is a design thesis, not a present fact. This crate is not the Powrush-MMO game and not the browser client. Compiled code does not read MWPO `gated` and does not call `MercyGatingRuntime`. `MIAL-GATES-HONEST-1` has not landed. `formally_verify_geometry` does not replace the MWPO score with `0.99` or `0.62`. With no wasm bridge, `used_formal_path` stays false. The `0.0` failure sentinel and the effect multipliers are source literals, not measured values. Public TOLC 8 names stay Truth, Order, Love, Compassion, Service, Abundance, Joy, Cosmic Harmony. The score fields stay the names already on `MercyGeometryScore`.
+**Status:** DONE in #678. `crates/powrush-mmo-simulator` is its own workspace (`resolver = "2"`) with a committed `Cargo.lock`. It is not a root member. Locked `cargo test --all-targets`, `cargo clippy --all-targets -- -D warnings`, and `cargo fmt --check` finished inside the crate. Path deps are `../mial` and `../mercy-threshold-wasm` (feature `native`). `powrush`, `mercy`, and `quantum-swarm-orchestrator` are not imported, so they are not dependencies. The aliases `ra-thor-evolution` and `ra-thor-plasticity-engine-v2` are dropped. No file in this package called them. Resource-Based Economy is a design thesis, not a present fact. This crate is not the Powrush-MMO game and not the browser client. Compiled code does not read MWPO `gated` and does not call `MercyGatingRuntime`. `MIAL-GATES-HONEST-1` landed in #687. `gated` is stored false. A council proposal below the stored threshold is refused. `formally_verify_geometry` does not replace the MWPO score with `0.99` or `0.62`. With no wasm bridge, `used_formal_path` stays false. The `0.0` failure sentinel and the effect multipliers are source literals, not measured values. Public TOLC 8 names stay Truth, Order, Love, Compassion, Service, Abundance, Joy, Cosmic Harmony. The score fields stay the names already on `MercyGeometryScore`.
 
 **Compiled:** `src/lib.rs`, `src/mercy_geometry.rs`, `src/gate_logic.rs`, `examples/gate_surface_14_15.rs`, `tests/exact_values.rs`.
 
@@ -1014,9 +1014,11 @@ Not make-real cards. No crate behavior changes in those tidy cards except the li
 
 Council board: https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO/issues/738
 
-### MIAL-GATES-HONEST-1
+### MIAL-GATES-HONEST-1 (DONE, #687)
 
-It must land before `mial`, `mercy_gating_runtime`, or `mercy-threshold-wasm` joins root members, and before any code reads MWPO `gated` or relies on `MercyGatingRuntime` monotonicity. Recorded in #738 comment 6218764317, and in this file under cards 4 and 8.
+**Status:** DONE in #687. `optimize_preferences` stores `gated` as false because no compiled check runs. `apply_council_tuning`, `set_gate_threshold`, and `GateThresholdMap::set_threshold` refuse a non-finite value or a decrease and keep the stored value. An equal or higher finite value is stored. These crates are not root members.
+
+It landed before `mial`, `mercy_gating_runtime`, or `mercy-threshold-wasm` joins root members. Do not read MWPO `gated` as a check result. `ma_at_threshold` and `gate_thresholds` are public fields, so a direct field write bypasses the method check. Recorded in #738 comment 6218764317, and in this file under cards 4 and 8.
 
 ### SHARD-COMPOSER-KEY-REQUIRED-1 (DONE, #686)
 

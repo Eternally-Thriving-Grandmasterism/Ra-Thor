@@ -2,8 +2,9 @@
 name = "mercy_gating_runtime"
 version = "14.15.0"
 edition = "2021"
+rust-version = "1.89"
 authors = ["Sherif Samy Botros <info@Rathor.ai>", "Eternally-Thriving-Grandmasterism"]
-description = "Race amplifiers and source-literal gate thresholds. Council tuning stores Ma'at as new_value.max(650.0) and a gate as new_value.max(0.5). Those floors are source literals, not measured results. src/error.rs does not exist."
+description = "Race amplifiers and source-literal thresholds. apply_council_tuning, set_gate_threshold, and GateThresholdMap::set_threshold refuse a non-finite value or a decrease and keep the stored one. The public fields can still be written directly. src/error.rs does not exist."
 license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 keywords = ["mercy", "gating", "runtime", "tolc", "one-organism"]

@@ -4,9 +4,11 @@ Standalone workspace (`resolver = "2"`) with its own `Cargo.lock`. Not a root de
 
 `race_gate_amplifier` returns the match-arm literals in `src/lib.rs` (for example Sovereign on `one_organism_unity` is `1.38`). `gate_17_24_passes` compares a score with the thresholds in that function (`one_organism_unity` is `0.90`). Those numbers are source literals, not measured results.
 
-`GateThresholdMap::set_threshold` returns Err when the new value is below the stored value. `new` inserts the literals in that function (`council_harmony` is `0.80`).
+`GateThresholdMap::set_threshold` returns Err when `new_value` is non-finite or below the stored value, and leaves that value in place. An equal or higher finite value is stored. `new` inserts the literals in that function (`council_harmony` is `0.80`).
 
-`MercyGatingRuntime::new` sets `ma_at_threshold` to `717.0`. `apply_council_tuning` on `MaAtThreshold` stores `new_value.max(650.0)`. On `GateThreshold` it stores `new_value.max(0.5)`. Both floors are source literals. Either store can replace a higher current value. `RaceAmplifier` does not change a threshold. `success` is true for every target.
+`MercyGatingRuntime::new` sets `ma_at_threshold` to `717.0`. `apply_council_tuning` on `MaAtThreshold` and `GateThreshold` refuses `new_value` when it is non-finite or below the stored value (`success` is false) and leaves that value in place. An equal or higher finite `new_value` is stored. A missing name reports `0.75` from `get_gate_threshold`. `0.75` is that function's source literal, not a measured floor. `RaceAmplifier` does not change a threshold. `success` is true for that target. `set_gate_threshold` returns `Err` on the same test and does not use a `0.5` floor. `apply_council_tuning` does not call it.
+
+`ma_at_threshold` and `gate_thresholds` are public fields, so the refuse-a-decrease guarantee covers the methods only, and a direct field write bypasses it.
 
 **Contact:** info@Rathor.ai  
 **License:** AG-SML v1.1

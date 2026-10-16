@@ -2,6 +2,7 @@
 name = "powrush-mmo-simulator"
 version = "14.15.0"
 edition = "2021"
+rust-version = "1.89"
 authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
 license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
 description = "Standalone library of MWPO geometry scores and effect multipliers. Resource-Based Economy is a design thesis, not a present fact. This package is not the Powrush-MMO game and not the browser client."

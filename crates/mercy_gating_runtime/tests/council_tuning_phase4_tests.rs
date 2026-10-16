@@ -1,23 +1,24 @@
-//! `apply_council_tuning` stores `new_value.max(650.0)` for `MaAtThreshold`.
-//! `650.0` is a source literal. A proposal of `100.0` stores `650.0`, which is below the initial `717.0`.
-//! A proposal of `755.0` stores `755.0`. A gate proposal of `0.92` stores `0.92`.
+//! `apply_council_tuning` refuses a lower `new_value` and keeps the stored value.
+//! A proposal of `100.0` leaves `ma_at_threshold` at `717.0`.
+//! A proposal of `755.0` stores `755.0`. A named proposal of `0.92` stores `0.92`.
 
 use mercy_gating_runtime::{CouncilTuningProposal, MercyGatingRuntime, TuningTarget};
 
 #[test]
-fn test_phase4_safety_floor_never_below_650() {
+fn test_phase4_lower_proposal_is_rejected_and_717_stays() {
     let mut runtime = MercyGatingRuntime::default();
     let malicious_low = CouncilTuningProposal {
         council_id: 99,
         target: TuningTarget::MaAtThreshold,
-        new_value: 100.0, // malicious attempt to weaken
+        new_value: 100.0, // attempt to lower
         justification: "Attempt to lower standard".to_string(),
         proposed_at_turn: 1,
     };
     let result = runtime.apply_council_tuning(&malicious_low);
-    assert!(result.success);
-    assert_eq!(result.new_value, 650.0);
-    assert_eq!(runtime.ma_at_threshold, 650.0);
+    assert!(!result.success);
+    assert_eq!(result.previous_value, 717.0);
+    assert_eq!(result.new_value, 717.0);
+    assert_eq!(runtime.ma_at_threshold, 717.0);
 }
 
 #[test]
