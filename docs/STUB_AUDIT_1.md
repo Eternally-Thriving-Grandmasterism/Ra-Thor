@@ -26,6 +26,7 @@ These were make-real cards. `cargo check` on 2026-10-16 finished for each. They 
 | `crates/powrush` | #668 | Standalone `[workspace]`. Online `cargo check` finished. Policy hints can be rejected. |
 | `crates/sovereign-shard-genesis` | #669 | Standalone `[workspace]`. Online `cargo check` finished. SHA-256 of explicit inputs. The v13 draft file is not a module. |
 | LEAF-BUILDS-1: `crates/legal-research-source-locked`, `crates/hyperbolic-neural-network`, `crates/hyperbolic-tiling-consciousness`, `crates/moebius-transformations`, `crates/philotic-web-fusion`, `crates/rathor-sovereign-reasoning-engine`, `crates/shared-valence-field` | #671 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock` each. Not root members. Locked `cargo build`, `cargo test`, and `cargo clippy -- -D warnings` finished. Threshold literals stay source literals. |
+| ONE-ERROR-LEAVES-1: `crates/swarm_intelligence`, `crates/patsagi-quantum-valence`, `crates/hyperon-metta-pln` | #672 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock` each. Not root members. Locked `cargo build`, `cargo test`, and `cargo clippy -- -D warnings` finished. `replicate` returns None. QAOA/VQE names are design-only (council note: those claims are retired). |
 
 Two tidy leftovers on the shard crate are banked below. They did not stop `cargo check`.
 
@@ -78,7 +79,7 @@ Dependencies first. Then the smallest crates whose source already checks once th
 | Order | Card | Crates | Why it is here | Size | Core? |
 |------:|------|--------|----------------|------|-------|
 | 1 | `LEAF-BUILDS-1` (DONE, #671) | 7 leaves that compiled in the probe | No path deps. Standalone `[workspace]` is the whole manifest fix. Still read the constant floors before calling them real. | S | No, if they stay out of root `members`. |
-| 2 | `ONE-ERROR-LEAVES-1` | 3 | Same manifest fix, then one Rust error each. | S | No, if standalone. |
+| 2 | `ONE-ERROR-LEAVES-1` (DONE, #672) | 3 | Same manifest fix, then one Rust error each. | S | No, if standalone. |
 | 3 | `SHARED-VALENCE-DEPENDENTS-1` | 5 path dependents of `shared-valence-field` | Depends on card 1. | S | No, if standalone. |
 | 4 | `MIAL-THRESHOLD-BUILDS-1` | `mial`, `mercy-threshold-wasm` | `powrush-mmo-simulator` path-deps both. | M | No, if standalone. |
 | 5 | `RA-THOR-CORE-BUILDS-1` | `crates/ra-thor-core` | `patsagi-councils` path-deps it. | M (988 lines, 9 files) | No, if standalone. |
@@ -127,9 +128,11 @@ Probe (empty `[workspace]` in `/tmp`): `cargo check` exited 0 and compiled a lib
 
 ---
 
-## 2. ONE-ERROR-LEAVES-1
+## 2. ONE-ERROR-LEAVES-1 (DONE, #672)
 
-In-repo first error: not a workspace member. Probe then showed one Rust error.
+**Status:** DONE in #672. Each crate below is its own workspace (`resolver = "2"`) with a committed `Cargo.lock`. They are not root members. Locked `cargo build`, `cargo test`, and `cargo clippy -- -D warnings` finished. `SwarmAgent::replicate` returns None. `valence_qaoa` returns a uniform vector and is not QAOA. `valence_vqe` returns `trace * valence_weight` and is not VQE. Those names stay, and the algorithm claims are reworded (council note: retired). The unattached doc comment in `hyperon-metta-pln` is a crate doc for the string bridge. `src/adaptive_valence.rs` is not a module.
+
+In-repo first error, before that PR: not a workspace member. Probe then showed one Rust error.
 
 | Path | Next error (probe) |
 |------|--------------------|
@@ -137,7 +140,7 @@ In-repo first error: not a workspace member. Probe then showed one Rust error.
 | `crates/patsagi-quantum-valence` | `src/lib.rs:29`: `sqrt` on an ambiguous integer in `valence_qaoa`. The function returns that vector unchanged (lines 27–31). `valence_vqe` returns `hamiltonian.trace() * valence_weight` (lines 35–37). Names say QAOA and VQE. The bodies are not those algorithms. |
 | `crates/hyperon-metta-pln` | `src/lib.rs:9`: doc comment is not attached to an item. |
 
-**Fix:** standalone `[workspace]`, then the one error. For `patsagi-quantum-valence`, label the QAOA/VQE names as design-only or delete the claim from the function docs. Do not fill them with a fake quantum stack.
+**Fix:** Use a standalone `[workspace]`, then fix the one error. For `patsagi-quantum-valence`, label the QAOA/VQE names as design-only, or reword the claim in the function docs (with a council note). Do not fill them with a fake quantum stack.
 
 **Runtime / v14:** no.
 
@@ -176,7 +179,7 @@ Depends on `crates/shared-valence-field` (card 1). In-repo first error for each:
 
 `crates/mercy_gating_runtime` is the next dependency. In-repo: not a member. Probe (it has no path deps): 23 errors, including `src/lib.rs:10` file not found for module `error`, and `serde` used but not linked. 754 lines. It is part of this card, ahead of `mial`.
 
-**Fix:** standalone workspaces, bottom up: gating runtime (repair or retire with council note missing modules), then `mial`, then `mercy-threshold-wasm`. Do not pull them into root `members`.
+**Fix:** Use standalone workspaces from the bottom up. For the gating runtime, repair the missing modules or retire them (with a council note). Then build `mial`, then `mercy-threshold-wasm`. Do not pull them into root `members`.
 
 **Runtime / v14:** no, unless a later card wires the wasm crate into the site. That would be a different card.
 
@@ -301,7 +304,7 @@ Two different directories.
 
 `crates/council` comments (`Cargo.toml` lines 16–19) already record that the old `ra-thor-kernel` path was `../kernel` and that council does not depend on it.
 
-**Fix:** retire with council note the unstable `rustflags` profile from `ra-thor-kernel` or move it to `.cargo/config.toml` only if a wasm card asks for it. Remove path deps on missing `dilithium_sign` and `falcon_sign`. Do not invent post-quantum implementations. `crates/kernel` can be a standalone workspace in its own card if something still calls it. Do not add a root key `ra-thor-kernel` just to satisfy the 167 manifests that name it (card 14).
+**Fix:** Retire the unstable `rustflags` profile from `ra-thor-kernel` (with a council note), or move it to `.cargo/config.toml` only if a wasm card asks for it. Remove path deps on missing `dilithium_sign` and `falcon_sign`. Do not invent post-quantum implementations. `crates/kernel` can be a standalone workspace in its own card if something still calls it. Do not add a root key `ra-thor-kernel` just to satisfy the 167 manifests that name it (card 14).
 
 **Runtime / v14:** no.
 
@@ -338,7 +341,7 @@ These path-deps are already declared, so the probe did not cover them. In-repo f
 
 **Fictional, label design-only rather than implement:** post-quantum biomimetic encryption, quantum propulsion sovereignty, pterosaur fleet language, "100B-year" strings. Card 1 already showed the reasoning engine is a constant-threshold struct. Wiring that struct in does not create propulsion or post-quantum crypto.
 
-**Fix:** standalone workspace, path-dep only the card 1 leaves that actually compiled. retire with council note or gate the fictional function bodies instead of giving them constant `Ok(true)`.
+**Fix:** Use a standalone workspace, and path-dep only the card 1 leaves that actually compiled. Retire the fictional function bodies (with a council note), or gate them, instead of giving them constant `Ok(true)`.
 
 **Runtime / v14:** no.
 
@@ -741,7 +744,7 @@ Other cited stubs:
 - `crates/supernova_folding`
 - `crates/threshold_crypto`
 
-**Fix:** do not add `powrush` to root `[workspace.dependencies]` as a way to compile this list. `crates/powrush` is a standalone workspace on purpose (#668). Do not add these paths to root `members`. Leave them on disk. A later card may retire with council note empty manifests. That is a retire card, not a cryptography implementation. Fake ZK, fake post-quantum, and propulsion strings stay design-only.
+**Fix:** Do not add `powrush` to root `[workspace.dependencies]` as a way to compile this list. `crates/powrush` is a standalone workspace on purpose (#668). Do not add these paths to root `members`. Leave them on disk. A later card may retire the empty manifests (with a council note). That is a retire card, not a cryptography implementation. Fake ZK, fake post-quantum, and propulsion strings stay design-only.
 
 **Runtime / v14:** no.
 
