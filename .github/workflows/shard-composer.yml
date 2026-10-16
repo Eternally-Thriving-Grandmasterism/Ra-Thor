@@ -23,5 +23,11 @@ jobs:
         with:
           toolchain: 1.89.0
 
+      - name: Install rustfmt
+        run: rustup component add rustfmt --toolchain 1.89.0
+
       - name: Test shard-composer
         run: cargo test --locked --manifest-path crates/shard-composer/Cargo.toml
+
+      - name: Format shard-composer
+        run: cargo fmt --check --manifest-path crates/shard-composer/Cargo.toml

@@ -1,7 +1,7 @@
 name: standalone locked tests
 
 # Standalone packages. Not root workspace members.
-# One matrix entry per crate: cargo test --locked and cargo clippy --locked.
+# One matrix entry per crate: cargo test --locked, cargo clippy --locked, and cargo fmt --check.
 on:
   pull_request:
     paths:
@@ -24,6 +24,13 @@ on:
       - "crates/quantum-propulsion-sovereignty-council/**"
       - "crates/sovereign-decentralized-propulsion-fleet-council/**"
       - "crates/universal-sovereign-abundance-lattice-council/**"
+      # Path dependencies of the matrix crates, including transitive path deps.
+      - "crates/hyperbolic-tiling-consciousness/**"
+      - "crates/moebius-transformations/**"
+      - "crates/philotic-web-fusion/**"
+      - "crates/powrush/**"
+      - "crates/quantum-swarm-orchestrator/**"
+      - "crates/rathor-sovereign-reasoning-engine/**"
   push:
     branches: [main]
     paths:
@@ -46,6 +53,13 @@ on:
       - "crates/quantum-propulsion-sovereignty-council/**"
       - "crates/sovereign-decentralized-propulsion-fleet-council/**"
       - "crates/universal-sovereign-abundance-lattice-council/**"
+      # Path dependencies of the matrix crates, including transitive path deps.
+      - "crates/hyperbolic-tiling-consciousness/**"
+      - "crates/moebius-transformations/**"
+      - "crates/philotic-web-fusion/**"
+      - "crates/powrush/**"
+      - "crates/quantum-swarm-orchestrator/**"
+      - "crates/rathor-sovereign-reasoning-engine/**"
 
 permissions:
   contents: read
@@ -91,6 +105,9 @@ jobs:
       - name: Install clippy
         run: rustup component add clippy --toolchain 1.89.0
 
+      - name: Install rustfmt
+        run: rustup component add rustfmt --toolchain 1.89.0
+
       - name: Test
         working-directory: crates/${{ matrix.crate }}
         run: cargo test --locked --all-targets
@@ -98,3 +115,7 @@ jobs:
       - name: Clippy
         working-directory: crates/${{ matrix.crate }}
         run: cargo clippy --locked --all-targets -- -D warnings
+
+      - name: Format
+        working-directory: crates/${{ matrix.crate }}
+        run: cargo fmt --check
