@@ -28,6 +28,7 @@ These were make-real cards. `cargo check` on 2026-10-16 finished for each. They 
 | LEAF-BUILDS-1: `crates/legal-research-source-locked`, `crates/hyperbolic-neural-network`, `crates/hyperbolic-tiling-consciousness`, `crates/moebius-transformations`, `crates/philotic-web-fusion`, `crates/rathor-sovereign-reasoning-engine`, `crates/shared-valence-field` | #671 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock` each. Not root members. Locked `cargo build`, `cargo test`, and `cargo clippy -- -D warnings` finished. Threshold literals stay source literals. |
 | ONE-ERROR-LEAVES-1: `crates/swarm_intelligence`, `crates/patsagi-quantum-valence`, `crates/hyperon-metta-pln` | #672 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock` each. Not root members. Locked `cargo build`, `cargo test`, and `cargo clippy -- -D warnings` finished. `replicate` returns None. QAOA/VQE names are design-only (council note: those claims are retired). |
 | SHARED-VALENCE-DEPENDENTS-1: `crates/abundance-breath`, `crates/epiphany-bridge`, `crates/resonance-challenge`, `crates/soft-sovereign-agency`, `crates/symbiotic-membrane` | #673 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock` each. Relative path to `shared-valence-field`. Not root members. Locked `cargo build`, `cargo test`, and `cargo clippy -- -D warnings` finished. Uncompiled files stay uncompiled. `0.999999` stays a source literal. |
+| MIAL-THRESHOLD-BUILDS-1: `crates/mercy_gating_runtime`, `crates/mial`, `crates/mercy-threshold-wasm` | #674 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock` each. Relative path from `mial` to `mercy_gating_runtime`, and from `mercy-threshold-wasm` to `mial`. Not root members. Locked `cargo build`, `cargo test --all-targets`, and `cargo clippy --all-targets -- -D warnings` finished. `src/error.rs` does not exist. Uncompiled files stay uncompiled. Threshold figures stay source literals. |
 
 Two tidy leftovers on the shard crate are banked below. They did not stop `cargo check`.
 
@@ -82,7 +83,7 @@ Dependencies first. Then the smallest crates whose source already checks once th
 | 1 | `LEAF-BUILDS-1` (DONE, #671) | 7 leaves that compiled in the probe | No path deps. Standalone `[workspace]` is the whole manifest fix. Still read the constant floors before calling them real. | S | No, if they stay out of root `members`. |
 | 2 | `ONE-ERROR-LEAVES-1` (DONE, #672) | 3 | Same manifest fix, then one Rust error each. | S | No, if standalone. |
 | 3 | `SHARED-VALENCE-DEPENDENTS-1` (DONE, #673) | 5 path dependents of `shared-valence-field` | Depends on card 1. | S | No, if standalone. |
-| 4 | `MIAL-THRESHOLD-BUILDS-1` | `mial`, `mercy-threshold-wasm` | `powrush-mmo-simulator` path-deps both. | M | No, if standalone. |
+| 4 | `MIAL-THRESHOLD-BUILDS-1` (DONE, #674) | `mercy_gating_runtime`, `mial`, `mercy-threshold-wasm` | `powrush-mmo-simulator` path-deps `mial` and `mercy-threshold-wasm`. The gating runtime is the path dep under `mial`. | M | No, if standalone. |
 | 5 | `RA-THOR-CORE-BUILDS-1` | `crates/ra-thor-core` | `patsagi-councils` path-deps it. | M (988 lines, 9 files) | No, if standalone. |
 | 6 | `QSO-BUILDS-1` | `crates/quantum-swarm-orchestrator` | `patsagi-councils` path-deps it. It path-deps missing `self-evolution`. | L (9,872 lines) | No, if standalone. Do not add a `self-evolution` crate. |
 | 7 | `PATSAGI-COUNCILS-BUILDS-1` | `crates/patsagi-councils` | After 5 and 6, and after `powrush` (#668). Living small council is already `crates/council`. | L (6,115 lines, 26 files) | No, if standalone. Yes if added to root `members`. |
@@ -171,9 +172,11 @@ Depends on `crates/shared-valence-field` (card 1). In-repo first error for each,
 
 ---
 
-## 4. MIAL-THRESHOLD-BUILDS-1
+## 4. MIAL-THRESHOLD-BUILDS-1 (DONE, #674)
 
-`crates/powrush-mmo-simulator` path-deps both.
+**Status:** DONE in #674. Each crate below is its own workspace (`resolver = "2"`) with a committed `Cargo.lock`. They are not root members. `mial` path-depends on `../mercy_gating_runtime`. `mercy-threshold-wasm` path-depends on `../mial`. Locked `cargo build`, `cargo test --all-targets`, and `cargo clippy --all-targets -- -D warnings` finished. `src/error.rs` does not exist (`MercyError` is not defined). The files named in the council note stay on disk and are not modules. `0.999999`, `0.92`, `650.0`, `0.5`, and the amplifier and gate-threshold arms are source literals, not measured results.
+
+`crates/powrush-mmo-simulator` path-deps `mial` and `mercy-threshold-wasm`. That simulator is not this card.
 
 | Path | In-repo first error | Notes |
 |------|---------------------|-------|
@@ -182,7 +185,7 @@ Depends on `crates/shared-valence-field` (card 1). In-repo first error for each,
 
 `crates/mercy_gating_runtime` is the next dependency. In-repo: not a member. Probe (it has no path deps): 23 errors, including `src/lib.rs:10` file not found for module `error`, and `serde` used but not linked. 754 lines. It is part of this card, ahead of `mial`.
 
-**Fix:** Use standalone workspaces from the bottom up. For the gating runtime, repair the missing modules or retire them (with a council note). Then build `mial`, then `mercy-threshold-wasm`. Do not pull them into root `members`.
+**Fix:** Done in #674. Standalone workspaces from the bottom up. The missing `error` module was not created. Callers of `MercyError`, and the other files that name types this crate does not define, are labelled design-only and are not modules (council note in the PR body and in each crate README). `mial` and `mercy-threshold-wasm` then build. They are not root `members`.
 
 **Runtime / v14:** no, unless a later card wires the wasm crate into the site. That would be a different card.
 
