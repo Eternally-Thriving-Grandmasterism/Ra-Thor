@@ -89,6 +89,7 @@ jobs:
           - post-quantum-biomimetic-grokarena-encryption-council
           - quantum-gravity-harmony-council
           - quantum-propulsion-sovereignty-council
+          - quantum-swarm-orchestrator
           - sovereign-decentralized-propulsion-fleet-council
           - universal-sovereign-abundance-lattice-council
     steps:
