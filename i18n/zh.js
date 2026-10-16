@@ -297,7 +297,7 @@ window.translations["zh"] = {
   "employGBody": "No measured METR 数字。无认证申报。工作包是一份 <strong class=\"text-amber-300\">DRAFT</strong>。",
   "employGTitle": "G. 诚实的缺口",
   "employLoop1": "<strong class=\"text-amber-300\">立意</strong> — 要求一份草稿、一项计划、一次审阅，或一次拒绝。",
-  "employLoop2": "<strong class=\"text-amber-300\">通过慈悲检验（代码中的 Mercy Gates）</strong> — TOLC 8 是常设检验。",
+  "employLoop2": "<strong class=\"text-amber-300\">通过慈悲检验</strong> — TOLC 8 是常设检验。",
   "employLoop3": "<strong class=\"text-amber-300\">可选模型</strong> — 留在设备上，或把上下文复制进你选择的模型。",
   "employLoop4": "<strong class=\"text-amber-300\">审阅</strong> — 阅读草稿。保留或拒绝。",
   "employLoop5": "<strong class=\"text-amber-300\">行动</strong> — 行动归你。",
