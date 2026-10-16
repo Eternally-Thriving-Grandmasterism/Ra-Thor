@@ -26,6 +26,7 @@ These were make-real cards. `cargo check` on 2026-10-16 finished for each. They 
 | `crates/powrush` | #668 | Standalone `[workspace]`. Online `cargo check` finished. Policy hints can be rejected. |
 | `crates/sovereign-shard-genesis` | #669 | Standalone `[workspace]`. Online `cargo check` finished. SHA-256 of explicit inputs. The v13 draft file is not a module. |
 | LEAF-BUILDS-1: `crates/legal-research-source-locked`, `crates/hyperbolic-neural-network`, `crates/hyperbolic-tiling-consciousness`, `crates/moebius-transformations`, `crates/philotic-web-fusion`, `crates/rathor-sovereign-reasoning-engine`, `crates/shared-valence-field` | #671 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock` each. Not root members. Locked `cargo build`, `cargo test`, and `cargo clippy -- -D warnings` finished. Threshold literals stay source literals. |
+| ONE-ERROR-LEAVES-1: `crates/swarm_intelligence`, `crates/patsagi-quantum-valence`, `crates/hyperon-metta-pln` | #672 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock` each. Not root members. Locked `cargo build`, `cargo test`, and `cargo clippy -- -D warnings` finished. `replicate` returns None. QAOA/VQE names are design-only (council note: those claims are retired). |
 
 Two tidy leftovers on the shard crate are banked below. They did not stop `cargo check`.
 
@@ -78,7 +79,7 @@ Dependencies first. Then the smallest crates whose source already checks once th
 | Order | Card | Crates | Why it is here | Size | Core? |
 |------:|------|--------|----------------|------|-------|
 | 1 | `LEAF-BUILDS-1` (DONE, #671) | 7 leaves that compiled in the probe | No path deps. Standalone `[workspace]` is the whole manifest fix. Still read the constant floors before calling them real. | S | No, if they stay out of root `members`. |
-| 2 | `ONE-ERROR-LEAVES-1` | 3 | Same manifest fix, then one Rust error each. | S | No, if standalone. |
+| 2 | `ONE-ERROR-LEAVES-1` (DONE, #672) | 3 | Same manifest fix, then one Rust error each. | S | No, if standalone. |
 | 3 | `SHARED-VALENCE-DEPENDENTS-1` | 5 path dependents of `shared-valence-field` | Depends on card 1. | S | No, if standalone. |
 | 4 | `MIAL-THRESHOLD-BUILDS-1` | `mial`, `mercy-threshold-wasm` | `powrush-mmo-simulator` path-deps both. | M | No, if standalone. |
 | 5 | `RA-THOR-CORE-BUILDS-1` | `crates/ra-thor-core` | `patsagi-councils` path-deps it. | M (988 lines, 9 files) | No, if standalone. |
@@ -127,9 +128,11 @@ Probe (empty `[workspace]` in `/tmp`): `cargo check` exited 0 and compiled a lib
 
 ---
 
-## 2. ONE-ERROR-LEAVES-1
+## 2. ONE-ERROR-LEAVES-1 (DONE, #672)
 
-In-repo first error: not a workspace member. Probe then showed one Rust error.
+**Status:** DONE in #672. Each crate below is its own workspace (`resolver = "2"`) with a committed `Cargo.lock`. They are not root members. Locked `cargo build`, `cargo test`, and `cargo clippy -- -D warnings` finished. `SwarmAgent::replicate` returns None. `valence_qaoa` returns a uniform vector and is not QAOA. `valence_vqe` returns `trace * valence_weight` and is not VQE. Those names stay, and the algorithm claims are reworded (council note: retired). The unattached doc comment in `hyperon-metta-pln` is a crate doc for the string bridge. `src/adaptive_valence.rs` is not a module.
+
+In-repo first error, before that PR: not a workspace member. Probe then showed one Rust error.
 
 | Path | Next error (probe) |
 |------|--------------------|
