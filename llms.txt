@@ -11,7 +11,7 @@ Autonomicity Games Inc. was founded in Canada on March 17, 2016, and the name wa
 - [Monorepo](https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor): the public source.
 - [Root Cargo.toml](https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/Cargo.toml): the workspace crate map. It lists the default member crates under `crates/` and notes which crates stay on disk only.
 
-## TOLC 8: the Mercy-Checks.
+## TOLC 8: the Mercy-Checks
 
 Say 'Mercy-Checks' (or 'mercy checks'), 'Mercy-Checking' and 'the Mercy-Ways'; avoid 'gate', 'gated' or 'gating' for Ra-Thor's checks.
 (code identifiers still use older names)
