@@ -8,7 +8,9 @@
 //! `save_to_file` also leaves an existing file untouched when that file does not
 //! verify under the current base. That call returns an error and writes nothing.
 //! A save that passes that check writes a unique temp file in the same directory, syncs it, then renames it over the target.
-//! If that write or sync fails, the temp file is removed and the original error is returned.
+//! If that write or file sync fails, the temp file is removed and the original error is returned.
+//! On unix, if the parent-directory sync fails after that rename, the new file is already in place.
+//! That error keeps the original kind. The message is `file saved and renamed, but directory sync failed: <err>`.
 //! Scale numbers below are source coefficients, not measured rates.
 //! `GodlyIntelligenceCoherence` keeps its name. The four fields are recorded totals.
 
@@ -172,6 +174,11 @@ impl ShardComposerAdapter {
         mac.verify_slice(&expected).is_ok()
     }
 
+    /// Writes the signed adapter to `path`.
+    /// On unix, if the parent-directory `sync_all` fails after a successful rename,
+    /// this returns an error even though the new file is already in place.
+    /// That error keeps the original kind. The message is
+    /// `file saved and renamed, but directory sync failed: <err>`.
     pub fn save_to_file(&self, path: &Path) -> io::Result<()> {
         let data = serde_json::to_value(self).map_err(io::Error::other)?;
         let signed = SignedState {
@@ -302,15 +309,20 @@ fn hmac_base_key_error() -> io::Error {
 
 /// Writes `bytes` to a unique temp file in the target directory, syncs it, then renames it over `path`.
 /// The overwrite guard runs before this function.
-/// A failed write or sync removes that temp file and returns the original error.
+/// A failed write or file sync removes that temp file and returns the original error.
 /// On unix the parent directory is synced after the rename.
+/// If that `sync_all` fails after a successful rename, this returns an error
+/// even though the new file is already in place.
+/// That error keeps the original kind. The message is
+/// `file saved and renamed, but directory sync failed: <err>`.
 fn write_temp_then_rename(path: &Path, bytes: &[u8]) -> io::Result<()> {
-    write_unique_temp_then_rename(path, |file| file.write_all(bytes))
+    write_unique_temp_then_rename(path, |file| file.write_all(bytes), sync_parent_dir)
 }
 
 fn write_unique_temp_then_rename(
     path: &Path,
     write_bytes: impl FnOnce(&mut File) -> io::Result<()>,
+    sync_dir: impl FnOnce(&Path) -> io::Result<()>,
 ) -> io::Result<()> {
     let parent = path
         .parent()
@@ -335,7 +347,7 @@ fn write_unique_temp_then_rename(
         let _ = fs::remove_file(&tmp_path);
         return Err(err);
     }
-    sync_parent_dir(parent)
+    sync_dir(parent).map_err(directory_sync_after_rename_error)
 }
 
 fn unique_temp_name(file_name: &std::ffi::OsStr) -> std::ffi::OsString {
@@ -366,6 +378,13 @@ fn sync_parent_dir(parent: &Path) -> io::Result<()> {
 #[cfg(not(unix))]
 fn sync_parent_dir(_parent: &Path) -> io::Result<()> {
     Ok(())
+}
+
+fn directory_sync_after_rename_error(err: io::Error) -> io::Error {
+    io::Error::new(
+        err.kind(),
+        format!("file saved and renamed, but directory sync failed: {err}"),
+    )
 }
 
 fn unverified_overwrite_error(path: &Path) -> io::Error {
@@ -628,11 +647,15 @@ mod tests {
         let mut seen = Vec::new();
         for _ in 0..2 {
             let mut during = Vec::new();
-            let err = write_unique_temp_then_rename(&path, |file| {
-                file.write_all(b"partial")?;
-                during = dir_names(&dir);
-                Err(io::Error::other("injected write failure"))
-            })
+            let err = write_unique_temp_then_rename(
+                &path,
+                |file| {
+                    file.write_all(b"partial")?;
+                    during = dir_names(&dir);
+                    Err(io::Error::other("injected write failure"))
+                },
+                sync_parent_dir,
+            )
             .expect_err("write failure");
             assert_eq!(err.kind(), io::ErrorKind::Other);
             assert_eq!(err.to_string(), "injected write failure");
@@ -649,6 +672,88 @@ mod tests {
         }
         assert_ne!(seen[0], seen[1]);
         let _ = fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn directory_sync_failure_after_rename_keeps_kind_and_message() {
+        let dir =
+            std::env::temp_dir().join(format!("shard-composer-dir-sync-{}", std::process::id()));
+        let _ = fs::remove_dir_all(&dir);
+        fs::create_dir_all(&dir).expect("create directory");
+        let path = dir.join("state.json");
+        let err = write_unique_temp_then_rename(
+            &path,
+            |file| file.write_all(b"in-place"),
+            |synced| {
+                assert_eq!(synced, dir.as_path());
+                Err(io::Error::new(
+                    io::ErrorKind::PermissionDenied,
+                    "injected dir sync",
+                ))
+            },
+        )
+        .expect_err("directory sync failure");
+        assert_eq!(err.kind(), io::ErrorKind::PermissionDenied);
+        assert_eq!(
+            err.to_string(),
+            "file saved and renamed, but directory sync failed: injected dir sync"
+        );
+        assert_eq!(fs::read(&path).expect("saved file"), b"in-place");
+        let names = dir_names(&dir);
+        let _ = fs::remove_dir_all(&dir);
+        assert_eq!(names, vec!["state.json".to_string()]);
+    }
+
+    #[test]
+    fn failed_rename_removes_temp_and_returns_the_rename_error() {
+        let dir =
+            std::env::temp_dir().join(format!("shard-composer-fail-rename-{}", std::process::id()));
+        let _ = fs::remove_dir_all(&dir);
+        fs::create_dir_all(&dir).expect("create directory");
+        let target = dir.join("state.json");
+        fs::create_dir(&target).expect("target directory");
+        let kept = target.join("keep.txt");
+        fs::write(&kept, b"original-bytes").expect("seed");
+        let before_parent = dir_names(&dir);
+        let before_inside = dir_names(&target);
+        let before_bytes = fs::read(&kept).expect("seed bytes");
+
+        let err = write_temp_then_rename(&target, b"should-not-replace")
+            .expect_err("rename onto a non-empty directory");
+
+        let probe = dir.join("probe-src");
+        fs::write(&probe, b"probe").expect("probe");
+        let probe_err = fs::rename(&probe, &target).expect_err("probe rename");
+        let _ = fs::remove_file(&probe);
+
+        assert_eq!(err.kind(), probe_err.kind());
+        assert_eq!(err.raw_os_error(), probe_err.raw_os_error());
+        assert_eq!(err.to_string(), probe_err.to_string());
+        assert_eq!(dir_names(&dir), before_parent);
+        assert_eq!(dir_names(&target), before_inside);
+        assert_eq!(fs::read(&kept).expect("child bytes"), before_bytes);
+        assert!(target.is_dir(), "target directory was replaced");
+        let temps = hidden_temp_names(&dir, "state.json");
+        assert!(
+            temps.is_empty(),
+            "temp remains: {temps:?} in {}",
+            dir.display()
+        );
+        let temps_inside = hidden_temp_names(&target, "state.json");
+        assert!(
+            temps_inside.is_empty(),
+            "temp remains: {temps_inside:?} in {}",
+            target.display()
+        );
+        let _ = fs::remove_dir_all(&dir);
+    }
+
+    fn hidden_temp_names(dir: &Path, file_name: &str) -> Vec<String> {
+        let prefix = format!(".{file_name}.");
+        dir_names(dir)
+            .into_iter()
+            .filter(|name| name.starts_with(&prefix) && name.ends_with(".tmp"))
+            .collect()
     }
 
     fn dir_names(dir: &Path) -> Vec<String> {
