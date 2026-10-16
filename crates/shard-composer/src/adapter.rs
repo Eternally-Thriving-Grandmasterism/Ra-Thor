@@ -93,6 +93,9 @@ mod valence_as_f64 {
 }
 
 impl ShardComposerAdapter {
+    /// A fresh adapter starts at valence 0.0, below `Valence::MIN`.
+    /// A QuantumSwarmOrchestrator cycle that includes it returns
+    /// `ValenceBelowThreshold` until its valence is raised.
     pub fn new() -> Self {
         Self {
             version: CURRENT_VERSION,
@@ -548,6 +551,45 @@ mod tests {
         }
     }
 
+    /// The cycle future finishes on the first poll. This lock has no async executor.
+    fn poll_ready<F: std::future::Future>(future: F) -> F::Output {
+        use std::task::{Context, Poll};
+
+        let waker = std::task::Waker::noop();
+        let mut context = Context::from_waker(waker);
+        let mut future = std::pin::pin!(future);
+        match std::future::Future::poll(future.as_mut(), &mut context) {
+            Poll::Ready(value) => value,
+            Poll::Pending => panic!("run_one_organism_cycle stayed pending"),
+        }
+    }
+
+    #[test]
+    fn fresh_adapter_valence_is_zero_and_below_min() {
+        let adapter = ShardComposerAdapter::new();
+        let value = adapter.current_valence().value();
+        assert_eq!(value, 0.0);
+        assert!(value < Valence::MIN);
+    }
+
+    #[test]
+    fn fresh_adapter_cycle_returns_valence_below_threshold() {
+        use ra_thor_quantum_swarm_orchestrator::{OneOrganismContext, QuantumSwarmOrchestrator};
+
+        let mut orchestrator = QuantumSwarmOrchestrator::new();
+        orchestrator.register_adapter(Box::new(ShardComposerAdapter::new()));
+        let result = poll_ready(orchestrator.run_one_organism_cycle(OneOrganismContext {
+            cycle_id: 1,
+            tolc_order: 8,
+            base_valence: Valence(0.0),
+            patsagi_insight: None,
+        }));
+        match result {
+            Err(MercyError::ValenceBelowThreshold(value)) => assert_eq!(value, 0.0),
+            other => panic!("expected ValenceBelowThreshold, got {other:?}"),
+        }
+    }
+
     #[test]
     fn hex_codec_round_trips_known_bytes() {
         assert_eq!(encode_hex(&[0x0a, 0xff]), "0aff");
@@ -576,7 +618,10 @@ mod tests {
             let loaded = ShardComposerAdapter::load_from_file(&path);
             let _ = fs::remove_file(&path);
             assert_eq!(loaded.blessings_received(), 0);
+            // Rejected signature: `load_from_file` returns `new()`.
+            // Valence stays 0.0, below `Valence::MIN`.
             assert_eq!(loaded.current_valence().value(), 0.0);
+            assert!(loaded.current_valence().value() < Valence::MIN);
             assert_eq!(loaded.evolution_level(), 0.0);
             assert_eq!(loaded.recorded_version(), CURRENT_VERSION);
         });
