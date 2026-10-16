@@ -1,8 +1,8 @@
 name: mial locked tests
 
 # Standalone workspaces. Not root members.
-# One job runs cargo test --locked for mercy_gating_runtime, mial,
-# mercy-threshold-wasm, and powrush-mmo-simulator.
+# One job runs cargo test --locked and cargo fmt --check for
+# mercy_gating_runtime, mial, mercy-threshold-wasm, and powrush-mmo-simulator.
 on:
   pull_request:
 
@@ -27,6 +27,9 @@ jobs:
         with:
           toolchain: 1.89.0
 
+      - name: Install rustfmt
+        run: rustup component add rustfmt --toolchain 1.89.0
+
       - name: Test mercy_gating_runtime
         run: cargo test --locked --manifest-path crates/mercy_gating_runtime/Cargo.toml
 
@@ -38,3 +41,15 @@ jobs:
 
       - name: Test powrush-mmo-simulator
         run: cargo test --locked --manifest-path crates/powrush-mmo-simulator/Cargo.toml
+
+      - name: Format mercy_gating_runtime
+        run: cargo fmt --check --manifest-path crates/mercy_gating_runtime/Cargo.toml
+
+      - name: Format mial
+        run: cargo fmt --check --manifest-path crates/mial/Cargo.toml
+
+      - name: Format mercy-threshold-wasm
+        run: cargo fmt --check --manifest-path crates/mercy-threshold-wasm/Cargo.toml
+
+      - name: Format powrush-mmo-simulator
+        run: cargo fmt --check --manifest-path crates/powrush-mmo-simulator/Cargo.toml
