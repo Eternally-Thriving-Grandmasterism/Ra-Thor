@@ -1,10 +1,9 @@
-//! Gate Logic — v14.15.0
+//! Effect multipliers — v14.15.0
 //!
-//! Risk / Reward + Synergies + Diminishing Returns for the Powrush-MMO Simulator.
-//! Fully mercy-gated. Integrates with MercyGeometryEvaluation + optional Lean WASM
-//! formal verification via MercyThresholdBridge.
-//!
-//! Living Cosmic Tick aligned. Cosmic Loop is expected to be enforced by the caller.
+//! Synergies, penalties, and diminishing returns on a `MercyGeometryEvaluation`.
+//! The coefficients in this file are source literals, not measured values.
+//! `MercyThresholdBridge` is caller-supplied wasm. This file does not embed a proof.
+//! This file does not read MWPO `gated` and does not call `MercyGatingRuntime`.
 //! Contact: info@Rathor.ai
 
 use crate::mercy_geometry::MercyGeometryEvaluation;
@@ -160,13 +159,10 @@ pub fn compute_gate_effects(evaluation: &MercyGeometryEvaluation) -> GateEffects
         } else {
             0.0
         };
-    effects.cooperation_bonus =
-        1.0 + (harmony - 0.6).max(0.0) * 1.1 + (love - 0.65).max(0.0) * 0.7;
+    effects.cooperation_bonus = 1.0 + (harmony - 0.6).max(0.0) * 1.1 + (love - 0.65).max(0.0) * 0.7;
     effects.information_accuracy = 1.0 + (truth - 0.6).max(0.0) * 1.3;
-    effects.harmony_stability =
-        1.0 + (harmony - 0.55).max(0.0) * 1.2 + (geo - 0.6).max(0.0) * 0.8;
-    effects.morale_bonus =
-        1.0 + (love - 0.5).max(0.0) * 0.9 + (mercy - 0.6).max(0.0) * 0.6;
+    effects.harmony_stability = 1.0 + (harmony - 0.55).max(0.0) * 1.2 + (geo - 0.6).max(0.0) * 0.8;
+    effects.morale_bonus = 1.0 + (love - 0.5).max(0.0) * 0.9 + (mercy - 0.6).max(0.0) * 0.6;
     effects.geometry_structural_bonus = 1.0 + (geo - 0.55).max(0.0) * 1.5;
 
     // === Synergies ===
@@ -203,8 +199,7 @@ pub fn compute_gate_effects(evaluation: &MercyGeometryEvaluation) -> GateEffects
     effects.resource_multiplier = apply_bonus_diminishing(effects.resource_multiplier);
     effects.evolution_stability = apply_bonus_diminishing(effects.evolution_stability);
     effects.cooperation_bonus = apply_bonus_diminishing(effects.cooperation_bonus);
-    effects.geometry_structural_bonus =
-        apply_bonus_diminishing(effects.geometry_structural_bonus);
+    effects.geometry_structural_bonus = apply_bonus_diminishing(effects.geometry_structural_bonus);
 
     // === Low-gate penalties ===
     if love < 0.45 {
@@ -230,8 +225,7 @@ pub fn compute_gate_effects(evaluation: &MercyGeometryEvaluation) -> GateEffects
     effects.information_accuracy = effects.information_accuracy.clamp(0.4, 2.2);
     effects.harmony_stability = effects.harmony_stability.clamp(0.4, 2.5);
     effects.morale_bonus = effects.morale_bonus.clamp(0.3, 2.5);
-    effects.geometry_structural_bonus =
-        effects.geometry_structural_bonus.clamp(0.4, 3.2);
+    effects.geometry_structural_bonus = effects.geometry_structural_bonus.clamp(0.4, 3.2);
 
     effects
 }
@@ -248,7 +242,7 @@ pub fn emit_and_collect_gate_events(
     let s = &evaluation.score;
     let overall_health = s.overall as f32;
 
-    if s.love as f32 > 0.82 && s.harmony as f32 > 0.82 {
+    if (s.love as f32) > 0.82 && (s.harmony as f32) > 0.82 {
         events.push(GateEvent::MajorSynergy {
             entity_id: entity_id.to_string(),
             synergy_type: "Love + Harmony".to_string(),
@@ -256,7 +250,7 @@ pub fn emit_and_collect_gate_events(
             bonus_magnitude: 1.18,
         });
     }
-    if s.truth as f32 > 0.82 && s.abundance as f32 > 0.82 {
+    if (s.truth as f32) > 0.82 && (s.abundance as f32) > 0.82 {
         events.push(GateEvent::MajorSynergy {
             entity_id: entity_id.to_string(),
             synergy_type: "Truth + Abundance".to_string(),
@@ -264,7 +258,7 @@ pub fn emit_and_collect_gate_events(
             bonus_magnitude: 1.15,
         });
     }
-    if s.mercy as f32 > 0.85 && overall_health > 0.88 {
+    if (s.mercy as f32) > 0.85 && overall_health > 0.88 {
         events.push(GateEvent::MajorSynergy {
             entity_id: entity_id.to_string(),
             synergy_type: "Mercy + Overall".to_string(),
@@ -273,7 +267,7 @@ pub fn emit_and_collect_gate_events(
         });
     }
 
-    if s.love as f32 < 0.45 {
+    if (s.love as f32) < 0.45 {
         events.push(GateEvent::LowGatePenalty {
             entity_id: entity_id.to_string(),
             gate: "Love".to_string(),
@@ -281,7 +275,7 @@ pub fn emit_and_collect_gate_events(
             message: "Low Love detected — morale and cooperation penalized".to_string(),
         });
     }
-    if s.mercy as f32 < 0.40 {
+    if (s.mercy as f32) < 0.40 {
         events.push(GateEvent::LowGatePenalty {
             entity_id: entity_id.to_string(),
             gate: "Mercy".to_string(),
@@ -309,10 +303,8 @@ pub fn emit_and_collect_gate_events(
 fn evaluation_to_mercy_threshold_params(
     evaluation: &MercyGeometryEvaluation,
 ) -> (u32, u32, bool, f64) {
-    let v = ((evaluation.score.geometry_resonance * 20.0) as u32)
-        .max(8)
-        .min(24);
-    let f = ((evaluation.score.harmony * 18.0) as u32).max(6).min(22);
+    let v = ((evaluation.score.geometry_resonance * 20.0) as u32).clamp(8, 24);
+    let f = ((evaluation.score.harmony * 18.0) as u32).clamp(6, 22);
     let chiral = evaluation.score.geometry_resonance > 0.75;
     let mv = (evaluation.score.mercy * 1.1).clamp(0.6, 1.4);
     (v, f, chiral, mv)
@@ -357,38 +349,35 @@ pub fn apply_formal_verification_failure_penalty(
 pub fn example_simulation_tick_with_risk_reward(
     entities: &mut [PowrushEntity],
     evaluations: &[MercyGeometryEvaluation],
-    bridge: Option<&mut MercyThresholdBridge>,
+    mut bridge: Option<&mut MercyThresholdBridge>,
 ) {
     for (i, entity) in entities.iter_mut().enumerate() {
         if let Some(evaluation) = evaluations.get(i) {
             let entity_id = entity.id.clone();
 
-            let (all_gates_strong, used_formal, formal_failed) =
-                if let Some(b) = bridge.as_mut() {
-                    let (v, f, c, mv) = evaluation_to_mercy_threshold_params(evaluation);
+            let (all_gates_strong, used_formal, formal_failed) = if let Some(b) = bridge.as_mut() {
+                let (v, f, c, mv) = evaluation_to_mercy_threshold_params(evaluation);
 
-                    match b.check_all_gates_strong(v, f, c, mv) {
-                        Ok(true) => (true, true, false),
-                        Ok(false) => (false, true, true), // Attempted + failed → risk
-                        Err(e) => {
-                            warn!("WASM bridge error for {}: {}", entity_id, e);
-                            (evaluation.all_gates_strong, false, false)
-                        }
+                match b.check_all_gates_strong(v, f, c, mv) {
+                    Ok(true) => (true, true, false),
+                    Ok(false) => (false, true, true), // Attempted + failed → risk
+                    Err(e) => {
+                        warn!("wasm export check_all_gates_strong returned an error for {entity_id}: {e}");
+                        (evaluation.all_gates_strong, false, false)
                     }
-                } else {
-                    (evaluation.all_gates_strong, false, false)
-                };
+                }
+            } else {
+                (evaluation.all_gates_strong, false, false)
+            };
 
             let effects = if used_formal && all_gates_strong {
                 info!(
-                    "Formal verification SUCCESS for {} — applying confirmation bonus",
-                    entity_id
+                    "wasm export check_all_gates_strong returned non-zero for {entity_id}; applying confirmation multipliers"
                 );
                 apply_formal_confirmation_bonus(evaluation, true)
             } else if formal_failed {
                 warn!(
-                    "Formal verification FAILED for {} — applying penalty (risk realized)",
-                    entity_id
+                    "wasm export check_all_gates_strong returned zero for {entity_id}; applying penalty multipliers"
                 );
                 apply_formal_verification_failure_penalty(evaluation)
             } else {
@@ -396,18 +385,13 @@ pub fn example_simulation_tick_with_risk_reward(
             };
 
             // Apply effects
-            entity.resource_stock =
-                (entity.resource_stock * effects.resource_multiplier).max(1.0);
-            entity.stability =
-                (entity.stability * effects.evolution_stability).clamp(0.3, 1.8);
-            entity.cooperation =
-                (entity.cooperation * effects.cooperation_bonus).clamp(0.2, 2.0);
-            entity.information_accuracy = (entity.information_accuracy
-                * effects.information_accuracy)
-                .clamp(0.4, 1.6);
-            entity.geometry_stability = (entity.geometry_stability
-                * effects.geometry_structural_bonus)
-                .clamp(0.3, 1.9);
+            entity.resource_stock = (entity.resource_stock * effects.resource_multiplier).max(1.0);
+            entity.stability = (entity.stability * effects.evolution_stability).clamp(0.3, 1.8);
+            entity.cooperation = (entity.cooperation * effects.cooperation_bonus).clamp(0.2, 2.0);
+            entity.information_accuracy =
+                (entity.information_accuracy * effects.information_accuracy).clamp(0.4, 1.6);
+            entity.geometry_stability =
+                (entity.geometry_stability * effects.geometry_structural_bonus).clamp(0.3, 1.9);
             entity.morale = (entity.morale * effects.morale_bonus).clamp(0.3, 2.0);
 
             // Extra evolution progress only on successful formal confirmation
@@ -424,27 +408,24 @@ pub fn example_simulation_tick_with_risk_reward(
             let gate_events = emit_and_collect_gate_events(evaluation, &entity_id);
             for ev in &gate_events {
                 match ev {
-                    GateEvent::MajorSynergy { message, .. } => info!("[GATE EVENT] {}", message),
+                    GateEvent::MajorSynergy { message, .. } => info!("[GATE EVENT] {message}"),
                     GateEvent::LowGatePenalty { message, .. } => {
-                        warn!("[GATE EVENT] {}", message)
+                        warn!("[GATE EVENT] {message}")
                     }
                     GateEvent::ExceptionalGateHealth { message, .. } => {
-                        info!("[GATE EVENT] {}", message)
+                        info!("[GATE EVENT] {message}")
                     }
                     GateEvent::FormalVerificationFailed { message, .. } => {
-                        warn!("[GATE EVENT] {}", message)
+                        warn!("[GATE EVENT] {message}")
                     }
                     GateEvent::FormalVerificationSuccess { message, .. } => {
-                        info!("[GATE EVENT] {}", message)
+                        info!("[GATE EVENT] {message}")
                     }
                 }
             }
 
             debug!(
-                "Tick {} | formal_used={} | failed={} | overall={:.2} | resource_x={:.2}",
-                entity_id,
-                used_formal,
-                formal_failed,
+                "Tick {entity_id} | formal_used={used_formal} | failed={formal_failed} | overall={:.2} | resource_x={:.2}",
                 evaluation.score.overall,
                 effects.resource_multiplier
             );
@@ -461,26 +442,17 @@ pub fn apply_resource_generation(evaluation: &MercyGeometryEvaluation, base_amou
     (base_amount * effects.resource_multiplier).max(0.1)
 }
 
-pub fn apply_evolution_stability(
-    evaluation: &MercyGeometryEvaluation,
-    base_stability: f32,
-) -> f32 {
+pub fn apply_evolution_stability(evaluation: &MercyGeometryEvaluation, base_stability: f32) -> f32 {
     let effects = compute_gate_effects(evaluation);
     (base_stability * effects.evolution_stability).clamp(0.3, 1.8)
 }
 
-pub fn apply_cooperation_bonus(
-    evaluation: &MercyGeometryEvaluation,
-    base_cooperation: f32,
-) -> f32 {
+pub fn apply_cooperation_bonus(evaluation: &MercyGeometryEvaluation, base_cooperation: f32) -> f32 {
     let effects = compute_gate_effects(evaluation);
     base_cooperation * effects.cooperation_bonus
 }
 
-pub fn apply_information_accuracy(
-    evaluation: &MercyGeometryEvaluation,
-    base_accuracy: f32,
-) -> f32 {
+pub fn apply_information_accuracy(evaluation: &MercyGeometryEvaluation, base_accuracy: f32) -> f32 {
     let effects = compute_gate_effects(evaluation);
     (base_accuracy * effects.information_accuracy).clamp(0.4, 1.6)
 }
@@ -503,11 +475,11 @@ pub fn get_gate_debug_info(
     let s = &evaluation.score;
     let overall = s.overall as f32;
 
-    let dominant = if s.mercy as f32 > s.love as f32 && s.mercy as f32 > s.truth as f32 {
+    let dominant = if (s.mercy as f32) > (s.love as f32) && (s.mercy as f32) > (s.truth as f32) {
         "Mercy"
-    } else if s.love as f32 > s.harmony as f32 {
+    } else if (s.love as f32) > (s.harmony as f32) {
         "Love"
-    } else if s.geometry_resonance as f32 > 0.8 {
+    } else if (s.geometry_resonance as f32) > 0.8 {
         "Geometry"
     } else {
         "Harmony"
@@ -517,7 +489,7 @@ pub fn get_gate_debug_info(
         entity_id: entity_id.to_string(),
         overall_gate_health: overall,
         dominant_gate: dominant.to_string(),
-        synergy_level: if s.love as f32 > 0.8 && s.harmony as f32 > 0.8 {
+        synergy_level: if (s.love as f32) > 0.8 && (s.harmony as f32) > 0.8 {
             1.18
         } else {
             1.0
@@ -526,10 +498,8 @@ pub fn get_gate_debug_info(
         formal_path_used: formal_used,
         formal_success,
         message: format!(
-            "Gate health {:.1}% | dominant: {} | formal: {}",
-            overall * 100.0,
-            dominant,
-            formal_used
+            "score {:.1}% | dominant: {dominant} | formal: {formal_used}",
+            overall * 100.0
         ),
     }
 }

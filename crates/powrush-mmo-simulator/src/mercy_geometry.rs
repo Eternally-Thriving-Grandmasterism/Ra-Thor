@@ -1,18 +1,17 @@
-//! Mercy Geometry Evaluation — v14.15.0
+//! Mercy geometry evaluation — v14.15.0
 //!
-//! Core evaluation surface for the Powrush-MMO simulator.
-//! Produces structured `MercyGeometryEvaluation` from geometry + mercy context,
-//! optionally verified through the Lean WASM bridge (`MercyThresholdBridge`).
-//!
-//! Living Cosmic Tick aligned. Cosmic Loop is expected to be enforced by the
-//! caller (gate_logic / ONE Organism surfaces).
+//! `evaluate_particle_geometry_mercy` returns the mial MWPO score, or the `0.0`
+//! failure sentinel when MWPO returns `Err`. `0.0` is a source literal, not a
+//! measured value. Reaction multipliers in this file are source literals too.
+//! `formally_verify_geometry` may set `all_gates_strong` from a caller-supplied
+//! wasm export. It does not replace the MWPO score with another constant.
+//! This file does not read MWPO `gated` and does not call `MercyGatingRuntime`.
 //!
 //! Contact: info@Rathor.ai
 
-use mial::mwpo::{
-    GeometryParams, MercyContext, MercyGeometryScore, MercyWeightedPreferenceOptimization,
-};
 use mercy_threshold_wasm::MercyThresholdBridge;
+use mial::mwpo::{GeometryParams, MercyContext, MercyWeightedPreferenceOptimization};
+use tracing::warn;
 
 // Re-export the score type so downstream crates can use it cleanly
 pub use mial::mwpo::MercyGeometryScore;
@@ -45,7 +44,7 @@ impl MercyGeometryEvaluation {
         )
     }
 
-    /// True when the evaluation is healthy enough to drive positive system reactions.
+    /// `0.88` and `0.85` are source literals, not measured values.
     pub fn is_thriving(&self) -> bool {
         self.score.overall >= 0.88 && self.resonance >= 0.85
     }
@@ -63,20 +62,22 @@ pub fn evaluate_particle_geometry_mercy(
     let mut mwpo = MercyWeightedPreferenceOptimization::new();
     match mwpo.evaluate_geometry_mercy_component(geometry, context, context.council_id) {
         Ok(score) => {
+            // 0.92, 0.95, and 0.98 are source literals, not measured values.
             let should_evolve = score.overall >= 0.92;
-            let should_apply_blessing =
-                score.geometry_resonance >= 0.95 && score.mercy >= 0.98;
+            let should_apply_blessing = score.geometry_resonance >= 0.95 && score.mercy >= 0.98;
+            let resonance = score.geometry_resonance;
 
             MercyGeometryEvaluation {
                 score,
                 should_evolve,
                 should_apply_blessing,
-                resonance: score.geometry_resonance,
+                resonance,
                 used_formal_path: false,
                 all_gates_strong: false,
             }
         }
         Err(_) => MercyGeometryEvaluation {
+            // 0.0 is a source literal for the failed MWPO call, not a measured value.
             score: MercyGeometryScore {
                 overall: 0.0,
                 love: 0.0,
@@ -95,60 +96,38 @@ pub fn evaluate_particle_geometry_mercy(
     }
 }
 
-/// Formal path — attempts Lean WASM verification when a bridge is supplied.
-/// Falls back cleanly to the MWPO path if the bridge is unavailable or errors.
+/// Sets `all_gates_strong` from `check_all_gates_strong` when `bridge` is `Some`.
+/// Scores stay the MWPO result from `evaluate_particle_geometry_mercy`.
+/// This function does not replace that score with a constant.
+/// This crate does not embed a proof. No bridge means `used_formal_path` stays false.
+/// `0.6` and `1.4` clamp the wasm argument only. They are source literals.
 pub fn formally_verify_geometry(
     geometry: &GeometryParams,
     context: &MercyContext,
     bridge: Option<&mut MercyThresholdBridge>,
 ) -> MercyGeometryEvaluation {
-    if let Some(b) = bridge {
-        // Map geometry into the Lean threshold parameters.
-        // Higher vertices/faces produce a stricter formal check.
-        let vertices = ((geometry.particle_density * 18.0) as u32).max(8).min(24);
-        let faces = ((geometry.symmetry_group.order as f64 / 6.0) as u32)
-            .max(6)
-            .min(22);
-        let chiral = geometry.symmetry_group.chiral;
-        let valence = context.valence.clamp(0.6, 1.4);
+    let mut eval = evaluate_particle_geometry_mercy(geometry, context);
+    let Some(bridge) = bridge else {
+        return eval;
+    };
 
-        match b.check_all_gates_strong(vertices, faces, chiral, valence) {
-            Ok(all_strong) => {
-                println!(
-                    "[MercyGeometry Formal] all_gates_strong={} | v={} f={} chiral={}",
-                    all_strong, vertices, faces, chiral
-                );
+    // 18.0, 8, 24, 6.0, 6, and 22 map geometry into the wasm argument ranges.
+    // They are source literals, not measured values.
+    let vertices = ((geometry.particle_density * 18.0) as u32).clamp(8, 24);
+    let faces = ((geometry.symmetry_group.order as f64 / 6.0) as u32).clamp(6, 22);
+    let chiral = geometry.symmetry_group.chiral;
+    let valence = context.valence.clamp(0.6, 1.4);
 
-                let high = if all_strong { 0.99 } else { 0.62 };
-                return MercyGeometryEvaluation {
-                    score: MercyGeometryScore {
-                        overall: high,
-                        love: high,
-                        mercy: high,
-                        truth: high,
-                        abundance: high,
-                        harmony: high,
-                        geometry_resonance: high,
-                    },
-                    should_evolve: all_strong,
-                    should_apply_blessing: all_strong,
-                    resonance: high,
-                    used_formal_path: true,
-                    all_gates_strong: all_strong,
-                };
-            }
-            Err(e) => {
-                eprintln!(
-                    "[MercyGeometry Formal] bridge error — falling back to MWPO: {}",
-                    e
-                );
-            }
+    eval.used_formal_path = true;
+    match bridge.check_all_gates_strong(vertices, faces, chiral, valence) {
+        Ok(all_strong) => {
+            eval.all_gates_strong = all_strong;
+        }
+        Err(err) => {
+            eval.all_gates_strong = false;
+            warn!("wasm export check_all_gates_strong returned an error: {err}");
         }
     }
-
-    // Fallback / no-bridge path
-    let mut eval = evaluate_particle_geometry_mercy(geometry, context);
-    eval.used_formal_path = true; // we attempted the formal route
     eval
 }
 
@@ -156,7 +135,7 @@ pub fn formally_verify_geometry(
 // Simulation system reactions (feed into gate_logic)
 // =============================================================================
 
-/// Resource / Abundance system reaction.
+/// Resource / abundance multiplier. `1.25`, `1.08`, and `0.85` are source literals.
 pub fn abundance_system_reaction(evaluation: &MercyGeometryEvaluation) -> f32 {
     if evaluation.all_gates_strong {
         1.25
@@ -167,7 +146,7 @@ pub fn abundance_system_reaction(evaluation: &MercyGeometryEvaluation) -> f32 {
     }
 }
 
-/// Faction / Harmony system reaction.
+/// Faction / harmony multiplier. `1.15`, `1.06`, `0.88`, and `0.90` are source literals.
 pub fn faction_harmony_reaction(evaluation: &MercyGeometryEvaluation) -> f32 {
     if evaluation.all_gates_strong {
         1.15
@@ -183,7 +162,7 @@ pub fn evolution_system_reaction(evaluation: &MercyGeometryEvaluation) -> bool {
     evaluation.all_gates_strong && evaluation.should_apply_blessing
 }
 
-/// GPU compute modulation based on formal + resonance state.
+/// Compute modulation. `1.30`, `1.12`, `0.92`, and `0.85` are source literals.
 pub fn gpu_mercy_modulation(evaluation: &MercyGeometryEvaluation) -> f32 {
     if evaluation.all_gates_strong {
         1.30
