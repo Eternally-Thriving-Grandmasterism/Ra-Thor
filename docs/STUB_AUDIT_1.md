@@ -25,6 +25,7 @@ These were make-real cards. `cargo check` on 2026-10-16 finished for each. They 
 | `crates/council` | #665 | Standalone `[workspace]`. Offline `cargo check` finished in 0.82s. A proposal can fail. An admission block cannot be voted into an apply. |
 | `crates/powrush` | #668 | Standalone `[workspace]`. Online `cargo check` finished. Policy hints can be rejected. |
 | `crates/sovereign-shard-genesis` | #669 | Standalone `[workspace]`. Online `cargo check` finished. SHA-256 of explicit inputs. The v13 draft file is not a module. |
+| LEAF-BUILDS-1: `crates/legal-research-source-locked`, `crates/hyperbolic-neural-network`, `crates/hyperbolic-tiling-consciousness`, `crates/moebius-transformations`, `crates/philotic-web-fusion`, `crates/rathor-sovereign-reasoning-engine`, `crates/shared-valence-field` | #671 | Standalone `[workspace]` resolver 2 and a committed `Cargo.lock` each. Not root members. Locked `cargo build`, `cargo test`, and `cargo clippy -- -D warnings` finished. Threshold literals stay source literals. |
 
 Two tidy leftovers on the shard crate are banked below. They did not stop `cargo check`.
 
@@ -61,7 +62,7 @@ A non-member inside this repo fails `cargo check --manifest-path` in one of two 
 | root default members | 15 |
 | standalone workspaces that check | 4 |
 | non-members whose in-repo `cargo check` failed | 351 |
-| `crates/` manifests with no `*.rs` sources | 97 |
+| `crates/` manifests with no `*.rs` sources | 95 |
 | `crates/` top-level directories with no `Cargo.toml` | 31 |
 | manifests with exact `powrush = { workspace = true }` | 165 |
 | of those, first cargo error is the missing `powrush` key | 8 |
@@ -76,7 +77,7 @@ Dependencies first. Then the smallest crates whose source already checks once th
 
 | Order | Card | Crates | Why it is here | Size | Core? |
 |------:|------|--------|----------------|------|-------|
-| 1 | `LEAF-BUILDS-1` | 7 leaves that compiled in the probe | No path deps. Standalone `[workspace]` is the whole manifest fix. Still read the constant floors before calling them real. | S | No, if they stay out of root `members`. |
+| 1 | `LEAF-BUILDS-1` (DONE, #671) | 7 leaves that compiled in the probe | No path deps. Standalone `[workspace]` is the whole manifest fix. Still read the constant floors before calling them real. | S | No, if they stay out of root `members`. |
 | 2 | `ONE-ERROR-LEAVES-1` | 3 | Same manifest fix, then one Rust error each. | S | No, if standalone. |
 | 3 | `SHARED-VALENCE-DEPENDENTS-1` | 5 path dependents of `shared-valence-field` | Depends on card 1. | S | No, if standalone. |
 | 4 | `MIAL-THRESHOLD-BUILDS-1` | `mial`, `mercy-threshold-wasm` | `powrush-mmo-simulator` path-deps both. | M | No, if standalone. |
@@ -89,16 +90,18 @@ Dependencies first. Then the smallest crates whose source already checks once th
 | 11 | `REASONING-COUNCIL-WIRES-1` | council-named crates that import crates they do not depend on | After card 1 (`rathor-sovereign-reasoning-engine`, `philotic-web-fusion`, `moebius-transformations`). Label fleet and post-quantum strings as design-only inside the same card. | S each | No, if standalone. |
 | 12 | `CONDUCTOR-LEGACY-RETIRE-1` | unversioned conductor, v13 and its examples, `tolc8-genesis-gate` | Deprecated or fictional. Do not make them the living conductor. | L on disk | No. A v14 edit would need Core. This card should not edit v14. |
 | 13 | `NEXI-PATH-RETIRE-1` | crates with `nexi = { path = "../" }` | That path is not a package. | many manifests | No. |
-| 14 | `WORKSPACE-KEY-SHELLS-1` | 165 `powrush` workspace deps, 97 sourceless manifests, string ZK and propulsion stubs | Shared missing workspace keys. Most have nothing to compile, or return constants. Design-only or leave on disk. | manifests, plus a few short files | No. Do not add them to `members`. |
+| 14 | `WORKSPACE-KEY-SHELLS-1` | 165 `powrush` workspace deps, 95 sourceless manifests, string ZK and propulsion stubs | Shared missing workspace keys. Most have nothing to compile, or return constants. Design-only or leave on disk. | manifests, plus a few short files | No. Do not add them to `members`. |
 | 15 | `ARCHIVE-LINEAGE-RETIRE-1` | 98 manifests under `docs/archive/` | Copies. 76 fail loading `nexi`. | archive | No. |
 
 Banked tidy, not make-real of a crate: `POWRUSH-TIDY-1`, `SHARD-GENESIS-TIDY-1`, `STANDALONE-CI`. See the last section.
 
 ---
 
-## 1. LEAF-BUILDS-1
+## 1. LEAF-BUILDS-1 (DONE, #671)
 
-In-repo first error for each: `current package believes it's in a workspace when it's not`.
+**Status:** DONE in #671. Each crate below is its own workspace (`resolver = "2"`) with a committed `Cargo.lock`. They are not root members. Locked `cargo build`, `cargo test`, and `cargo clippy -- -D warnings` finished. Threshold literals stay in the source and are labelled as source literals.
+
+In-repo first error for each, before that PR: `current package believes it's in a workspace when it's not`.
 
 Probe (empty `[workspace]` in `/tmp`): `cargo check` exited 0 and compiled a library.
 
@@ -173,7 +176,7 @@ Depends on `crates/shared-valence-field` (card 1). In-repo first error for each:
 
 `crates/mercy_gating_runtime` is the next dependency. In-repo: not a member. Probe (it has no path deps): 23 errors, including `src/lib.rs:10` file not found for module `error`, and `serde` used but not linked. 754 lines. It is part of this card, ahead of `mial`.
 
-**Fix:** standalone workspaces, bottom up: gating runtime (repair or delete missing modules), then `mial`, then `mercy-threshold-wasm`. Do not pull them into root `members`.
+**Fix:** standalone workspaces, bottom up: gating runtime (repair or retire with council note missing modules), then `mial`, then `mercy-threshold-wasm`. Do not pull them into root `members`.
 
 **Runtime / v14:** no, unless a later card wires the wasm crate into the site. That would be a different card.
 
@@ -298,7 +301,7 @@ Two different directories.
 
 `crates/council` comments (`Cargo.toml` lines 16–19) already record that the old `ra-thor-kernel` path was `../kernel` and that council does not depend on it.
 
-**Fix:** delete the unstable `rustflags` profile from `ra-thor-kernel` or move it to `.cargo/config.toml` only if a wasm card asks for it. Remove path deps on missing `dilithium_sign` and `falcon_sign`. Do not invent post-quantum implementations. `crates/kernel` can be a standalone workspace in its own card if something still calls it. Do not add a root key `ra-thor-kernel` just to satisfy the 167 manifests that name it (card 14).
+**Fix:** retire with council note the unstable `rustflags` profile from `ra-thor-kernel` or move it to `.cargo/config.toml` only if a wasm card asks for it. Remove path deps on missing `dilithium_sign` and `falcon_sign`. Do not invent post-quantum implementations. `crates/kernel` can be a standalone workspace in its own card if something still calls it. Do not add a root key `ra-thor-kernel` just to satisfy the 167 manifests that name it (card 14).
 
 **Runtime / v14:** no.
 
@@ -335,7 +338,7 @@ These path-deps are already declared, so the probe did not cover them. In-repo f
 
 **Fictional, label design-only rather than implement:** post-quantum biomimetic encryption, quantum propulsion sovereignty, pterosaur fleet language, "100B-year" strings. Card 1 already showed the reasoning engine is a constant-threshold struct. Wiring that struct in does not create propulsion or post-quantum crypto.
 
-**Fix:** standalone workspace, path-dep only the card 1 leaves that actually compiled. Delete or gate the fictional function bodies instead of giving them constant `Ok(true)`.
+**Fix:** standalone workspace, path-dep only the card 1 leaves that actually compiled. retire with council note or gate the fictional function bodies instead of giving them constant `Ok(true)`.
 
 **Runtime / v14:** no.
 
@@ -445,18 +448,21 @@ The brief asked for the 8 crates that declare `powrush = { workspace = true }`. 
 
 `ra-thor-kernel` is referenced by 167 manifests and is not a root workspace key. It is rarely the **first** error, because `patsagi-councils` or `powrush` is listed earlier in those files. One first-error on `ra-thor-kernel`: `crates/ra-thor-monorepo-auditor`.
 
-### Sourceless manifests (97)
+### Sourceless manifests (95)
 
-`Cargo.toml` exists. No `*.rs` file. There is nothing to make real. Representative propulsion and cryptography names with no sources: `mercy_kyber`, `mercy_dilithium`, `mercy_falcon`, `mercy_sphincs`, `mercy_halo2`, `mercy_groth16`, `mercy_plonk`, `mercy_stark`, `mercy_warp` is **not** in this list (it has a file; see below), `zk_stark`, `pasta_curves`, `threshold_crypto`, `halo2_proofs`, `halo2_gadgets`, `sacred-geometry-core`, `geometric-intelligence`, `legacy_fenca`, `hotfix_propagator`.
+`Cargo.toml` exists. No `*.rs` file. There is nothing to make real. Representative propulsion and cryptography names with no sources: `mercy_kyber`, `mercy_dilithium`, `mercy_falcon`, `mercy_sphincs`, `mercy_halo2`, `mercy_groth16`, `mercy_plonk`, `mercy_stark`, `mercy_warp` is **not** in this list (it has a file; see below), `zk_stark`, `pasta_curves`, `threshold_crypto`, `halo2_proofs`, `halo2_gadgets`, `sacred-geometry-core`, `hotfix_propagator`.
+
+The subsection list below had 97 entries. Two of those paths have Rust sources, so they are not in this list:
+
+- `crates/geometric-intelligence` has `tests/geometric_intelligence_tests.rs` (and `tests/geometric_intelligence_tests.go`). It has no `src/lib.rs`. Card 1 already records that `cargo check` did not compile a library.
+- `crates/legacy_fenca` has `crates/legacy_fenca/crates/legacy_fenca/src/lib.rs`. That file is not the package `src/lib.rs`, so Cargo still reports `no targets specified`. It is a `.rs` source on disk.
 
 Full list:
 
 - `crates/biomimetic-sovereign-harmony-council`
-- `crates/geometric-intelligence`
 - `crates/halo2_gadgets`
 - `crates/halo2_proofs`
 - `crates/hotfix_propagator`
-- `crates/legacy_fenca`
 - `crates/mercy-biojet`
 - `crates/mercy-governance`
 - `crates/mercy_accumulator`
@@ -735,11 +741,11 @@ Other cited stubs:
 - `crates/supernova_folding`
 - `crates/threshold_crypto`
 
-**Fix:** do not add `powrush` to root `[workspace.dependencies]` as a way to compile this list. `crates/powrush` is a standalone workspace on purpose (#668). Do not add these paths to root `members`. Leave them on disk. A later card may delete empty manifests. That is a retire card, not a cryptography implementation. Fake ZK, fake post-quantum, and propulsion strings stay design-only.
+**Fix:** do not add `powrush` to root `[workspace.dependencies]` as a way to compile this list. `crates/powrush` is a standalone workspace on purpose (#668). Do not add these paths to root `members`. Leave them on disk. A later card may retire with council note empty manifests. That is a retire card, not a cryptography implementation. Fake ZK, fake post-quantum, and propulsion strings stay design-only.
 
 **Runtime / v14:** no.
 
-**Size:** 97 empty manifests plus the short stub files above. Not a single port.
+**Size:** 95 empty manifests plus the short stub files above. Not a single port.
 
 ---
 

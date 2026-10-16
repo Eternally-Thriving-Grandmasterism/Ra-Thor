@@ -1,14 +1,14 @@
-//! shared-valence-field
-//! Shared Valence Field core — Phase B of Living Valence Organism
-//! Binds directly to sealed NEVC scoring + lattice flow share
-//! AG-SML v1.0 | TOLC 8 gated | feature-flaggable
+//! In-memory field.
+//! `new` sets `collective_valence` to the source literal 0.999999.
+//! `emit` floors with `.max(0.999999)`.
+//! That literal is not a measured value.
 //! Contact: info@Rathor.ai
 
-pub mod nevc_binding;
 pub mod feature_flag;
+pub mod nevc_binding;
 
-pub use nevc_binding::{NevcFieldBinding, NevcScoring, LatticeFlowShare};
-pub use feature_flag::{SharedValenceFieldGuard, FlagState, SHARED_VALENCE_FIELD_FLAG};
+pub use feature_flag::{FlagState, SharedValenceFieldGuard, SHARED_VALENCE_FIELD_FLAG};
+pub use nevc_binding::{LatticeFlowShare, NevcFieldBinding, NevcScoring};
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -75,18 +75,32 @@ impl SharedValenceField {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use nevc_binding::{NevcFieldBinding, PlaceholderNevcScoring, PlaceholderLatticeFlowShare};
+    use nevc_binding::{NevcFieldBinding, PlaceholderLatticeFlowShare, PlaceholderNevcScoring};
 
     #[test]
     fn test_bound_emit() {
         let mut field = SharedValenceField::new("test-instance");
-        let mut binding = NevcFieldBinding::new(
-            PlaceholderNevcScoring::default(),
-            PlaceholderLatticeFlowShare::default(),
-        );
+        let mut binding =
+            NevcFieldBinding::new(PlaceholderNevcScoring, PlaceholderLatticeFlowShare);
 
         binding.emit_presence_bound(&mut field, "player-1", Substrate::Human);
-        assert!(field.collective_valence >= 0.999999);
+        assert_eq!(field.collective_valence, 0.999999 + 0.00001);
+        assert_eq!(field.quanta.len(), 1);
+    }
+
+    #[test]
+    fn emit_floors_at_the_source_literal() {
+        let mut field = SharedValenceField::new("floor");
+        assert_eq!(field.observe(), 0.999999);
+        field.emit(ValenceQuantum {
+            id: "q".into(),
+            emitter_id: "e".into(),
+            substrate: Substrate::AI,
+            amount: -10.0,
+            timestamp: Utc::now(),
+            context: "floor-check".into(),
+        });
+        assert_eq!(field.observe(), 0.999999);
         assert_eq!(field.quanta.len(), 1);
     }
 
@@ -94,5 +108,15 @@ mod tests {
     fn test_feature_flag_default_off() {
         let guard = SharedValenceFieldGuard::new();
         assert!(!guard.is_active());
+    }
+
+    #[test]
+    fn guard_stays_off_when_a_criterion_is_false() {
+        let mut guard = SharedValenceFieldGuard::new();
+        assert!(!guard.try_activate(true, false));
+        assert!(!guard.is_active());
+        assert!(!guard.try_activate(false, true));
+        assert!(guard.try_activate(true, true));
+        assert!(guard.is_active());
     }
 }

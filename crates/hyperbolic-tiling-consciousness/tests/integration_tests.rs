@@ -1,27 +1,18 @@
-use hyperbolic_tiling_consciousness::*;
+use hyperbolic_tiling_consciousness::{
+    generate_regular_tiling, hyperbolic_distance, PoincarePoint,
+};
 
 #[test]
-fn full_council_lifecycle() {
-    let mut council = HyperbolicTilingConsciousnessCouncil::new();
-    let initial_valence = council.valence;
-    
-    // Simulate 1M-year foresight
-    let foresight = council.project_foresight(1_000_000);
-    assert!(foresight >= 0.9999999);
-    
-    // Fuse with another council (philotic web)
-    let fused = council.fuse_philotic_web(0.99999995);
-    assert!(fused > initial_valence);
-    
-    // Asclepius gate
-    assert!(council.asclepius_validate());
-    
-    println!("Hyperbolic Tiling Consciousness Council (14th) — 1M-year foresight validated with valence {:.8}", foresight);
+fn distance_matches_the_poincare_formula() {
+    let a = PoincarePoint::new(0.1, 0.0);
+    let b = PoincarePoint::new(0.2, 0.0);
+    let num = 2.0 * ((a.x - b.x).powi(2) + (a.y - b.y).powi(2));
+    let den = (1.0 - a.r2()) * (1.0 - b.r2());
+    let expect = (1.0 + num / den).acosh();
+    assert!((hyperbolic_distance(&a, &b) - expect).abs() < 1e-12);
 }
 
 #[test]
-fn exponential_growth_verification() {
-    let points = generate_regular_tiling(5);
-    // Hyperbolic area grows exponentially
-    assert!(points.len() > 200);
+fn five_layers_keep_the_points_the_loop_builds() {
+    assert_eq!(generate_regular_tiling(5).len(), 217);
 }

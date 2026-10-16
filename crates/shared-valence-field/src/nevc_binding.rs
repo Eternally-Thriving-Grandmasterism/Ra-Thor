@@ -1,12 +1,10 @@
-//! nevc_binding.rs
-//! Explicit binding surface between Shared Valence Field and sealed NEVC scoring + lattice flow share
-//! Phase B — Living Valence Organism
-//! AG-SML v1.0 | Contact: info@Rathor.ai
+//! Caller-supplied scoring and flow traits.
+//! `PlaceholderNevcScoring::current_collective_nevc` returns the source literal 0.999999 (not a measured value).
+//! Contact: info@Rathor.ai
 
-use crate::{SharedValenceField, ValenceQuantum, Substrate};
-use chrono::Utc;
+use crate::{SharedValenceField, Substrate, ValenceQuantum};
 
-/// Trait that any sealed NEVC scoring implementation must satisfy
+/// Scoring trait the caller implements.
 pub trait NevcScoring {
     fn record_contribution(&mut self, quantum: &ValenceQuantum);
     fn current_collective_nevc(&self, instance_id: &str) -> f64;
@@ -38,7 +36,7 @@ where
 
     /// Emit through the field while simultaneously recording into NEVC and broadcasting
     pub fn emit_bound(&mut self, field: &mut SharedValenceField, quantum: ValenceQuantum) {
-        // 1. Local field update (TOLC 8 floor already enforced inside emit)
+        // Local field update. emit floors with the source literal 0.999999.
         field.emit(quantum.clone());
 
         // 2. Record as fine-grained NEVC contribution event

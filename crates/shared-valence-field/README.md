@@ -1,41 +1,41 @@
 # shared-valence-field
 
-**Shared Valence Field** — Phase B of the Living Valence Organism  
-Real-time multi-substrate metabolic substrate that elevates sealed NEVC scoring into a living, shared field.
+In-memory field. `SharedValenceField::new` sets `collective_valence` to the source literal `0.999999`. `emit` then floors with `.max(0.999999)`. That literal is not a measured value.
 
 **Contact:** info@Rathor.ai  
 **License:** AG-SML v1.0  
-**Status:** Soft, feature-flaggable, TOLC 8 gated (default off)
+**Status:** feature flag `shared_valence_field` defaults to off
 
 ## Purpose
 
-Turns per-player / per-session NEVC accounting into a persistent, low-latency Shared Valence Field that both humans and AIs can emit into and observe.
+Holds `ValenceQuantum` values and one `collective_valence` f64. `NevcFieldBinding` calls `emit`, then the caller-supplied scoring and flow traits. `PlaceholderNevcScoring::current_collective_nevc` returns the same source literal `0.999999`.
 
 ## Core Types
 
-- `ValenceQuantum` — fine-grained NEVC contribution event
-- `SharedValenceField` — instance-level field state
-- `NevcFieldBinding` — explicit binding to sealed NEVC scoring + lattice flow share
-- `SharedValenceFieldGuard` — feature-flag + success-criteria gate
+- `ValenceQuantum` — one contribution event
+- `SharedValenceField` — instance id, the literal floor, and the quanta vec
+- `NevcFieldBinding` — calls emit, record_contribution, and broadcast_quantum
+- `SharedValenceFieldGuard` — flag, default off. `try_activate` turns it on only when both bool arguments are true
 
 ## Feature Flag
 
 `shared_valence_field` (default **off**)
 
-Activation requires:
-- Valence metrics green
-- Dual-repo soft-feedback health verified
+`try_activate(valence_ok, dual_repo_healthy)` stores `On` only when both arguments are true. It does not measure valence. `src/dual_repo_healh.rs` is not a module of this crate.
 
-## Usage (once flag is active)
+## Usage
 
 ```rust
 use shared_valence_field::*;
 
 let mut field = SharedValenceField::new("instance-01");
 let mut binding = NevcFieldBinding::new(
-    /* real NEVC scoring */,
-    /* real lattice flow share */,
+    PlaceholderNevcScoring,
+    PlaceholderLatticeFlowShare,
 );
 
 binding.emit_presence_bound(&mut field, "player-42", Substrate::Human);
 let current = field.observe();
+```
+
+`current` is the source literal `0.999999` plus `0.00001`, then floored by `.max(0.999999)`.
