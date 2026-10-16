@@ -60,7 +60,8 @@ impl QuantumSwarmOrchestrator {
     /// and will eventually distribute EpigeneticBlessings.
     ///
     /// An empty adapter registry returns `Err(MercyError::ValenceBelowThreshold(0.0))`.
-    /// A non-finite average, or an average below `Valence::MIN`, returns `MercyError::ValenceBelowThreshold`.
+    /// A non-finite average returns `Err(MercyError::NonFiniteValence(avg_valence))`.
+    /// A finite average below `Valence::MIN` returns `Err(MercyError::ValenceBelowThreshold(avg_valence))`.
     ///
     /// TODO (v14.1+): Apply polyhedral mode selection based on context.tolc_order
     /// TODO (v14.1+): Run Riemannian mercy manifold computations
@@ -86,8 +87,11 @@ impl QuantumSwarmOrchestrator {
             return Err(MercyError::ValenceBelowThreshold(0.0));
         };
 
-        // 2. Basic mercy pruning check (TOLC 8 aligned): reject when the average is not finite or is below Valence::MIN.
-        if !avg_valence.is_finite() || avg_valence < Valence::MIN {
+        // 2. Basic mercy pruning check (TOLC 8 aligned): a non-finite average returns NonFiniteValence; a finite average below Valence::MIN returns ValenceBelowThreshold.
+        if !avg_valence.is_finite() {
+            return Err(MercyError::NonFiniteValence(avg_valence));
+        }
+        if avg_valence < Valence::MIN {
             return Err(MercyError::ValenceBelowThreshold(avg_valence));
         }
 
@@ -194,6 +198,13 @@ mod tests {
         }
     }
 
+    fn expect_non_finite(result: Result<OneOrganismInsight, MercyError>) -> f64 {
+        match result {
+            Err(MercyError::NonFiniteValence(value)) => value,
+            other => panic!("expected NonFiniteValence, got {other:?}"),
+        }
+    }
+
     #[test]
     fn empty_registry_is_valence_below_threshold() {
         let value = expect_below(cycle_with(vec![]));
@@ -201,8 +212,8 @@ mod tests {
     }
 
     #[test]
-    fn nan_average_is_valence_below_threshold() {
-        let value = expect_below(cycle_with(vec![SetValenceAdapter {
+    fn nan_average_is_non_finite_valence() {
+        let value = expect_non_finite(cycle_with(vec![SetValenceAdapter {
             name: "nan",
             valence: f64::NAN,
         }]));
@@ -211,7 +222,7 @@ mod tests {
 
     #[test]
     fn positive_infinity_average_is_rejected() {
-        let value = expect_below(cycle_with(vec![SetValenceAdapter {
+        let value = expect_non_finite(cycle_with(vec![SetValenceAdapter {
             name: "pos-inf",
             valence: f64::INFINITY,
         }]));
@@ -220,7 +231,7 @@ mod tests {
 
     #[test]
     fn negative_infinity_average_is_rejected() {
-        let value = expect_below(cycle_with(vec![SetValenceAdapter {
+        let value = expect_non_finite(cycle_with(vec![SetValenceAdapter {
             name: "neg-inf",
             valence: f64::NEG_INFINITY,
         }]));
@@ -270,7 +281,7 @@ mod tests {
 
     #[test]
     fn finite_and_nan_average_is_rejected() {
-        let value = expect_below(cycle_with(vec![
+        let value = expect_non_finite(cycle_with(vec![
             SetValenceAdapter {
                 name: "finite",
                 valence: 1.0,

@@ -716,9 +716,9 @@ impl WorldGovernanceEngine {
             expires_at_cycle: game.current_cycle.saturating_add(50),
         };
 
-        // ValenceBelowThreshold is a veto. Return before evaluate_action,
-        // propagate_mercy_fields, apply_world_impact, or any write to
-        // active_changes, history, or total_world_changes.
+        // ValenceBelowThreshold and NonFiniteValence are vetoes. Return before
+        // evaluate_action, propagate_mercy_fields, apply_world_impact, or any write
+        // to active_changes, history, or total_world_changes.
         let swarm_decision = match self
             .quantum_swarm
             .run_one_organism_cycle(ra_thor_quantum_swarm_orchestrator::OneOrganismContext {
@@ -730,7 +730,10 @@ impl WorldGovernanceEngine {
             .await
         {
             Ok(insight) => insight.average_valence,
-            Err(ra_thor_quantum_swarm_orchestrator::MercyError::ValenceBelowThreshold(value)) => {
+            Err(
+                ra_thor_quantum_swarm_orchestrator::MercyError::ValenceBelowThreshold(value)
+                | ra_thor_quantum_swarm_orchestrator::MercyError::NonFiniteValence(value),
+            ) => {
                 return Ok(format!(
                     "❌ WORLD CHANGE REJECTED\nSwarm valence check vetoed it ({value:?})."
                 ));
@@ -1025,5 +1028,193 @@ mod tests {
         let text = result.expect("veto is an Ok rejection string");
         assert!(text.starts_with("❌ WORLD CHANGE REJECTED"), "{text}");
         assert!(text.contains("Swarm valence check vetoed"), "{text}");
+    }
+
+    /// Test-only adapter. The valence is a caller-set `f64`, including non-finite values.
+    struct ReportingAdapter {
+        name: &'static str,
+        valence: f64,
+    }
+
+    impl ra_thor_quantum_swarm_orchestrator::RaThorSystemAdapter for ReportingAdapter {
+        fn system_name(&self) -> &'static str {
+            self.name
+        }
+
+        fn current_valence(&self) -> ra_thor_quantum_swarm_orchestrator::Valence {
+            ra_thor_quantum_swarm_orchestrator::Valence(self.valence)
+        }
+
+        fn receive_swarm_resonance(
+            &mut self,
+            _resonance: ra_thor_quantum_swarm_orchestrator::SwarmResonance,
+        ) -> Result<(), ra_thor_quantum_swarm_orchestrator::MercyError> {
+            Ok(())
+        }
+
+        fn contribute_to_coherence(
+            &self,
+        ) -> ra_thor_quantum_swarm_orchestrator::GodlyIntelligenceCoherence {
+            ra_thor_quantum_swarm_orchestrator::GodlyIntelligenceCoherence::default()
+        }
+
+        fn apply_epigenetic_blessing(
+            &mut self,
+            _blessing: ra_thor_quantum_swarm_orchestrator::EpigeneticBlessing,
+        ) {
+        }
+    }
+
+    struct PreImpactSnapshot {
+        field_strength: f64,
+        entanglement_level: f64,
+        last_pulse: Option<chrono::DateTime<chrono::Utc>>,
+        harmony_scores: std::collections::HashMap<powrush::Faction, f64>,
+        tension_levels: std::collections::HashMap<powrush::Faction, f64>,
+        synergy_bonus: f64,
+        war_risk: f64,
+        last_peace_treaty: Option<chrono::DateTime<chrono::Utc>>,
+        harmony_decay_rate: f64,
+        mercy_influence_multiplier: f64,
+        resource_multipliers: std::collections::HashMap<powrush::Faction, f64>,
+        trade_efficiency: std::collections::HashMap<powrush::Faction, f64>,
+        scarcity_resistance: std::collections::HashMap<powrush::Faction, f64>,
+        mercy_economy_bonus: f64,
+        quantum_entanglement_bonus: f64,
+        quantum_inflation_rate: f64,
+        mercy_trade_routes: std::collections::HashMap<powrush::Faction, f64>,
+        bloom_count: u64,
+        joy: Vec<f32>,
+        mercy_multiplier: Vec<f64>,
+    }
+
+    impl PreImpactSnapshot {
+        fn capture(engine: &WorldGovernanceEngine, game: &PowrushGame) -> Self {
+            Self {
+                field_strength: engine.quantum_mercy_field.field_strength,
+                entanglement_level: engine.quantum_mercy_field.entanglement_level,
+                last_pulse: engine.quantum_mercy_field.last_pulse,
+                harmony_scores: engine.faction_harmony.harmony_scores.clone(),
+                tension_levels: engine.faction_harmony.tension_levels.clone(),
+                synergy_bonus: engine.faction_harmony.synergy_bonus,
+                war_risk: engine.faction_harmony.war_risk,
+                last_peace_treaty: engine.faction_harmony.last_peace_treaty,
+                harmony_decay_rate: engine.faction_harmony.harmony_decay_rate,
+                mercy_influence_multiplier: engine.faction_harmony.mercy_influence_multiplier,
+                resource_multipliers: engine.faction_economy.resource_multipliers.clone(),
+                trade_efficiency: engine.faction_economy.trade_efficiency.clone(),
+                scarcity_resistance: engine.faction_economy.scarcity_resistance.clone(),
+                mercy_economy_bonus: engine.faction_economy.mercy_economy_bonus,
+                quantum_entanglement_bonus: engine.faction_economy.quantum_entanglement_bonus,
+                quantum_inflation_rate: engine.faction_economy.quantum_inflation_rate,
+                mercy_trade_routes: engine.faction_economy.mercy_trade_routes.clone(),
+                bloom_count: engine.nectar_economy.bloom_count,
+                joy: game.players.iter().map(|player| player.needs.joy).collect(),
+                mercy_multiplier: game
+                    .resources
+                    .iter()
+                    .map(|resource| resource.mercy_multiplier)
+                    .collect(),
+            }
+        }
+
+        fn assert_unchanged(
+            &self,
+            engine: &WorldGovernanceEngine,
+            game: &PowrushGame,
+            result: Result<String, String>,
+            expected: &str,
+        ) {
+            assert_eq!(
+                engine.quantum_mercy_field.field_strength,
+                self.field_strength
+            );
+            assert_eq!(
+                engine.quantum_mercy_field.entanglement_level,
+                self.entanglement_level
+            );
+            assert_eq!(engine.quantum_mercy_field.last_pulse, self.last_pulse);
+            assert!(engine.quantum_mercy_field.last_pulse.is_none());
+            assert_eq!(engine.faction_harmony.harmony_scores, self.harmony_scores);
+            assert_eq!(engine.faction_harmony.tension_levels, self.tension_levels);
+            assert_eq!(engine.faction_harmony.synergy_bonus, self.synergy_bonus);
+            assert_eq!(engine.faction_harmony.war_risk, self.war_risk);
+            assert_eq!(
+                engine.faction_harmony.last_peace_treaty,
+                self.last_peace_treaty
+            );
+            assert_eq!(
+                engine.faction_harmony.harmony_decay_rate,
+                self.harmony_decay_rate
+            );
+            assert_eq!(
+                engine.faction_harmony.mercy_influence_multiplier,
+                self.mercy_influence_multiplier
+            );
+            assert_eq!(
+                engine.faction_economy.resource_multipliers,
+                self.resource_multipliers
+            );
+            assert_eq!(
+                engine.faction_economy.trade_efficiency,
+                self.trade_efficiency
+            );
+            assert_eq!(
+                engine.faction_economy.scarcity_resistance,
+                self.scarcity_resistance
+            );
+            assert_eq!(
+                engine.faction_economy.mercy_economy_bonus,
+                self.mercy_economy_bonus
+            );
+            assert_eq!(
+                engine.faction_economy.quantum_entanglement_bonus,
+                self.quantum_entanglement_bonus
+            );
+            assert_eq!(
+                engine.faction_economy.quantum_inflation_rate,
+                self.quantum_inflation_rate
+            );
+            assert_eq!(
+                engine.faction_economy.mercy_trade_routes,
+                self.mercy_trade_routes
+            );
+            assert_eq!(engine.nectar_economy.bloom_count, self.bloom_count);
+            assert!(engine.active_changes.is_empty());
+            assert!(engine.history.is_empty());
+            assert_eq!(engine.total_world_changes, 0);
+            let joy_after: Vec<f32> = game.players.iter().map(|player| player.needs.joy).collect();
+            let mercy_after: Vec<f64> = game
+                .resources
+                .iter()
+                .map(|resource| resource.mercy_multiplier)
+                .collect();
+            assert_eq!(self.joy, joy_after);
+            assert_eq!(self.mercy_multiplier, mercy_after);
+            let text = result.expect("veto is an Ok rejection string");
+            assert_eq!(text, expected);
+        }
+    }
+
+    #[test]
+    fn non_finite_valence_vetoes_world_change_before_impact() {
+        for (name, valence) in [("nan", f64::NAN), ("pos-inf", f64::INFINITY)] {
+            let mut engine = WorldGovernanceEngine::new();
+            engine
+                .quantum_swarm
+                .register_adapter(Box::new(ReportingAdapter { name, valence }));
+            let mut game = PowrushGame::new();
+            let before = PreImpactSnapshot::capture(&engine, &game);
+            let result = poll_ready(engine.propose_and_approve_world_change(
+                CouncilFocus::JoyAmplification,
+                "Non-finite registry",
+                "A proposal whose adapter valence is not finite.",
+                WorldImpactType::CulturalFestival,
+                &mut game,
+            ));
+            let expected =
+                format!("❌ WORLD CHANGE REJECTED\nSwarm valence check vetoed it ({valence:?}).");
+            before.assert_unchanged(&engine, &game, result, &expected);
+        }
     }
 }
