@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! RREL TOLC 8 Verifier v1.0.0
 //! Deep implementation details and runtime verification for all TOLC 8 gates across RREL modules.
 //! Integrated with Quantum Swarm participant and Lattice Conductor bridge.

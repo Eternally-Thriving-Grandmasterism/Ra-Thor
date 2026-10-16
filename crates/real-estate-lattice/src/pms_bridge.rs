@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! PMS Bridge for Ra-Thor Real Estate Lattice (RREL)
 //! Full bidirectional sync + mercy-gated validation for Yardi, RealPage, AppFolio, Entrata
 //! Integrated with RECO Enforcement Engine (derived from April 29, 2026 documentation)

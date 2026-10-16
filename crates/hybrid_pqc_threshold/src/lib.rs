@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define; placeholder, not a working signature.
 //! HybridPQCThreshold — t-of-n Post-Quantum Distributed Signing Module
 //! Ultramasterful Dilithium/Falcon/SPHINCS+ threshold for NEXi Lattice
 

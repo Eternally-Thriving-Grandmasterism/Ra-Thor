@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 // crates/biomimetic/biomimetic_pattern_engine.rs
 // Biomimetic Pattern Engine — Production-grade living nature-inspired design core
 // Deepened for Omnimasterism: real pattern simulation, quantum-biomimetic hybrid creativity,

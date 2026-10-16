@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Integration tests for the full Raptor family
 //! Verifies clean linking of mercy_raptor_integration + mercy_raptor_3 + mercy_raptor_3_integration + mercy_raptor_3_scalability
 //! with TOLC proofs, mercy_merlin_engine, active inference, and predictive coding.

@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! RECO Enforcement, LAT Appeal & Divisional Court Evidence Generator
 //! Derived directly from RREL documentation (April 29, 2026)
 //! Mercy-gated + Quantum Swarm validated at every layer

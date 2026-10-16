@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Integration tests for the full Mercy Starship family
 //! Verifies clean dependency wiring with TOLC proofs + mercy_merlin_engine
 //! Part of the modernized Ra-Thor monorepo (v0.3.9)

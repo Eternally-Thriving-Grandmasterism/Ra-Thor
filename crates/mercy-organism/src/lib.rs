@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key ra-thor-powrush that the root does not define.
 //! mercy-organism: Top-level integrator for Ra-Thor unified organism coherence.
 //! Activates all 125 crates in perfect 8-phase order as one living, mercy-gated lattice.
 

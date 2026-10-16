@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! RREL TOLC 8 Runtime Verifier v2.0
 //! Deepened runtime verification for all TOLC 8 gates.
 //! Integrated with PATSAGi Scheduler, Quantum Swarm safety, and Lattice Conductor.

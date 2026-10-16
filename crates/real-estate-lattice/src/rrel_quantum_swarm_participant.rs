@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! RREL Quantum Swarm Participant
 //! Allows RREL to participate in Quantum Swarm orchestration, blessing propagation, and RBE resource claims.
 

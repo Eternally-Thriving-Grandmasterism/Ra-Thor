@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! RECO-Specific Form Handlers v1.0.0
 //! Additional RECO/TRESA compliant form modules for RREL v3.1.
 //! Privacy-first, mercy-gated, TOLC 8 enforced.

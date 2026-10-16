@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Self-Improvement Orchestrator
 //! The living brain of Ra-Thor's mercy-gated self-evolution system.
 use crate::tolc_mercy_reasoning::{evaluate_proposal_with_tolc, symbolic_mercy_verification};

@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 // Real-Estate Lattice v2 - Global Expansion Module
 // Mercy-gated, quantum valuation, RBE-integrated, Thriving Heavens Simulator
 // Full Quantum Valuation Engine fleshed out with TOLC + 7 Mercy Gates + positive emotion propagation

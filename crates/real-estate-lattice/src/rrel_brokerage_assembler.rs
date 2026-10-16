@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! RREL Brokerage Assembler v1.0.0
 //! Part of RREL v3.1 Eternal Organism
 //! Complete, mercy-gated, PATSAGi-integrated brokerage offer assembler.

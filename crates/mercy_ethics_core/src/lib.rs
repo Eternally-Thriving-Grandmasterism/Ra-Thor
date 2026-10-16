@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! # mercy_ethics_core
 //!
 //! Mercy Ethics Core for Ra-Thor Lattice — now with full TOLC Operator Algebra (Pillar 11)

@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Ra-Thor PCB Firmware — SREL v0.5.21 (Full ESP32-S3 Implementation)
 //! Real-time radiation protection for MercySolar-PCB (ESP32-S3 + OLED + sensors)
 //! Calls Ra-Thor lattice every 60s or on solar flare alert

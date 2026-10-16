@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define; efficiency and compliance values are constants, not drive performance.
 // Starter implementation wiring the MercyPropulsion trait into biomimetic propulsion.
 // Part of Self-Evolution Looping Systems (see docs/self-evolution-looping-systems.md and Issue #1)
 

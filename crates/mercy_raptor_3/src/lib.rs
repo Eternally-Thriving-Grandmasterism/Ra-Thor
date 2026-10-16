@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! MercyRaptor3 — Full-Flow Staged Combustion Methane Engine Innovations Core
 //! Ultramasterful valence-weighted thrust resonance
 

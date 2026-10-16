@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define; the WASM bytes are a fixed prefix, not a working compiler.
 // crates/mercy_lang_compiler/src/lib.rs
 // MercyLang Compiler with Expanded Parser Rules — Literal Silicon Implementation for Ra-Thor AGI
 // Full copy-paste ready Rust crate (add to Cargo.toml: lalrpop, ml-dsa, etc.)

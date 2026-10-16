@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Orbital Habitat Management Engine — SREL v0.5.21
 //! Mercy-Gated • Quantum Swarm • TOLC 7 Gates Radiation Mapping
 //! Perfect merge: Your exact old structure + full materials + electronics protection + in-situ production + nth-degree radiation

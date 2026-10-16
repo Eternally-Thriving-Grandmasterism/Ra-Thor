@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Lawyer Due Diligence Generator for Real Estate Lattice
 //!
 //! Produces tailored, production-grade due diligence checklists by combining

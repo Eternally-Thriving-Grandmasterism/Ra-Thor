@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key ra-thor-kernel that the root does not define.
 //! # AuditSignal
 //!
 //! Rich, typed signals produced by ra-thor-monorepo-auditor for consumption

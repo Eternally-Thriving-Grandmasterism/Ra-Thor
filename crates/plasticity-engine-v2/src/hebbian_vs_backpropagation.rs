@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! # Hebbian vs Backpropagation — A Deep Ra-Thor Comparison
 //!
 //! **The definitive comparison between biological Hebbian learning and artificial

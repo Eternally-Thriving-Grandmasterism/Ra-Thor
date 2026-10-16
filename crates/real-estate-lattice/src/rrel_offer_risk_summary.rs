@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Small helper: RrelOfferRiskSummary
 //! Aggregates key signals from v14.3 modules into a single mercy-aware view.
 

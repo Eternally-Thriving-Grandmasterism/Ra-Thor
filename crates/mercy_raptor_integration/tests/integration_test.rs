@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Integration Tests for MercyRaptorIntegration
 //! 
 //! Tests the full wiring between mercy_raptor_integration, mercy_raptor_3_scalability,

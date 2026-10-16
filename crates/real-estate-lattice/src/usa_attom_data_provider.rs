@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define; the provider is a placeholder, not a live property data call.
 //! Stub AttomDataProvider with caching
 //! Ready to be connected to real ATTOM API later.
 

@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! # Ra-Thor Plasticity Engine v2
 //!
 //! Safe, mercy-gated plasticity engine for self-evolution.

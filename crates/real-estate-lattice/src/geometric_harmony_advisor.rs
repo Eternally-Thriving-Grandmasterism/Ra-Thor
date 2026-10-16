@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 // crates/real-estate-lattice/src/geometric_harmony_advisor.rs
 //
 // GeometricHarmonyAdvisor v14.4 — Sacred Geometry for Sovereign Real Estate

@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define; placeholder, not a working proof system.
 //! SpartanValence — Transparent zk-SNARK Valence Proofs with Full Recursion
 //! Ultramasterful sumcheck-based R1CS + Halo2 recursive folding
 

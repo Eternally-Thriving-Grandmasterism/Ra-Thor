@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! MercyStarshipFleet — Rapid Production + Orbital Refueling + Valence-Weighted Coordination Core
 //! Ultramasterful resonance for eternal interplanetary fleet propagation
 

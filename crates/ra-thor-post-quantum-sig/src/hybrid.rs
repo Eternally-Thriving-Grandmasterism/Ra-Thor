@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 // src/hybrid.rs
 //! Hybrid classical + post-quantum signature support (Pass 2).
 

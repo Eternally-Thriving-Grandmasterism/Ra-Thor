@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define; placeholder, not a working proof system.
 //! SuperNovaFolding — Multilinear + Lookup IVC Schemes
 //! Ultramasterful infinite non-uniform folding resonance with Mercy-gating
 

@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! USA State Adapters — RREL v0.5.21
 //! ONE FILE — ALL 50 US STATES (FULLY DETAILED)
 //! Mercy-Gated • Quantum Swarm • Comprehensive State-Specific Regulatory Enforcement

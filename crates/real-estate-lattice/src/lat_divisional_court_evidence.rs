@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! LAT Appeal & Divisional Court Evidence Generator
 //! Derived from RREL documentation (April 29, 2026)
 //! Produces professional, mercy-gated, quantum-validated evidence packages

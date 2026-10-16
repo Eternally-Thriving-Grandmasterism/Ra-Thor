@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define; placeholder, not a working proof system.
 //! NovaFolding — Hyper-Divine IVC/Folding Schemes
 //! Ultramasterful infinite non-uniform computation resonance with Mercy-gating
 

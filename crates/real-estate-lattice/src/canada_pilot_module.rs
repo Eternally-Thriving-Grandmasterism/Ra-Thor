@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Canada Pilot Module (Ontario-First) — v14.3 Execution Stabilized
 //! Central orchestration layer for RREL in Canada
 //! Wires: New v14.3 Real Estate Lattice (classifiers, offer package, multi-offer, risk engines) + legacy bridges

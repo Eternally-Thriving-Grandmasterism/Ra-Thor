@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! # Hebbian Mathematical Model
 //!
 //! **The formal mathematical foundation for Hebbian Reinforcement in the 5-Gene Joy Tetrad.**

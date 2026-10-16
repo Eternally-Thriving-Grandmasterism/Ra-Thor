@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 // crates/biomimetic/src/lib.rs
 // Biomimetic Engine — plasma-aware patterns, regenerative guilds, alchemical mixing
 // Supreme Eternal Mercy Sovereign Omni-Lattice v2.0 + Neural Plasticity Biomimicry Explorer

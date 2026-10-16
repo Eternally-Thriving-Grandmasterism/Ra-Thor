@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Integration tests for SelfImprovementEngine + CrateAnalyzer
 //!
 //! These tests verify that the mercy-gated, data-driven self-improvement

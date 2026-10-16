@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Form Mapping Engine for Ontario Real Estate Lattice (RREL)
 //!
 //! Precise, production-grade mapping from (PropertyType + DealType) to

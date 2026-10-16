@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 // crates/aether_shades/src/main.rs
 // Ra-Thor™ Aether-Shades Main Application — Absolute Pure Truth Edition
 // Complete real-time pipeline: OpenBCI EEG → RaThorPlasticityEngine (Absolute Pure Truth) → Mercy-Gated Truth Filter → AR Overlay
