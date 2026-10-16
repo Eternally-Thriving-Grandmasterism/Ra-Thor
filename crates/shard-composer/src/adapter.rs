@@ -1,6 +1,12 @@
 //! Shard composer adapter.
 //!
 //! Records caller-supplied blessing impacts and a signed JSON file.
+//! The HMAC base is the environment variable `RA_THOR_HMAC_BASE_KEY`.
+//! It must be at least 32 bytes. This file has no key.
+//! An unset, empty, shorter, or rejected-placeholder value makes `save_to_file` return an error.
+//! `load_from_file` then does not accept the signed payload.
+//! `save_to_file` also leaves an existing file untouched when that file does not
+//! verify under the current base. That call returns an error and writes nothing.
 //! Scale numbers below are source coefficients, not measured rates.
 //! `GodlyIntelligenceCoherence` keeps its name. The four fields are recorded totals.
 
@@ -19,10 +25,16 @@ use std::path::Path;
 
 const CURRENT_VERSION: u32 = 3;
 
-const DEFAULT_BASE_KEY: &[u8] = b"ra-thor-sovereign-self-evolution";
+/// HKDF info label for this file format. Not a key.
 const HKDF_INFO: &[u8] = b"shard-composer-hmac-v1";
 
 const ENV_HMAC_KEY: &str = "RA_THOR_HMAC_BASE_KEY";
+
+/// Minimum UTF-8 byte length of `RA_THOR_HMAC_BASE_KEY`. Empty is included.
+const MIN_HMAC_BASE_KEY_BYTES: usize = 32;
+
+/// Removed SHARDS.md example. Not a key. This exact value is refused.
+const REJECTED_DOC_PLACEHOLDER: &str = "your-strong-secret-at-least-32-bytes";
 
 /// Source ceiling for stored valence. Not a measured valence.
 pub const VALENCE_SOURCE_CEILING: f64 = 0.99999999;
@@ -119,31 +131,37 @@ impl ShardComposerAdapter {
         self.last_resonance_intensity
     }
 
-    fn derive_hmac_key() -> [u8; 32] {
-        let base_material = match env::var(ENV_HMAC_KEY) {
-            Ok(value) => value.into_bytes(),
-            Err(_) => DEFAULT_BASE_KEY.to_vec(),
-        };
-        let hk = Hkdf::<Sha256>::new(None, &base_material);
+    /// HKDF-SHA256 of `RA_THOR_HMAC_BASE_KEY`. There is no fallback key.
+    fn derive_hmac_key() -> io::Result<[u8; 32]> {
+        let base_material = env::var(ENV_HMAC_KEY).map_err(|_| hmac_base_key_error())?;
+        if base_material.len() < MIN_HMAC_BASE_KEY_BYTES
+            || base_material == REJECTED_DOC_PLACEHOLDER
+        {
+            return Err(hmac_base_key_error());
+        }
+        let hk = Hkdf::<Sha256>::new(None, base_material.as_bytes());
         let mut okm = [0u8; 32];
         // SHA-256 HKDF accepts a 32-byte output. That length is inside the hash bound.
         hk.expand(HKDF_INFO, &mut okm)
             .expect("32-byte HKDF-SHA256 output is within the hash length");
-        okm
+        Ok(okm)
     }
 
-    fn sign_data(data: &serde_json::Value) -> String {
-        let key = Self::derive_hmac_key();
+    fn sign_data(data: &serde_json::Value) -> io::Result<String> {
+        let key = Self::derive_hmac_key()?;
         let mut mac = HmacSha256::new_from_slice(&key).expect("HMAC-SHA256 accepts a 32-byte key");
         mac.update(data.to_string().as_bytes());
-        encode_hex(&mac.finalize().into_bytes())
+        Ok(encode_hex(&mac.finalize().into_bytes()))
     }
 
     fn verify_signature(data: &serde_json::Value, signature: &str) -> bool {
         let Some(expected) = decode_hex(signature) else {
             return false;
         };
-        let key = Self::derive_hmac_key();
+        // A missing or short base is a failed check. It is not a match.
+        let Ok(key) = Self::derive_hmac_key() else {
+            return false;
+        };
         let Ok(mut mac) = HmacSha256::new_from_slice(&key) else {
             return false;
         };
@@ -155,11 +173,35 @@ impl ShardComposerAdapter {
         let data = serde_json::to_value(self).map_err(io::Error::other)?;
         let signed = SignedState {
             version: self.version,
-            signature: Self::sign_data(&data),
+            signature: Self::sign_data(&data)?,
             data,
         };
         let json = serde_json::to_string_pretty(&signed).map_err(io::Error::other)?;
+        // Signing succeeded. Refuse to replace a file this base cannot verify.
+        // Nothing is renamed or deleted. A missing path is created.
+        Self::refuse_unverified_overwrite(path)?;
         fs::write(path, json)
+    }
+
+    fn refuse_unverified_overwrite(path: &Path) -> io::Result<()> {
+        match fs::read_to_string(path) {
+            Err(err) if err.kind() == io::ErrorKind::NotFound => Ok(()),
+            Err(_) => Err(unverified_overwrite_error(path)),
+            Ok(content) => {
+                if Self::signed_json_verifies(&content) {
+                    Ok(())
+                } else {
+                    Err(unverified_overwrite_error(path))
+                }
+            }
+        }
+    }
+
+    fn signed_json_verifies(content: &str) -> bool {
+        let Ok(signed) = serde_json::from_str::<SignedState>(content) else {
+            return false;
+        };
+        Self::verify_signature(&signed.data, &signed.signature)
     }
 
     pub fn load_from_file(path: &Path) -> Self {
@@ -169,6 +211,13 @@ impl ShardComposerAdapter {
         let Ok(signed) = serde_json::from_str::<SignedState>(&content) else {
             return Self::new();
         };
+        if Self::derive_hmac_key().is_err() {
+            eprintln!(
+                "[Security] {}. Signed state was not accepted.",
+                hmac_base_key_message()
+            );
+            return Self::new();
+        }
         if !Self::verify_signature(&signed.data, &signed.signature) {
             eprintln!("[Security] HMAC verification failed. Possible tampering.");
             return Self::new();
@@ -235,6 +284,26 @@ impl ShardComposerAdapter {
             self.blessings_count
         )
     }
+}
+
+fn hmac_base_key_message() -> String {
+    format!(
+        "{ENV_HMAC_KEY} is unset, empty, shorter than {MIN_HMAC_BASE_KEY_BYTES} bytes, or a rejected public placeholder"
+    )
+}
+
+fn hmac_base_key_error() -> io::Error {
+    io::Error::new(io::ErrorKind::InvalidInput, hmac_base_key_message())
+}
+
+fn unverified_overwrite_error(path: &Path) -> io::Error {
+    io::Error::new(
+        io::ErrorKind::InvalidData,
+        format!(
+            "existing file {} failed verification and must be moved aside or restored with the right key first",
+            path.display()
+        ),
+    )
 }
 
 /// Source coefficients. Not measured rates.
@@ -330,10 +399,51 @@ impl Default for ShardComposerAdapter {
 mod tests {
     use super::*;
     use std::fs;
+    use std::sync::Mutex;
+
+    /// Test fixture. Not a key. Unit tests in this module only.
+    const HMAC_BASE_FIXTURE: &str = "unit-test-fixture-not-a-key-32b!!";
+
+    /// Serialises tests in this binary that set `RA_THOR_HMAC_BASE_KEY`.
+    static HMAC_ENV_LOCK: Mutex<()> = Mutex::new(());
 
     fn temp_path(name: &str) -> std::path::PathBuf {
         let pid = std::process::id();
         std::env::temp_dir().join(format!("shard-composer-{name}-{pid}.json"))
+    }
+
+    fn with_hmac_fixture<T>(body: impl FnOnce() -> T) -> T {
+        let _guard = HMAC_ENV_LOCK
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
+        assert!(
+            HMAC_BASE_FIXTURE.len() >= MIN_HMAC_BASE_KEY_BYTES,
+            "unit test fixture is not a key and must meet the minimum length"
+        );
+        assert_ne!(HMAC_BASE_FIXTURE, REJECTED_DOC_PLACEHOLDER);
+        // SAFETY: tests in this binary that read or write the variable take
+        // `HMAC_ENV_LOCK` for the whole call.
+        unsafe {
+            std::env::set_var(ENV_HMAC_KEY, HMAC_BASE_FIXTURE);
+        }
+        body()
+    }
+
+    #[test]
+    fn rejected_doc_placeholder_does_not_sign() {
+        let _guard = HMAC_ENV_LOCK
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
+        assert!(REJECTED_DOC_PLACEHOLDER.len() >= MIN_HMAC_BASE_KEY_BYTES);
+        // SAFETY: this test holds `HMAC_ENV_LOCK` for the whole call.
+        unsafe {
+            std::env::set_var(ENV_HMAC_KEY, REJECTED_DOC_PLACEHOLDER);
+        }
+        let data = serde_json::json!({"n": 1});
+        let err = ShardComposerAdapter::sign_data(&data).expect_err("placeholder is refused");
+        let message = err.to_string();
+        assert!(message.contains(ENV_HMAC_KEY), "{message}");
+        assert_eq!(err.kind(), io::ErrorKind::InvalidInput);
     }
 
     fn signed_file(adapter: &ShardComposerAdapter, version: u32, signature: String) -> SignedState {
@@ -357,58 +467,63 @@ mod tests {
 
     #[test]
     fn signature_is_64_hex_chars_and_a_bad_file_loads_as_fresh() {
-        let data = serde_json::json!({"n": 1});
-        let signature = ShardComposerAdapter::sign_data(&data);
-        assert_eq!(signature.len(), 64);
-        assert_eq!(decode_hex(&signature).map(|bytes| bytes.len()), Some(32));
+        with_hmac_fixture(|| {
+            let data = serde_json::json!({"n": 1});
+            let signature = ShardComposerAdapter::sign_data(&data).expect("fixture signs");
+            assert_eq!(signature.len(), 64);
+            assert_eq!(decode_hex(&signature).map(|bytes| bytes.len()), Some(32));
 
-        let mut adapter = ShardComposerAdapter::new();
-        adapter.blessings_count = 4;
-        adapter.evolution_level = 1.25;
-        adapter.current_valence = Valence(0.5);
-        let path = temp_path("bad-signature");
-        let signed = signed_file(&adapter, CURRENT_VERSION, "00".to_string());
-        fs::write(&path, serde_json::to_string(&signed).expect("signed json")).expect("write");
-        let loaded = ShardComposerAdapter::load_from_file(&path);
-        let _ = fs::remove_file(&path);
-        assert_eq!(loaded.blessings_received(), 0);
-        assert_eq!(loaded.current_valence().value(), 0.0);
-        assert_eq!(loaded.evolution_level(), 0.0);
-        assert_eq!(loaded.recorded_version(), CURRENT_VERSION);
+            let mut adapter = ShardComposerAdapter::new();
+            adapter.blessings_count = 4;
+            adapter.evolution_level = 1.25;
+            adapter.current_valence = Valence(0.5);
+            let path = temp_path("bad-signature");
+            let signed = signed_file(&adapter, CURRENT_VERSION, "00".to_string());
+            fs::write(&path, serde_json::to_string(&signed).expect("signed json")).expect("write");
+            let loaded = ShardComposerAdapter::load_from_file(&path);
+            let _ = fs::remove_file(&path);
+            assert_eq!(loaded.blessings_received(), 0);
+            assert_eq!(loaded.current_valence().value(), 0.0);
+            assert_eq!(loaded.evolution_level(), 0.0);
+            assert_eq!(loaded.recorded_version(), CURRENT_VERSION);
+        });
     }
 
     #[test]
     fn older_and_newer_signed_files_keep_recorded_fields_at_version_3() {
-        let mut adapter = ShardComposerAdapter::new();
-        adapter.blessings_count = 4;
-        adapter.evolution_level = 1.25;
-        adapter.current_valence = Valence(0.5);
-        adapter.total_evolution_impact = 1.5;
-        adapter.total_mercy_impact = 0.25;
-        adapter.total_tolc_impact = 0.125;
-        adapter.last_resonance_intensity = Some(0.5);
+        with_hmac_fixture(|| {
+            let mut adapter = ShardComposerAdapter::new();
+            adapter.blessings_count = 4;
+            adapter.evolution_level = 1.25;
+            adapter.current_valence = Valence(0.5);
+            adapter.total_evolution_impact = 1.5;
+            adapter.total_mercy_impact = 0.25;
+            adapter.total_tolc_impact = 0.125;
+            adapter.last_resonance_intensity = Some(0.5);
 
-        for (label, version) in [("older", 2u32), ("newer", 9u32)] {
-            let path = temp_path(label);
-            adapter.version = version;
-            let data = serde_json::to_value(&adapter).expect("adapter serializes");
-            let signature = ShardComposerAdapter::sign_data(&data);
-            let signed = SignedState {
-                version,
-                signature,
-                data,
-            };
-            fs::write(&path, serde_json::to_string(&signed).expect("signed json")).expect("write");
-            let loaded = ShardComposerAdapter::load_from_file(&path);
-            let _ = fs::remove_file(&path);
-            assert_eq!(loaded.recorded_version(), 3);
-            assert_eq!(loaded.blessings_received(), 4);
-            assert_eq!(loaded.evolution_level(), 1.25);
-            assert_eq!(loaded.current_valence().value(), 0.5);
-            assert_eq!(loaded.recorded_evolution_impact(), 1.5);
-            assert_eq!(loaded.recorded_mercy_impact(), 0.25);
-            assert_eq!(loaded.recorded_tolc_impact(), 0.125);
-            assert_eq!(loaded.last_resonance_intensity(), Some(0.5));
-        }
+            for (label, version) in [("older", 2u32), ("newer", 9u32)] {
+                let path = temp_path(label);
+                adapter.version = version;
+                let data = serde_json::to_value(&adapter).expect("adapter serializes");
+                let signature = ShardComposerAdapter::sign_data(&data).expect("fixture signs");
+                let signed = SignedState {
+                    version,
+                    signature,
+                    data,
+                };
+                fs::write(&path, serde_json::to_string(&signed).expect("signed json"))
+                    .expect("write");
+                let loaded = ShardComposerAdapter::load_from_file(&path);
+                let _ = fs::remove_file(&path);
+                assert_eq!(loaded.recorded_version(), 3);
+                assert_eq!(loaded.blessings_received(), 4);
+                assert_eq!(loaded.evolution_level(), 1.25);
+                assert_eq!(loaded.current_valence().value(), 0.5);
+                assert_eq!(loaded.recorded_evolution_impact(), 1.5);
+                assert_eq!(loaded.recorded_mercy_impact(), 0.25);
+                assert_eq!(loaded.recorded_tolc_impact(), 0.125);
+                assert_eq!(loaded.last_resonance_intensity(), Some(0.5));
+            }
+        });
     }
 }
