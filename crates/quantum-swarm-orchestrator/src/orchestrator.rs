@@ -85,7 +85,7 @@ impl QuantumSwarmOrchestrator {
             1.0
         };
 
-        // Reject when the average is not finite or is below Valence::MIN.
+        // 2. Basic mercy pruning check (TOLC 8 aligned): reject when the average is not finite or is below Valence::MIN.
         if !avg_valence.is_finite() || avg_valence < Valence::MIN {
             return Err(MercyError::ValenceBelowThreshold(avg_valence));
         }
