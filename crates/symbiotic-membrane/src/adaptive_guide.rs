@@ -3,7 +3,7 @@
 //! Phase C — Living Valence Organism
 //! AG-SML v1.0 | Contact: info@Rathor.ai
 
-use chrono::{DateTime, Utc, Duration};
+use chrono::{DateTime, Duration, Utc};
 use serde::{Deserialize, Serialize};
 
 /// Preferred pace / curiosity style learned during first-contact window

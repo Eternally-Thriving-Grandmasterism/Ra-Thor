@@ -36,7 +36,9 @@ pub fn render(agency: &SoftSovereignAgency, content: &str) -> (Option<PoeticView
                 label: "structured_view".to_string(),
                 data: content.to_string(),
                 constraints: vec![
-                    "TOLC 8 valence floor ≥ 0.999999".to_string(),
+                    // 0.999999 is a source literal, not a measured value.
+                    // This file is not a module, so this string is not emitted.
+                    "source literal valence floor 0.999999 (not a measured value)".to_string(),
                     "Invitation-only guidance".to_string(),
                     "Full sovereignty preserved".to_string(),
                 ],
