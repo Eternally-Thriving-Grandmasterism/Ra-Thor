@@ -149,7 +149,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn empty_cycle_uses_the_source_average_and_a_low_adapter_is_vetoed() {
+    async fn empty_cycle_is_valence_below_threshold_and_a_low_adapter_is_vetoed() {
         let mut orchestrator = QuantumSwarmOrchestrator::new();
         assert_eq!(orchestrator.registered_system_count(), 0);
         assert_eq!(orchestrator.version, "v14.0-one-organism");
@@ -160,16 +160,12 @@ mod tests {
                 base_valence: Valence(0.5),
                 patsagi_insight: None,
             })
-            .await
-            .expect("empty adapter set");
-        assert_eq!(empty.cycle_id, 7);
-        assert_eq!(empty.average_valence, 1.0);
-        assert_eq!(empty.active_systems.len(), 0);
-        assert_eq!(empty.overall_coherence.precision, 0.0);
-        assert_eq!(empty.overall_coherence.resilience, 0.0);
-        assert_eq!(empty.overall_coherence.flow_stability, 0.0);
-        assert_eq!(empty.overall_coherence.harmonic_alignment, 0.0);
-        assert_eq!(empty.recommended_actions.len(), 3);
+            .await;
+        match empty {
+            Err(MercyError::ValenceBelowThreshold(value)) => assert_eq!(value, 0.0),
+            Ok(_) => panic!("empty adapter registry is a veto"),
+            Err(other) => panic!("unexpected error: {other}"),
+        }
 
         orchestrator.register_adapter(Box::new(FixedAdapter {
             name: "low",

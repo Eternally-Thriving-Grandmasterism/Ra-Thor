@@ -115,6 +115,10 @@ impl SelfEvolvingMercyCore {
             .await
         {
             Ok(insight) => insight.average_valence,
+            // ValenceBelowThreshold is not copied into swarm_consensus.
+            // Any cycle error, including that veto, returns None before council
+            // voting, evolution_history, current_version, and last_evolution_cycle.
+            // evaluate_action has already been awaited.
             Err(_) => return None,
         };
         if swarm_consensus < 0.88 {

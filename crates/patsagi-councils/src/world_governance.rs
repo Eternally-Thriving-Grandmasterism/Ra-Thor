@@ -710,6 +710,9 @@ impl WorldGovernanceEngine {
             expires_at_cycle: game.current_cycle.saturating_add(50),
         };
 
+        // ValenceBelowThreshold is a veto. Return before evaluate_action,
+        // propagate_mercy_fields, apply_world_impact, or any write to
+        // active_changes, history, or total_world_changes.
         let swarm_decision = match self
             .quantum_swarm
             .run_one_organism_cycle(ra_thor_quantum_swarm_orchestrator::OneOrganismContext {
@@ -722,7 +725,9 @@ impl WorldGovernanceEngine {
         {
             Ok(insight) => insight.average_valence,
             Err(ra_thor_quantum_swarm_orchestrator::MercyError::ValenceBelowThreshold(value)) => {
-                value
+                return Ok(format!(
+                    "❌ WORLD CHANGE REJECTED\nSwarm valence check vetoed it ({value:?})."
+                ));
             }
             Err(err) => return Err(err.to_string()),
         };
