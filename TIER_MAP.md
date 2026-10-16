@@ -42,9 +42,9 @@ Full `--workspace` jobs (`ci.yml`, `ra-thor-ci.yml`) are `workflow_dispatch` onl
 Parked to `workflow_dispatch` (2026-09-02, #391): Docker/Trivy, container/K8s/Helm scans, Mercy Gate Auditor, Validate, Verified Mercy, Mercy Security Scan, invalid `mial-ci.yml` stub.  
 `mercy-security-tier1.yml` stays on (real tests). Contact-email sweep is `continue-on-error` (HOLD mass `ceo@acitygames.com` rewrite).
 
-`Cargo.toml` default `members` is this Tier-1 set plus `mercy-security` (required by `ra-thor-one-organism`). Cargo loads every member manifest, including for `cargo test -p …`, so research crates stay on disk and out of `members`. Re-add a path to work on one.
+Root `Cargo.toml` default `members` is the Tier-1 table above (12 crates, including `mercy-security`), plus `crates/mercy`, `crates/idea-recycling`, and `crates/innovations-generator`. Cargo loads every root member manifest, including for `cargo test -p …`, so other research crates stay on disk and out of `members`. Re-add a path to work on one. `crates/fenca` is a standalone `[workspace]` in `crates/fenca/Cargo.toml`, with its own `Cargo.lock` at `crates/fenca/Cargo.lock`. It is outside the root default members.
 
-**Census (2026-09-02):** 12 default members; research crates stay on disk; `crates/self-evolution` is not a member and not a crate. Inventory and PATSAGi decision: [`docs/CRATE_CENSUS.md`](docs/CRATE_CENSUS.md).
+**Census (2026-09-02):** 12 default members on that date. Research crates stay on disk. `crates/self-evolution` is not a member and not a crate. Inventory and PATSAGi decision: [`docs/CRATE_CENSUS.md`](docs/CRATE_CENSUS.md). The current root `members` list is the paragraph above.
 
 
 ---

@@ -16,7 +16,7 @@ Contact: info@Rathor.ai. License: AG-SML v1.1.
 
 - Trims text and collapses whitespace. Blank text is dropped.
 - Duplicates match on the first 12 alphanumeric tokens, lowercased. Their sources are merged. The first non-empty evidence note in input order is kept.
-- Themes come from the idea's own text: a short lexicon, plus tokens of five letters or more that contain a letter. Stopwords are dropped. At most 12 themes are kept.
+- Themes come from the idea's own text. A token is kept when it is in a short lexicon, or when `token.len()` is at least 5. That length is UTF-8 bytes, not letters. The token must contain a letter. Stopwords are dropped. At most 12 themes are kept.
 - After that, at most 40 ideas are kept. Order is highest signal first, then text. Signal is `theme_count × 3 + character_length / 40` (integer division).
 
 ## What `cross_pollinate` does
