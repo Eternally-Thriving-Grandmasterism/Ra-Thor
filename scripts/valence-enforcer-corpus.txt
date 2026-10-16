@@ -1,0 +1,12 @@
+# Files the valence enforcer audits with crates/fenca.
+# Paths are repo-relative. A missing path, a tool error, or a failed
+# fenca check fails the job. The audit score is a fraction of four checks.
+# It is not a valence constant.
+PUBLIC_CLAIM.lock.md
+README.md
+TIER_MAP.md
+docs/NO_CUSTODY_NO_SIGN.md
+docs/MODEL_INSPECT_NOT_METR.md
+docs/LAYER_0_RUNTIME_BOUNDARY.md
+docs/BINDING_AFTER_REDESIGN.md
+docs/cursor-teams/AGENT_BOOT.md
