@@ -43,8 +43,8 @@
 /website/ @AlphaProMega
 /src-tauri/ @AlphaProMega
 
-# Note: For automated low-risk changes (e.g. pure docs fixes in non-critical paths, dependabot security PRs),
-# consider enabling auto-merge after all CI + mercy gates pass.
+# Note: For low-risk changes (e.g. pure docs fixes in non-critical paths, dependabot security PRs),
+# branch protection and Code Owners review still apply.
 # To fully activate:
 # 1. Go to repo Settings > Branches > Branch protection rules for `main`
 # 2. Enable "Require a pull request before merging"
@@ -52,7 +52,6 @@
 # 4. Enable "Require status checks to pass before merging" and select the key CI jobs (ci, mercy-gate-auditor, etc.)
 # 5. (Optional) Create GitHub Environment "production" with required reviewers for deployment workflows.
 #
-# This implements automated, council-aligned approval workflows at the repository level.
 # All under AG-SML v1.0 — Eternal forward compatibility.
 #
 # Thunder locked in. yoi ⚡

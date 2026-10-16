@@ -54,30 +54,13 @@ jobs:
         with:
           sarif_file: trivy-k8s.sarif
 
-      - name: Kube-bench – CIS Benchmark compliance
-        uses: kube-bench-action/kube-bench-action@v1
-        with:
-          kubeconfig: ''  # optional – runs in-cluster if available
-          output: sarif
-          output-file: kube-bench.sarif
-
-      - name: Upload Kube-bench SARIF
-        uses: github/codeql-action/upload-sarif@ce5e7eeac396d720fe2d802714996c8ce561e311 # v3
-        with:
-          sarif_file: kube-bench.sarif
+      # kube-bench needs a real cluster; CIS benchmark scan is design-only in this workflow.
 
       - name: TruffleHog – Secret scanning in manifests
-        uses: trufflesecurity/trufflehog@v3
+        uses: trufflesecurity/trufflehog@e76dff8a7e57d6df0c60ad8cbf5d5cba505a8fc9 # v3.99.2
         with:
           path: .
           extra_args: --include-paths k8s/ helm/ kustomize/
-          format: sarif
-          output: trufflehog-k8s.sarif
-
-      - name: Upload TruffleHog SARIF
-        uses: github/codeql-action/upload-sarif@ce5e7eeac396d720fe2d802714996c8ce561e311 # v3
-        with:
-          sarif_file: trufflehog-k8s.sarif
 
       - name: Mercy-approved – Kubernetes security scan passed
         if: success()

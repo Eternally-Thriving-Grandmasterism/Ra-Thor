@@ -10,6 +10,8 @@
 
 This file is the canonical list of Rust manifests that do not build, or that build only as stubs. After it merges, each family below is one make-real card. This audit adds no crate, no member, and no workflow.
 
+Retired in PR #700 (2026-10-16): `.github/workflows/automated-approval-gate.yml` (dispatch-only hmarr auto-approve with a hardcoded APPROVED council step).
+
 Conductor in the living set is v14 only (`crates/lattice-conductor-v14`). Do not revive `lattice-conductor-v13`.
 
 Public TOLC 8 names, when a later card talks about mercy checks: Truth, Order, Love, Compassion, Service, Abundance, Joy, Cosmic Harmony. First mention of the gates in code: TOLC 8 mercy checks (Mercy Gates in code).
