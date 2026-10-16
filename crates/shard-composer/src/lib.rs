@@ -4,6 +4,9 @@
 //! `ra-thor-quantum-swarm-orchestrator`.
 //! A fresh adapter stores valence `0.0`.
 //! `VALENCE_SOURCE_CEILING` is a source ceiling, not a measured valence.
+//! Signed files use HMAC-SHA256. The base is `RA_THOR_HMAC_BASE_KEY` and must be at least 32 bytes.
+//! This source has no key. If that variable is unset, empty, or shorter, `save_to_file` returns an error
+//! and `load_from_file` does not accept the signed payload.
 //! `GodlyIntelligenceCoherence` keeps its name. The four fields are recorded impacts, not a measured coherence.
 //! `patsagi-councils` is re-exported as `patsagi`. This package is not `crates/council`.
 //! Public TOLC 8 names are Truth, Order, Love, Compassion, Service, Abundance, Joy, Cosmic Harmony.
