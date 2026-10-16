@@ -2,13 +2,11 @@ name: standalone locked tests
 
 # Standalone packages. Not root workspace members.
 # One matrix entry per crate: cargo test --locked and cargo clippy --locked.
-# biomimetic-sovereign-harmony-council is not in this matrix.
-# STUB-AUDIT-1 section 11 records that package had no Rust sources.
-# It is not one of the 15 family-11 crates.
 on:
   pull_request:
     paths:
       - ".github/workflows/standalone-locked-tests.yml"
+      - "crates/biomimetic-sovereign-harmony-council/**"
       - "crates/dynamic-persona-router-council/**"
       - "crates/eternal-nexus-revelation-council/**"
       - "crates/eternal-sovereign-divine-spark-council/**"
@@ -30,6 +28,7 @@ on:
     branches: [main]
     paths:
       - ".github/workflows/standalone-locked-tests.yml"
+      - "crates/biomimetic-sovereign-harmony-council/**"
       - "crates/dynamic-persona-router-council/**"
       - "crates/eternal-nexus-revelation-council/**"
       - "crates/eternal-sovereign-divine-spark-council/**"
@@ -60,6 +59,7 @@ jobs:
       fail-fast: false
       matrix:
         crate:
+          - biomimetic-sovereign-harmony-council
           - dynamic-persona-router-council
           - eternal-nexus-revelation-council
           - eternal-sovereign-divine-spark-council
