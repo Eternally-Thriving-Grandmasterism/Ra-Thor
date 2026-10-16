@@ -1028,9 +1028,9 @@ Core votes. When the env var was unset, the HMAC state-signing key fell back to 
 
 This card needs Core. It must not add the `powrush` or `ra-thor-kernel` keys to root members by default. Cards 10 and 14 left those keys unadded. Clerk HOLD on this PR, comment 6222049417.
 
-### PATSAGI-TIDY-1 (DONE, #__PRNUM__)
+### PATSAGI-TIDY-1 (DONE, #688)
 
-**Status:** DONE in #__PRNUM__. `Valence(0.97)` in `world_governance.rs` is labelled a source literal. The deliberation label is `CouncilCheckLabel`. There is no deprecated alias. `crates/patsagi-councils/Cargo.toml` declares `rust-version = "1.89"`. `Cargo.lock` is unchanged.
+**Status:** DONE in #688. `Valence(0.97)` in `world_governance.rs` is labelled a source literal. The deliberation label is `CouncilCheckLabel`. There is no deprecated alias. `crates/patsagi-councils/Cargo.toml` declares `rust-version = "1.89"`. `Cargo.lock` is unchanged.
 
 Recorded in #738 comment 6219895896.
 
@@ -1072,12 +1072,12 @@ One CI job that runs `cargo test --locked` (or `cargo check`) inside `crates/fen
 
 Recorded in #738 comment 6220843372. No separate card name besides `RA-THOR-KERNEL-WASM-1` above.
 
-- `crates/kernel/Cargo.toml` keywords: `agi`, `sovereign`, `mercy-gated`. (DONE, #__PRNUM__) Replaced with `library`, `standalone`, and `research`.
+- `crates/kernel/Cargo.toml` keywords: `agi`, `sovereign`, `mercy-gated`. (DONE, #688) Replaced with `library`, `standalone`, and `research`.
 - About 167 manifests still name the undefined `ra-thor-kernel` root key. Card 14 labelled those shells. It did not add the key.
 
-### Family-11 `valence_threshold` (DONE, #__PRNUM__)
+### Family-11 `valence_threshold` (DONE, #688)
 
-**Status:** DONE in #__PRNUM__. In the 15 family-11 crates, `valence_threshold` is private. Callers read it with `valence_threshold()`. No setter was present. Threshold tests assert literal `true` or `false`. Package descriptions name the compiled check. `0.9999999` stays a source literal.
+**Status:** DONE in #688. In the 15 family-11 crates, `valence_threshold` is private. Callers read it with `valence_threshold()`. No setter was present. Threshold tests assert literal `true` or `false`. Package descriptions name the compiled check. `0.9999999` stays a source literal.
 
 Recorded in #738 comment 6221395375. No card name. `valence_threshold` was a public field callers could lower in the 15 family-11 crates. Make it private or floor-clamped. Core votes.
 
@@ -1089,20 +1089,20 @@ Recorded in #738 comment 6219468432. No card name. About 150 crates declare a `q
 
 Recorded in #738 comment 6220555628. No card name. The shard-composer adapter's fresh valence is `0.0`, below `Valence::MIN`. If one is registered with the QSO orchestrator, it reports below threshold and is vetoed. Nothing compiled registers one today. Core reviews this before any code relies on adapter health.
 
-### Post-quantum headers (DONE, #__PRNUM__)
+### Post-quantum headers (DONE, #688)
 
-**Status:** DONE in #__PRNUM__. The nine non-dilithium source files in `ra-thor-post-quantum-sig` carry the line `placeholder, not working crypto`.
+**Status:** DONE in #688. The nine non-dilithium source files in `ra-thor-post-quantum-sig` carry the line `placeholder, not working crypto`.
 
 Recorded in #738 comment 6221917153. No card name. Nine non-dilithium files in `ra-thor-post-quantum-sig` carried only the generic header. Give them the specific line `placeholder, not working crypto`.
 
 ### Other board notes with no card name
 
 - `crates/xtask` still asks for removed shard-composer features (`one-organism` and the `--features <profile>` builds). #738 comment 6220555628.
-- The Already fixed closer in this file said "shard crate". It now says shard-genesis. (DONE, #__PRNUM__) #738 comment 6220555628.
-- Family-11 threshold tests compared against `below >= threshold`. They now use literal true/false asserts. (DONE, #__PRNUM__) #738 comment 6221395375.
-- `patsagi-councils` uuid 1.28 needs rustc 1.89. `rust-version = "1.89"` is declared. `Cargo.lock` is unchanged. (DONE, #__PRNUM__) #738 comment 6221395375.
-- Grandiose descriptions in the family-11 crate manifests now name the compiled check. (DONE, #__PRNUM__) #738 comment 6221395375.
-- Section 11 of this file notes that `tolc8_mercy_check` stays compiled and that `active_personas` was restored. (DONE, #__PRNUM__) #738 comment 6221395375.
+- The Already fixed closer in this file said "shard crate". It now says shard-genesis. (DONE, #688) #738 comment 6220555628.
+- Family-11 threshold tests compared against `below >= threshold`. They now use literal true/false asserts. (DONE, #688) #738 comment 6221395375.
+- `patsagi-councils` uuid 1.28 needs rustc 1.89. `rust-version = "1.89"` is declared. `Cargo.lock` is unchanged. (DONE, #688) #738 comment 6221395375.
+- Grandiose descriptions in the family-11 crate manifests now name the compiled check. (DONE, #688) #738 comment 6221395375.
+- Section 11 of this file notes that `tolc8_mercy_check` stays compiled and that `active_personas` was restored. (DONE, #688) #738 comment 6221395375.
 - The `summary()` string "Living Cosmic Tick active" stays banked. #738 comment 6219079423.
 - Non-root crates that used the removed patsagi re-exports get fixed on their own cards. #738 comment 6219895896.
 
