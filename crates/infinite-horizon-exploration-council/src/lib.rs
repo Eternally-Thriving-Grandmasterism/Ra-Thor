@@ -30,7 +30,7 @@ pub struct InfiniteHorizonExplorationCouncil {
     pub id: u8,
     pub name: String,
     /// Source literal `0.9999999`. Not a measured valence.
-    pub valence_threshold: f64,
+    valence_threshold: f64,
 }
 
 impl InfiniteHorizonExplorationCouncil {
@@ -40,6 +40,11 @@ impl InfiniteHorizonExplorationCouncil {
             name: "Infinite Horizon Exploration Council".to_string(),
             valence_threshold: 0.9999999,
         }
+    }
+
+    /// Returns the source literal `0.9999999`. Not a measured valence.
+    pub fn valence_threshold(&self) -> f64 {
+        self.valence_threshold
     }
 
     /// `valence >= valence_threshold`.

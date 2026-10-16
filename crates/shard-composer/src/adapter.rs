@@ -7,6 +7,7 @@
 //! `load_from_file` then does not accept the signed payload.
 //! `save_to_file` also leaves an existing file untouched when that file does not
 //! verify under the current base. That call returns an error and writes nothing.
+//! A save that passes that check writes a temp file in the same directory, then renames it over the target.
 //! Scale numbers below are source coefficients, not measured rates.
 //! `GodlyIntelligenceCoherence` keeps its name. The four fields are recorded totals.
 
@@ -177,10 +178,11 @@ impl ShardComposerAdapter {
             data,
         };
         let json = serde_json::to_string_pretty(&signed).map_err(io::Error::other)?;
-        // Signing succeeded. Refuse to replace a file this base cannot verify.
-        // Nothing is renamed or deleted. A missing path is created.
+        // Signing succeeded. Refuse before any write when an existing file
+        // does not verify. A missing path is still created. The target is not
+        // renamed or deleted on that refusal.
         Self::refuse_unverified_overwrite(path)?;
-        fs::write(path, json)
+        write_temp_then_rename(path, json.as_bytes())
     }
 
     fn refuse_unverified_overwrite(path: &Path) -> io::Result<()> {
@@ -294,6 +296,27 @@ fn hmac_base_key_message() -> String {
 
 fn hmac_base_key_error() -> io::Error {
     io::Error::new(io::ErrorKind::InvalidInput, hmac_base_key_message())
+}
+
+/// Writes `bytes` to `{filename}.tmp` in the target directory, then renames that file over `path`.
+/// The overwrite guard runs before this function.
+fn write_temp_then_rename(path: &Path, bytes: &[u8]) -> io::Result<()> {
+    let parent = path
+        .parent()
+        .filter(|dir| !dir.as_os_str().is_empty())
+        .unwrap_or_else(|| Path::new("."));
+    let file_name = path
+        .file_name()
+        .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "save path has no file name"))?;
+    let mut tmp_name = file_name.to_os_string();
+    tmp_name.push(".tmp");
+    let tmp_path = parent.join(tmp_name);
+    fs::write(&tmp_path, bytes)?;
+    if let Err(err) = fs::rename(&tmp_path, path) {
+        let _ = fs::remove_file(&tmp_path);
+        return Err(err);
+    }
+    Ok(())
 }
 
 fn unverified_overwrite_error(path: &Path) -> io::Error {

@@ -87,15 +87,17 @@ fn bond_mean_is_the_mean_of_the_supplied_valences() {
 }
 
 #[test]
+#[allow(clippy::bool_assert_comparison)] // expected values are the literals true and false
 fn tolc8_mercy_check_follows_the_source_literal_threshold() {
     let council = MercyQuantaSentinelCouncil::new();
-    let threshold = council.valence_threshold;
+    let threshold = council.valence_threshold();
     assert_eq!(threshold, 0.9999999);
     let below = f64::from_bits(threshold.to_bits() - 1);
     let above = f64::from_bits(threshold.to_bits() + 1);
     assert!(below < threshold);
     assert!(above > threshold);
-    assert_eq!(council.tolc8_mercy_check(below), below >= threshold);
-    assert_eq!(council.tolc8_mercy_check(threshold), above > below);
-    assert_eq!(council.tolc8_mercy_check(above), above >= threshold);
+    // Literal results. `below` is under the source literal, so the check is false.
+    assert_eq!(council.tolc8_mercy_check(below), false);
+    assert_eq!(council.tolc8_mercy_check(threshold), true);
+    assert_eq!(council.tolc8_mercy_check(above), true);
 }

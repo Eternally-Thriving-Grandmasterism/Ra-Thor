@@ -5,7 +5,7 @@ use std::fs;
 use std::path::Path;
 
 use sovereign_decentralized_propulsion_fleet_council::{
-    CouncilDeliberation, CouncilGateLabel, SovereignDecentralizedPropulsionFleetCouncil,
+    CouncilCheckLabel, CouncilDeliberation, SovereignDecentralizedPropulsionFleetCouncil,
     DEFAULT_VALENCE_THRESHOLD, DEFAULT_WEIGHTS, PROGRESSIVE_FLOOR,
     REASONING_THRESHOLD_SOURCE_LITERAL,
 };
@@ -102,13 +102,13 @@ fn expect_deliberation(
     let (weight_joy, weight_harmony, weight_abundance) = DEFAULT_WEIGHTS;
     let valence = weight_joy * joy + weight_harmony * harmony_norm + weight_abundance * abundance;
     let label = if mercy_block {
-        CouncilGateLabel::Reject
+        CouncilCheckLabel::Reject
     } else if valence >= DEFAULT_VALENCE_THRESHOLD {
-        CouncilGateLabel::Apply
+        CouncilCheckLabel::Apply
     } else if valence >= PROGRESSIVE_FLOOR {
-        CouncilGateLabel::Refine
+        CouncilCheckLabel::Refine
     } else {
-        CouncilGateLabel::HumanOverride
+        CouncilCheckLabel::HumanOverride
     };
     CouncilDeliberation {
         proposal: proposal.to_string(),
@@ -141,15 +141,17 @@ fn deliberation_follows_the_axes_and_the_mercy_block_input() {
 }
 
 #[test]
+#[allow(clippy::bool_assert_comparison)] // expected values are the literals true and false
 fn tolc8_mercy_check_follows_the_source_literal_threshold() {
     let council = SovereignDecentralizedPropulsionFleetCouncil::new();
-    let threshold = council.valence_threshold;
+    let threshold = council.valence_threshold();
     assert_eq!(threshold, 0.9999999);
     let below = f64::from_bits(threshold.to_bits() - 1);
     let above = f64::from_bits(threshold.to_bits() + 1);
     assert!(below < threshold);
     assert!(above > threshold);
-    assert_eq!(council.tolc8_mercy_check(below), below >= threshold);
-    assert_eq!(council.tolc8_mercy_check(threshold), above > below);
-    assert_eq!(council.tolc8_mercy_check(above), above >= threshold);
+    // Literal results. `below` is under the source literal, so the check is false.
+    assert_eq!(council.tolc8_mercy_check(below), false);
+    assert_eq!(council.tolc8_mercy_check(threshold), true);
+    assert_eq!(council.tolc8_mercy_check(above), true);
 }

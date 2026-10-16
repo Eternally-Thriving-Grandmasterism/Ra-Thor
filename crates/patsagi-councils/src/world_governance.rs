@@ -687,6 +687,7 @@ impl WorldGovernanceEngine {
         }
     }
 
+    /// `base_valence` is the source literal `Valence(0.97)`. Not a measured valence.
     pub async fn propose_and_approve_world_change(
         &mut self,
         proposed_by: CouncilFocus,

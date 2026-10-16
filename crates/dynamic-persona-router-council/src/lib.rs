@@ -30,7 +30,7 @@ pub use rathor_sovereign_reasoning_engine::MERCY_THRESHOLD as REASONING_THRESHOL
 /// Source literals from the current patsagi-councils API. Not measured valence.
 /// `DEFAULT_VALENCE_THRESHOLD` is 0.90. `PROGRESSIVE_FLOOR` is 0.68.
 pub use patsagi_councils::{
-    valence_consensus::DEFAULT_WEIGHTS, CouncilGateLabel, DEFAULT_VALENCE_THRESHOLD,
+    valence_consensus::DEFAULT_WEIGHTS, CouncilCheckLabel, DEFAULT_VALENCE_THRESHOLD,
     PROGRESSIVE_FLOOR,
 };
 
@@ -39,7 +39,7 @@ pub struct DynamicPersonaRouterCouncil {
     pub id: u8,
     pub name: String,
     /// Source literal `0.9999999`. Not a measured valence.
-    pub valence_threshold: f64,
+    valence_threshold: f64,
     /// Historical persona titles (design intent).
     pub active_personas: [&'static str; 7],
 }
@@ -60,6 +60,11 @@ impl DynamicPersonaRouterCouncil {
                 "Eternal Sovereign Spark Guardian",
             ],
         }
+    }
+
+    /// Returns the source literal `0.9999999`. Not a measured valence.
+    pub fn valence_threshold(&self) -> f64 {
+        self.valence_threshold
     }
 
     /// `valence >= valence_threshold`.
@@ -127,7 +132,7 @@ impl Default for DynamicPersonaRouterCouncil {
 pub struct CouncilDeliberation {
     pub proposal: String,
     pub valence: f64,
-    pub label: CouncilGateLabel,
+    pub label: CouncilCheckLabel,
 }
 
 /// Mean valence of the supplied bonds.

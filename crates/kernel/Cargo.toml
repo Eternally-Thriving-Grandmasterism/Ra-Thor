@@ -6,7 +6,7 @@ authors = ["Sherif Samy Botros <info@Rathor.ai>", "Eternally-Thriving-Grandmaste
 license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
 description = "Standalone kernel package. Package version 14.15.0 is a source string. The v14 boot file is not compiled."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
-keywords = ["ra-thor", "kernel", "orchestrator", "patsagi", "mercy-gated", "sovereign", "agi", "one-organism"]
+keywords = ["ra-thor", "kernel", "orchestrator", "patsagi", "library", "standalone", "research", "one-organism"]
 categories = ["simulation", "science"]
 publish = false
 

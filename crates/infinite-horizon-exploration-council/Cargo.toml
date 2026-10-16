@@ -4,7 +4,7 @@ version = "0.3.0"
 edition = "2021"
 authors = ["18 PATSAGi Councils under the Rathor Sovereign Reasoning Engine"]
 license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
-description = "16th PATSAGi Council — Infinite Horizon Exploration with Möbius-driven 100M+ year foresight, TOLC 8, RSRE v3.0 + philotic integration"
+description = "Standalone package infinite-horizon-exploration-council. Compiled valence check uses the source literal 0.9999999. Not a measured result."
 
 # Standalone workspace, same pattern as crates/fenca and crates/council.
 # `cargo test --locked` and `cargo clippy --locked` use this manifest.
@@ -19,7 +19,7 @@ description = "16th PATSAGi Council — Infinite Horizon Exploration with Möbiu
 # moebius-transformations apply is (az + b) / (cz + d). nalgebra is pinned at 0.32.6, the version that crate resolves.
 # hyperbolic-tiling-consciousness supplies disk distance. It does not define MoebiusMatrix.
 # mial, mercy_gating_runtime, and mercy-threshold-wasm are not dependencies.
-# Fleet, post-quantum, and 100B-year phrases in the package description are design intent.
+# The package description names the compiled valence check. 0.9999999 is a source literal.
 [workspace]
 resolver = "2"
 

@@ -99,6 +99,15 @@ mod tests {
         }
     }
 
+    // `-0.0` is finite. `set_threshold` refuses it because `-0.0 < 0.90`.
+    // The stored value stays 0.90.
+    #[test]
+    fn negative_zero_is_refused_and_0_90_stays() {
+        let mut map = GateThresholdMap::new();
+        assert!(map.set_threshold("one_organism_unity", -0.0).is_err());
+        assert_eq!(map.get_threshold("one_organism_unity"), 0.90);
+    }
+
     #[test]
     fn refused_nan_then_a_lower_value_is_still_refused() {
         let mut map = GateThresholdMap::new();

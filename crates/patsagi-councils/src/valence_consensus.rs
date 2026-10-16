@@ -107,14 +107,14 @@ impl ValenceVote {
     }
 }
 
-/// Gate label for one deliberation in this crate.
+/// Check label for one deliberation in this crate.
 ///
 /// This package is patsagi-councils. It is not crates/council.
 /// `Reject` stays `Reject`. A later vote does not replace it with `Apply`.
 /// `Refine` is the progressive path. `HumanOverride` is the hold for a person.
 /// It is not an apply.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum CouncilGateLabel {
+pub enum CouncilCheckLabel {
     Reject,
     Refine,
     HumanOverride,
@@ -140,15 +140,15 @@ pub struct ValenceConsensusResult {
 impl ValenceConsensusResult {
     /// Reject, refine, human-override, or apply.
     /// A mercy block is Reject even when `avg_valence` is above the threshold.
-    pub fn gate_label(&self) -> CouncilGateLabel {
+    pub fn gate_label(&self) -> CouncilCheckLabel {
         if self.has_mercy_block {
-            CouncilGateLabel::Reject
+            CouncilCheckLabel::Reject
         } else if self.approved {
-            CouncilGateLabel::Apply
+            CouncilCheckLabel::Apply
         } else if self.progressive {
-            CouncilGateLabel::Refine
+            CouncilCheckLabel::Refine
         } else {
-            CouncilGateLabel::HumanOverride
+            CouncilCheckLabel::HumanOverride
         }
     }
 }
@@ -156,13 +156,13 @@ impl ValenceConsensusResult {
 /// A recorded Reject stays Reject.
 /// Later yes-votes are ignored and do not change that label to Apply.
 pub fn council_vote_after_reject(
-    prior: CouncilGateLabel,
+    prior: CouncilCheckLabel,
     votes: &[ValenceVote],
     engine: &ValenceConsensusEngine,
     proposal: &str,
-) -> CouncilGateLabel {
-    if prior == CouncilGateLabel::Reject {
-        return CouncilGateLabel::Reject;
+) -> CouncilCheckLabel {
+    if prior == CouncilCheckLabel::Reject {
+        return CouncilCheckLabel::Reject;
     }
     engine.deliberate(proposal, votes.to_vec()).gate_label()
 }
@@ -348,7 +348,7 @@ mod tests {
         assert!(!res.approved);
         assert!(res.has_mercy_block);
         assert!(res.final_verdict.contains("MERCY BLOCK"));
-        assert_eq!(res.gate_label(), CouncilGateLabel::Reject);
+        assert_eq!(res.gate_label(), CouncilCheckLabel::Reject);
     }
 
     #[test]
@@ -359,20 +359,20 @@ mod tests {
             ValenceVote::new("Order", 1.0, 1.0, 1.0, false),
         ];
         let held = council_vote_after_reject(
-            CouncilGateLabel::Reject,
+            CouncilCheckLabel::Reject,
             &yes,
             &engine,
             "unanimous yes after reject",
         );
-        assert_eq!(held, CouncilGateLabel::Reject);
+        assert_eq!(held, CouncilCheckLabel::Reject);
 
         let fresh = council_vote_after_reject(
-            CouncilGateLabel::HumanOverride,
+            CouncilCheckLabel::HumanOverride,
             &yes,
             &engine,
             "same yes votes with no prior reject",
         );
-        assert_eq!(fresh, CouncilGateLabel::Apply);
+        assert_eq!(fresh, CouncilCheckLabel::Apply);
 
         let blocked = engine.deliberate(
             "mercy block at valence 1",
@@ -380,7 +380,7 @@ mod tests {
         );
         assert_eq!(blocked.avg_valence, 1.0);
         assert_eq!(blocked.avg_joy, 1.0);
-        assert_eq!(blocked.gate_label(), CouncilGateLabel::Reject);
+        assert_eq!(blocked.gate_label(), CouncilCheckLabel::Reject);
         assert!(!blocked.approved);
         assert!(!blocked.progressive);
 
@@ -389,7 +389,7 @@ mod tests {
             vec![ValenceVote::new("Service", 1.0, 1.0, 0.0, false)],
         );
         assert_eq!(refine.avg_valence, 0.75);
-        assert_eq!(refine.gate_label(), CouncilGateLabel::Refine);
+        assert_eq!(refine.gate_label(), CouncilCheckLabel::Refine);
         assert!(!refine.approved);
 
         let review = engine.deliberate(
@@ -398,7 +398,7 @@ mod tests {
         );
         assert_eq!(review.avg_valence, 0.0);
         assert_eq!(review.avg_joy, 0.0);
-        assert_eq!(review.gate_label(), CouncilGateLabel::HumanOverride);
+        assert_eq!(review.gate_label(), CouncilCheckLabel::HumanOverride);
         assert!(!review.approved);
         assert!(!review.has_mercy_block);
     }
