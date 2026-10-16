@@ -1,9 +1,27 @@
-// ENSHRINED ORIGINAL STUBS + ALL PRIOR CODE (Ma’at, Lumenas, nilpotent, Nth-Degree, TOLC proofs) 100% preserved
-// ... (all previous verify_tolc_convergence, vectorized_mercy_product, dilithium bindings, etc. remain verbatim) ...
+//! `ra-thor-kernel` returns WGSL source text and applies a source-literal decay step.
+//! `MERCY_DECAY_SOURCE_LITERAL` is `0.92`. `MERCY_OFFSET_SOURCE_LITERAL` is `0.08`.
+//! `MERCY_CLAMP_SOURCE_CEILING` is `4.0`. Those three numbers are source literals, not measured valence.
+//! Indices divisible by 4 pass `0.0` into that formula.
+//! Numeric literals inside the WGSL strings are source text, not measured valence.
+//!
+//! `src/mercy_ethics_core.rs` and `src/tolc_convergence_proofs.rs` are not modules.
+//! `../dilithium_sign` is not a directory. `../falcon_sign` is not a dependency.
+//! This crate does not add post-quantum code.
+//!
+//! Public TOLC 8 names are Truth, Order, Love, Compassion, Service, Abundance, Joy, Cosmic Harmony.
+//! Contact: info@Rathor.ai
 
 use wasm_bindgen::prelude::*;
-use naga::ShaderStage;
 
+/// Source coefficient in the decay step. Not a measured valence.
+pub const MERCY_DECAY_SOURCE_LITERAL: f32 = 0.92;
+/// Source addend in the decay step. Not a measured valence.
+pub const MERCY_OFFSET_SOURCE_LITERAL: f32 = 0.08;
+/// Source upper bound of the decay step. Not a measured score.
+pub const MERCY_CLAMP_SOURCE_CEILING: f32 = 4.0;
+
+/// Returns WGSL source text for `vertex`, `fragment`, or `compute`.
+/// Any other `shader_type` returns `/* invalid shader */`.
 #[wasm_bindgen]
 pub fn get_mercy_shader_wgsl(shader_type: &str) -> String {
     match shader_type {
@@ -26,7 +44,8 @@ pub fn get_mercy_shader_wgsl(shader_type: &str) -> String {
                 out.mercy = in.mercy_intensity;
                 return out;
             }
-        "#.to_string(),
+        "#
+        .to_string(),
         "fragment" => r#"
             @fragment
             fn main(in: VertexOutput) -> @location(0) vec4<f32> {
@@ -35,7 +54,8 @@ pub fn get_mercy_shader_wgsl(shader_type: &str) -> String {
                 let nth_glow = sin(globals.time * 24.0) * 0.3 + 0.7;
                 return vec4<f32>(mercy_color * (1.0 + lightning * 1.8 * nth_glow), 0.92);
             }
-        "#.to_string(),
+        "#
+        .to_string(),
         "compute" => r#"
             @group(0) @binding(0) var<storage, read_write> roots: array<f32, 240>;
             @compute @workgroup_size(64)
@@ -44,25 +64,27 @@ pub fn get_mercy_shader_wgsl(shader_type: &str) -> String {
                 let mercy = roots[gid.x];
                 roots[gid.x] = mercy * 0.92 + 0.08; // nilpotent mercy decay
             }
-        "#.to_string(),
+        "#
+        .to_string(),
         _ => "/* invalid shader */".to_string(),
     }
 }
 
+/// Applies the source decay formula.
+/// Indices divisible by 4 use `0.0` as the input to that formula.
 #[wasm_bindgen]
 pub fn run_mercy_compute(roots: &[f32]) -> Vec<f32> {
-    let mut result = roots.to_vec();
-    // Simulate compute pass (Nth-Degree acceleration + nilpotent suppression)
-    for i in 0..result.len() {
-        if (i as u32) % 4 == 0 { result[i] = 0.0; } // N^4 ≡ 0 enforcement
-        result[i] = (result[i] * 0.92 + 0.08).clamp(0.0, 4.0); // mercy decay
-    }
-    result
+    roots
+        .iter()
+        .enumerate()
+        .map(|(index, value)| {
+            let input = if index % 4 == 0 { 0.0 } else { *value };
+            (input * MERCY_DECAY_SOURCE_LITERAL + MERCY_OFFSET_SOURCE_LITERAL)
+                .clamp(0.0, MERCY_CLAMP_SOURCE_CEILING)
+        })
+        .collect()
 }
 
-// Re-export for WASM
+/// Host entry with an empty body. Older notes named checks this function does not call.
 #[wasm_bindgen]
-pub fn init_shader_integration() {
-    // Mercy gates v2 + TOLC validation before any shader compile
-    // (full prior TOLC proofs called here)
-}
+pub fn init_shader_integration() {}

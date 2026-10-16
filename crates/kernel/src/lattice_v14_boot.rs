@@ -1,3 +1,4 @@
+//! Design-only (STUB-AUDIT-1 KERNEL-MANIFEST-1 council note): not compiled; it calls `lattice_conductor_v14`, a root member that does not build as its own workspace. This card does not edit v14 and does not path-depend on that crate.
 //! Lattice Conductor v14 boot probe for kernel
 //!
 //! Additive Phase 4 dual-path helper. Does not alter adaptive feedback loops.

@@ -4,43 +4,26 @@ version = "14.15.0"
 edition = "2021"
 authors = ["Sherif Samy Botros <info@Rathor.ai>", "Eternally-Thriving-Grandmasterism"]
 license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
-description = "Master Sovereign Kernel + PATSAGi Council Lead Orchestrator for Ra-Thor. The central nervous system of the living mercy-gated AGI lattice. Living Cosmic Tick + ONE Organism 14.15.0 readiness."
+description = "Standalone kernel package. Package version 14.15.0 is a source string. The v14 boot file is not compiled."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 keywords = ["ra-thor", "kernel", "orchestrator", "patsagi", "mercy-gated", "sovereign", "agi", "one-organism"]
 categories = ["simulation", "science"]
+publish = false
 
-[dependencies]
-# Core mercy-gated intelligence
-ra-thor-mercy = { workspace = true }
-ra-thor-orchestration = { workspace = true }
-ra-thor-quantum-swarm-orchestrator = { workspace = true }
-ra-thor-evolution = { workspace = true }
-ra-thor-plasticity-engine-v2 = { workspace = true }
-ra-thor-monorepo-intelligence = { workspace = true }
-ra-thor-council = { workspace = true }
-ra-thor-mercy-orchestrator-v2 = { workspace = true }
-patsagi-councils = { path = "../patsagi-councils" }
-# Phase 2: v14 lineage with optional v13 trait surface
-lattice-conductor-v14 = { path = "../lattice-conductor-v14", features = ["v13-compat"] }
+# Standalone workspace, same pattern as crates/fenca, crates/council,
+# and crates/powrush.
+# `cargo test --locked` and `cargo clippy --locked` use this manifest.
+# This crate is not a root default member.
+#
+# Council note (STUB-AUDIT-1 KERNEL-MANIFEST-1): workspace inheritance is
+# replaced by this table. The compiled source has no crate dependencies.
+# `lattice-conductor-v14` is a root member. It does not build as its own
+# workspace. This card does not edit v14 and does not path-depend on it.
+# `patsagi-councils` is not imported by the compiled source.
+# Do not add a root key `ra-thor-kernel` for the manifests that name that key.
+# `src/lattice_v14_boot.rs` and the other files named in `src/lib.rs` are not modules.
+[workspace]
+resolver = "2"
 
-# Async & runtime
-tokio = { workspace = true, features = ["full"] }
-async-trait = { workspace = true }
-futures = { workspace = true }
-
-# Serialization & utilities
-serde = { workspace = true, features = ["derive"] }
-serde_json = { workspace = true }
-tracing = { workspace = true }
-rand = { workspace = true }
-thiserror = { workspace = true }
-once_cell = { workspace = true }
-
-[dev-dependencies]
-tracing-subscriber = { workspace = true }
-tokio-test = "0.4"
-
-[features]
-default = ["full"]
-full = []
-minimal = []
+[lib]
+path = "src/lib.rs"

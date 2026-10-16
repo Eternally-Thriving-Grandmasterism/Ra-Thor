@@ -1,3 +1,5 @@
+//! Design-only (STUB-AUDIT-1 KERNEL-MANIFEST-1 council note): not compiled; it imports `crate::mercy` and `crate::common`, which this crate does not define, and it assigns the source literal `0.9999999`.
+
 use crate::mercy::MercyLangGates;
 use crate::common::RealTimeAlerting;
 use tokio_util::sync::CancellationToken;

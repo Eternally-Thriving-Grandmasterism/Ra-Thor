@@ -1,3 +1,5 @@
+//! Design-only (STUB-AUDIT-1 KERNEL-MANIFEST-1 council note): not compiled; this file is not `src/lib.rs`, and it declares modules that are not source files in this crate.
+
 // crates/kernel/lib.rs
 // Ra-Thor Kernel Crate — Central Omnimasterism Hub
 // Re-exports the entire living lattice (Root Core, Self-Review, Innovation, VQC, Biomimetic, etc.)

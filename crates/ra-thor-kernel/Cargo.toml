@@ -3,17 +3,36 @@ name = "ra-thor-kernel"
 version = "2026.1.0"
 edition = "2021"
 license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
+description = "WGSL source text and a source-literal decay step. Not a root member. Post-quantum sign crates are not dependencies."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+publish = false
+
+# Standalone workspace, same pattern as crates/fenca, crates/council,
+# and crates/powrush.
+# `cargo test --locked` and `cargo clippy --locked` use this manifest.
+# This crate is not a root default member.
+#
+# Council note (STUB-AUDIT-1 KERNEL-MANIFEST-1): `[profile.release]`
+# used to set `rustflags = ["-C", "target-feature=+simd128"]`. Cargo 1.99.1
+# rejects that key unless the unstable `profile-rustflags` feature is enabled.
+# Those flags are removed. They are not copied to `.cargo/config.toml`.
+# No wasm card asked for that file.
+#
+# `../dilithium_sign` is not a directory. `../falcon_sign` is on disk and uses
+# workspace keys, including `ra-thor-kernel`, so it is not a standalone build.
+# Neither path is a dependency. This crate does not add post-quantum code.
+#
+# `src/mercy_ethics_core.rs` and `src/tolc_convergence_proofs.rs` are not modules.
+# wasm-bindgen stays pinned at the version this manifest already named.
+[workspace]
+resolver = "2"
 
 [lib]
-crate-type = ["cdylib"]
+path = "src/lib.rs"
+crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 wasm-bindgen = "0.2.92"
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-rand = "0.8"
-dilithium = { path = "../dilithium_sign" }  # your existing crate
-falcon = { path = "../falcon_sign" }        # your existing crate
 
 [profile.release]
 lto = true
@@ -21,4 +40,3 @@ codegen-units = 1
 opt-level = "z"
 panic = "abort"
 strip = true
-rustflags = ["-C", "target-feature=+simd128"]
