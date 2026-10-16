@@ -4,48 +4,22 @@ version = "14.15.0"
 edition = "2021"
 authors = ["Sherif Samy Botros <info@Rathor.ai>", "Eternally-Thriving-Grandmasterism"]
 license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
-description = "Full PATSAGi-Pinnacle AGI Council Simulator — 13+ Parallel Living Architectural Designers. Executable governance and simulation layer for Ra-Thor. Living Cosmic Tick + ONE Organism 14.15.0 readiness."
+description = "Deterministic council vote. A proposal can pass or fail. An admission block cannot be voted into an apply."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
-keywords = ["ra-thor", "patsagi", "council", "governance", "simulation", "mercy-gated", "agi", "one-organism"]
-categories = ["simulation", "science"]
+keywords = ["ra-thor", "patsagi", "council", "governance"]
+categories = ["simulation"]
 
-[dependencies]
-# Core governance library (PATSAGi Councils)
-patsagi-councils = { path = "../patsagi-councils" }
-
-# Main Ra-Thor intelligence & mercy layer
-ra-thor-mercy = { workspace = true }
-ra-thor-orchestration = { workspace = true }
-ra-thor-quantum-swarm-orchestrator = { workspace = true }
-ra-thor-kernel = { path = "../kernel" }
-ra-thor-evolution = { workspace = true }
-ra-thor-plasticity-engine-v2 = { workspace = true }
-ra-thor-monorepo-intelligence = { workspace = true }
-
-# Phase 2: direct access to v14 Cosmic Loop + optional v13 trait surface
-lattice-conductor-v14 = { path = "../lattice-conductor-v14", features = ["v13-compat"] }
-
-# Async & runtime
-tokio = { workspace = true, features = ["full"] }
-async-trait = { workspace = true }
-futures = { workspace = true }
-
-# Serialization & utilities
-serde = { workspace = true, features = ["derive"] }
-serde_json = { workspace = true }
-tracing = { workspace = true }
-rand = { workspace = true }
-thiserror = { workspace = true }
-
-[dev-dependencies]
-tracing-subscriber = { workspace = true }
-tokio-test = "0.4"
+# Standalone workspace, same pattern as crates/fenca.
+# `cargo build` and `cargo test --locked` run in this directory.
+# This crate is not a root default member (see the PR note).
+#
+# The old dependency key `ra-thor-kernel` pointed at path `../kernel`.
+# The package in that directory is named `kernel`, so the key did not match.
+# Council does not depend on it. `crates/kernel` uses workspace inheritance,
+# is not a root member, and depends back on this crate.
+[workspace]
+resolver = "2"
 
 [[bin]]
 name = "council_simulator"
 path = "src/bin/council_simulator.rs"
-
-[features]
-default = ["full"]
-full = []
-minimal = []

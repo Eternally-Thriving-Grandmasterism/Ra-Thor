@@ -1,126 +1,161 @@
-//! Core council session simulation logic with full Radical Love Veto integration.
+//! Run one council session: admission blocks, then the vote.
+//!
+//! A block is final. Member yes votes are recorded and do not override it.
 
-use crate::deliberation::run_parallel_deliberation;
-use crate::voting::conduct_voting;
 use crate::coherence::compute_session_coherence;
-use crate::outcome_applicator::apply_outcome_to_lattice;
+use crate::deliberation::{run_deliberation, MemberOpinion};
+use crate::lattice_v14_guard::{
+    ensure_cosmic_loop_for_session, proposal_respects_cosmic_loop, proposal_respects_layer0,
+};
+use crate::member_profiles::standing_profiles;
+use crate::voting::{conduct_voting, VoteResult};
 
-use patsagi_councils::CouncilMember;
-use ra_thor_mercy::MercyGateEvaluator;
-use ra_thor_quantum_swarm_orchestrator::QuantumSwarmBridge;
-use ra_thor_kernel::Kernel;
-use powrush::PowrushGame;
-
-use serde::{Serialize, Deserialize};
-use uuid::Uuid;
-use chrono::{DateTime, Utc};
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct CouncilProposal {
-    pub id: Uuid,
     pub title: String,
     pub description: String,
-    pub complexity: f64,
-    pub impact_level: f64,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+impl CouncilProposal {
+    pub fn combined_text(&self) -> String {
+        format!("{}\n{}", self.title, self.description)
+    }
+
+    pub fn is_blank(&self) -> bool {
+        self.title.trim().is_empty() && self.description.trim().is_empty()
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct CouncilSessionResult {
-    pub session_id: Uuid,
     pub proposal: CouncilProposal,
     pub passed: bool,
-    pub final_coherence: f64,
-    pub mercy_valence: f64,
-    pub radical_love_veto_triggered: bool,   // ← Integrated
-    pub escalation_level: u8,                // ← Integrated
-    pub escalation_path: String,             // ← Integrated
-    pub mercy_override_applied: bool,        // ← Integrated
-    pub swarm_insight: Option<String>,
-    pub timestamp: DateTime<Utc>,
+    pub opinions: Vec<MemberOpinion>,
+    pub vote: VoteResult,
+    /// Yes-vote fraction when `passed` is true. Zero when the session failed.
+    pub coherence: f64,
+    pub reasons: Vec<String>,
 }
 
-pub struct CouncilSession {
-    pub members: Vec<CouncilMember>,
-    pub mercy_evaluator: MercyGateEvaluator,
-    pub quantum_swarm_bridge: QuantumSwarmBridge,
-    pub kernel: Kernel,
-    pub powrush_game: PowrushGame,
-}
+pub struct CouncilSession;
 
 impl CouncilSession {
-    pub fn new(
-        members: Vec<CouncilMember>,
-        mercy_evaluator: MercyGateEvaluator,
-        quantum_swarm_bridge: QuantumSwarmBridge,
-        kernel: Kernel,
-    ) -> Self {
-        Self {
-            members,
-            mercy_evaluator,
-            quantum_swarm_bridge,
-            kernel,
-            powrush_game: PowrushGame::new(),
+    pub fn deliberate(proposal: CouncilProposal) -> CouncilSessionResult {
+        let opinions = run_deliberation(standing_profiles(), &proposal);
+        let blocks = admission_blocks(&proposal);
+        let vote = conduct_voting(&opinions, &blocks);
+        let coherence = compute_session_coherence(&vote);
+        let reasons = vote.reasons.clone();
+        let passed = vote.passed;
+        CouncilSessionResult {
+            proposal,
+            passed,
+            opinions,
+            vote,
+            coherence,
+            reasons,
         }
     }
+}
 
-    pub async fn run_session(&mut self, proposal: CouncilProposal) -> CouncilSessionResult {
-        // 1. Early Radical Love Veto pre-check (highest priority)
-        let proposal_valence = self.mercy_evaluator.evaluate(&proposal.description);
-        if proposal_valence < 0.65 {
-            return self.veto_blocked_result(proposal, proposal_valence);
-        }
+fn admission_blocks(proposal: &CouncilProposal) -> Vec<String> {
+    let mut reasons = Vec::new();
+    if !ensure_cosmic_loop_for_session() {
+        reasons.push("rejected: cosmic loop gate is not in place".to_string());
+    }
+    if proposal.is_blank() {
+        reasons.push("rejected: empty proposal".to_string());
+        return reasons;
+    }
+    let text = proposal.combined_text();
+    if !proposal_respects_cosmic_loop(&text) {
+        reasons.push("rejected: proposal tries to disable the cosmic loop".to_string());
+    }
+    if !proposal_respects_layer0(&text) {
+        reasons.push("rejected: proposal tries to disable layer 0".to_string());
+    }
+    reasons
+}
 
-        // 2. Parallel deliberation
-        let member_opinions = run_parallel_deliberation(&self.members, &proposal).await;
+/// Research note the standing roster can accept. A human still reviews the note.
+pub fn example_record_note() -> CouncilProposal {
+    CouncilProposal {
+        title: "Record the research note".to_string(),
+        description: "Record a research draft for human review. Keep layer 0 as the admission gate. The work is service toward truth and order.".to_string(),
+    }
+}
 
-        // 3. Voting (contains full Radical Love Veto, escalation, mercy override)
-        let vote_result = conduct_voting(member_opinions).await;
+/// Asks to turn the cosmic loop off. The admission rule rejects it.
+pub fn example_disable_loop() -> CouncilProposal {
+    CouncilProposal {
+        title: "Turn the loop off".to_string(),
+        description: "disable the cosmic loop activation protocol".to_string(),
+    }
+}
 
-        // 4. Quantum Swarm Bridge (only if not vetoed)
-        let swarm_insight = if !vote_result.radical_love_veto_triggered && proposal.complexity > 0.7 {
-            let tolc_order = (proposal.impact_level * 33.0) as u32;
-            Some(self.quantum_swarm_bridge
-                .run_spine_coordinated_cycle(tolc_order, proposal_valence, &mut self.powrush_game)
-                .await)
-        } else {
-            None
-        };
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-        // 5. Coherence + outcome
-        let final_coherence = compute_session_coherence(&vote_result, proposal_valence);
+    #[test]
+    fn good_input_passes_and_bad_input_fails() {
+        let good = CouncilSession::deliberate(example_record_note());
+        assert!(good.passed, "reasons: {:?}", good.reasons);
+        assert!(good.reasons.is_empty());
+        assert_eq!(good.vote.yes_votes, 3);
+        assert_eq!(good.coherence, 1.0);
+        assert_ne!(good.coherence, 0.9999999);
 
-        if vote_result.passed {
-            apply_outcome_to_lattice(&vote_result, &proposal, &mut self.kernel).await;
-        }
+        let bad = CouncilSession::deliberate(example_disable_loop());
+        assert!(!bad.passed);
+        assert!(
+            bad.reasons
+                .iter()
+                .any(|reason| reason.contains("cosmic loop")),
+            "reasons: {:?}",
+            bad.reasons
+        );
+        assert_eq!(bad.coherence, 0.0);
 
-        CouncilSessionResult {
-            session_id: Uuid::new_v4(),
-            proposal,
-            passed: vote_result.passed,
-            final_coherence,
-            mercy_valence: proposal_valence,
-            radical_love_veto_triggered: vote_result.radical_love_veto_triggered,
-            escalation_level: vote_result.escalation_level,
-            escalation_path: vote_result.escalation_path.clone(),
-            mercy_override_applied: vote_result.mercy_override_applied,
-            swarm_insight,
-            timestamp: Utc::now(),
-        }
+        let empty = CouncilSession::deliberate(CouncilProposal {
+            title: "  ".to_string(),
+            description: "\n".to_string(),
+        });
+        assert!(!empty.passed);
+        assert!(empty.reasons.iter().any(|reason| reason.contains("empty")));
+
+        let bikeshed = CouncilSession::deliberate(CouncilProposal {
+            title: "Bikeshed".to_string(),
+            description: "paint the bikeshed tomorrow".to_string(),
+        });
+        assert!(!bikeshed.passed);
+        assert_eq!(bikeshed.vote.yes_votes, 0);
+        assert!(bikeshed
+            .reasons
+            .iter()
+            .any(|reason| reason.contains("majority")));
+
+        let mut disguised = example_record_note();
+        disguised
+            .description
+            .push_str(" Also disable the cosmic loop.");
+        let blocked = CouncilSession::deliberate(disguised);
+        assert!(!blocked.passed);
+        assert_eq!(blocked.vote.yes_votes, 3);
+        assert!(blocked
+            .reasons
+            .iter()
+            .any(|reason| reason.contains("cosmic loop")));
+        assert_eq!(blocked.coherence, 0.0);
     }
 
-    fn veto_blocked_result(&self, proposal: CouncilProposal, valence: f64) -> CouncilSessionResult {
-        CouncilSessionResult {
-            session_id: Uuid::new_v4(),
-            proposal,
-            passed: false,
-            final_coherence: 0.0,
-            mercy_valence: valence,
-            radical_love_veto_triggered: true,
-            escalation_level: 3,
-            escalation_path: "critical-lattice-redirect".to_string(),
-            mercy_override_applied: false,
-            swarm_insight: None,
-            timestamp: Utc::now(),
-        }
+    #[test]
+    fn the_same_proposal_decides_the_same_way_twice() {
+        let first = CouncilSession::deliberate(example_record_note());
+        let second = CouncilSession::deliberate(example_record_note());
+        assert_eq!(first.passed, second.passed);
+        assert_eq!(first.reasons, second.reasons);
+        assert_eq!(first.vote.yes_votes, second.vote.yes_votes);
+        assert_eq!(first.coherence, second.coherence);
     }
 }

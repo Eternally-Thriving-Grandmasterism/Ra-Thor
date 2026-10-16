@@ -1,125 +1,71 @@
-//! deliberation.rs — Advanced Mercy-Gated Parallel Deliberation with Revised Stability Factor Weighting
+//! One opinion per standing member.
 //!
-//! Each council member reasons individually in parallel, with full
-//! mercy gate evaluation, rich TOLC affinity, and revised weighting that
-//! now includes a clear stability factor for smoother, more reliable outcomes.
+//! Support is token overlap with the proposal text. A member votes yes when
+//! at least half of their tokens appear, no when none appear, and abstains
+//! in between. There is no random term.
 
 use crate::council_session::CouncilProposal;
 use crate::member_profiles::CouncilMemberProfile;
 use crate::tolc::calculate_tolc_resonance;
-use ra_thor_mercy::MercyGateEvaluator;
-use serde::{Serialize, Deserialize};
-use rand::Rng;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+/// A member votes yes at or above this fraction of their own tokens.
+pub const YES_SUPPORT: f64 = 0.5;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum MemberVote {
+    Yes,
+    No,
+    Abstain,
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct MemberOpinion {
     pub member_id: u32,
     pub name: String,
-    pub support_level: f64,        // Final weighted mercy + TOLC + stability score
-    pub reasoning: String,
-    pub concerns: Vec<String>,
-    pub valence: f64,
-    pub tolc_resonance: f64,
-    pub tolc_order: u32,
+    pub focus: String,
+    /// Fraction of this member's tokens found in the proposal. Range 0 to 1.
+    pub support: f64,
+    pub vote: MemberVote,
 }
 
-/// Runs full parallel deliberation using rich member profiles and revised stability-weighted logic
-pub async fn run_parallel_deliberation(
+pub fn run_deliberation(
     profiles: &[CouncilMemberProfile],
     proposal: &CouncilProposal,
 ) -> Vec<MemberOpinion> {
-    let mercy_evaluator = MercyGateEvaluator::default();
-    let mut opinions = Vec::with_capacity(profiles.len());
-    let mut rng = rand::thread_rng();
-
-    for profile in profiles {
-        let tolc_resonance = calculate_tolc_resonance(
-            profile,
-            proposal.complexity,
-            proposal.impact_level,
-        );
-
-        let base_support = 0.70 + rng.gen_range(-0.22..0.28);
-
-        // Mercy gate evaluation on this member's view
-        let raw_reasoning = generate_member_reasoning(&profile.member, proposal, base_support);
-        let mercy_valence = mercy_evaluator.evaluate(&raw_reasoning);
-
-        // === REVISED WEIGHTING WITH STABILITY FACTOR ===
-        // Mercy valence highest priority
-        // TOLC resonance strong mathematical harmony
-        // Mercy bias adds individual character
-        // Stability factor (resonance_stability) acts as multiplier for reliability
-        let raw_support = (
-            base_support          * 0.35 +
-            mercy_valence         * 0.35 +
-            tolc_resonance        * 0.20 +
-            profile.mercy_bias    * 0.05
-        );
-
-        let stability_factor = 0.85 + profile.tolc_affinity.resonance_stability * 0.15;
-
-        let final_support = (raw_support * stability_factor).clamp(0.0, 1.0);
-
-        let concerns = generate_member_concerns(&profile.member, proposal, final_support);
-
-        opinions.push(MemberOpinion {
-            member_id: profile.member.id,
-            name: profile.member.name.clone(),
-            support_level: final_support,
-            reasoning: raw_reasoning,
-            concerns,
-            valence: mercy_valence,
-            tolc_resonance,
-            tolc_order: profile.tolc_affinity.derivative_order,
-        });
-    }
-
-    opinions
+    let text = proposal.combined_text();
+    profiles
+        .iter()
+        .map(|profile| {
+            let support = calculate_tolc_resonance(profile.tokens, &text);
+            MemberOpinion {
+                member_id: profile.id,
+                name: profile.name.to_string(),
+                focus: profile.focus.to_string(),
+                support,
+                vote: vote_from_support(support),
+            }
+        })
+        .collect()
 }
 
-fn generate_member_reasoning(
-    member: &patsagi_councils::CouncilMember,
-    proposal: &CouncilProposal,
-    support: f64,
-) -> String {
-    if support > 0.85 {
-        format!(
-            "{} strongly supports this proposal. It aligns perfectly with long-term thriving, mercy principles, and high TOLC resonance.",
-            member.name
-        )
-    } else if support > 0.65 {
-        format!(
-            "{} sees strong value in the proposal but recommends additional mercy gate monitoring and deeper TOLC resonance validation.",
-            member.name
-        )
+fn vote_from_support(support: f64) -> MemberVote {
+    if support >= YES_SUPPORT {
+        MemberVote::Yes
+    } else if support == 0.0 {
+        MemberVote::No
     } else {
-        format!(
-            "{} has significant reservations. The proposal requires stronger safeguards for Radical Love and TOLC alignment before full support.",
-            member.name
-        )
+        MemberVote::Abstain
     }
 }
 
-fn generate_member_concerns(
-    member: &patsagi_councils::CouncilMember,
-    proposal: &CouncilProposal,
-    support: f64,
-) -> Vec<String> {
-    let mut concerns = vec![];
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-    if support < 0.85 {
-        concerns.push("Potential short-term disruption to Powrush RBE economy balance".to_string());
+    #[test]
+    fn half_the_tokens_is_yes_and_one_hit_of_three_abstains() {
+        assert_eq!(vote_from_support(0.5), MemberVote::Yes);
+        assert_eq!(vote_from_support(1.0 / 3.0), MemberVote::Abstain);
+        assert_eq!(vote_from_support(0.0), MemberVote::No);
     }
-    if proposal.complexity > 0.75 {
-        concerns.push("High complexity requires deeper TOLC resonance analysis before final approval".to_string());
-    }
-    if support < 0.65 {
-        concerns.push("Strong request for explicit Radical Love veto safeguards".to_string());
-    }
-    if member.expertise.contains("Sovereignty") && support < 0.8 {
-        concerns.push("Potential impact on individual autonomy must be re-evaluated".to_string());
-    }
-
-    concerns
 }
