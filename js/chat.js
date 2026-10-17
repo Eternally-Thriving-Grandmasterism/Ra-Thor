@@ -271,7 +271,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
   const LOCAL_KNOWLEDGE = [
     { q: /hello|hi|hey|greetings|salam|hola|bonjour|hallo|ciao|namaste/i, k: 'chatReplyHello' },
     { q: /who are you|what is ra-?thor|what is rathor|introduce yourself/i, k: 'chatReplyWho' },
-    { q: /\b(?:tolc\s?8?|mercy[- ]?checks?|mercy[- ]?gates?|gates?|ethics|guardrails)\b/i, k: 'chatReplyTolc' },
+    { q: /\b(?:tolc\s?8?|mercy[- ]?check(?:s|ing|ed)?|mercy[- ]?gates?|gates?|ethics|guardrails)\b/i, k: 'chatReplyTolc' },
     { q: /privacy|data|track|collect|login|account|encrypt|passphrase|lock/i, k: 'chatReplyPrivacy' },
     { q: /offline|network|internet|api|server|cloud/i, k: 'chatReplyOffline' },
     { q: /local llm|webllm|on-?device|enable llm|load model|android|phone|mobile/i, k: 'chatReplyLocal' },
