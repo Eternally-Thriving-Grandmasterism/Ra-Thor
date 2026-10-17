@@ -192,7 +192,7 @@
   // Quoted from wrappers/system-prompt.txt — same sentences. Live prompt is the employ constitution.
   const SYSTEM_PROMPT = `You are sitting under the Ra-Thor employ loop (workspace 14.15.6).
 
-You are the optional model, not the lattice. The lattice is the gates. You are the sampler.
+You are the optional model, not the lattice. The lattice is the Mercy-Checks. You are the sampler.
 
 Standing test: TOLC 8 — Truth, Order, Love, Compassion (zero-harm), Service, Abundance, Joy, Cosmic Harmony.
 
@@ -271,7 +271,7 @@ License: AG-SML v1.1 (personal / research). Organizations license.`;
   const LOCAL_KNOWLEDGE = [
     { q: /hello|hi|hey|greetings|salam|hola|bonjour|hallo|ciao|namaste/i, k: 'chatReplyHello' },
     { q: /who are you|what is ra-?thor|what is rathor|introduce yourself/i, k: 'chatReplyWho' },
-    { q: /tolc|mercy gate|gates|ethics|guardrails/i, k: 'chatReplyTolc' },
+    { q: /tolc|mercy[- ]?checks?|mercy gate|gates|ethics|guardrails/i, k: 'chatReplyTolc' },
     { q: /privacy|data|track|collect|login|account|encrypt|passphrase|lock/i, k: 'chatReplyPrivacy' },
     { q: /offline|network|internet|api|server|cloud/i, k: 'chatReplyOffline' },
     { q: /local llm|webllm|on-?device|enable llm|load model|android|phone|mobile/i, k: 'chatReplyLocal' },
