@@ -76,7 +76,7 @@ files.forEach(function (f) {
   });
 });
 
-// 4. Fingerprints are pinned to the XAI-LINE-1 pack text (base a0e0f6d9).
+// 4. Fingerprints are pinned to the i18n pack text after LLMS-NO-GATE-WORDING-1 (#702, main e6e85a37).
 var PACKS = {
   'ar.js': 'b37cd3342af505b967e32440ab6f11d0fc2ba08f57d4c8822bca8a9dfc732a5a',
   'de.js': '99f2804cfc26f861c7cb203c4342413a8e63daa1b6ad7adaa060dcaadcaba38e',
