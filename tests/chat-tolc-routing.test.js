@@ -15,7 +15,7 @@ function read(rel) {
 
 var chat = read('js/chat.js');
 var expected =
-  "{ q: /\\b(?:tolc\\s?8?|mercy[- ]?check(?:s|ing|ed)?|mercy[- ]?gates?|gates?|ethics|guardrails)\\b/i, k: 'chatReplyTolc' }";
+  "{ q: /\\b(?:tolc\\s?8?|mercy[- ]?check(?:s|ing|ed)?|mercy[- ]?ways?|mercy[- ]?gates?|gates?|ethics|guardrails)\\b/i, k: 'chatReplyTolc' }";
 assert(chat.indexOf(expected) !== -1, 'chatReplyTolc regex must stay word-bounded');
 
 var promptMarker = 'const SYSTEM_PROMPT = `';
@@ -44,6 +44,8 @@ var positives = [
   'Mercy-Checks',
   'Mercy-Checking',
   'Mercy-Checked',
+  'Mercy-Ways',
+  'the mercy ways',
   'mercy checking account',
   'mercy gate',
   'gates',
