@@ -25,12 +25,21 @@ Clone the repo. Run it locally. Wrap a model *you* already pay for. No form.
 
 ## Who must pay?
 
-A paid written grant from Autonomicity Games Inc. is required for:
+Modest personal income from freelance, artistic, or independent creative work stays on the free §1 grant for natural persons. A paid written grant from Autonomicity Games Inc. is required for cases in root `LICENSE` §1 exclusions and §2:
 
+- hosting the Software for profit (§1 grant exclusion; see root `LICENSE` §1)
+
+**LICENSE §2** (non-exhaustive), including:
+
+- use by a corporation, agency, studio, or other organization
 - org-wide or internal production use at scale
-- a paid product, API, SaaS, store SKU, or consulting deliverable that wraps Ra-Thor / Rathor.ai
-- revenue-linked or large-scale deployment
+- selling the Software, a fork, a wrapper, or a hosted instance
+- a paid product, API, SaaS, store SKU, marketplace listing, or consulting deliverable that wraps Ra-Thor / Rathor.ai
 - selling copies, hosting for profit, or sublicensing for sale
+- large-scale public multiplayer hosting for revenue or advertising
+- removing or replacing copyright, sash, or PATSAGi / Ra-Thor marks in a public redistribution
+- training a competing commercial model on this Work as a primary corpus without a written grant
+- large-scale or revenue-linked deployments of any kind
 
 If the lattice is part of how the organization ships or bills, it is not the free grant.
 
@@ -102,7 +111,7 @@ We do not run a bounty hunt across jurisdictions. We do answer a short descripti
 
 ## Does a commercial license remove the gates?
 
-No. Mercy gates, PATSAGi structure, and the no-real-world-harm boundary stay. The license does not turn Combined AGSi into a product fact.
+No. Mercy-Checks, PATSAGi structure, and the no-real-world-harm boundary stay. The license does not turn Combined AGSi into a product fact.
 
 ---
 

@@ -78,8 +78,8 @@ files.forEach(function (f) {
 
 // 4. Fingerprints are pinned to the i18n pack text after LLMS-NO-GATE-WORDING-1 (#702, main e6e85a37).
 var PACKS = {
-  'ar.js': 'dcf483594ac41d4d68a39b0bf316fc4faf2ee81dce902f3f9f573a1079f56bd3',
-  'de.js': 'e0a93c1193a52f3c1cdb8583bec2596c804a51e504b993e6c4ac9118968ea54b',
+  'ar.js': '0faa3d23573fe6ed5b180b97ecf8c0151a0ec82da4d336217675901972dfc5ba',
+  'de.js': '1d17ffc179a776c7931103ecff7a11e498e81c7933e6545e0eea379970ead2fc',
   'el.js': 'c0441cd3b0463656ee1a3f7d93fc2225b2ced9370a864ced0e577b7735bb246b',
   'en.js': '1f9b348fbbc31bfe9e96a60102fd7b88c6b62bfcb751496f4fa4e135bda098f7',
   'es.js': 'f9b62d377bfb5d69ce8fb2e272285386bb57ac194f71b932306e2640e835b6b6',
@@ -96,7 +96,7 @@ var PACKS = {
   'pt.js': '1b421bfad4d0505f07da7a4661c2c833cd4dc1a683ed26acf3909da7feb712bc',
   'ru.js': '8ddcf6b96dbf97536f118a0820b2f20d980303acdc9916e345abc514316b25fc',
   'sv.js': 'a18a06911813fb80733e1a7f6daeae55d23bf96e58b0360a9893fa903fe01ef1',
-  'th.js': '187e898ededbcc2e19168e5bfe9145f173dd76cfe9b6b5a59c7083c8a0a86dd7',
+  'th.js': 'b9344642c60b8599950d8a3bd374e32a909636b5844fc1eeccc830a29c800207',
   'tr.js': 'a5f98ad5c8052612fb663f8d8be8c08e8db151c9c3fd87982c8c4301a93a3d20',
   'uk.js': '5192e66b81977fe915f13d9c1a3ceef06730a64296c4b6acf4bf480930b46967',
   'vi.js': '6fb5202612e9f31cebc6a899e710106aef067d5e1ecc09587ff976589b7f29cb',
