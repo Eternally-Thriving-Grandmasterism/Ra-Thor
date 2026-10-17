@@ -22,7 +22,7 @@ Edge cases: email **info@Rathor.ai**. "Modest" is intentionally undefined.
 
 ## 2. Commercial use requires a paid written grant
 
-Commercial, enterprise, revenue-generating, or organizational use requires a separate paid commercial license from Autonomicity Games Inc.
+Organization use and the commercial deployments below require a separate paid commercial license from Autonomicity Games Inc. This does **not** apply to a natural person’s use under AG-SML v1.1 §1: personal, educational, and research use, and daily living or independent creative work (freelancer, artist, writer, or similar), even where modest personal income depends on the tool.
 
 This includes (non-exhaustive):
 

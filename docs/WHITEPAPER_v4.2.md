@@ -36,7 +36,7 @@ A 13 September council minute said: do not mint v4.2 in a *link-fix slice*. That
 | Inspect | inspect ≠ METR. No measured METR numbers. |
 | Combined AGSi | **SURMISE** — a research identity label, not a warranty or a demonstrated phase. |
 | Powrush-MMO | Separate human-game repo. Not a finished MMO on this lattice. |
-| License | AG-SML **v1.1** personal / research / modest freelance. Org / revenue → paid license. |
+| License | AG-SML **v1.1** personal / research / daily living or independent creative work. Organization or LICENSE §2 → paid license. |
 | How a stranger employs | Five-step loop: Intend → Pass the Mercy-Checks → Optional model → Review → Act. |
 | How a stranger wraps a model | Copy context, skill pack, local HTTP shim, or Lattice Chat local backend. You hold the key. There is **no** public rathor.ai key proxy. |
 | Site family | Home · Chat · Employ · Launch · Moments · Shard · Forge · Contact · Privacy |

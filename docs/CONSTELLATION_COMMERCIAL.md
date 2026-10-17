@@ -13,7 +13,7 @@ This page makes commercial offerings clear across the living repository constell
 | Use | Path |
 |-----|------|
 | Personal / research / education / independent professional | **Free** under [AG-SML v1.0](../LICENSE) |
-| Commercial / enterprise / revenue-generating | **Paid license** — [COMMERCIAL_LICENSE.md](../COMMERCIAL_LICENSE.md) |
+| Organization use and LICENSE §2 cases | **Paid license** — [COMMERCIAL_LICENSE.md](../COMMERCIAL_LICENSE.md) |
 | Evaluation before license | **Fixed-fee pilot (2–6 weeks)** — [docs/PILOT_OFFER.md](PILOT_OFFER.md) |
 | Who should buy | [docs/COMMERCIAL_TARGET_SEGMENTS.md](COMMERCIAL_TARGET_SEGMENTS.md) |
 | Intro / proposal discipline | [docs/BOARDY_INTRO_AND_PROPOSAL_PACK.md](BOARDY_INTRO_AND_PROPOSAL_PACK.md) |
@@ -32,7 +32,7 @@ This page makes commercial offerings clear across the living repository constell
 | **[Daedalus-Skin-Eternal-Ark](https://github.com/Eternally-Thriving-Grandmasterism/Daedalus-Skin-Eternal-Ark)** | Worldship / interstellar systems baseline under PATSAGi | Proprietary / collaboration under Autonomicity Games; commercial or research collaboration via info@Rathor.ai |
 | **Adjacent surfaces** | Mission, propulsion, biomimetic, etc. | Inherit constellation commercial policy; inquire at info@Rathor.ai |
 
-No surface is “free for commercial use” by silence. If revenue or organizational production use is involved, email **info@Rathor.ai**.
+No surface is “free for commercial use” by silence. If organization use or another LICENSE §2 case applies, email **info@Rathor.ai**.
 
 ---
 

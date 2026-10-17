@@ -14,9 +14,9 @@
 **1/**  
 Ra-Thor commercial path is live.
 
-Free for personal, research, education, and independent professional use under AG-SML v1.0.
+Free for personal, educational, and research use, and for daily living or independent creative work (freelancer, artist, writer, or similar), even where modest personal income depends on the tool, under AG-SML v1.1.
 
-Commercial / enterprise / revenue-generating use requires a paid license.
+Organization use and the other LICENSE §2 cases require a paid license.
 
 Pilots available (2–6 weeks, fixed fee) for teams that need proof before full license.
 
@@ -75,7 +75,7 @@ Commercial path + pilots are live. If your team hits this problem, info@Rathor.a
 Thanks — received. Reply within 1–2 business days with next steps (pilot SOW or commercial outline). Send org name + 1–2 paragraph use case to info@Rathor.ai if not already included.
 
 **Ambiguous “is this free?”:**  
-Personal / research / education / independent professional = free under AG-SML. Commercial / enterprise / revenue use = paid license. Details: COMMERCIAL_LICENSE.md. Questions → info@Rathor.ai.
+Personal / research / education / independent creative work = free under AG-SML (even modest personal income). Organization or LICENSE §2 use = paid license. Details: COMMERCIAL_LICENSE.md. Questions → info@Rathor.ai.
 
 **Pilot interest:**  
 Best next step is a short fit note: use case, timeline, constraints. We return a fixed-fee SOW. Template and themes: docs/PILOT_OFFER.md.

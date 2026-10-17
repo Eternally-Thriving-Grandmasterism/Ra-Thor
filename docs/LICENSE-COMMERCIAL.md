@@ -9,7 +9,7 @@
 
 ## Who needs a Ra-Thor Commercial Licence
 
-You need one if you are an **organization using** Ra-Thor or Rathor.ai, or if you **sell** it, a fork, a wrapper or a hosted instance, **bundle** it into a paid product, or run **large-scale public multiplayer hosting** of it for revenue or advertising, whichever AI model you run it with — for example Grok, Claude, ChatGPT, or others. Those names are **examples only**; no vendor is our partner, endorser, or affiliate.
+You need one if you are an **organization using** Ra-Thor or Rathor.ai, or if you **sell** it, a fork, a wrapper or a hosted instance, **host the Software for profit**, **bundle** it into a paid product, or run **large-scale public multiplayer hosting** of it for revenue or advertising, whichever AI model you run it with — for example Grok, Claude, ChatGPT, or others. Those names are **examples only**; no vendor is our partner, endorser, or affiliate.
 
 See [LICENSE §2](../LICENSE) for the full list.
 
@@ -21,7 +21,7 @@ Personal use, education, research, and daily living or independent creative work
 
 From the site FAQ (wording kept as published):
 
-> The Autonomicity Games Sovereign Mercy License. Individuals may use the work for personal, educational, research, and modest professional assistance. Commercial, enterprise, and revenue-generating use requires a paid license from Autonomicity Games Inc. License files live in the monorepo.
+> The Autonomicity Games Sovereign Mercy License. Individuals may use the work for personal, educational, and research use, and for daily living or independent creative work, even where modest personal income depends on the tool. Organization use and the other cases listed in LICENSE §2 require a separate paid license from Autonomicity Games Inc. License files live in the monorepo.
 
 From the repository `LICENSE` (wording kept as published):
 
