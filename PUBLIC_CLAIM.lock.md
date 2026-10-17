@@ -4,7 +4,7 @@
 **Date:** 2026-08-31; W2 stamp 2026-09-09  
 W3 stamp 2026-09-13  
 W1 stamp 2026-09-15 (Follow + inspect/Layer 0 one-liners)  
-Employ-loop stamp 2026-09-15 (loop restored; AG-SML v1.1 living grant)
+Employ-loop stamp 2026-09-15 (loop restored; AG-SML v1.2 living grant)
 No-custody stamp 2026-09-26
 **Contact:** info@Rathor.ai
 
@@ -14,7 +14,7 @@ Ra-Thor is **inspectable research software** from Autonomicity Games Inc.
 - **Not** a lawyer, law firm, certified legal product, or “legal team.”
 - **Not** ISO/IEC 42001 certified, EU AI Act conformant, or AGSi-warrantied.
 - `AGSi` / ONE Organism language in README and Cargo.toml is a **research identity label**. Combined AGSi stays SURMISE. Do not read “AGSi Phase — activation” in Key systems as a warranty.
-- Living public grant is **AG-SML v1.1**. The 2026-08-31 work pack cited v1.0 as a freeze. See [`docs/compliance/LICENSE-LIVING-STAMP.md`](docs/compliance/LICENSE-LIVING-STAMP.md).
+- Living public grant is **AG-SML v1.2**. The 2026-08-31 work pack cited v1.0 as a freeze. See [`docs/compliance/LICENSE-LIVING-STAMP.md`](docs/compliance/LICENSE-LIVING-STAMP.md).
 - Outputs are drafts. A human must review them before filing, sale, or public legal claims.
 - On-disk crates ≠ offer. See [`docs/compliance/DO-NOT-SHIP-2026-08-31.md`](docs/compliance/DO-NOT-SHIP-2026-08-31.md).
 - **Controlled Cosmic Loop is bound.** Binding after *uncontrolled* self-redesign stays **OPEN**. Do not claim Layer 0 survives a system that redesigns Layer 0. See [`docs/BINDING_AFTER_REDESIGN.md`](docs/BINDING_AFTER_REDESIGN.md).
