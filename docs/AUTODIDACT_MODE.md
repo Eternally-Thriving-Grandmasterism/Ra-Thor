@@ -23,7 +23,7 @@ High-signal learning. Sources first. No engagement maximization.
 
 A learner should be able to study from this device without opening a social feed, a recommendation infinite-scroll, or a follower graph.
 
-The loop is the employ loop ([`EMPLOY.md`](EMPLOY.md)): Intend → Pass the gates → Optional model → Review → Act. This mode changes **how the chat surface presents drafts**. It does not change Layer 0.
+The loop is the employ loop ([`EMPLOY.md`](EMPLOY.md)): Intend → Pass the Mercy-Checks → Optional model → Review → Act. This mode changes **how the chat surface presents drafts**. It does not change Layer 0.
 
 | Intend | This mode |
 |--------|-----------|
