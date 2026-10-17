@@ -11,6 +11,9 @@
 use std::collections::BTreeSet;
 
 use idea_recycling::{cross_pollinate, recycle, BaseIdea, Pairing, RecycledIdea};
+
+pub mod name_screen;
+pub use name_screen::{render_name_report, screen_name, screen_names, NameScreenResult};
 use serde::{Deserialize, Serialize};
 
 /// Maximum seeds written for one input.

@@ -1,0 +1,23 @@
+# Common nouns / materials used by name-screen character-ness (hard Mercy-Check).
+# One token per line; lines starting with # are ignored.
+# English-only, heuristic list — not exhaustive.
+coil
+spool
+clay
+wire
+cable
+rope
+stone
+iron
+steel
+gear
+bolt
+nail
+plank
+brick
+pipe
+hose
+thread
+string
+chain
+rock
