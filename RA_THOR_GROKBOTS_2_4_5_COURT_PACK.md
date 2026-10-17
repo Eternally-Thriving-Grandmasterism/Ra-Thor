@@ -129,7 +129,7 @@ Claim lock (must remain true on every page you touch):
 - Inspectable research software, workspace 14.15.6
 - Independent of xAI — not affiliated, not sponsored, not an xAI product
 - AG-SML v1.1 free for personal / education / research / modest independent professional use
-- Paid license + 2–6 week pilots for commercial / org / revenue use
+- Paid license + 2–6 week pilots for organization use, selling, hosting for profit, and other LICENSE §2 commercial cases
 - Capable · Bounded · Corrigible
 - Not a certified superintelligence, not a live MMO service
 - Human override on every output

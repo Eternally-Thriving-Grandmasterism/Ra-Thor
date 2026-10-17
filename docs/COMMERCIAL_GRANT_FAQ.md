@@ -25,12 +25,17 @@ Clone the repo. Run it locally. Wrap a model *you* already pay for. No form.
 
 ## Who must pay?
 
-A paid written grant from Autonomicity Games Inc. is required for:
+Modest personal income from freelance, artistic, or independent creative work stays on the free §1 grant for natural persons. A paid written grant from Autonomicity Games Inc. is required for organization use and the other cases in root `LICENSE` §2, including:
 
+- use by a corporation, agency, studio, or other organization
 - org-wide or internal production use at scale
-- a paid product, API, SaaS, store SKU, or consulting deliverable that wraps Ra-Thor / Rathor.ai
-- revenue-linked or large-scale deployment
+- selling the Software, a fork, a wrapper, or a hosted instance
+- a paid product, API, SaaS, store SKU, marketplace listing, or consulting deliverable that wraps Ra-Thor / Rathor.ai
 - selling copies, hosting for profit, or sublicensing for sale
+- large-scale public multiplayer hosting for revenue or advertising
+- removing or replacing copyright, sash, or PATSAGi / Ra-Thor marks in a public redistribution
+- training a competing commercial model on this Work as a primary corpus without a written grant
+- large-scale or revenue-linked organizational deployments
 
 If the lattice is part of how the organization ships or bills, it is not the free grant.
 

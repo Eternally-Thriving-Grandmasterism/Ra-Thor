@@ -189,7 +189,7 @@ Video intelligence and CX platforms already buy moment-level and multimodal syst
 
 **Outreach angle**
 
-> Building on frontier models? Ra-Thor is independent open source under AG-SML: free for research and personal use, paid commercial license for production revenue use. Mercy-gated structure + micro-moment vision. info@Rathor.ai
+> Building on frontier models? Ra-Thor is inspectable research software, source-available under AG-SML v1.1: free for personal, educational, research, and modest independent professional use (including modest personal income from freelance or creative work); organization use, selling, hosting for profit, and other LICENSE §2 cases need a paid commercial license. Mercy-Checks under TOLC 8. info@Rathor.ai
 
 **Why they can pay**
 

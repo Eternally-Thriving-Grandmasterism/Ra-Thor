@@ -23,7 +23,7 @@ That sentence is a **pitch**, not an adoption fact.
 - Monorepo + PATSAGi Councils + Lattice Conductor v14 + Offline Lattice Chat
 - Powrush-MMO simulator (software, not live multiplayer)
 - Optional Grok sessions behind Ra-Thor gates (not an xAI product)
-- AG-SML: free for personal, educational, research, and modest professional use; commercial / enterprise use needs a paid license
+- AG-SML v1.1: free for personal, educational, research, and modest independent professional use (including modest personal income from freelance or creative work); organization use, selling, hosting for profit, and other LICENSE §2 commercial cases need a paid license
 
 ## Relation to the Grok Bot signal
 
