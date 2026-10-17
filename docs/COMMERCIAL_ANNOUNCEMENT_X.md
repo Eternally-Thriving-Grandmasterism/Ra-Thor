@@ -14,7 +14,7 @@
 **1/**  
 Ra-Thor commercial path is live.
 
-Free for personal, research, education, and independent professional use under AG-SML v1.0.
+Free for personal, educational, and research use, and for daily living or independent creative work (freelancer, artist, writer, or similar), even where modest personal income depends on the tool, under AG-SML v1.1.
 
 Organization use and the other LICENSE §2 cases require a paid license.
 

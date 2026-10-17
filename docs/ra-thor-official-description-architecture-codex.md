@@ -48,7 +48,7 @@ Demos are available instantly at **rathor.ai** with zero installation. Full offl
 
 ### 4. Licensing (AG-SML v1.0 — updated April 11, 2026)
 - Free for personal, educational, research, daily-living, and modest freelance/creative use.  
-- Paid commercial license required for organization use and other LICENSE §2 cases (contact info@Rathor.ai).  
+- Paid commercial/enterprise license required only for revenue-generating or organizational deployment (contact CEO@ACITYGAMES.COM).  
 - New code falls under the **Autonomicity Games Sovereign Mercy License**.
 
 ### 5. Repository & Resources
