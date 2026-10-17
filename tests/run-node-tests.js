@@ -4,8 +4,10 @@ var fs = require('fs');
 var path = require('path');
 var cp = require('child_process');
 
-var testsDir = __dirname;
-var quarantinePath = path.join(testsDir, 'QUARANTINE.md');
+function resolveTestsDir() {
+  var override = process.env.RUN_NODE_TESTS_DIR;
+  return override ? path.resolve(override) : __dirname;
+}
 
 function parseQuarantine(content) {
   var map = Object.create(null);
@@ -33,6 +35,9 @@ function unknownQuarantineEntries(quarantine, testFileNames) {
 }
 
 function main() {
+  var testsDir = resolveTestsDir();
+  var quarantinePath = path.join(testsDir, 'QUARANTINE.md');
+
   var quarantine = fs.existsSync(quarantinePath)
     ? parseQuarantine(fs.readFileSync(quarantinePath, 'utf8'))
     : {};
@@ -85,4 +90,4 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { parseQuarantine, unknownQuarantineEntries };
+module.exports = { parseQuarantine, unknownQuarantineEntries, resolveTestsDir };

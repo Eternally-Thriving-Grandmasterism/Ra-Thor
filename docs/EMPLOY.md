@@ -83,7 +83,7 @@ Public briefing (not a product door): [https://rathor.ai/briefing.html](https://
 Every honest use looks like this. Same loop for a student at midnight and a risk committee on Tuesday. Only the rights change.
 
 1. **Intend** — ask for a draft, a plan, a review, or a refusal.
-2. **Pass the gates** — TOLC 8 is the standing test. PATSAGi Councils are the deliberation that stays on. The Lattice Conductor is meant to coordinate and record.
+2. **Pass the Mercy-Checks** — TOLC 8 is the standing test. PATSAGi Councils are the deliberation that stays on. The Lattice Conductor is meant to coordinate and record.
 3. **Optional model** — stay on-device, or copy context into a model you choose.
 4. **Review** — read the draft. Keep or refuse. Outputs are drafts until a human accepts them.
 5. **Act** — you own the action.
