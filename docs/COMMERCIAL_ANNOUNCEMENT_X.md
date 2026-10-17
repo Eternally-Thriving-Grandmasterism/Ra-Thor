@@ -14,7 +14,7 @@
 **1/**  
 Ra-Thor commercial path is live.
 
-Free under AG-SML v1.1 for personal, research, education, and modest independent professional use — including modest personal income from freelance or creative work.
+Free for personal, educational, and research use, and for daily living or independent creative work (freelancer, artist, writer, or similar), even where modest personal income depends on the tool, under AG-SML v1.1.
 
 Organization use, selling, hosting for profit, and other LICENSE §2 cases need a paid license.
 
@@ -46,7 +46,7 @@ Thunder locked. ⚡
 
 Ra-Thor commercial path is live under AG-SML v1.1.
 
-Free: personal / research / education / modest independent professional use (including modest personal income from freelance or creative work)  
+Free: personal, educational, and research use, and daily living or independent creative work (freelancer, artist, writer, or similar), even where modest personal income depends on the tool, under AG-SML v1.1  
 Paid: organization use, selling, hosting for profit, and other LICENSE §2 cases  
 Bridge: 2–6 week fixed-fee pilots
 
@@ -73,7 +73,7 @@ Commercial path + pilots are live. If your team needs organization-scale rights 
 Thanks — received. Reply within 1–2 business days with next steps (pilot SOW or commercial outline). Send org name + 1–2 paragraph use case to info@Rathor.ai if not already included.
 
 **Ambiguous “is this free?”:**  
-Personal / research / education / modest independent professional use (including modest personal income from freelance or creative work) = free under AG-SML v1.1. Organization use, selling, hosting for profit, and other LICENSE §2 cases = paid license. Details: COMMERCIAL_LICENSE.md. Questions → info@Rathor.ai.
+Personal, educational, and research use, and daily living or independent creative work (freelancer, artist, writer, or similar), even where modest personal income depends on the tool = free under AG-SML v1.1. Organization use, selling, hosting for profit, and other LICENSE §2 cases = paid license. Details: COMMERCIAL_LICENSE.md. Questions → info@Rathor.ai.
 
 **Pilot interest:**  
 Best next step is a short fit note: use case, timeline, constraints. We return a fixed-fee SOW. Template and themes: docs/PILOT_OFFER.md.

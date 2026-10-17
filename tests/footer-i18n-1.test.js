@@ -78,7 +78,7 @@ files.forEach(function (f) {
 
 // 4. Fingerprints are pinned to the i18n pack text after LLMS-NO-GATE-WORDING-1 (#702, main e6e85a37).
 var PACKS = {
-  'ar.js': '1e882505b6ffbbe282f2038dc66ee00238b7e78a92468632e480636a79abac1c',
+  'ar.js': '0faa3d23573fe6ed5b180b97ecf8c0151a0ec82da4d336217675901972dfc5ba',
   'de.js': '1d17ffc179a776c7931103ecff7a11e498e81c7933e6545e0eea379970ead2fc',
   'el.js': 'c0441cd3b0463656ee1a3f7d93fc2225b2ced9370a864ced0e577b7735bb246b',
   'en.js': '1f9b348fbbc31bfe9e96a60102fd7b88c6b62bfcb751496f4fa4e135bda098f7',

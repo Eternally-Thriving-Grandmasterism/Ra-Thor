@@ -35,7 +35,7 @@ Modest personal income from freelance, artistic, or independent creative work st
 - large-scale public multiplayer hosting for revenue or advertising
 - removing or replacing copyright, sash, or PATSAGi / Ra-Thor marks in a public redistribution
 - training a competing commercial model on this Work as a primary corpus without a written grant
-- large-scale or revenue-linked organizational deployments
+- large-scale or revenue-linked deployments of any kind
 
 If the lattice is part of how the organization ships or bills, it is not the free grant.
 
@@ -107,7 +107,7 @@ We do not run a bounty hunt across jurisdictions. We do answer a short descripti
 
 ## Does a commercial license remove the gates?
 
-No. Mercy gates, PATSAGi structure, and the no-real-world-harm boundary stay. The license does not turn Combined AGSi into a product fact.
+No. Mercy-Checks, PATSAGi structure, and the no-real-world-harm boundary stay. The license does not turn Combined AGSi into a product fact.
 
 ---
 
