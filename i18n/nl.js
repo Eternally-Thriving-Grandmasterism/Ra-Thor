@@ -101,7 +101,7 @@ window.translations["nl"] = {
   "faqQ3": "Wie komt in aanmerking voor gratis gebruik?",
   "faqA3": "Iedereen die Ra-Thor gebruikt voor persoonlijke behoeften, onderwijs, onderzoek, creatief werk of dagelijkse ondersteuning — inclusief freelancers, kunstenaars, schrijvers en andere onafhankelijke makers, zelfs wanneer bescheiden persoonlijk inkomen van het hulpmiddel afhangt.",
   "faqQ4": "Wat als Ra-Thor helpt bij een juridische zaak of een betaald creatief project?",
-  "faqA4": "Persoonlijk en niet-commercieel gebruik genereert geen royalty's. Royalty's gelden alleen op netto-inkomsten uit commerci\\u00eble juridische diensten of betaald creatief werk onder commerci\\u00eble licentie.",
+  "faqA4": "Persoonlijk en niet-commercieel gebruik genereert geen royalty's. Royalty's gelden alleen op netto-inkomsten uit commerci\u00eble juridische diensten of betaald creatief werk onder commerci\u00eble licentie.",
   "faqQ5": "Verandert verbinding met Grok of X de licentie?",
   "faqA5": "Offline gebruik op een persoonlijk apparaat blijft gratis voor persoonlijk, educatief en onderzoeksgebruik, en voor dagelijks leven of onafhankelijk creatief werk door individuen, zelfs wanneer bescheiden persoonlijk inkomen van het hulpmiddel afhangt. Verbonden demo's met Grok of X volgen dezelfde AG-SML-toekenning. Organisatiegebruik en de andere gevallen van LICENSE §2 — offline of verbonden — vereisen een betaalde commerciële licentie.",
   "faqQ6": "Wat zijn de ethische waarborgen?",

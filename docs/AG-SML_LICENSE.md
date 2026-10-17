@@ -17,7 +17,7 @@ This free use is explicitly allowed even if the individual earns modest personal
 
 ---
 
-**Commercial use strictly prohibited without paid license**
+**Commercial Use Strictly Prohibited Without Paid License**
 
 Organization use and the cases listed in root `LICENSE` §2 require a separate paid commercial license from Autonomicity Games Inc. The AG-SML §1 grant does not include the right to host the Software for profit (see root `LICENSE` §1); that and other commercial deployments (non-exhaustive; see `COMMERCIAL_LICENSE.md`) include: integration into a paid product or service; deployment inside a company or organization for internal production use at scale; offering Ra-Thor- or Powrush-derived capabilities as a paid API, SaaS, store SKU, or consulting deliverable; selling copies, hosting for profit, or sublicensing for sale; large-scale or revenue-linked deployments of any kind; paid products, services, large-scale deployments, or integration into revenue-generating platforms.
 
