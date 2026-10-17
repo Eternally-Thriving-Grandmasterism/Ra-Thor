@@ -207,7 +207,7 @@ inspect ≠ METR. Combined AGSi stays SURMISE.
 Do not invent METR numbers, certifications, or a finished MMO. Powrush-MMO is a separate repo.
 
 Contact: info@Rathor.ai
-License: AG-SML v1.1 (personal / research). Organizations license.`;
+License: AG-SML v1.2 (non-revenue personal / research). Organizations license.`;
 
   var CHAT_LANG_NAMES = {
     en: 'English', ar: 'العربية', es: 'Español', fr: 'Français',

@@ -11,7 +11,7 @@ Public TOLC 8 names are Truth, Order, Love, Compassion, Service, Abundance, Joy,
 `VERSION` is the source string `14.15.0`. The package version is `14.15.6`, the same value `version.workspace = true` resolved to. `summary` returns the source string `ra-thor-core v14.15.0 | Living Cosmic Tick active`. That string is not a demonstrated tick.
 
 **Contact:** info@Rathor.ai  
-**License:** AG-SML v1.1
+**License:** AG-SML v1.2
 
 ## Council note
 

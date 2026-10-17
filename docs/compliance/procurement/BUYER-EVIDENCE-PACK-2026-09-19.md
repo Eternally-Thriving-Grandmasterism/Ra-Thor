@@ -16,7 +16,7 @@ A striking demo sits last on that stack.
 | Weight band | What they score | Ra-Thor today |
 | --- | --- | --- |
 | 1. Security + hosting | SOC 2 / ISO 27001, hosting model, pentest, cyber insurance | **Missing.** Local-first research software; no SOC 2 letter in-repo |
-| 2. Legal terms | Indemnity, IP, training-data use, exit, license | AG-SML v1.1 living grant + commercial exhibit drafts. Counsel unsigned |
+| 2. Legal terms | Indemnity, IP, training-data use, exit, license | AG-SML v1.2 living grant + commercial exhibit drafts. Counsel unsigned |
 | 3. Operational resilience | On-call, SLA, version pin, rollback, successor | Workspace pin 14.15.6 is real. No SLA. One steward |
 | 4. Model governance evidence | System card, data-flow, logs, HITL, measurement | This folder + GATE_EVAL + egress map. Evals UNMEASURED |
 | 5. Capability | Demo quality | Last. Do not lead with worldview |

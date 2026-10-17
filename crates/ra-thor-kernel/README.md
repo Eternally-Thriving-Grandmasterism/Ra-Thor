@@ -13,7 +13,7 @@ The compiled surface is `get_mercy_shader_wgsl`, `run_mercy_compute`, and `init_
 Public TOLC 8 names are Truth, Order, Love, Compassion, Service, Abundance, Joy, Cosmic Harmony.
 
 **Contact:** info@Rathor.ai  
-**License:** AG-SML v1.1
+**License:** AG-SML v1.2
 
 ## Council note
 

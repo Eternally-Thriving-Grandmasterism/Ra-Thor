@@ -43,7 +43,7 @@ This is the canonical master codex defining the **core architectural principles*
    Every file, commit, hotfix, and Master Codex must be PQC-signed (ML-DSA-65 or Falcon) and PUF-anchored.
 
 9. **Transparent Dual Licensing**  
-   AG-SML v1.1 for individuals (including modest personal income) + explicit Ra-Thor Commercial License for organizations and the uses listed in LICENSE §2. The distinction must be unambiguous in every file and README.
+   AG-SML v1.2 for individuals (non-commercial use; revenue requires a paid licence) + explicit Ra-Thor Commercial License for organizations and the uses listed in LICENSE §2. The distinction must be unambiguous in every file and README.
 
 10. **Minimalism & Clarity**  
     Every file must be human-readable, well-commented, and serve a single clear purpose. No unnecessary complexity.

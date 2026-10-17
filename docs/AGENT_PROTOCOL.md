@@ -4,7 +4,7 @@ Short orders for Grok, BabyBot, and Bot 1 on this repo.
 This file does not replace the load-first path. It does not add a ninth gate.
 
 **Contact:** info@Rathor.ai. Independent of xAI. Not certified. Not a legal product.
-**License on main:** AG-SML v1.1. Workspace **14.15.6**. Do not bump identity to 15.x.
+**License on main:** AG-SML v1.2. Workspace **14.15.6**. Do not bump identity to 15.x.
 
 ## Load first (already on main)
 
@@ -13,7 +13,7 @@ This file does not replace the load-first path. It does not add a ninth gate.
 3. [`../TIER_MAP.md`](../TIER_MAP.md) — Core Tier-1 is the merge gate. Conductor is `lattice-conductor-v14` only.
 4. [`WRAP_LLM_INTENTION.md`](WRAP_LLM_INTENTION.md) — humans wrap models with this lattice; the model is never sovereign.
 5. [`BINDING_AFTER_REDESIGN.md`](BINDING_AFTER_REDESIGN.md) — controlled loop bound; uncontrolled self-redesign stays OPEN.
-6. [`BOOK_LANE.md`](BOOK_LANE.md) — human books; Masterism first; AG-SML v1.1; no Drive storefront.
+6. [`BOOK_LANE.md`](BOOK_LANE.md) — human books; Masterism first; AG-SML v1.2; no Drive storefront.
 7. [`POWRUSH_TICK_READ.md`](POWRUSH_TICK_READ.md) — read ticks for R&D only; never drive keys.
 8. [`MODEL_INSPECT_NOT_METR.md`](MODEL_INSPECT_NOT_METR.md) — lattice admission inspect; not a METR time-horizon.
 

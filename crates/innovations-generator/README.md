@@ -6,7 +6,7 @@ The library calls `idea-recycling` to normalize and pair ideas, then writes the 
 
 These crates are workspace members. They are outside the Tier-1 set in `TIER_MAP.md`, and `.github/workflows/core-tier1-ci.yml` does not test them. A green Tier-1 run does not cover this CLI.
 
-Contact: info@Rathor.ai. License: AG-SML v1.1.
+Contact: info@Rathor.ai. License: AG-SML v1.2.
 
 ## Build and test
 

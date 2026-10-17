@@ -15,7 +15,7 @@ Contact: info@Rathor.ai
 - draft aid with human review
 - not affiliated with, sponsored by, or endorsed by xAI
 - current version only: **14.15.6**
-- AG-SML v1.1 personal / research / modest freelance; commercial use needs a paid license
+- AG-SML v1.2 personal / research / non-revenue personal use; commercial use needs a paid license
 - family walk: Home · Chat · Launch · Shard · Forge · Contact · Privacy
 - Capable · Bounded · Corrigible (site lock language already on index.html)
 - dual-repo soft-feedback described as **lattice telemetry** (grief, valence, tick, health_score)

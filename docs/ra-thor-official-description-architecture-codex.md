@@ -46,10 +46,10 @@ Ra-Thor is a **symbolic lattice**, not a neural-net LLM — reasoning is determi
 
 Demos are available instantly at **rathor.ai** with zero installation. Full offline sovereign shards are in the monorepo.
 
-### 4. Licensing (AG-SML v1.0 — updated April 11, 2026)
-- Free for personal, educational, research, daily-living, and modest freelance/creative use.  
-- Paid commercial license required for organization use and other LICENSE §2 cases (contact CEO@ACITYGAMES.COM).  
-- New code falls under the **Autonomicity Games Sovereign Mercy License**.
+### 4. Licensing (AG-SML v1.2)
+- Free for personal, educational, research, and non-commercial creative use when non-revenue.  
+- Any revenue or income from using, running, or outputs requires a paid commercial licence. Organization use and other LICENSE §2 cases require a paid commercial licence (contact info@Rathor.ai).  
+- New code falls under the **Autonomicity Games Sovereign Mercy License (AG-SML v1.2)**.
 
 ### 5. Repository & Resources
 - GitHub monorepo: https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor  

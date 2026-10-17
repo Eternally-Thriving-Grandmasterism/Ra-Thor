@@ -3,7 +3,7 @@
 **Seat:** FOREST-DELTA-1  
 **Date:** 2026-09-23  
 **Workspace identity:** **14.15.6**  
-**License:** AG-SML v1.1 — free personal, educational, research, and modest independent professional use. Commercial use needs a paid license or pilot.  
+**License:** AG-SML v1.2 — free personal, educational, research, and non-commercial creative work use. Commercial use needs a paid license or pilot.  
 **Contact:** [info@Rathor.ai](mailto:info@Rathor.ai)  
 **Affiliation:** Independent of xAI. Not affiliated, not sponsored, not an xAI product.  
 **Tip SHA:** `05441ee9242cbf7d486f2c18f7af8900e9106297` (`docs(layer0): name the four-edge wrap path`, #554)  

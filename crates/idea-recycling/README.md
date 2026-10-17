@@ -10,7 +10,7 @@ cargo run -p innovations-generator --bin innovate -- input.json
 
 Usage, claim tiers, and a captured sample live in [`../innovations-generator/README.md`](../innovations-generator/README.md). The sample below is that same run.
 
-Contact: info@Rathor.ai. License: AG-SML v1.1.
+Contact: info@Rathor.ai. License: AG-SML v1.2.
 
 ## What `recycle` does
 

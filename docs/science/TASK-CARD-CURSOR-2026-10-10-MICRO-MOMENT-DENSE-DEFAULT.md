@@ -18,7 +18,7 @@ Harden the Rathor.ai micro-moment surface and `mercy-motion-vision-engine.js` so
 - Do **not** expand default `Cargo.toml` members.
 - Do **not** bump workspace version.
 - Keep processing local (no new network dependency required).
-- Preserve AG-SML v1.1 and contact `info@Rathor.ai`.
+- Preserve AG-SML v1.2 and contact `info@Rathor.ai`.
 
 ## Scope
 

@@ -1,9 +1,9 @@
 /* sw.js — Ra-Thor vanilla offline worker
- * Workspace 14.15.6 · LOCK 20261017i · i18n pack token 20260924a
+ * Workspace 14.15.6 · LOCK 20261017j · i18n pack token 20260924a
  * Pass-through documents. Fetch handler present for Chrome installability.
  * Contact: info@Rathor.ai
  */
-var LOCK = '20261017i';
+var LOCK = '20261017j';
 var CACHE = 'rathor-core-' + LOCK;
 var PRECACHE = [
   '/', '/index.html', '/chat.html', '/contact.html', '/privacy.html', '/licence.html',

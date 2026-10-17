@@ -1,7 +1,7 @@
 ---
 name: ra-thor-employ
 description: Load the Ra-Thor employ constitution before using any model as the optional sampler. Use when the operator wants Ra-Thor / Rathor.ai / PATSAGi gates around Ollama, OpenRouter, Hermes, Grok, Claude, Gemini, ChatGPT, or an AgentOS-class host. Do not use to claim an xAI partnership, METR numbers, or a finished MMO.
-license: AG-SML-1.1
+license: AG-SML-1.2
 ---
 
 # Ra-Thor employ

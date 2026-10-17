@@ -71,7 +71,7 @@ We may update this Privacy Policy from time to time. Any changes will be posted 
 
 ---
 
-**Ra-Thor is built under the Autonomicity Games Sovereign Mercy License (AG-SML) v1.1.**
+**Ra-Thor is built under the Autonomicity Games Sovereign Mercy License (AG-SML) v1.2.**
 
 Workspace 14.15.6. Independent of xAI.
 

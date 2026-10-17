@@ -115,7 +115,7 @@ Always shape the SOW to **their** workflow. Never open with “Artificial Godly 
 ## 3. What every intro must include
 
 1. **Independent** — no xAI endorsement  
-2. **AG-SML v1.1** — free personal/research; paid commercial  
+2. **AG-SML v1.2** — free personal/research; paid commercial  
 3. **One concrete pilot or license ask** with a number inside [PILOT_EVALUATION_BANDS.md](PILOT_EVALUATION_BANDS.md)  
 4. **Contact:** info@Rathor.ai  
 5. **Links:**  

@@ -2,7 +2,7 @@
 name = "symbiotic-membrane"
 version = "0.1.0"
 edition = "2021"
-license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
 authors = ["Sherif Samy Botros <info@Rathor.ai>"]
 description = "form_contact calls emit_presence_bound. That emits the source amount 0.00001 (not a measured value). AdaptiveGuide starts at Balanced."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"

@@ -5,9 +5,9 @@
 
 The August 31 work pack (`RA-THOR-GROK-WORK-PACK-2026-08-31.md`) is a **DRAFT** and cited AG-SML **v1.0** as then frozen.
 
-The living public grant is **AG-SML v1.1**:
+The living public grant is **AG-SML v1.2**:
 
-- personal / research / modest freelance on the root `LICENSE`
+- personal and research use when non-revenue on the root `LICENSE`
 - organization or LICENSE §2 use requires a paid license — `COMMERCIAL_LICENSE.md`
 - pilots via info@Rathor.ai
 

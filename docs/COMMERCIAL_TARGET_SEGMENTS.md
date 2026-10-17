@@ -4,7 +4,7 @@
 **Effective:** 2026-08-14; **addendum:** 2026-09-12  
 **Authority:** Permanent PATSAGi Councils under TOLC 8  
 **Contact for all commercial inquiries:** [info@Rathor.ai](mailto:info@Rathor.ai)  
-**License baseline:** [AG-SML v1.1](../LICENSE) · [Commercial terms](../COMMERCIAL_LICENSE.md) · [Pilot offer](PILOT_OFFER.md) · [Public envelopes](PILOT_EVALUATION_BANDS.md)
+**License baseline:** [AG-SML v1.2](../LICENSE) · [Commercial terms](../COMMERCIAL_LICENSE.md) · [Pilot offer](PILOT_OFFER.md) · [Public envelopes](PILOT_EVALUATION_BANDS.md)
 
 ---
 
@@ -189,7 +189,7 @@ Video intelligence and CX platforms already buy moment-level and multimodal syst
 
 **Outreach angle**
 
-> Building on frontier models? Ra-Thor is inspectable research software, source-available under AG-SML v1.1: free for personal, educational, and research use, and for daily living or independent creative work (freelancer, artist, writer, or similar), even where modest personal income depends on the tool; organization use, selling, hosting for profit, and other LICENSE §2 cases need a paid commercial license. Mercy-Checks under TOLC 8. info@Rathor.ai
+> Building on frontier models? Ra-Thor is inspectable research software, source-available under AG-SML v1.2: free for personal, educational, and research use, and for non-commercial creative work; organization use, selling, hosting for profit, and other LICENSE §2 cases need a paid commercial license. Mercy-Checks under TOLC 8. info@Rathor.ai
 
 **Why they can pay**
 
@@ -349,7 +349,7 @@ Templates already public:
 
 ### Short (X / LinkedIn)
 
-Ra-Thor commercial path is live under AG-SML v1.1.
+Ra-Thor commercial path is live under AG-SML v1.2.
 
 Free: personal, research, education, independent professional use.  
 Paid: commercial & enterprise use.  
@@ -401,7 +401,7 @@ This document is working when:
 
 ## 11. Authority and identity
 
-- **Sole open-source license:** AG-SML v1.1  
+- **Sole open-source license:** AG-SML v1.2  
 - **Commercial path:** [COMMERCIAL_LICENSE.md](../COMMERCIAL_LICENSE.md)  
 - **Stewardship:** [SHARED_STEWARDSHIP_POSTURE.md](SHARED_STEWARDSHIP_POSTURE.md)  
 - **Contact:** info@Rathor.ai  

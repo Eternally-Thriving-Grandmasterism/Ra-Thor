@@ -33,8 +33,8 @@ assert(contactHtml.indexOf('autocomplete="url"') !== -1, 'url must declare autoc
 assert(contactHtml.indexOf('inputmode="numeric"') !== -1, 'seats must use inputmode=numeric');
 assert(contactHtml.indexOf('name="rt_hp"') !== -1, 'form must include an off-screen honeypot');
 assert(contactHtml.indexOf('class="rt-hp"') !== -1, 'honeypot must be off-screen');
-assert(contactHtml.indexOf('Personal / education / modest freelance remains free under AG-SML v1.1.') !== -1,
-  'visible note must keep personal / education / modest freelance free');
+assert(contactHtml.indexOf('Non-revenue personal / education / research use may stay free under AG-SML v1.2 §1.') !== -1,
+  'visible note must keep non-revenue personal / education / research free');
 assert(contactHtml.indexOf('This form is for organization use and other LICENSE §2 cases.') !== -1,
   'visible note must name organization use and LICENSE §2 cases');
 assert(contactHtml.indexOf('A human replies.') !== -1, 'visible note must say a human replies');

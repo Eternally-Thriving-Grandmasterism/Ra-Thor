@@ -1,6 +1,6 @@
 # QUICKSTART.md
 
-**Ra-Thor workspace 14.15.6** · AG-SML v1.1 · [info@Rathor.ai](mailto:info@Rathor.ai)
+**Ra-Thor workspace 14.15.6** · AG-SML v1.2 · [info@Rathor.ai](mailto:info@Rathor.ai)
 
 Inspectable research software. Independent of xAI. Not certified. Not a legal product. Drafts need human review.
 

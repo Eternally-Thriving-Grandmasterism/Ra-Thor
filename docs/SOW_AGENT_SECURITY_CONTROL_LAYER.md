@@ -97,7 +97,7 @@ Published bands (do not sign outside them without a written exception from info@
 
 - Use is limited to this objective and duration
 - No production commercial rights
-- AG-SML v1.1 governs free / research use outside this SOW
+- AG-SML v1.2 governs free / research use outside this SOW
 - Commercial rights require a separate signed grant
 
 ---

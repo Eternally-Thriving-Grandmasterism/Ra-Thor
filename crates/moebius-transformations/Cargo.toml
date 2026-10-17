@@ -3,7 +3,7 @@ name = "moebius-transformations"
 version = "0.3.0"
 edition = "2021"
 authors = ["18 PATSAGi Councils under the Rathor Sovereign Reasoning Engine"]
-license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
 description = "Möbius matrix over nalgebra::Complex. apply is (az+b)/(cz+d). gyrovector_add does not read the matrix."
 
 # Standalone workspace, same pattern as crates/fenca, crates/council,

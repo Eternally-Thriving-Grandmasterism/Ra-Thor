@@ -13,4 +13,4 @@ Council note: the algorithm claims are retired. The functions are not those algo
 
 Not a root workspace member. Standalone `[workspace]` with `resolver = "2"`.
 
-AG-SML v1.1
+AG-SML v1.2

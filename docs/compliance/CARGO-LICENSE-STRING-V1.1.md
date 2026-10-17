@@ -1,4 +1,4 @@
-# Cargo.toml license string — AG-SML v1.1
+# Cargo.toml license string — AG-SML v1.2
 
 **Date:** 2026-08-31  
 **Workspace version (do not bump):** 14.15.6  
@@ -9,13 +9,13 @@ Required strings present:
 
 ```
 # header comment
-# AG-SML v1.1 | Thunder locked in — …
+# AG-SML v1.2 | Thunder locked in — …
 
 [workspace.package]
-license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
 
 [workspace.metadata.ra-thor]
-license = "AG-SML v1.1"
+license = "AG-SML v1.2"
 ```
 
-Public grant remains root `LICENSE` (AG-SML v1.1). This file is a string-lock, not a second license.
+Public grant remains root `LICENSE` (AG-SML v1.2). This file is a string-lock, not a second license.

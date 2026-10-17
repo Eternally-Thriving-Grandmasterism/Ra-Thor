@@ -16,7 +16,7 @@
    - Joy
    - Cosmic Harmony
 3. **PATSAGi Councils** — permanent deliberation under those gates.
-4. **AG-SML v1.1** — the public grant. Commercial terms live in `COMMERCIAL_LICENSE.md`.
+4. **AG-SML v1.2** — the public grant. Commercial terms live in `COMMERCIAL_LICENSE.md`.
 
 ## Deprecated synonyms
 

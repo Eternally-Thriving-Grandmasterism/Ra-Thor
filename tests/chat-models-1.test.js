@@ -53,7 +53,7 @@ assert(vendor.indexOf('prebuiltAppConfig') !== -1, 'pinned build must export pre
 });
 
 assert(sw.indexOf("key.indexOf('webllm') === -1") !== -1, 'activate keep list must retain webllm caches');
-assert(sw.indexOf("var LOCK = '20261017i';") !== -1, 'LOCK must stay 20261017i');
+assert(sw.indexOf("var LOCK = '20261017j';") !== -1, 'LOCK must stay 20261017j');
 assert(sw.indexOf("var CACHE = 'rathor-core-' + LOCK;") !== -1, 'CACHE name must stay rathor-core- plus LOCK');
 var precache = sw.slice(sw.indexOf('var PRECACHE'), sw.indexOf('self.addEventListener'));
 assert(precache.indexOf('web-llm') === -1, 'PRECACHE must not list the vendored library');
@@ -141,8 +141,8 @@ assert(promptAt !== -1, 'SYSTEM_PROMPT must stay a template literal');
 var promptEnd = chat.indexOf('`;', promptAt);
 var prompt = chat.slice(promptAt + promptMarker.length, promptEnd);
 var promptHash = crypto.createHash('sha256').update(prompt).digest('hex');
-assert(promptHash === 'b43b5bf8b6be4329dca09ec8a89ffd7ddabc45e50edca3b7da93d306b8f587d8', 'SYSTEM_PROMPT bytes changed: ' + promptHash);
-assert(Buffer.byteLength(prompt, 'utf8') === 779, 'SYSTEM_PROMPT byte length changed');
+assert(promptHash === 'b4fe56c33d663249f58a6a99de1ff0b2c3131218805b9ffa67faee2dcc65b4f0', 'SYSTEM_PROMPT bytes changed: ' + promptHash);
+assert(Buffer.byteLength(prompt, 'utf8') === 791, 'SYSTEM_PROMPT byte length changed');
 
 assert(chat.indexOf("if (!navigator.gpu) return { supported: false, reason: 'WebGPU not available in this browser' };") !== -1, 'WebGPU gate must stay');
 assert(chat.indexOf('/Android|iPhone|iPad|iPod|Mobile/i.test(ua)') !== -1, 'mobile UA block must stay');

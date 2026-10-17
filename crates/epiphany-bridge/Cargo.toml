@@ -2,7 +2,7 @@
 name = "epiphany-bridge"
 version = "0.1.0"
 edition = "2021"
-license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
 authors = ["Sherif Samy Botros <info@Rathor.ai>"]
 description = "from_human_breakthrough and from_ai_insight each emit one quantum with source amount 0.00008 (not a measured value). src/feature_flag.rs and src/resonance_knot.rs are not modules."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"

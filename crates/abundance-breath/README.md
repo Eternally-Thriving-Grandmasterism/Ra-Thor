@@ -7,7 +7,7 @@ Inhale amount is the source literal `0.00003`. Exhale amount is the source liter
 The field floor `0.999999` lives in `shared-valence-field`. `emit` applies `.max(0.999999)`. That literal is not a measured value.
 
 **Contact:** info@Rathor.ai  
-**License:** AG-SML v1.1  
+**License:** AG-SML v1.2  
 **Status:** `src/feature_flag.rs` is not a module. The flag is not compiled.
 
 ## What the function does

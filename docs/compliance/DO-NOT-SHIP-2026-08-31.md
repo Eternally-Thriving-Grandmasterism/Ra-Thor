@@ -16,7 +16,7 @@ Rule: on-disk presence is not an offer. Research members may stay in the tree. T
 - Family public walk: Home · Chat · Launch · Shard · Forge · Contact · Privacy
 - Optional Grok session under operator gates, **not affiliated with xAI**
 - Draft aid with human review
-- License: AG-SML v1.1 personal / education / research / modest freelance; commercial use needs a paid license
+- License: AG-SML v1.2 personal / education / research / non-revenue personal use; commercial use needs a paid license
 - Conductor: `lattice-conductor-v14` only
 - Contact: **info@Rathor.ai** only
 

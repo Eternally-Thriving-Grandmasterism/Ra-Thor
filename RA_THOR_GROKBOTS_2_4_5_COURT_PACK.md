@@ -2,7 +2,7 @@
 **Stamp:** 2026-09-13 · Core / Steward paste  
 **Home stack:** https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor · workspace **14.15.6**  
 **Sister court (other account, do not collide):** Bot 1 Hands + Bot 3 Canon on Powrush-MMO  
-**Contact:** info@Rathor.ai · Independent of xAI · AG-SML v1.1 · no ninth gate · no 15.x
+**Contact:** info@Rathor.ai · Independent of xAI · AG-SML v1.2 · no ninth gate · no 15.x
 
 This pack copies the *shape* of the live Powrush court (Default HOLD · MERGE IS A COUNCIL ACT · dual GREEN · deletions HOLD · no OFFER NEXT · no duplicate MERGED · wake filter · one PR then HOLD) and swaps the deny-list for lattice law. It does **not** copy Title Online / sockets / Market / Places / Temper T* / Persona P* spent lists onto Ra-Thor.
 
@@ -128,7 +128,7 @@ Clone structure from privacy.html / live site theme. Do not invent a second visu
 Claim lock (must remain true on every page you touch):
 - Inspectable research software, workspace 14.15.6
 - Independent of xAI — not affiliated, not sponsored, not an xAI product
-- AG-SML v1.1 free for personal / education / research / modest independent professional use
+- AG-SML v1.2 free for personal / education / research / non-commercial creative work use
 - Paid license + 2–6 week pilots for organization use, selling, hosting for profit (LICENSE §1 exclusion from the free grant), and other LICENSE §2 commercial cases
 - Capable · Bounded · Corrigible
 - Not a certified superintelligence, not a live MMO service

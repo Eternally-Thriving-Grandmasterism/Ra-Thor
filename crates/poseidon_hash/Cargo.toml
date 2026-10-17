@@ -2,7 +2,7 @@
 name = "poseidon_hash"
 version = "1.0.0"
 edition = "2021"
-license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
 description = "PoseidonHash — zk-Friendly Permutation Hashing for NEXi Lattice (Merkle, Commitments, Waveform)"
 
 [dependencies]

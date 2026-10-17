@@ -1,6 +1,6 @@
 # Neighbor agent map
 
-**Workspace:** 14.15.6 · **Contact:** info@Rathor.ai · **License:** AG-SML v1.1
+**Workspace:** 14.15.6 · **Contact:** info@Rathor.ai · **License:** AG-SML v1.2
 
 Local trace: [`fixtures/gate-decision-trace.sample.json`](fixtures/gate-decision-trace.sample.json). This file is the local trace. It is not AgentOps. It does not phone home.
 

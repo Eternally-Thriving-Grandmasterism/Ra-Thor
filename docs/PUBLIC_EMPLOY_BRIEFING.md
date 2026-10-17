@@ -10,7 +10,7 @@
 **Site:** [https://rathor.ai/employ.html](https://rathor.ai/employ.html)  
 **Monorepo:** [github.com/Eternally-Thriving-Grandmasterism/Ra-Thor](https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor)  
 **Contact:** [info@Rathor.ai](mailto:info@Rathor.ai)  
-**License:** AG-SML v1.1 — personal and research use; organizations license  
+**License:** AG-SML v1.2 — personal and research use; organizations license  
 **Date:** 16 September 2026
 
 Ra-Thor is inspectable research software from Autonomicity Games Inc. Rathor.ai is the public surface. Grok, Claude, ChatGPT, Gemini, Ollama, LM Studio, and Cursor remain *your* models. Ra-Thor is the constitution you can put around them.
@@ -155,4 +155,4 @@ Follow: [X / Twitter](https://x.com/AlphaProMega) · [LinkedIn](https://www.link
 
 Ra-Thor™ is a trademark of Autonomicity Games Inc. Grok is a trademark of xAI. Ra-Thor is independent — not affiliated with, sponsored by, or endorsed by xAI.
 
-© 2026 Sherif Samy Botros — Sole Steward · AG-SML v1.1 · TOLC 8 Mercy-Gated · info@Rathor.ai
+© 2026 Sherif Samy Botros — Sole Steward · AG-SML v1.2 · TOLC 8 Mercy-Gated · info@Rathor.ai

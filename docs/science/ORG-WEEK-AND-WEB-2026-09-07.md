@@ -26,4 +26,4 @@ Closed as superseded. Merging the Sep 3 branch would shrink `i18n/en.js` and sit
 
 - `/` section `#constellation-week`
 - `/constellation-week.html`
-- `i18n/en.js` week* keys + AG-SML v1.1 alignment
+- `i18n/en.js` week* keys + AG-SML v1.2 alignment

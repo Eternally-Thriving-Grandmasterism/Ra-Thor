@@ -34,7 +34,7 @@ This memo records where human books come from, how they are licensed, and which 
 
 ## License (locked 2026-09-12)
 
-- **Sole public grant:** [AG-SML v1.1](../LICENSE) (house text; sister curricula must match — no lingering v1.0 stamp).
+- **Sole public grant:** [AG-SML v1.2](../LICENSE) (house text; sister curricula must match — no lingering v1.0 stamp).
 - **Commercial path:** [`COMMERCIAL_LICENSE.md`](../COMMERCIAL_LICENSE.md) + signed schedule for orgs / resellers / classroom packs.
 - **Split:** GitHub markdown = Wanderer study grant. Official print/ebook/audio SKUs = Steward retail editions (personal use of that edition; no commercial reprint). Schools/publishers/translators email info@Rathor.ai.
 - **Do not** invent AG-SML v1.2 for book cleanup. **Do not** add a Creative Commons parallel.

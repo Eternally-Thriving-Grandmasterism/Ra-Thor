@@ -4,7 +4,7 @@
 **Contact:** info@Rathor.ai
 **Rule:** `docs/compliance/SITE-VERSION-LOCK-2026-08-31.md`
 
-Public chrome / footers / i18n may show only **workspace 14.15.6** and **AG-SML v1.1**. Drop Lattice Chat v14.18 and plus-signs from those surfaces. No product rewrite. No crate mass-edit.
+Public chrome / footers / i18n may show only **workspace 14.15.6** and **AG-SML v1.2**. Drop Lattice Chat v14.18 and plus-signs from those surfaces. No product rewrite. No crate mass-edit.
 
 ## Landed
 
@@ -16,7 +16,7 @@ Public chrome / footers / i18n may show only **workspace 14.15.6** and **AG-SML 
 | `js/contact-i18n.js` | ad38cbca | 11 footerSub strings |
 | `index.html` | 4552033f | drop `v14.15.6+`; footer lock line |
 
-Lock line: `v14.15.6 · AG-SML v1.1 · TOLC 8 · Capable · Bounded · Corrigible`
+Lock line: `v14.15.6 · AG-SML v1.2 · TOLC 8 · Capable · Bounded · Corrigible`
 
 ## Held
 - Workspace 14.15.6

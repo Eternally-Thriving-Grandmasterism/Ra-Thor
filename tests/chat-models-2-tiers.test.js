@@ -22,7 +22,7 @@ var vendor = read('js/vendor/web-llm/0.2.85/index.js');
 
 assert(chat.indexOf("./vendor/web-llm/0.2.85/index.js") !== -1, 'WebLLM pin stays 0.2.85');
 assert(chat.indexOf('0.2.86') === -1, 'this card must not bump the WebLLM pin');
-assert(sw.indexOf("var LOCK = '20261017i';") !== -1, 'service worker LOCK stays 20261017i');
+assert(sw.indexOf("var LOCK = '20261017j';") !== -1, 'service worker LOCK stays 20261017j');
 assert(chat.indexOf('DeepSeek') === -1, 'no DeepSeek id is pinned');
 assert(chat.indexOf('<think>') === -1, 'no think-tag model is introduced');
 assert(chat.indexOf('@huggingface/hub') === -1, 'no custom Hugging Face loader');
@@ -33,7 +33,7 @@ var promptAt = chat.indexOf(promptMarker);
 var promptEnd = chat.indexOf('`;', promptAt);
 var prompt = chat.slice(promptAt + promptMarker.length, promptEnd);
 var promptHash = crypto.createHash('sha256').update(prompt).digest('hex');
-assert(promptHash === 'b43b5bf8b6be4329dca09ec8a89ffd7ddabc45e50edca3b7da93d306b8f587d8', 'SYSTEM_PROMPT bytes changed: ' + promptHash);
+assert(promptHash === 'b4fe56c33d663249f58a6a99de1ff0b2c3131218805b9ffa67faee2dcc65b4f0', 'SYSTEM_PROMPT bytes changed: ' + promptHash);
 
 assert(html.indexOf('Lattice Chat — offline-first multi-session store on your device. Workspace 14.15.6. Optional Web Crypto passphrase (PBKDF2 + AES-GCM). Capable · Bounded · Corrigible. Zero collection.') !== -1, 'chat meta zero-collection line stays');
 assert(html.indexOf('workspace 14.15.6 • TOLC 8 • family bar shared') !== -1, 'chat subtitle stays');

@@ -7,7 +7,7 @@ Standalone workspace (`resolver = "2"`) with its own `Cargo.lock`. Not a root de
 `PathologyDetectionEngine::detect_pathologies` returns the first matching substring label. `trigger_automatic_recalibration` builds a `GateThreshold` proposal whose `new_value` is `(current_score * 1.08).min(0.97)` and applies it. `1.08` and `0.97` are source literals. `apply_council_tuning` keeps the stored value when `new_value` is non-finite or lower, and this method returns `Err` in that case. A missing name reports `0.75`.
 
 **Contact:** info@Rathor.ai  
-**License:** AG-SML v1.1
+**License:** AG-SML v1.2
 
 ## Council note
 

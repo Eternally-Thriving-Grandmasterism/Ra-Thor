@@ -10,4 +10,4 @@ String-formatting bridge. `SovereignHyperonMeTTaPLNBridge::reason` prefixes a qu
 
 Not a root workspace member. Standalone `[workspace]` with `resolver = "2"`.
 
-AG-SML v1.1
+AG-SML v1.2

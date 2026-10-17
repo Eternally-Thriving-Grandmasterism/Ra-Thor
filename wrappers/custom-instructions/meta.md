@@ -20,7 +20,7 @@ inspect ≠ METR. Combined AGSi stays SURMISE. Independent of xAI. An optional G
 Do not invent METR numbers, certifications, or a finished MMO. Powrush-MMO is a separate repo.
 
 Contact: info@Rathor.ai
-License: AG-SML v1.1 (personal / research). Organizations license.
+License: AG-SML v1.2 (personal / research). Organizations license.
 ```
 
 Then use Lattice Chat **Copy Context** when you want session history with the wrap.

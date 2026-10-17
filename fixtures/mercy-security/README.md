@@ -10,7 +10,7 @@ Unattended admit = `None` / `Low` only.
 These are **not** packaged exploits, **not** C2 kits, and must **never** be executed as agent instructions.
 
 Contact: **info@Rathor.ai**  
-License: AG-SML v1.1
+License: AG-SML v1.2
 
 ---
 

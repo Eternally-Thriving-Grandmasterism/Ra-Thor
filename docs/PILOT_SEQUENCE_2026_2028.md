@@ -16,7 +16,7 @@ You can employ the lattice today.
 
 - **Employ** — the five-step loop on [rathor.ai/employ.html](https://rathor.ai/employ.html): Intend → Pass the gates → Optional model → Review → Act. Outputs are drafts. A human reviews them before filing, sale, or public claims. Spine: [`docs/EMPLOY.md`](EMPLOY.md).
 - **Wrap** — copy context, a skill pack, a local HTTP shim, or Lattice Chat against a server you run. You hold the key. There is no public rathor.ai key proxy. Details: [`docs/ADOPT.md`](ADOPT.md).
-- **Inquiry form** — organization use and other LICENSE §2 cases go through the [commercial inquiry form](https://rathor.ai/contact.html#commercial-inquiry). Personal / research / modest freelance stays free under AG-SML v1.1. A human replies. There is no instant license key and no public checkout.
+- **Inquiry form** — organization use and other LICENSE §2 cases go through the [commercial inquiry form](https://rathor.ai/contact.html#commercial-inquiry). Personal and research use without revenue stays free under AG-SML v1.2. A human replies. There is no instant license key and no public checkout.
 - **Inspectable lattice** — the source-available [monorepo](https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor). Named crate tests only. A full workspace run is not the product gate.
 - **GATE_EVAL** — published evidence for the living ingest / admit-or-block admission shell. Keyword ingest is not a METR lab. Compile green is not live safety. Failed bypasses stay published on purpose: eval-cheating and hide-the-payload classes are why the fixtures exist. Closing a keyword miss is not containment of a smarter agent. Honest remainder: [`docs/GATE_EVAL.md`](GATE_EVAL.md).
 
@@ -30,7 +30,7 @@ A named organization can buy time for a **human-replied AG-SML pilot**.
 
 You name the organization, the use, and the stack you already run. You write through the inquiry form or [info@Rathor.ai](mailto:info@Rathor.ai). A human replies. No license key arrives in the email. There is no public checkout.
 
-What that time is for: wrap one model or one internal workflow under the same constitution; inspect the admission shell against representative ingest; keep or refuse. The living grant for personal and research use remains AG-SML v1.1. Organization use and other LICENSE §2 cases are a paid conversation, not a downloadable SKU.
+What that time is for: wrap one model or one internal workflow under the same constitution; inspect the admission shell against representative ingest; keep or refuse. The living grant for personal and research use remains AG-SML v1.2. Organization use and other LICENSE §2 cases are a paid conversation, not a downloadable SKU.
 
 This is not a hosted proxy that holds your vendor keys. You keep those.
 
@@ -51,4 +51,4 @@ inspect ≠ METR. No cert filing. The 31 August 2026 work pack is a draft.
 
 Ra-Thor™ is a trademark of Autonomicity Games Inc. Grok is a trademark of xAI. Ra-Thor is independent — not affiliated with, sponsored by, or endorsed by xAI.
 
-© 2026 Sherif Samy Botros — Sole Steward · AG-SML v1.1 · TOLC 8 Mercy-Gated · info@Rathor.ai
+© 2026 Sherif Samy Botros — Sole Steward · AG-SML v1.2 · TOLC 8 Mercy-Gated · info@Rathor.ai

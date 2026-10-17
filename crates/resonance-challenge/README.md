@@ -7,7 +7,7 @@
 `resolve(true)` emits one quantum. The amount is the source expression `0.00005 * (1.0 - difficulty)`. `resolve(false)` emits nothing and returns `A gentler resonance path has opened. No progress lost.`
 
 **Contact:** info@Rathor.ai  
-**License:** AG-SML v1.1  
+**License:** AG-SML v1.2  
 **Status:** flag `resonance_challenge` defaults to off. `try_activate` stores `On` only when both bool arguments are true. It does not measure valence.
 
 ## Views
