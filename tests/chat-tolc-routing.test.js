@@ -15,7 +15,7 @@ function read(rel) {
 
 var chat = read('js/chat.js');
 var expected =
-  "{ q: /\\b(?:tolc|mercy[- ]?checks?|mercy[- ]?gates?|gates?|ethics|guardrails)\\b/i, k: 'chatReplyTolc' }";
+  "{ q: /\\b(?:tolc\\s?8?|mercy[- ]?checks?|mercy[- ]?gates?|gates?|ethics|guardrails)\\b/i, k: 'chatReplyTolc' }";
 assert(chat.indexOf(expected) !== -1, 'chatReplyTolc regex must stay word-bounded');
 
 var promptMarker = 'const SYSTEM_PROMPT = `';
@@ -37,6 +37,8 @@ var tolRegex = Function('return ' + reSrc)();
 var positives = [
   'tolc',
   'TOLC 8',
+  'TOLC8',
+  'tolc8',
   'mercy check',
   'mercy checks',
   'Mercy-Checks',
