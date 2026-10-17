@@ -17,9 +17,11 @@ This free use is explicitly allowed even if the individual earns modest personal
 
 ---
 
-**When a separate paid commercial license is required**
+**Commercial use strictly prohibited without paid license**
 
-The following require a separate paid commercial license from Autonomicity Games Inc. (see root `LICENSE` §2): use by a corporation, agency, studio, or other organization; selling the Software, a fork, a wrapper, or a hosted instance; hosting the Software for profit; bundling it into a paid product; large-scale public multiplayer hosting for revenue or advertising; removing or replacing PATSAGi / Ra-Thor marks in a public redistribution; training a competing commercial model on this Work without a written grant.
+Organization use and other commercial deployments require a separate paid commercial license from Autonomicity Games Inc., including (non-exhaustive): integration into a paid product or service; deployment inside a company or organization for internal production use at scale; offering Ra-Thor- or Powrush-derived capabilities as a paid API, SaaS, store SKU, or consulting deliverable; selling copies, hosting for profit, or sublicensing for sale; large-scale or revenue-linked deployments of any kind; paid products, services, large-scale deployments, or integration into revenue-generating platforms.
+
+This does **not** revoke the permitted free use above for individuals, including modest personal income from daily living or independent creative work.
 
 ---
 

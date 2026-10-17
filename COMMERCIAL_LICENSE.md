@@ -22,19 +22,15 @@ Edge cases: email **info@Rathor.ai**. "Modest" is intentionally undefined.
 
 ## 2. Commercial use requires a paid written grant
 
-A separate paid commercial license from Autonomicity Games Inc. is required for:
+Organization use and the commercial deployments below require a separate paid commercial license from Autonomicity Games Inc. This does **not** apply to a natural person’s use under AG-SML v1.1 §1: personal, educational, and research use, and daily living or independent creative work (freelancer, artist, writer, or similar), even where modest personal income depends on the tool.
 
-- use by a corporation, agency, studio, or other organization;
-- selling the Software, a fork, a wrapper, or a hosted instance;
-- hosting the Software for profit;
-- bundling it into a paid product, store listing, marketplace SKU, or closed-source proprietary title;
-- large-scale public multiplayer hosting for revenue or advertising;
-- removing or replacing copyright, sash, or PATSAGi / Ra-Thor marks in a public redistribution;
-- training a competing commercial model on this Work as a primary corpus without a written grant.
+This includes (non-exhaustive):
 
-Natural persons may keep using the Work under AG-SML v1.1 for personal, educational, and research use, and for daily living or independent creative work (freelancer, artist, writer, or similar), even where modest personal income depends on the tool.
-
-This list mirrors LICENSE §2 and is not exhaustive.
+- Integration into a paid product or service
+- Deployment inside a company or organization for internal production use at scale
+- Offering Ra-Thor- or Powrush-derived capabilities as a paid API, SaaS, store SKU, or consulting deliverable
+- Selling copies, hosting for profit, or sublicensing for sale
+- Large-scale or revenue-linked deployments of any kind
 
 If you are unsure, email **info@Rathor.ai** with a short description.
 
