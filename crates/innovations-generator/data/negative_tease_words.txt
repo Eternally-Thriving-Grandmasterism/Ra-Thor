@@ -1,0 +1,16 @@
+# Negative / tease words for name-screen sound-alike (hard Mercy-Check).
+# One token per line; lines starting with # are ignored.
+dunce
+fool
+bomb
+chimp
+crime
+slime
+dumb
+dope
+gross
+stink
+nerd
+bum
+poo
+loser

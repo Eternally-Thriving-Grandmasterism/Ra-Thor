@@ -115,3 +115,30 @@ Rank 3 is `evidenced` because the input attached `docs/REVENUE_SCALE.md` and the
 When a real creative choice is not covered by a card or a ruling, run this CLI and post at most three seeds as a SUGGESTION on GitHub. The default is HOLD. A seed becomes a card only after the council votes and Sherif says OK. Merge routines do not call this CLI. A suggestion does not change Layer 0.
 
 Pairing behavior is documented in [`../idea-recycling/README.md`](../idea-recycling/README.md). The 2026-09-07 human-side run record is [`../../docs/science/INNOVATIONS-GENERATOR-RUN-2026-09-07-TOLC-BASE-REALITY.md`](../../docs/science/INNOVATIONS-GENERATOR-RUN-2026-09-07-TOLC-BASE-REALITY.md).
+
+## Character-name Mercy-Checks (`screen-name`)
+
+The `innovate` binary can screen cast candidate names before they leave the naming pipeline. This is a **heuristic** English-only word-list pass. It is **not** trademark clearance, not a repo/IP search, and not a native-speaker review.
+
+```bash
+cargo run -p innovations-generator --bin innovate -- screen-name Coil Coily Spool Dunstan Hesper
+cargo run -p innovations-generator --bin innovate -- screen-name --cast Hesper,Coil NewName
+```
+
+For each name, the tool prints `PASS`, `FAIL`, or `FLAG` lines:
+
+| Check | Severity | What it does |
+|-------|----------|----------------|
+| Character-ness | hard FAIL | Exact match (case-insensitive) to bundled common nouns/materials in `data/common_nouns.txt`, unless the name ends with a name-like `-y`, `-ie`, or `-o` suffix. |
+| Sound-alikes | hard FAIL | Lowercased name or rhyme tail (last vowel group + coda, minimum three letters) matches `data/negative_tease_words.txt`, or the name starts with a listed word’s approximate first syllable. Reports the triggering word. |
+| Shape | soft FLAG | Approximate syllable count (vowel-group heuristic) is not 1 or 2. |
+| Cast clash | soft FLAG | With `--cast`, shared first letter or identical rhyme tail with a cast name. |
+
+It always prints these reminder lines (never filled in by the tool):
+
+- `NEEDS RESEARCH: IP/trademark and own-repo clash search`
+- `NEEDS NATIVE CHECK: languages not checked`
+- `NEEDS HUMAN: associations (ethnic, religious, place) and harmonic feel`
+- `Not legal trademark clearance.`
+
+Exit code `1` if any name fails a hard check; `0` when all hard checks pass (soft FLAGs alone still exit `0`).
