@@ -28,7 +28,7 @@ AgentOS, Open AgentOS, Agno AgentOS, @useAgentOS, and Hermes Agent are **differe
 ## The loop (unchanged)
 
 1. Intend  
-2. Pass the gates (TOLC 8 · PATSAGi · Conductor)  
+2. Pass the Mercy-Checks (TOLC 8 · PATSAGi · Conductor)  
 3. Optional model (this file)  
 4. Review — drafts until a human accepts  
 5. Act — the human owns the action  

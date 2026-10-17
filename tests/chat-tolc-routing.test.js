@@ -57,7 +57,7 @@ positives.forEach(function (text) {
   assert(tolRegex.test(text), 'expected match: ' + text);
 });
 
-var negatives = ['mercy checkout', 'tolcfoo'];
+var negatives = ['mercy checkout', 'mercy wayside', 'tolcfoo'];
 negatives.forEach(function (text) {
   assert(!tolRegex.test(text), 'expected no match: ' + text);
 });

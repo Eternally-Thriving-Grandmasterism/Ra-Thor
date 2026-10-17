@@ -26,44 +26,63 @@ function parseQuarantine(content) {
   return map;
 }
 
-var quarantine = fs.existsSync(quarantinePath)
-  ? parseQuarantine(fs.readFileSync(quarantinePath, 'utf8'))
-  : {};
-
-Object.keys(quarantine)
-  .sort()
-  .forEach(function (file) {
-    console.log('QUARANTINED: ' + file + ' — ' + quarantine[file]);
+function unknownQuarantineEntries(quarantine, testFileNames) {
+  return Object.keys(quarantine).filter(function (f) {
+    return testFileNames.indexOf(f) === -1;
   });
+}
 
-var files = fs
-  .readdirSync(testsDir)
-  .filter(function (f) {
-    return f.endsWith('.test.js');
-  })
-  .sort();
+function main() {
+  var quarantine = fs.existsSync(quarantinePath)
+    ? parseQuarantine(fs.readFileSync(quarantinePath, 'utf8'))
+    : {};
 
-var failed = false;
+  Object.keys(quarantine)
+    .sort()
+    .forEach(function (file) {
+      console.log('QUARANTINED: ' + file + ' — ' + quarantine[file]);
+    });
 
-files.forEach(function (file) {
-  var filePath = path.join(testsDir, file);
-  var result = cp.spawnSync(process.execPath, [filePath], {
-    stdio: 'inherit',
-    env: process.env,
-  });
-  var passed = result.status === 0;
-  var reason = quarantine[file];
-  if (reason) {
-    if (passed) {
-      console.error('STALE QUARANTINE (test now passes; remove from QUARANTINE.md): ' + file);
+  var files = fs
+    .readdirSync(testsDir)
+    .filter(function (f) {
+      return f.endsWith('.test.js');
+    })
+    .sort();
+
+  var failed = false;
+
+  files.forEach(function (file) {
+    var filePath = path.join(testsDir, file);
+    var result = cp.spawnSync(process.execPath, [filePath], {
+      stdio: 'inherit',
+      env: process.env,
+    });
+    var passed = result.status === 0;
+    var reason = quarantine[file];
+    if (reason) {
+      if (passed) {
+        console.error('STALE QUARANTINE (test now passes; remove from QUARANTINE.md): ' + file);
+        failed = true;
+      } else {
+        console.log('quarantined failure (expected): ' + file);
+      }
+    } else if (!passed) {
+      console.error('FAILED: ' + file);
       failed = true;
-    } else {
-      console.log('quarantined failure (expected): ' + file);
     }
-  } else if (!passed) {
-    console.error('FAILED: ' + file);
-    failed = true;
-  }
-});
+  });
 
-process.exit(failed ? 1 : 0);
+  unknownQuarantineEntries(quarantine, files).forEach(function (f) {
+    console.error('UNKNOWN QUARANTINE ENTRY: ' + f);
+    failed = true;
+  });
+
+  process.exit(failed ? 1 : 0);
+}
+
+if (require.main === module) {
+  main();
+}
+
+module.exports = { parseQuarantine, unknownQuarantineEntries };
