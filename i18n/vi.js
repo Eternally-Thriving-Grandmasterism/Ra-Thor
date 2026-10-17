@@ -311,7 +311,7 @@ window.translations["vi"] = {
 
   "employBotCoord": "Điều phối qua GitHub — PR, một issue bảng hội đồng và tin nhắn trực tiếp bot-bot khi cần bàn giao.",
   "employBotHonesty": "Dòng trung thực: không phê duyệt hay điểm giả. Khoảng trống được đánh dấu, không bao giờ lấp.",
-  "employBotLead": "Phần mềm nghiên cứu có thể kiểm tra với Mercy-Checks: đội bot nhỏ trên repo của bạn, không phải trại agent được host. Tổ chức có giấy phép và pilot có thể dựng trên GitHub hôm nay.",
+  "employBotLead": "Phần mềm nghiên cứu có thể kiểm tra với Mercy-Checks: đội bot nhỏ trên repo của bạn, không phải trại agent được host. Tổ chức có thể hỏi về điều này qua <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 underline\">info@Rathor.ai</a>.",
   "employBotMerge1": "Một PR nháp từ đầu main.",
   "employBotMerge2": "CI xanh trên đúng head của PR.",
   "employBotMerge3": "Mỗi ghế đăng phiếu trên đúng head SHA đó.",
@@ -324,7 +324,7 @@ window.translations["vi"] = {
   "employBotPlaybook": "Sổ tay đầy đủ: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/EMPLOY_BOT_TEAM.md\" class=\"text-amber-300 underline\">docs/EMPLOY_BOT_TEAM.md</a>.",
   "employBotRoute": "Bot dẫn nhận mỗi thẻ, giữ phạm vi trung thực và chuyển việc đến ghế hội đồng đúng.",
   "employBotSeatCore": "<strong class=\"text-amber-300\">Core</strong> — bầu về runtime, workflow, service worker, manifest, khóa, bảo mật, API công khai và văn bản công khai AI đọc được.",
-  "employBotSeatPaths": "<strong class=\"text-amber-300\">Paths</strong> — bầu về tệp và đường dẫn thay đổi chạm, chứng minh vẫn trong slice.",
+  "employBotSeatPaths": "<strong class=\"text-amber-300\">Paths</strong> — bầu về tệp và đường dẫn thay đổi chạm, chứng minh vẫn trong phạm vi.",
   "employBotSeatReviewer": "<strong class=\"text-amber-300\">Reviewer</strong> — bầu về bản thân thay đổi: phạm vi, trung thực và cách diễn đạt.",
   "employBotSeatsTitle": "Ba ghế hội đồng",
   "employBotSetup1": "Tạo bot dẫn cho tổ chức.",

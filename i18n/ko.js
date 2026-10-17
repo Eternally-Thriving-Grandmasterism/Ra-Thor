@@ -311,7 +311,7 @@ window.translations["ko"] = {
 
   "employBotCoord": "조정은 GitHub로 — PR, 하나의 council-board issue, 인계가 필요할 때 봇 간 직접 메시지.",
   "employBotHonesty": "정직의 선: 가짜 승인이나 점수 없음. 빈틈은 표시만 하고 채우지 않음.",
-  "employBotLead": "Mercy-Checks가 있는 검사 가능한 연구 소프트웨어: 호스팅 에이전트 팜이 아니라 리포에서 돌리는 작은 봇 팀. 라이선스 조직과 파일럿은 오늘 GitHub에서 세울 수 있습니다.",
+  "employBotLead": "Mercy-Checks가 있는 검사 가능한 연구 소프트웨어: 호스팅 에이전트 팜이 아니라 리포에서 돌리는 작은 봇 팀. 조직은 <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 underline\">info@Rathor.ai</a>으로 문의할 수 있습니다.",
   "employBotMerge1": "main 끝에서 하나의 드래프트 PR.",
   "employBotMerge2": "정확한 PR head에서 CI 녹색.",
   "employBotMerge3": "각 좌석이 그 head SHA에 투표 게시.",
@@ -324,7 +324,7 @@ window.translations["ko"] = {
   "employBotPlaybook": "전체 플레이북: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/EMPLOY_BOT_TEAM.md\" class=\"text-amber-300 underline\">docs/EMPLOY_BOT_TEAM.md</a>.",
   "employBotRoute": "리드 봇이 각 카드를 받고 범위를 정직하게 유지하며 올바른 이사회 좌석으로 라우팅합니다.",
   "employBotSeatCore": "<strong class=\"text-amber-300\">Core</strong> — 런타임, 워크플로, service worker, manifest, 키, 보안, 공개 API, 공개 AI 읽기 텍스트에 투표.",
-  "employBotSeatPaths": "<strong class=\"text-amber-300\">Paths</strong> — 변경이 건드리는 파일과 경로에 투표, 슬라이스 안에 있음을 증명.",
+  "employBotSeatPaths": "<strong class=\"text-amber-300\">Paths</strong> — 변경이 건드리는 파일과 경로에 투표하며, 범위 안에 있음을 증명합니다.",
   "employBotSeatReviewer": "<strong class=\"text-amber-300\">Reviewer</strong> — 변경 자체에 투표: 범위, 정직, 문구.",
   "employBotSeatsTitle": "이사회 세 좌석",
   "employBotSetup1": "조직용 리드 봇을 만듭니다.",

@@ -5,7 +5,7 @@
 **Public surface:** [employ.html](https://rathor.ai/employ.html) (Organizations · governed bot team)  
 **Lock:** [`PUBLIC_CLAIM.lock.md`](../PUBLIC_CLAIM.lock.md)
 
-Inspectable research software with **Mercy-Checks**. This playbook is for an organization that already has a repo, a human owner, and permission to run bots against GitHub. It is not a hosted agent product, not a certification, and not a METR score.
+Inspectable research software with **Mercy-Checks**. This playbook is for an organization that already has a repo, a human owner, and permission to run bots against GitHub. It is not a hosted agent product or a certification. It makes no capability, safety, or scaling claims.
 
 Capable · Bounded · Corrigible.
 
@@ -177,7 +177,7 @@ Answer these before the first card ships:
 
 ## Honesty line
 
-No fake approvals or scores. Gaps are flagged, never filled in. Inspectable research software — not METR, not AGSi warranty language.
+No fake approvals or scores. Gaps are flagged, never filled in. Inspectable research software. It makes no capability, safety, or scaling claims.
 
 ---
 

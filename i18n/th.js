@@ -311,7 +311,7 @@ window.translations["th"] = {
 
   "employBotCoord": "การประสานงานผ่าน GitHub — PR หนึ่ง issue กระดาน council และข้อความตรงระหว่างบอตเมื่อต้องส่งต่อ",
   "employBotHonesty": "เส้นความซื่อสัตย์: ไม่มีการอนุมัติหรือคะแนนปลอม ช่องว่างถูกทำเครื่องหมาย ไม่เติมเอง",
-  "employBotLead": "ซอฟต์แวร์วิจัยที่ตรวจสอบได้พร้อม Mercy-Checks: ทีมบอตเล็กบน repo ของคุณ ไม่ใช่ฟาร์มเอเจนต์โฮสต์ องค์กรที่มีใบอนุญาตและพิลอตตั้งได้บน GitHub วันนี้",
+  "employBotLead": "ซอฟต์แวร์วิจัยที่ตรวจสอบได้พร้อม Mercy-Checks: ทีมบอตเล็กบน repo ของคุณ ไม่ใช่ฟาร์มเอเจนต์โฮสต์ องค์กรสอบถามเรื่องนี้ได้ที่ <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 underline\">info@Rathor.ai</a>",
   "employBotMerge1": "PR ฉบับร่างหนึ่งจากปลาย main",
   "employBotMerge2": "CI เขียวบน head ของ PR นั้นเป๊ะ",
   "employBotMerge3": "แต่ละที่นั่งโพสต์โหวตบน head SHA นั้นเป๊ะ",
@@ -324,7 +324,7 @@ window.translations["th"] = {
   "employBotPlaybook": "คู่มือฉบับเต็ม: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/EMPLOY_BOT_TEAM.md\" class=\"text-amber-300 underline\">docs/EMPLOY_BOT_TEAM.md</a>",
   "employBotRoute": "บอตหัวหน้ารับการ์ดแต่ละใบ รักษาขอบเขตอย่างซื่อสัตย์ และส่งงานไปที่นั่ง council ที่ถูกต้อง",
   "employBotSeatCore": "<strong class=\"text-amber-300\">Core</strong> — โหวตเรื่อง runtime workflow service worker manifest คีย์ ความปลอดภัย public API และข้อความสาธารณะที่ AI อ่านได้",
-  "employBotSeatPaths": "<strong class=\"text-amber-300\">Paths</strong> — โหวตไฟล์และพาธที่แตะ แสดงว่าอยู่ใน slice",
+  "employBotSeatPaths": "<strong class=\"text-amber-300\">Paths</strong> — โหวตไฟล์และพาธที่แตะ แสดงว่าอยู่ในขอบเขต",
   "employBotSeatReviewer": "<strong class=\"text-amber-300\">Reviewer</strong> — โหวตการเปลี่ยนแปลงเอง: ขอบเขต ความซื่อสัตย์ และถ้อยคำ",
   "employBotSeatsTitle": "สามที่นั่ง council",
   "employBotSetup1": "สร้างบอตหัวหน้าสำหรับองค์กร",

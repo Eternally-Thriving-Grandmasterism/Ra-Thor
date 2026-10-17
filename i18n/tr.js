@@ -311,7 +311,7 @@ window.translations["tr"] = {
 
   "employBotCoord": "Koordinasyon GitHub üzerinden — PR'lar, bir council-board issue ve devirde doğrudan bot-bot mesajları.",
   "employBotHonesty": "Dürüstlük çizgisi: sahte onay veya puan yok. Boşluklar işaretlenir, asla doldurulmaz.",
-  "employBotLead": "Mercy-Checks ile incelenebilir araştırma yazılımı: barındırılan ajan çiftliği değil, reponuzda çalışan küçük bir bot ekibi. Lisanslı kuruluşlar ve pilotlar bunu bugün GitHub'da kurabilir.",
+  "employBotLead": "Mercy-Checks ile incelenebilir araştırma yazılımı: barındırılan ajan çiftliği değil, reponuzda çalışan küçük bir bot ekibi. Kuruluşlar bunun hakkında <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 underline\">info@Rathor.ai</a> üzerinden sorabilir.",
   "employBotMerge1": "main ucundan tek bir taslak PR.",
   "employBotMerge2": "Tam PR head üzerinde yeşil CI.",
   "employBotMerge3": "Her koltuk o tam head SHA üzerinde oyunu yayınlar.",
@@ -324,7 +324,7 @@ window.translations["tr"] = {
   "employBotPlaybook": "Tam playbook: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/EMPLOY_BOT_TEAM.md\" class=\"text-amber-300 underline\">docs/EMPLOY_BOT_TEAM.md</a>.",
   "employBotRoute": "Bir lider bot her kartı alır, kapsamı dürüst tutar ve işi doğru council koltuğuna yönlendirir.",
   "employBotSeatCore": "<strong class=\"text-amber-300\">Core</strong> — runtime, workflow, service worker, manifest, anahtarlar, güvenlik, public API ve public AI-okunur metin üzerine oy verir.",
-  "employBotSeatPaths": "<strong class=\"text-amber-300\">Paths</strong> — değişikliğin dokunduğu dosya ve yollar üzerine oy verir; dilimde kaldığını kanıtlar.",
+  "employBotSeatPaths": "<strong class=\"text-amber-300\">Paths</strong> — değişikliğin dokunduğu dosya ve yollar üzerine oy verir; kapsamda kaldığını kanıtlar.",
   "employBotSeatReviewer": "<strong class=\"text-amber-300\">Reviewer</strong> — değişikliğin kendisi üzerine oy verir: kapsam, dürüstlük ve ifade.",
   "employBotSeatsTitle": "Üç council koltuğu",
   "employBotSetup1": "Kuruluşunuz için bir lider bot oluşturun.",

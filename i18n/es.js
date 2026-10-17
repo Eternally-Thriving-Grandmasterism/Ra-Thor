@@ -311,7 +311,7 @@ window.translations["es"] = {
 
   "employBotCoord": "La coordinación pasa por GitHub — PRs, un issue de tablero del consejo y mensajes directos entre bots cuando un asiento necesita traspaso.",
   "employBotHonesty": "Línea de honestidad: sin aprobaciones ni puntuaciones falsas. Las lagunas se señalan, nunca se rellenan.",
-  "employBotLead": "Software de investigación inspeccionable con Mercy-Checks: un equipo pequeño de bots que usted ejecuta en su repositorio, no una granja de agentes alojada. Organizaciones con licencia y pilotos pueden montarlo hoy en GitHub.",
+  "employBotLead": "Software de investigación inspeccionable con Mercy-Checks: un equipo pequeño de bots que usted ejecuta en su repositorio, no una granja de agentes alojada. Las organizaciones pueden preguntar al respecto en <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 underline\">info@Rathor.ai</a>.",
   "employBotMerge1": "Un PR en borrador desde la punta de main.",
   "employBotMerge2": "CI verde en la cabeza exacta del PR.",
   "employBotMerge3": "Cada asiento publica su voto en ese SHA de cabeza exacto.",
@@ -324,7 +324,7 @@ window.translations["es"] = {
   "employBotPlaybook": "Guía completa: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/EMPLOY_BOT_TEAM.md\" class=\"text-amber-300 underline\">docs/EMPLOY_BOT_TEAM.md</a>.",
   "employBotRoute": "Un bot líder recibe cada tarjeta, mantiene el alcance honesto y enruta el trabajo al asiento del consejo correcto.",
   "employBotSeatCore": "<strong class=\"text-amber-300\">Núcleo</strong> — vota sobre tiempo de ejecución, flujos de trabajo, service worker, manifiesto, claves, seguridad, API pública y texto público legible por IA.",
-  "employBotSeatPaths": "<strong class=\"text-amber-300\">Rutas</strong> — vota sobre qué archivos y rutas toca el cambio, demostrando que permanece en la rebanada.",
+  "employBotSeatPaths": "<strong class=\"text-amber-300\">Rutas</strong> — vota sobre qué archivos y rutas toca el cambio, demostrando que permanece en el ámbito.",
   "employBotSeatReviewer": "<strong class=\"text-amber-300\">Revisor</strong> — vota sobre el cambio en sí: alcance, honestidad y redacción.",
   "employBotSeatsTitle": "Tres asientos del consejo",
   "employBotSetup1": "Cree un bot líder para su organización.",

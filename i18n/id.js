@@ -311,7 +311,7 @@ window.translations["id"] = {
 
   "employBotCoord": "Koordinasi lewat GitHub — PR, satu issue papan dewan, dan pesan langsung bot-ke-bot saat perlu serah terima.",
   "employBotHonesty": "Garis kejujuran: tanpa persetujuan atau skor palsu. Celah ditandai, tidak pernah diisi.",
-  "employBotLead": "Perangkat lunak riset yang dapat diperiksa dengan Mercy-Checks: tim bot kecil di repo Anda, bukan peternakan agen yang di-host. Organisasi berlisensi dan pilot dapat memasangnya di GitHub hari ini.",
+  "employBotLead": "Perangkat lunak riset yang dapat diperiksa dengan Mercy-Checks: tim bot kecil di repo Anda, bukan peternakan agen yang di-host. Organisasi dapat menanyakan hal ini melalui <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 underline\">info@Rathor.ai</a>.",
   "employBotMerge1": "Satu PR draf dari ujung main.",
   "employBotMerge2": "CI hijau pada head PR yang tepat.",
   "employBotMerge3": "Setiap kursi memposting suara pada SHA head yang sama.",
@@ -324,7 +324,7 @@ window.translations["id"] = {
   "employBotPlaybook": "Buku panduan lengkap: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/EMPLOY_BOT_TEAM.md\" class=\"text-amber-300 underline\">docs/EMPLOY_BOT_TEAM.md</a>.",
   "employBotRoute": "Bot pemimpin menerima setiap kartu, menjaga cakupan jujur, dan mengarahkan pekerjaan ke kursi dewan yang tepat.",
   "employBotSeatCore": "<strong class=\"text-amber-300\">Core</strong> — memilih runtime, alur kerja, service worker, manifest, kunci, keamanan, API publik, dan teks publik yang dapat dibaca AI.",
-  "employBotSeatPaths": "<strong class=\"text-amber-300\">Paths</strong> — memilih berkas dan jalur yang disentuh, membuktikan tetap dalam irisan.",
+  "employBotSeatPaths": "<strong class=\"text-amber-300\">Paths</strong> — memilih berkas dan jalur yang disentuh, membuktikan tetap dalam ruang lingkup.",
   "employBotSeatReviewer": "<strong class=\"text-amber-300\">Reviewer</strong> — memilih perubahan itu sendiri: cakupan, kejujuran, dan kata-kata.",
   "employBotSeatsTitle": "Tiga kursi dewan",
   "employBotSetup1": "Buat bot pemimpin untuk organisasi Anda.",

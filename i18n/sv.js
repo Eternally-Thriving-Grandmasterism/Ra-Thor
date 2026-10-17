@@ -311,7 +311,7 @@ window.translations["sv"] = {
 
   "employBotCoord": "Samordning sker via GitHub — PR, ett council-board-issue och direkta bot-till-bot-meddelanden vid överlämning.",
   "employBotHonesty": "Ärlighetslinje: inga falska godkännanden eller poäng. Luckor flaggas, fylls aldrig i.",
-  "employBotLead": "Inspekterbar forskningsmjukvara med Mercy-Checks: ett litet botteam på ert repo, inte en hostad agentfarm. Licensierade organisationer och piloter kan sätta upp detta på GitHub idag.",
+  "employBotLead": "Inspekterbar forskningsmjukvara med Mercy-Checks: ett litet botteam på ert repo, inte en hostad agentfarm. Organisationer kan fråga om detta via <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 underline\">info@Rathor.ai</a>.",
   "employBotMerge1": "En utkast-PR från spetsen av main.",
   "employBotMerge2": "Grönt CI på exakt PR-head.",
   "employBotMerge3": "Varje säte postar sin röst på den exakta head-SHA:n.",
@@ -324,7 +324,7 @@ window.translations["sv"] = {
   "employBotPlaybook": "Fullständig playbook: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/EMPLOY_BOT_TEAM.md\" class=\"text-amber-300 underline\">docs/EMPLOY_BOT_TEAM.md</a>.",
   "employBotRoute": "En lead-bot tar emot varje kort, håller omfånget ärligt och dirigerar arbetet till rätt rådsäte.",
   "employBotSeatCore": "<strong class=\"text-amber-300\">Core</strong> — röstar om runtime, arbetsflöden, service worker, manifest, nycklar, säkerhet, offentlig API och offentlig AI-läsbar text.",
-  "employBotSeatPaths": "<strong class=\"text-amber-300\">Paths</strong> — röstar om vilka filer och sökvägar ändringen rör, och visar att den stannar i skivorna.",
+  "employBotSeatPaths": "<strong class=\"text-amber-300\">Paths</strong> — röstar om vilka filer och sökvägar ändringen rör, och visar att den stannar inom omfånget.",
   "employBotSeatReviewer": "<strong class=\"text-amber-300\">Reviewer</strong> — röstar om ändringen i sig: omfång, ärlighet och formulering.",
   "employBotSeatsTitle": "Tre rådsäten",
   "employBotSetup1": "Skapa en lead-bot för er organisation.",

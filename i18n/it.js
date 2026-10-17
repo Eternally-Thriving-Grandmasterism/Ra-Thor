@@ -311,7 +311,7 @@ window.translations["it"] = {
 
   "employBotCoord": "Il coordinamento passa da GitHub — PR, un issue di bacheca del consiglio e messaggi diretti tra bot quando serve un passaggio.",
   "employBotHonesty": "Linea di onestà: niente approvazioni o punteggi falsi. Le lacune sono segnalate, mai riempite.",
-  "employBotLead": "Software di ricerca ispezionabile con Mercy-Checks: un piccolo team di bot sul vostro repo, non una fattoria di agenti ospitata. Organizzazioni con licenza e piloti possono attivarlo oggi su GitHub.",
+  "employBotLead": "Software di ricerca ispezionabile con Mercy-Checks: un piccolo team di bot sul vostro repo, non una fattoria di agenti ospitata. Le organizzazioni possono chiedere informazioni tramite <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 underline\">info@Rathor.ai</a>.",
   "employBotMerge1": "Una PR in bozza dalla punta di main.",
   "employBotMerge2": "CI verde sulla head esatta della PR.",
   "employBotMerge3": "Ogni seggio pubblica il voto su quello SHA di head esatto.",
@@ -324,7 +324,7 @@ window.translations["it"] = {
   "employBotPlaybook": "Playbook completo: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/EMPLOY_BOT_TEAM.md\" class=\"text-amber-300 underline\">docs/EMPLOY_BOT_TEAM.md</a>.",
   "employBotRoute": "Un bot capo riceve ogni scheda, mantiene onesto l’ambito e instrada il lavoro al seggio giusto del consiglio.",
   "employBotSeatCore": "<strong class=\"text-amber-300\">Core</strong> — vota su runtime, workflow, service worker, manifest, chiavi, sicurezza, API pubblica e testo pubblico leggibile dall’IA.",
-  "employBotSeatPaths": "<strong class=\"text-amber-300\">Paths</strong> — vota su file e percorsi toccati, dimostrando che resta nella slice.",
+  "employBotSeatPaths": "<strong class=\"text-amber-300\">Paths</strong> — vota su file e percorsi toccati, dimostrando che resta nell’ambito.",
   "employBotSeatReviewer": "<strong class=\"text-amber-300\">Reviewer</strong> — vota sulla modifica stessa: ambito, onestà e formulazione.",
   "employBotSeatsTitle": "Tre seggi del consiglio",
   "employBotSetup1": "Create un bot capo per la vostra organizzazione.",

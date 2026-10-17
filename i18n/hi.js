@@ -311,7 +311,7 @@ window.translations["hi"] = {
 
   "employBotCoord": "समन्वय GitHub से — PR, एक council-board issue, और हस्तांतरण पर सीधे बॉट-से-बॉट संदेश।",
   "employBotHonesty": "ईमानदारी की रेखा: नकली स्वीकृतियाँ या स्कोर नहीं। अंतराल चिह्नित होते हैं, कभी भरे नहीं जाते।",
-  "employBotLead": "Mercy-Checks के साथ निरीक्षणीय अनुसंधान सॉफ़्टवेयर: आपके रिपो पर छोटी बॉट टीम, होस्टेड एजेंट फार्म नहीं। लाइसेंस प्राप्त संगठन और पायलट आज GitHub पर इसे चला सकते हैं।",
+  "employBotLead": "Mercy-Checks के साथ निरीक्षणीय अनुसंधान सॉफ़्टवेयर: आपके रिपो पर छोटी बॉट टीम, होस्टेड एजेंट फार्म नहीं। संगठन <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 underline\">info@Rathor.ai</a> के ज़रिए इसके बारे में पूछ सकते हैं।",
   "employBotMerge1": "main की टिप से एक ड्राफ्ट PR।",
   "employBotMerge2": "ठीक उस PR head पर हरा CI।",
   "employBotMerge3": "प्रत्येक सीट उसी head SHA पर वोट पोस्ट करे।",
@@ -324,7 +324,7 @@ window.translations["hi"] = {
   "employBotPlaybook": "पूरा playbook: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/EMPLOY_BOT_TEAM.md\" class=\"text-amber-300 underline\">docs/EMPLOY_BOT_TEAM.md</a>.",
   "employBotRoute": "एक लीड बॉट प्रत्येक कार्ड लेता है, दायरा ईमानदार रखता है, और काम सही council सीट पर भेजता है।",
   "employBotSeatCore": "<strong class=\"text-amber-300\">Core</strong> — runtime, workflows, service worker, manifest, keys, security, public API और public AI-readable text पर वोट।",
-  "employBotSeatPaths": "<strong class=\"text-amber-300\">Paths</strong> — कौन सी फाइलें और पथ छूते हैं, यह साबित करते हुए कि स्लाइस में रहा।",
+  "employBotSeatPaths": "<strong class=\"text-amber-300\">Paths</strong> — कौन सी फाइलें और पथ छूते हैं, यह साबित करते हुए कि दायरे में रहा।",
   "employBotSeatReviewer": "<strong class=\"text-amber-300\">Reviewer</strong> — बदलाव स्वयं पर वोट: दायरा, ईमानदारी, शब्दावली।",
   "employBotSeatsTitle": "तीन council सीटें",
   "employBotSetup1": "अपने संगठन के लिए लीड बॉट बनाएँ।",

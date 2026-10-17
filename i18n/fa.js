@@ -311,7 +311,7 @@ window.translations["fa"] = {
 
   "employBotCoord": "هماهنگی از طریق GitHub — PR، یک issue تابلوی شورا و پیام مستقیم بوت‌به‌بوت هنگام تحویل.",
   "employBotHonesty": "خط صداقت: بدون تأیید یا امتیاز ساختگی. شکاف‌ها علامت‌گذاری می‌شوند، هرگز پر نمی‌شوند.",
-  "employBotLead": "نرم‌افزار پژوهشی قابل بازرسی با Mercy-Checks: تیم کوچک بوت روی repo شما، نه مزرعه عامل میزبانی‌شده. سازمان‌های دارای مجوز و پایلوت می‌توانند امروز روی GitHub برپا کنند.",
+  "employBotLead": "نرم‌افزار پژوهشی قابل بازرسی با Mercy-Checks: تیم کوچک بوت روی repo شما، نه مزرعه عامل میزبانی‌شده. سازمان‌ها می‌توانند از طریق <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 underline\">info@Rathor.ai</a> دربارهٔ آن بپرسند.",
   "employBotMerge1": "یک PR پیش‌نویس از سر main.",
   "employBotMerge2": "CI سبز روی همان head PR.",
   "employBotMerge3": "هر صندلی رأی خود را روی آن head SHA دقیق می‌گذارد.",
@@ -324,7 +324,7 @@ window.translations["fa"] = {
   "employBotPlaybook": "راهنمای کامل: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/EMPLOY_BOT_TEAM.md\" class=\"text-amber-300 underline\">docs/EMPLOY_BOT_TEAM.md</a>.",
   "employBotRoute": "بوت سرکار هر کارت را می‌گیرد، دامنه را صادق نگه می‌دارد و کار را به صندلی درست شورا می‌فرستد.",
   "employBotSeatCore": "<strong class=\"text-amber-300\">Core</strong> — روی runtime، workflow، service worker، manifest، کلیدها، امنیت، API عمومی و متن عمومی AI رأی می‌دهد.",
-  "employBotSeatPaths": "<strong class=\"text-amber-300\">Paths</strong> — روی فایل‌ها و مسیرهایی که تغییر می‌زند رأی می‌دهد و می‌ماندن در slice را نشان می‌دهد.",
+  "employBotSeatPaths": "<strong class=\"text-amber-300\">Paths</strong> — روی فایل‌ها و مسیرهایی که تغییر می‌زند رأی می‌دهد و می‌ماندن در محدوده را نشان می‌دهد.",
   "employBotSeatReviewer": "<strong class=\"text-amber-300\">Reviewer</strong> — روی خود تغییر رأی می‌دهد: دامنه، صداقت و واژگان.",
   "employBotSeatsTitle": "سه صندلی شورا",
   "employBotSetup1": "یک بوت سرکار برای سازمان بسازید.",

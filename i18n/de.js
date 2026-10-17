@@ -311,7 +311,7 @@ window.translations["de"] = {
 
   "employBotCoord": "Koordination über GitHub — PRs, ein Council-Board-Issue und direkte Bot-zu-Bot-Nachrichten bei Übergaben.",
   "employBotHonesty": "Ehrlichkeitslinie: keine falschen Freigaben oder Scores. Lücken werden markiert, nie ausgefüllt.",
-  "employBotLead": "Inspectierbare Forschungssoftware mit Mercy-Checks: ein kleines Bot-Team auf Ihrem Repo — keine gehostete Agentenfarm. Lizenzierte Organisationen und Piloten können das heute auf GitHub aufsetzen.",
+  "employBotLead": "Nachvollziehbare Forschungssoftware mit Mercy-Checks: ein kleines Bot-Team auf Ihrem Repo — keine gehostete Agentenfarm. Organisationen können dazu über <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 underline\">info@Rathor.ai</a> nachfragen.",
   "employBotMerge1": "Ein Draft-PR von der Spitze von main.",
   "employBotMerge2": "Grünes CI auf dem exakten PR-Head.",
   "employBotMerge3": "Jeder Sitz postet seine Stimme auf genau diesen Head-SHA.",
@@ -324,7 +324,7 @@ window.translations["de"] = {
   "employBotPlaybook": "Vollständiges Playbook: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/EMPLOY_BOT_TEAM.md\" class=\"text-amber-300 underline\">docs/EMPLOY_BOT_TEAM.md</a>.",
   "employBotRoute": "Ein Lead-Bot nimmt jede Karte entgegen, hält den Umfang ehrlich und leitet die Arbeit an den richtigen Council-Sitz weiter.",
   "employBotSeatCore": "<strong class=\"text-amber-300\">Core</strong> — stimmt über Runtime, Workflows, Service Worker, Manifest, Schlüssel, Sicherheit, öffentliche API und öffentlich KI-lesbaren Text ab.",
-  "employBotSeatPaths": "<strong class=\"text-amber-300\">Paths</strong> — stimmt über Dateien und Pfade ab und belegt, dass alles in der Slice bleibt.",
+  "employBotSeatPaths": "<strong class=\"text-amber-300\">Paths</strong> — stimmt über Dateien und Pfade ab und belegt, dass alles im Umfang bleibt.",
   "employBotSeatReviewer": "<strong class=\"text-amber-300\">Reviewer</strong> — stimmt über die Änderung ab: Umfang, Ehrlichkeit und Formulierung.",
   "employBotSeatsTitle": "Drei Council-Sitze",
   "employBotSetup1": "Lead-Bot für Ihre Organisation anlegen.",

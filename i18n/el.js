@@ -311,7 +311,7 @@ window.translations["el"] = {
 
   "employBotCoord": "Ο συντονισμός γίνεται μέσω GitHub — PR, ένα issue πίνακα συμβουλίου και άμεσα μηνύματα bot-bot όταν χρειάζεται παράδοση.",
   "employBotHonesty": "Γραμμή ειλικρίνειας: όχι ψεύτικες εγκρίσεις ή βαθμοί. Τα κενά σημειώνονται, ποτέ δεν γεμίζουν.",
-  "employBotLead": "Επιθεωρήσιμο ερευνητικό λογισμικό με Mercy-Checks: μικρή ομάδα bots στο repo σας, όχι φάρμα hosted agents. Αδειοδοτημένοι οργανισμοί και πιλοτικά μπορούν να το στήσουν σήμερα στο GitHub.",
+  "employBotLead": "Επιθεωρήσιμο ερευνητικό λογισμικό με Mercy-Checks: μικρή ομάδα bots στο repo σας, όχι φάρμα hosted agents. Οι οργανισμοί μπορούν να ρωτήσουν σχετικά μέσω <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 underline\">info@Rathor.ai</a>.",
   "employBotMerge1": "Ένα draft PR από την άκρη του main.",
   "employBotMerge2": "Πράσινο CI στην ακριβή κεφαλή του PR.",
   "employBotMerge3": "Κάθε θέση δημοσιεύει την ψήφο της σε αυτό το ακριβές head SHA.",
@@ -324,7 +324,7 @@ window.translations["el"] = {
   "employBotPlaybook": "Πλήρες playbook: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/EMPLOY_BOT_TEAM.md\" class=\"text-amber-300 underline\">docs/EMPLOY_BOT_TEAM.md</a>.",
   "employBotRoute": "Ένα lead bot λαμβάνει κάθε κάρτα, κρατά ειλικρινές το εύρος και δρομολογεί τη δουλειά στη σωστή θέση συμβουλίου.",
   "employBotSeatCore": "<strong class=\"text-amber-300\">Core</strong> — ψηφίζει για runtime, workflows, service worker, manifest, κλειδιά, ασφάλεια, δημόσιο API και δημόσιο κείμενο AI.",
-  "employBotSeatPaths": "<strong class=\"text-amber-300\">Paths</strong> — ψηφίζει για αρχεία και διαδρομές που αγγίζει η αλλαγή, αποδεικνύοντας ότι μένει στο slice.",
+  "employBotSeatPaths": "<strong class=\"text-amber-300\">Paths</strong> — ψηφίζει για αρχεία και διαδρομές που αγγίζει η αλλαγή, αποδεικνύοντας ότι μένει εντός του πεδίου εφαρμογής.",
   "employBotSeatReviewer": "<strong class=\"text-amber-300\">Reviewer</strong> — ψηφίζει για την ίδια την αλλαγή: εύρος, ειλικρίνεια και διατύπωση.",
   "employBotSeatsTitle": "Τρεις θέσεις συμβουλίου",
   "employBotSetup1": "Δημιουργήστε lead bot για τον οργανισμό σας.",

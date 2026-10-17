@@ -311,7 +311,7 @@ window.translations["ja"] = {
 
   "employBotCoord": "調整は GitHub 経由 — PR、理事会ボード用の 1 件の issue、席の引き継ぎが必要なときのボット間直接メッセージ。",
   "employBotHonesty": "誠実の線：偽の承認やスコアはしない。欠けている点は示し、埋めない。",
-  "employBotLead": "Mercy-Checks 付きの検査可能な研究ソフトウェア：ホスト型エージェント農場ではなく、リポジトリ上で動かす小さなボットチーム。ライセンス組織とパイロットは今日 GitHub で立ち上げられる。",
+  "employBotLead": "Mercy-Checks 付きの検査可能な研究ソフトウェア：ホスト型エージェント農場ではなく、リポジトリ上で動かす小さなボットチーム。組織は <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 underline\">info@Rathor.ai</a> からお問い合わせできます。",
   "employBotMerge1": "main の先端から 1 本のドラフト PR。",
   "employBotMerge2": "その PR head 上で CI が緑。",
   "employBotMerge3": "各席がその head SHA に投票を投稿。",
@@ -324,7 +324,7 @@ window.translations["ja"] = {
   "employBotPlaybook": "完全なプレイブック：<a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/EMPLOY_BOT_TEAM.md\" class=\"text-amber-300 underline\">docs/EMPLOY_BOT_TEAM.md</a>。",
   "employBotRoute": "リードボットが各カードを受け取り、範囲を正直に保ち、適切な理事会席へルーティングする。",
   "employBotSeatCore": "<strong class=\"text-amber-300\">Core</strong> — ランタイム、ワークフロー、service worker、マニフェスト、鍵、セキュリティ、公開 API、公開 AI 可読テキストに投票。",
-  "employBotSeatPaths": "<strong class=\"text-amber-300\">Paths</strong> — 変更が触れるファイルとパスに投票し、スライス内であることを示す。",
+  "employBotSeatPaths": "<strong class=\"text-amber-300\">Paths</strong> — 変更が触れるファイルとパスに投票し、スコープ内に留まることを示す。",
   "employBotSeatReviewer": "<strong class=\"text-amber-300\">Reviewer</strong> — 変更そのものに投票：範囲、誠実さ、文言。",
   "employBotSeatsTitle": "理事会の 3 席",
   "employBotSetup1": "組織用のリードボットを作成。",

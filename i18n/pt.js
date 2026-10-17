@@ -311,7 +311,7 @@ window.translations["pt"] = {
 
   "employBotCoord": "A coordenação passa pelo GitHub — PRs, um issue de quadro do conselho e mensagens diretas entre bots quando um assento precisa de passagem.",
   "employBotHonesty": "Linha de honestidade: sem aprovações ou pontuações falsas. Lacunas são assinaladas, nunca preenchidas.",
-  "employBotLead": "Software de investigação inspecionável com Mercy-Checks: uma pequena equipa de bots no seu repositório, não uma quinta de agentes alojada. Organizações licenciadas e pilotos podem montar isto hoje no GitHub.",
+  "employBotLead": "Software de investigação inspecionável com Mercy-Checks: uma pequena equipa de bots no seu repositório, não uma quinta de agentes alojada. As organizações podem perguntar sobre isto em <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 underline\">info@Rathor.ai</a>.",
   "employBotMerge1": "Um PR em rascunho a partir da ponta de main.",
   "employBotMerge2": "CI verde na cabeça exata do PR.",
   "employBotMerge3": "Cada assento publica o voto nesse SHA de cabeça exato.",
@@ -324,7 +324,7 @@ window.translations["pt"] = {
   "employBotPlaybook": "Manual completo: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/EMPLOY_BOT_TEAM.md\" class=\"text-amber-300 underline\">docs/EMPLOY_BOT_TEAM.md</a>.",
   "employBotRoute": "Um bot líder recebe cada cartão, mantém o âmbito honesto e encaminha o trabalho para o assento certo do conselho.",
   "employBotSeatCore": "<strong class=\"text-amber-300\">Core</strong> — vota em runtime, fluxos de trabalho, service worker, manifesto, chaves, segurança, API pública e texto público legível por IA.",
-  "employBotSeatPaths": "<strong class=\"text-amber-300\">Paths</strong> — vota em que ficheiros e caminhos a alteração toca, provando que permanece na fatia.",
+  "employBotSeatPaths": "<strong class=\"text-amber-300\">Paths</strong> — vota em que ficheiros e caminhos a alteração toca, provando que permanece no âmbito.",
   "employBotSeatReviewer": "<strong class=\"text-amber-300\">Reviewer</strong> — vota na alteração em si: âmbito, honestidade e redação.",
   "employBotSeatsTitle": "Três assentos do conselho",
   "employBotSetup1": "Crie um bot líder para a sua organização.",

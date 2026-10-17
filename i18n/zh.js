@@ -311,7 +311,7 @@ window.translations["zh"] = {
 
   "employBotCoord": "通过 GitHub 协调 — PR、一张理事会看板 issue，以及席位需要交接时的机器人直连消息。",
   "employBotHonesty": "诚实线：不伪造批准或分数。缺口只标注，从不填补。",
-  "employBotLead": "可检视的研究软件与 Mercy-Checks：在您仓库上运行的一小队机器人，而非托管代理农场。已许可的组织与试点可在 GitHub 上立即搭建。",
+  "employBotLead": "可检视的研究软件与 Mercy-Checks：在您仓库上运行的一小队机器人，而非托管代理农场。组织可通过 <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 underline\">info@Rathor.ai</a> 咨询此事。",
   "employBotMerge1": "从 main 顶端开一张草稿 PR。",
   "employBotMerge2": "在该 PR 精确 head 上 CI 全绿。",
   "employBotMerge3": "各席位在该精确 head SHA 上发帖投票。",
@@ -324,7 +324,7 @@ window.translations["zh"] = {
   "employBotPlaybook": "完整手册: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/EMPLOY_BOT_TEAM.md\" class=\"text-amber-300 underline\">docs/EMPLOY_BOT_TEAM.md</a>.",
   "employBotRoute": "领队机器人接收每张工作卡，保持范围诚实，并把任务路由到正确的理事会席位。",
   "employBotSeatCore": "<strong class=\"text-amber-300\">Core</strong> — 对运行时、工作流、service worker、清单、密钥、安全、公共 API 与公共 AI 可读文本投票。",
-  "employBotSeatPaths": "<strong class=\"text-amber-300\">Paths</strong> — 对变更触及的文件与路径投票，证明仍留在切片内。",
+  "employBotSeatPaths": "<strong class=\"text-amber-300\">Paths</strong> — 对变更触及的文件与路径投票，证明仍留在范围内。",
   "employBotSeatReviewer": "<strong class=\"text-amber-300\">Reviewer</strong> — 对变更本身投票：范围、诚实与措辞。",
   "employBotSeatsTitle": "三个理事会席位",
   "employBotSetup1": "为组织创建领队机器人。",

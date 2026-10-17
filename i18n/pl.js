@@ -311,7 +311,7 @@ window.translations["pl"] = {
 
   "employBotCoord": "Koordynacja przez GitHub — PR, jedno issue tablicy rady i bezpośrednie wiadomości między botami przy przekazaniu.",
   "employBotHonesty": "Linia uczciwości: bez fałszywych zatwierdzeń ani wyników. Luki są oznaczane, nigdy wypełniane.",
-  "employBotLead": "Inspekcjonowalne oprogramowanie badawcze z Mercy-Checks: mały zespół botów na waszym repo, nie hostowana farma agentów. Licencjonowane organizacje i piloci mogą to dziś postawić na GitHub.",
+  "employBotLead": "Inspekcjonowalne oprogramowanie badawcze z Mercy-Checks: mały zespół botów na waszym repo, nie hostowana farma agentów. Organizacje mogą zapytać o to przez <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 underline\">info@Rathor.ai</a>.",
   "employBotMerge1": "Jeden draft PR z końcówki main.",
   "employBotMerge2": "Zielone CI na dokładnej głowie PR.",
   "employBotMerge3": "Każde miejsce publikuje głos na ten dokładny head SHA.",
@@ -324,7 +324,7 @@ window.translations["pl"] = {
   "employBotPlaybook": "Pełny playbook: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/EMPLOY_BOT_TEAM.md\" class=\"text-amber-300 underline\">docs/EMPLOY_BOT_TEAM.md</a>.",
   "employBotRoute": "Bot prowadzący przyjmuje każdą kartę, utrzymuje uczciwy zakres i kieruje pracę na właściwe miejsce rady.",
   "employBotSeatCore": "<strong class=\"text-amber-300\">Core</strong> — głosuje nad runtime, workflow, service worker, manifestem, kluczami, bezpieczeństwem, publicznym API i publicznym tekstem dla AI.",
-  "employBotSeatPaths": "<strong class=\"text-amber-300\">Paths</strong> — głosuje nad plikami i ścieżkami, których dotyka zmiana, dowodząc, że zostaje w wycinku.",
+  "employBotSeatPaths": "<strong class=\"text-amber-300\">Paths</strong> — głosuje nad plikami i ścieżkami, których dotyka zmiana, dowodząc, że zostaje w zakresie.",
   "employBotSeatReviewer": "<strong class=\"text-amber-300\">Reviewer</strong> — głosuje nad samą zmianą: zakres, uczciwość i sformułowanie.",
   "employBotSeatsTitle": "Trzy miejsca rady",
   "employBotSetup1": "Utwórz bota prowadzącego dla organizacji.",

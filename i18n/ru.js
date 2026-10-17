@@ -311,7 +311,7 @@ window.translations["ru"] = {
 
   "employBotCoord": "Координация через GitHub — PR, один issue совета и прямые сообщения между ботами при передаче.",
   "employBotHonesty": "Линия честности: никаких фальшивых одобрений или оценок. Пробелы отмечаются, никогда не заполняются.",
-  "employBotLead": "Исследовательское ПО с Mercy-Checks: небольшая команда ботов на вашем репозитории, а не хостинговая ферма агентов. Лицензированные организации и пилоты могут развернуть это на GitHub сегодня.",
+  "employBotLead": "Исследовательское ПО с Mercy-Checks: небольшая команда ботов на вашем репозитории, а не хостинговая ферма агентов. Организации могут спросить об этом через <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 underline\">info@Rathor.ai</a>.",
   "employBotMerge1": "Один черновой PR с кончика main.",
   "employBotMerge2": "Зелёный CI на точной голове PR.",
   "employBotMerge3": "Каждое место публикует голос на этот точный head SHA.",
@@ -324,7 +324,7 @@ window.translations["ru"] = {
   "employBotPlaybook": "Полный playbook: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/EMPLOY_BOT_TEAM.md\" class=\"text-amber-300 underline\">docs/EMPLOY_BOT_TEAM.md</a>.",
   "employBotRoute": "Ведущий бот принимает каждую карточку, держит честный объём и направляет работу на нужное место совета.",
   "employBotSeatCore": "<strong class=\"text-amber-300\">Core</strong> — голосует за runtime, workflows, service worker, manifest, ключи, безопасность, публичный API и публичный AI-текст.",
-  "employBotSeatPaths": "<strong class=\"text-amber-300\">Paths</strong> — голосует за файлы и пути, которые затрагивает изменение, доказывая, что оно в срезе.",
+  "employBotSeatPaths": "<strong class=\"text-amber-300\">Paths</strong> — голосует за файлы и пути, которые затрагивает изменение, доказывая, что изменение остаётся в пределах области.",
   "employBotSeatReviewer": "<strong class=\"text-amber-300\">Reviewer</strong> — голосует за само изменение: объём, честность и формулировки.",
   "employBotSeatsTitle": "Три места совета",
   "employBotSetup1": "Создайте ведущего бота для организации.",

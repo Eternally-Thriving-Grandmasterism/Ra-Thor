@@ -311,7 +311,7 @@ window.translations["he"] = {
 
   "employBotCoord": "תיאום דרך GitHub — PR, issue אחד של לוח המועצה והודעות ישירות בוט-לבוט בעת מסירה.",
   "employBotHonesty": "קו יושר: בלי אישורים או ציונים מזויפים. פערים מסומנים, לא מתמלאים.",
-  "employBotLead": "תוכנת מחקר שניתנת לבדיקה עם Mercy-Checks: צוות בוטים קטן על ה-repo שלכם, לא חוות סוכנים מתארחת. ארגונים ברישיון ופיילוטים יכולים להקים היום ב-GitHub.",
+  "employBotLead": "תוכנת מחקר שניתנת לבדיקה עם Mercy-Checks: צוות בוטים קטן על ה-repo שלכם, לא חוות סוכנים מתארחת. ארגונים יכולים לשאול על כך דרך <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 underline\">info@Rathor.ai</a>.",
   "employBotMerge1": "PR טיוטה אחד מקצה main.",
   "employBotMerge2": "CI ירוק על ה-head המדויק של ה-PR.",
   "employBotMerge3": "כל מושב מפרסם הצבעה על אותו head SHA מדויק.",
@@ -324,7 +324,7 @@ window.translations["he"] = {
   "employBotPlaybook": "מדריך מלא: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/EMPLOY_BOT_TEAM.md\" class=\"text-amber-300 underline\">docs/EMPLOY_BOT_TEAM.md</a>.",
   "employBotRoute": "בוט מוביל מקבל כל כרטיס, שומר על היקף כנה ומנתב עבודה למושב המועצה הנכון.",
   "employBotSeatCore": "<strong class=\"text-amber-300\">Core</strong> — מצביע על runtime, workflows, service worker, manifest, מפתחות, אבטחה, API ציבורי וטקסט ציבורי לקריאת AI.",
-  "employBotSeatPaths": "<strong class=\"text-amber-300\">Paths</strong> — מצביע על קבצים ונתיבים שהשינוי נוגע בהם, מוכיח שנשאר ב-slice.",
+  "employBotSeatPaths": "<strong class=\"text-amber-300\">Paths</strong> — מצביע על קבצים ונתיבים שהשינוי נוגע בהם, ומוכיח שנשאר בהיקף.",
   "employBotSeatReviewer": "<strong class=\"text-amber-300\">Reviewer</strong> — מצביע על השינוי עצמו: היקף, יושר וניסוח.",
   "employBotSeatsTitle": "שלושה מושבים במועצה",
   "employBotSetup1": "צרו בוט מוביל לארגון.",

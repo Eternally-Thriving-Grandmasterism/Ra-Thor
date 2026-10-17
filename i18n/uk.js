@@ -311,7 +311,7 @@ window.translations["uk"] = {
 
   "employBotCoord": "Координація через GitHub — PR, один issue ради, прямі повідомлення між ботами при передачі.",
   "employBotHonesty": "Лінія чесності: жодних фальшивих схвалень чи оцінок. Прогалини позначаються, ніколи не заповнюються.",
-  "employBotLead": "Дослідницьке ПЗ з Mercy-Checks: невелика команда ботів на вашому репо, а не хостингова ферма агентів. Ліцензовані організації та пілоти можуть розгорнути це на GitHub сьогодні.",
+  "employBotLead": "Дослідницьке ПЗ з Mercy-Checks: невелика команда ботів на вашому репо, а не хостингова ферма агентів. Організації можуть запитати про це через <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 underline\">info@Rathor.ai</a>.",
   "employBotMerge1": "Один чернетковий PR з кінчика main.",
   "employBotMerge2": "Зелений CI на точній голові PR.",
   "employBotMerge3": "Кожне місце публікує голос на цей точний head SHA.",
@@ -324,7 +324,7 @@ window.translations["uk"] = {
   "employBotPlaybook": "Повний playbook: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/EMPLOY_BOT_TEAM.md\" class=\"text-amber-300 underline\">docs/EMPLOY_BOT_TEAM.md</a>.",
   "employBotRoute": "Провідний бот приймає кожну картку, тримає чесний обсяг і направляє роботу на потрібне місце ради.",
   "employBotSeatCore": "<strong class=\"text-amber-300\">Core</strong> — голосує за runtime, workflows, service worker, manifest, ключі, безпеку, публічний API і публічний AI-текст.",
-  "employBotSeatPaths": "<strong class=\"text-amber-300\">Paths</strong> — голосує за файли й шляхи, які торкається зміна, доводячи, що вона в зрізі.",
+  "employBotSeatPaths": "<strong class=\"text-amber-300\">Paths</strong> — голосує за файли й шляхи, які торкається зміна, доводячи, що вона лишається в межах обсягу.",
   "employBotSeatReviewer": "<strong class=\"text-amber-300\">Reviewer</strong> — голосує за саму зміну: обсяг, чесність і формулювання.",
   "employBotSeatsTitle": "Три місця ради",
   "employBotSetup1": "Створіть провідного бота для організації.",

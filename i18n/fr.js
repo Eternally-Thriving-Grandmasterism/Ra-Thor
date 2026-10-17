@@ -311,7 +311,7 @@ window.translations["fr"] = {
 
   "employBotCoord": "La coordination passe par GitHub — PR, un issue de tableau du conseil et messages directs entre bots quand un siège a besoin d’une passation.",
   "employBotHonesty": "Ligne d’honnêteté : pas de validations ni scores fictifs. Les lacunes sont signalées, jamais comblées.",
-  "employBotLead": "Logiciel de recherche inspectable avec Mercy-Checks : une petite équipe de bots que vous exécutez sur votre dépôt, pas une ferme d’agents hébergée. Organisations sous licence et pilotes peuvent le mettre en place sur GitHub dès aujourd’hui.",
+  "employBotLead": "Logiciel de recherche inspectable avec Mercy-Checks : une petite équipe de bots que vous exécutez sur votre dépôt, pas une ferme d’agents hébergée. Les organisations peuvent s’informer via <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 underline\">info@Rathor.ai</a>.",
   "employBotMerge1": "Une PR brouillon depuis la pointe de main.",
   "employBotMerge2": "CI verte sur la tête exacte de la PR.",
   "employBotMerge3": "Chaque siège publie son vote sur ce SHA de tête exact.",
@@ -324,7 +324,7 @@ window.translations["fr"] = {
   "employBotPlaybook": "Guide complet: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/EMPLOY_BOT_TEAM.md\" class=\"text-amber-300 underline\">docs/EMPLOY_BOT_TEAM.md</a>.",
   "employBotRoute": "Un bot chef reçoit chaque carte, garde un périmètre honnête et achemine le travail vers le bon siège du conseil.",
   "employBotSeatCore": "<strong class=\"text-amber-300\">Noyau</strong> — vote sur l’exécution, les workflows, le service worker, le manifeste, les clés, la sécurité, l’API publique et le texte public lisible par l’IA.",
-  "employBotSeatPaths": "<strong class=\"text-amber-300\">Chemins</strong> — vote sur les fichiers et chemins touchés, prouvant que tout reste dans la tranche.",
+  "employBotSeatPaths": "<strong class=\"text-amber-300\">Chemins</strong> — vote sur les fichiers et chemins touchés, prouvant que tout reste dans le périmètre.",
   "employBotSeatReviewer": "<strong class=\"text-amber-300\">Relecteur</strong> — vote sur le changement lui-même : périmètre, honnêteté et formulation.",
   "employBotSeatsTitle": "Trois sièges du conseil",
   "employBotSetup1": "Créez un bot chef pour votre organisation.",

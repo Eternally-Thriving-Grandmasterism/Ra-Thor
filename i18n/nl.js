@@ -311,7 +311,7 @@ window.translations["nl"] = {
 
   "employBotCoord": "Coördinatie loopt via GitHub — PR's, één council-board-issue en directe bot-naar-bot-berichten bij een overdracht.",
   "employBotHonesty": "Eerlijkheidslijn: geen valse goedkeuringen of scores. Hiaten worden gemarkeerd, nooit opgevuld.",
-  "employBotLead": "Inspecteerbare onderzoekssoftware met Mercy-Checks: een klein botteam op uw repo, geen gehoste agentenfarm. Gelicentieerde organisaties en piloten kunnen dit vandaag op GitHub opzetten.",
+  "employBotLead": "Inspecteerbare onderzoekssoftware met Mercy-Checks: een klein botteam op uw repo, geen gehoste agentenfarm. Organisaties kunnen hierover vragen via <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 underline\">info@Rathor.ai</a>.",
   "employBotMerge1": "Eén concept-PR vanaf de tip van main.",
   "employBotMerge2": "Groene CI op de exacte PR-head.",
   "employBotMerge3": "Elke zetel plaatst zijn stem op die exacte head-SHA.",
@@ -324,7 +324,7 @@ window.translations["nl"] = {
   "employBotPlaybook": "Volledig playbook: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/EMPLOY_BOT_TEAM.md\" class=\"text-amber-300 underline\">docs/EMPLOY_BOT_TEAM.md</a>.",
   "employBotRoute": "Een lead-bot ontvangt elke kaart, houdt de scope eerlijk en routeert werk naar de juiste council-zetel.",
   "employBotSeatCore": "<strong class=\"text-amber-300\">Core</strong> — stemt over runtime, workflows, service worker, manifest, sleutels, beveiliging, publieke API en publiek AI-leesbare tekst.",
-  "employBotSeatPaths": "<strong class=\"text-amber-300\">Paths</strong> — stemt over welke bestanden en paden de wijziging raakt, en bewijst dat het in de slice blijft.",
+  "employBotSeatPaths": "<strong class=\"text-amber-300\">Paths</strong> — stemt over welke bestanden en paden de wijziging raakt, en bewijst dat het binnen het bereik blijft.",
   "employBotSeatReviewer": "<strong class=\"text-amber-300\">Reviewer</strong> — stemt over de wijziging zelf: scope, eerlijkheid en formulering.",
   "employBotSeatsTitle": "Drie council-zetels",
   "employBotSetup1": "Maak een lead-bot voor uw organisatie.",
