@@ -1,6 +1,6 @@
 # Organizations: who pays, what they buy
 
-**A public brief for people who need an org-wide or revenue path — without a checkout, a ministry, or a tenth family-walk tab.**
+**A public brief for people who need an org-wide or LICENSE §2 commercial path — without a checkout, a ministry, or a tenth family-walk tab.**
 
 <!-- Public visitor voice. Operator HOLD stays in EMPLOY.md. Family walk unchanged. -->
 
@@ -25,7 +25,9 @@ Personal, research, and modest freelance use stays free under AG-SML v1.1.
 
 Org-wide use pays.
 
-Revenue-generating use pays.
+Hosting the Software for profit pays.
+
+Selling the Software, a fork, a wrapper, or a hosted instance pays.
 
 A product embed pays.
 
@@ -119,7 +121,7 @@ Inspectable research software. Workspace 14.15.6.
 
 Personal / research / modest freelance = AG-SML v1.1 free.
 
-Org-wide or revenue-generating use = paid pilot / commercial license.
+Organization use and other LICENSE §2 cases = paid pilot / commercial license.
 
 Human reply. No instant license key. No public checkout.
 

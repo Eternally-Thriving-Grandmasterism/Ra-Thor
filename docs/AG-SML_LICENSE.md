@@ -17,9 +17,9 @@ This free use is explicitly allowed even if the individual earns modest personal
 
 ---
 
-**Commercial Use Strictly Prohibited Without Paid License**
+**When a separate paid commercial license is required**
 
-Any commercial, enterprise, revenue-generating, or organizational use (including paid products, services, large-scale deployments, or integration into revenue-generating platforms) requires a separate paid commercial license from Autonomicity Games Inc.
+The following require a separate paid commercial license from Autonomicity Games Inc. (see root `LICENSE` §2): use by a corporation, agency, studio, or other organization; selling the Software, a fork, a wrapper, or a hosted instance; hosting the Software for profit; bundling it into a paid product; large-scale public multiplayer hosting for revenue or advertising; removing or replacing PATSAGi / Ra-Thor marks in a public redistribution; training a competing commercial model on this Work without a written grant.
 
 ---
 

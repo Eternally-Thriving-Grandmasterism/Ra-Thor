@@ -35,8 +35,8 @@ assert(contactHtml.indexOf('name="rt_hp"') !== -1, 'form must include an off-scr
 assert(contactHtml.indexOf('class="rt-hp"') !== -1, 'honeypot must be off-screen');
 assert(contactHtml.indexOf('Personal / education / modest freelance remains free under AG-SML v1.1.') !== -1,
   'visible note must keep personal / education / modest freelance free');
-assert(contactHtml.indexOf('This form is for organization or revenue-generating use.') !== -1,
-  'visible note must name organization or revenue-generating use');
+assert(contactHtml.indexOf('This form is for organization use and other LICENSE §2 cases.') !== -1,
+  'visible note must name organization use and LICENSE §2 cases');
 assert(contactHtml.indexOf('A human replies.') !== -1, 'visible note must say a human replies');
 assert(contactHtml.indexOf('There is no instant license key and no public checkout.') !== -1,
   'visible note must refuse instant key and public checkout');

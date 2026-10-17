@@ -332,8 +332,8 @@ cargo run -p ra-thor-one-organism --example one_organism_web_demo --features web
 
 AG-SML v1.1 is the sole public grant for Ra-Thor (source-available, not OSI).  
 
-- **Free:** personal, educational, research, and independent professional use — see root [`LICENSE`](LICENSE)
-- **Commercial / enterprise / revenue-generating use:** requires a paid commercial license — see [`COMMERCIAL_LICENSE.md`](COMMERCIAL_LICENSE.md)
+- **Free:** personal, educational, and research use, and daily living or independent creative work — see root [`LICENSE`](LICENSE) (even where modest personal income depends on the tool)
+- **Paid commercial license:** organization use and the other cases in LICENSE §2 — see [`COMMERCIAL_LICENSE.md`](COMMERCIAL_LICENSE.md)
 - **Evaluation bridge:** time-boxed paid pilots — see [`docs/PILOT_OFFER.md`](docs/PILOT_OFFER.md)
 - **Who should buy:** full public segment map — see [`docs/COMMERCIAL_TARGET_SEGMENTS.md`](docs/COMMERCIAL_TARGET_SEGMENTS.md)
 

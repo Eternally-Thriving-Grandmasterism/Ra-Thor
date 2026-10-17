@@ -19,7 +19,7 @@ It exists so that:
 - The project attracts **aligned revenue** for scale and nurture without diluting Layer 0 (TOLC 8, permanent PATSAGi Councils, AG-SML, independent identity)
 
 **Free use remains free** under AG-SML for personal, educational, research, and independent professional use.  
-**Commercial / enterprise / revenue-generating use requires a paid commercial license.**
+**Organization use and the other LICENSE §2 cases require a paid commercial license.**
 
 ---
 
@@ -324,7 +324,7 @@ Aligned revenue only. Misaligned revenue costs more than it brings.
 
 ## 7. How a serious buyer should start (public process)
 
-1. **Self-check:** Is your use commercial / organizational / revenue-generating? → you need a paid path.  
+1. **Self-check:** Is your use by an organization or otherwise under LICENSE §2? → you need a paid path.  
 2. **Email** [info@Rathor.ai](mailto:info@Rathor.ai) with:
    - Organization name and contact
    - Intended use (1–2 paragraphs)

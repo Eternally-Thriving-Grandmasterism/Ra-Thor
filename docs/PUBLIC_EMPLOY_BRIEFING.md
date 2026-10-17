@@ -118,7 +118,7 @@ Outer loop decides whether the job exists. Inner loop fetches current `main`, do
 
 ## Organizations
 
-Who pays: org-wide use, revenue-generating use, a product embed, client service, or a staff-agent constitution.
+Who pays: organization use, selling the Software or a fork, wrapper, or hosted instance, hosting the Software for profit, a product embed, client service at organizational scale, or a staff-agent constitution.
 
 What they buy: time and rights to wrap one workflow under the same constitution. Inspect the admission shell. Keep or refuse.
 

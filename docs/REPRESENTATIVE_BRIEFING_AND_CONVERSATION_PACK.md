@@ -90,7 +90,7 @@ Details: [COMMERCIAL_LICENSE.md](../COMMERCIAL_LICENSE.md) · [docs/PILOT_OFFER.
 |------|-----------|
 | License | AG-SML v1.1 is the **sole** open-source license |
 | Free | Personal, educational, research, independent professional use |
-| Paid | Commercial, enterprise, revenue-generating, organizational production use |
+| Paid | Organization use and other LICENSE §2 cases (selling the Software or a fork, wrapper, or hosted instance; hosting for profit; paid-product bundling; large-scale public multiplayer hosting for revenue or advertising; mark removal; competing-model training without a written grant) |
 | Bridge | Fixed-fee pilots; public envelopes; pilot fee may credit toward license on conversion |
 | Contact | **info@Rathor.ai** only |
 | Independence | No xAI endorsement, sponsorship, or affiliation |

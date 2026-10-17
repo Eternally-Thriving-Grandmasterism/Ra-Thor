@@ -155,7 +155,7 @@ Living grant: **AG-SML v1.1** — personal / research / modest freelance.
 
 The August 31 work pack cited v1.0 as a freeze. See [`LICENSE-LIVING-STAMP.md`](compliance/LICENSE-LIVING-STAMP.md).
 
-Commercial / org / revenue → paid license. See [`COMMERCIAL_LICENSE.md`](../COMMERCIAL_LICENSE.md).
+Organization or LICENSE §2 use → paid license. See [`COMMERCIAL_LICENSE.md`](../COMMERCIAL_LICENSE.md).
 
 Who pays / what we never host (GitHub FAQ, not a site page): [`COMMERCIAL_GRANT_FAQ.md`](COMMERCIAL_GRANT_FAQ.md) · [blob on main](https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/COMMERCIAL_GRANT_FAQ.md).
 
