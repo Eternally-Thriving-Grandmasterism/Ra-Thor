@@ -86,10 +86,10 @@ var PACKS = {
   'fa.js': '56302b5f8ae6424b943f8e3eacfbf2643c5ed7cff3571f051c3b8bb636e048e9',
   'fr.js': 'bb1225075f7f934a5198c808ed2477d1ea36740e046b47b2ac3ac103e18e624c',
   'he.js': 'c1f7d6c738d0fa53c7ff7193aabab19ecd399a59b412cafdc9e823dbe3661596',
-  'hi.js': '169d48f0f193ab5e5f14d59ea6f704e3a27896513da0e2173f594b05c609b6aa',
+  'hi.js': 'f31d145cda39e2f79ebadb9f2f13f920d227a2e416aa416e3bc5e206757041f3',
   'id.js': '8307245bd412c485448a8fe70777baa304e559447cd33fba1b1138eace900170',
   'it.js': '0881bf1c094d2a03452375c82f2f3e4c365a6b99358939edcf607fa33722df0c',
-  'ja.js': '704ea79476295f977fb2154ead9a79268303aed5491a696e4d5c3b2ffb48017f',
+  'ja.js': '16cded5a55e20c812a802155726058e288e301d38f2be8f8bea734d199a3e1fa',
   'ko.js': 'b67a9a19126571fa1ca43bd26a0125f83cf8fc47aecf1a1173cbb6272719ee4b',
   'nl.js': '39085b3175277104bc9af7eb4f4534444eb30d105fa76eb49d7030d4eaafad28',
   'pl.js': '3d115ae08873f94c2fb8feb1f417ec988be35b69e13f1f46a47cd4ccf16d98b7',
@@ -100,7 +100,7 @@ var PACKS = {
   'tr.js': 'bf88bf9cbfa7f4d83b08154bfcfe92adfa92fc445a9235ebbc80c1db3c519ee5',
   'uk.js': 'babc4a44dd8bbcd9c7b1ff8255e2bd5283f9368ea982049dd0a4a3bfa2280e6f',
   'vi.js': '4c2a13ac51fb502fd3bb7c6be14c10d22f5259f96806fc78beb2ec33043cf581',
-  'zh.js': '7f280be2fd9f4d2e9d458ef2ed28b8c16cca59412b649be031444b6626e22a02',
+  'zh.js': '9a4371074f9b94590d8f30ecc92bef3d0a9f73a319c8886e1c617b947887cb61',
 };
 assert(Object.keys(PACKS).length === 23, 'pack manifest must list 23 packs');
 files.forEach(function (f) {
