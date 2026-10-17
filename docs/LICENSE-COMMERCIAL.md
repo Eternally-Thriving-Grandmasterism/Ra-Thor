@@ -9,9 +9,9 @@
 
 ## Who needs a Ra-Thor Commercial Licence
 
-You need one if you are an **organization** or a **person earning revenue or income** with Ra-Thor or Rathor.ai, whichever AI model you run it with — for example Grok, Claude, ChatGPT, or others. Those names are **examples only**; no vendor is our partner, endorser, or affiliate.
+You need one if you are an **organization**, or if you **sell** Ra-Thor or a fork, wrapper, or hosted instance, **bundle** it into a paid product, or **host** it at large scale for revenue or advertising with Ra-Thor or Rathor.ai — whichever AI model you run it with; for example Grok, Claude, ChatGPT, or others. Those names are **examples only**; no vendor is our partner, endorser, or affiliate.
 
-Personal, educational, research, and modest independent professional use can stay under the public **AG-SML v1.1** grant when it fits the licence text in the monorepo.
+Personal use, education, research, and daily living or independent creative work by a natural person stays free under the public **AG-SML v1.1** grant when it fits the licence text in the monorepo — even where modest personal income depends on the tool.
 
 ---
 
