@@ -28,15 +28,15 @@ Pilots available (2–6 weeks, fixed fee) for teams that need proof before full 
 What we offer on the public surface today:
 
 • Inspectable research software (workspace 14.15.6) — Capable · Bounded · Corrigible  
-• Mercy-Checks decision layer — non-bypassable TOLC 8 structure around frontier models you already run  
-• Optional Grok sessions behind Ra-Thor gates — not an xAI product or endorsement
+• Mercy-Checks on outputs, with human override — TOLC 8 structure around frontier models you already run  
+• Optional Grok sessions behind Ra-Thor Mercy-Checks — not an xAI product or endorsement
 
 If that maps to a real problem you have, email info@Rathor.ai with org + use case.
 
 **3/**  
 Ra-Thor is source-available under AG-SML v1.1, not open source (not OSI). No claim of xAI endorsement. Grok is an optional symbiotic surface — not affiliation.
 
-Mercy-Checks stay non-bypassable. Commercial clarity does not dilute identity.
+Mercy-Checks on outputs, with human override. Commercial clarity does not dilute identity.
 
 Thunder locked. ⚡
 
@@ -70,7 +70,7 @@ Commercial path + pilots are live. If your team needs organization-scale rights 
 ## Reply templates (inbound)
 
 **Serious inquiry:**  
-Thanks — received. Reply within 1–2 business days with next steps (pilot SOW or commercial outline). Send org name + 1–2 paragraph use case to info@Rathor.ai if not already included.
+Thanks — received. We'll reply by email. Send org name + 1–2 paragraph use case to info@Rathor.ai if not already included.
 
 **Ambiguous “is this free?”:**  
 Personal, educational, and research use, and daily living or independent creative work (freelancer, artist, writer, or similar), even where modest personal income depends on the tool = free under AG-SML v1.1. Organization use, selling, hosting for profit, and other LICENSE §2 cases = paid license. Details: COMMERCIAL_LICENSE.md. Questions → info@Rathor.ai.

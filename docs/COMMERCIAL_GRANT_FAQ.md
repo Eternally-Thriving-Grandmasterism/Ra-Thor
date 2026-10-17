@@ -25,7 +25,11 @@ Clone the repo. Run it locally. Wrap a model *you* already pay for. No form.
 
 ## Who must pay?
 
-Modest personal income from freelance, artistic, or independent creative work stays on the free §1 grant for natural persons. A paid written grant from Autonomicity Games Inc. is required for organization use and the other cases in root `LICENSE` §2, including:
+Modest personal income from freelance, artistic, or independent creative work stays on the free §1 grant for natural persons. A paid written grant from Autonomicity Games Inc. is required for cases in root `LICENSE` §1 exclusions and §2:
+
+- hosting the Software for profit (§1 grant exclusion; see root `LICENSE` §1)
+
+**LICENSE §2** (non-exhaustive), including:
 
 - use by a corporation, agency, studio, or other organization
 - org-wide or internal production use at scale
