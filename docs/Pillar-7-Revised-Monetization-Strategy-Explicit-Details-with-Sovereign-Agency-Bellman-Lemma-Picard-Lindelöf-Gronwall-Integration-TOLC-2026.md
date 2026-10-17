@@ -1,4 +1,4 @@
-> Superseded: this is a historical draft. Current terms are AG-SML v1.1 in LICENSE; see COMMERCIAL_LICENSE.md.
+> Superseded: this is a historical draft. Current terms are AG-SML v1.2 in LICENSE; see COMMERCIAL_LICENSE.md.
 
 **NEW File Creation Link (direct GitHub new-file interface — paste ready):**  
 https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/new/main/docs/Pillar-7-Revised-Monetization-Strategy-Explicit-Details-with-Sovereign-Agency-Bellman-Lemma-Picard-Lindelöf-Gronwall-Integration-TOLC-2026.md

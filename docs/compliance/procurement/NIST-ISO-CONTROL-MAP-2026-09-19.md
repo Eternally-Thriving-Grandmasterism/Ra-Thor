@@ -24,7 +24,7 @@ Do not upgrade a tag without a new file + commit. HOLD stays HOLD for ISO applic
 
 | Function | Subcategory (representative) | HEAD evidence | Tag |
 | --- | --- | --- | --- |
-| GOVERN | Policies | `PUBLIC_CLAIM.lock.md`; `docs/compliance/PUBLIC-CLAIM-DISCIPLINE.md`; `docs/compliance/LICENSE-LIVING-STAMP.md` (AG-SML v1.1 living grant) | PRESENT (policy text) |
+| GOVERN | Policies | `PUBLIC_CLAIM.lock.md`; `docs/compliance/PUBLIC-CLAIM-DISCIPLINE.md`; `docs/compliance/LICENSE-LIVING-STAMP.md` (AG-SML v1.2 living grant) | PRESENT (policy text) |
 | GOVERN | Accountability | Sole steward named in the lock; AIMS §2 roles (`docs/compliance/aims/AIMS-SKELETON-2026-08-31.md`); PATSAGi minutes under `docs/science/` including `PATSAGI-COUNCIL-MINUTE-2026-09-19-PROCUREMENT-READINESS.md`. Counsel unnamed. No notified body. | PARTIAL |
 | GOVERN | Third-party / suppliers | `docs/compliance/MODEL-MAP-EGRESS-2026-08-31.md` names xAI, X, Anthropic, Google Translate, esm.run / MLC. No vendor no-training / retention letters on HEAD. | PARTIAL |
 | MAP | System categorization | `docs/compliance/procurement/SYSTEM-CARD-ADMISSION-SHELL-2026-09-19.md` (S1-L0-ADMIT draft filter); isolate list `docs/compliance/DO-NOT-SHIP-2026-08-31.md`; AIMS §3 inventory | PRESENT (self-class) |

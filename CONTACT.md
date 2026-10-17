@@ -18,8 +18,8 @@ Same three destinations as the site footer. Visible labels. `rel="me noopener"`.
 
 | Path | Document |
 |------|----------|
-| Free use (personal / research / education / Wanderer) | Root [`LICENSE`](LICENSE) — AG-SML v1.1 |
-| **Commercial / enterprise use** | [`COMMERCIAL_LICENSE.md`](COMMERCIAL_LICENSE.md) — AG-SML v1.1 exhibit |
+| Free use (personal / research / education / Wanderer) | Root [`LICENSE`](LICENSE) — AG-SML v1.2 |
+| **Commercial / enterprise use** | [`COMMERCIAL_LICENSE.md`](COMMERCIAL_LICENSE.md) — AG-SML v1.2 exhibit |
 | **Paid pilot (2–6 weeks)** | [`docs/PILOT_OFFER.md`](docs/PILOT_OFFER.md) |
 | **Public pilot / evaluation envelopes** | [`docs/PILOT_EVALUATION_BANDS.md`](docs/PILOT_EVALUATION_BANDS.md) |
 | **Phase A budget-and-scope confirmation** | [`docs/PHASE_A_BUDGET_AND_SCOPE_CONFIRMATION.md`](docs/PHASE_A_BUDGET_AND_SCOPE_CONFIRMATION.md) |
@@ -53,7 +53,7 @@ For commercial, pilot, or co-stewardship inquiries, email **info@Rathor.ai** wit
 - Older Autonomicity addresses (`ceo@acitygames.com`, `AlphaProMega@ACityGames.com`, `INFO@ACITYGAMES.COM`, `CEO@ACITYGAMES.COM`) may still reach someone; they are not recommended. Prefer Rathor.ai.
 - No engineering migration of historical strings — do not mass-replace emails across the tree.
 - All new files, Cargo.toml `authors`, LICENSE blocks, docs, and website footers use **info@Rathor.ai** only.
-- Public grant is AG-SML v1.1. Commercial use requires a paid license; pilots are the preferred evaluation bridge.
+- Public grant is AG-SML v1.2. Commercial use requires a paid license; pilots are the preferred evaluation bridge.
 - Pilot and independent-evaluation **envelopes are public**. Annual license dollars stay in a signed schedule.
 - **Polina-class default:** Phase A first. Fit call is conversation one. Create the Boardy match record before sending her confirmation. Introduction is not live until she accepts that call.
 - Shared stewardship and optional equity must respect Layer 0 (TOLC 8, PATSAGi, AG-SML, independent identity).

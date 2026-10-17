@@ -5,7 +5,7 @@
 A human result stores `guide_style` as the Debug text of `AdaptiveGuide::style`. A new guide is `Balanced`. An AI result copies `AiHandshake` fields, including `protocol_version` `"1.0"`.
 
 **Contact:** info@Rathor.ai  
-**License:** AG-SML v1.1  
+**License:** AG-SML v1.2  
 **Status:** flag `symbiotic_membrane` defaults to off. `try_activate` stores `On` only when both bool arguments are true. It does not measure valence.
 
 ## Guide signals

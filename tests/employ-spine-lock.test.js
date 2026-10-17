@@ -111,7 +111,7 @@ assert(sisterMd.indexOf('## EXTRACT later') !== -1, 'SISTER_ADOPTION.md must kee
 assert(sisterMd.indexOf('## LEAVE') !== -1, 'SISTER_ADOPTION.md must keep LEAVE');
 assert(sisterMd.indexOf('members =') === -1, 'SISTER_ADOPTION.md must not add Cargo members');
 assert(sisterMd.indexOf('Ra-Thor ships fusion') !== -1, 'SISTER_ADOPTION.md must refuse fusion SKU');
-assert(sisterMd.indexOf('AG-SML v1.1') !== -1, 'SISTER_ADOPTION.md must name living grant v1.1');
+assert(sisterMd.indexOf('AG-SML v1.2') !== -1, 'SISTER_ADOPTION.md must name living grant v1.2');
 assert(sisterMd.indexOf('info@Rathor.ai') !== -1, 'SISTER_ADOPTION.md must name info@Rathor.ai');
 assert(employHtml.indexOf('SISTER_ADOPTION.md') !== -1, 'employ.html must point at SISTER_ADOPTION.md');
 assert(employMd.indexOf('SISTER_ADOPTION.md') !== -1, 'docs/EMPLOY.md must point at SISTER_ADOPTION.md');
@@ -200,7 +200,7 @@ assert(familyLinkBlock.indexOf("{ href: '/briefing.html'") === -1, 'family walk 
 var commercialBrief = fs.readFileSync(path.join(root, 'docs/PUBLIC_COMMERCIAL_BRIEF.md'), 'utf8');
 assert(employMd.indexOf('PUBLIC_COMMERCIAL_BRIEF.md') !== -1, 'docs/EMPLOY.md must point at PUBLIC_COMMERCIAL_BRIEF.md');
 assert(commercialBrief.indexOf('14.15.6') !== -1, 'PUBLIC_COMMERCIAL_BRIEF.md must name workspace 14.15.6');
-assert(commercialBrief.indexOf('AG-SML v1.1') !== -1, 'PUBLIC_COMMERCIAL_BRIEF.md must name AG-SML v1.1');
+assert(commercialBrief.indexOf('AG-SML v1.2') !== -1, 'PUBLIC_COMMERCIAL_BRIEF.md must name AG-SML v1.2');
 assert(commercialBrief.indexOf('info@Rathor.ai') !== -1, 'PUBLIC_COMMERCIAL_BRIEF.md must name info@Rathor.ai');
 assert(commercialBrief.indexOf('commercial-inquiry') !== -1, 'PUBLIC_COMMERCIAL_BRIEF.md must point at commercial inquiry');
 assert(commercialBrief.indexOf('Layer 0') !== -1, 'PUBLIC_COMMERCIAL_BRIEF.md must name Layer 0');

@@ -1,6 +1,6 @@
 # White-hat admission gate — what it misses
 
-**Workspace:** 14.15.6 · **License:** AG-SML v1.1 · **EW2 solved = False** · **Combined AGSi = SURMISE** · **Independent of xAI** · **Not certified** · **Contact:** [info@Rathor.ai](mailto:info@Rathor.ai)
+**Workspace:** 14.15.6 · **License:** AG-SML v1.2 · **EW2 solved = False** · **Combined AGSi = SURMISE** · **Independent of xAI** · **Not certified** · **Contact:** [info@Rathor.ai](mailto:info@Rathor.ai)
 
 This page lists what `mercy-security` / `mercy-admit` does not catch. The scanner is a pattern-marker admission shell for text intake. It is inspectable research software. It is not a certification, not an antivirus, and not a warranty. Combined AGSi stays a research identity label.
 

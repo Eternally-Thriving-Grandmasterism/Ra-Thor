@@ -2,7 +2,7 @@
 name = "abundance-breath"
 version = "0.1.0"
 edition = "2021"
-license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
 authors = ["Sherif Samy Botros <info@Rathor.ai>"]
 description = "BreathCycle::trigger emits two quanta. Amounts are the source literals 0.00003 and 0.00004 (not measured values). src/feature_flag.rs is not a module."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"

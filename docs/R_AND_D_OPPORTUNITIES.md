@@ -4,7 +4,7 @@
 **Workspace identity:** **14.15.6** (see [`PUBLIC_CLAIM.lock.md`](../PUBLIC_CLAIM.lock.md))  
 **Contact:** [info@Rathor.ai](mailto:info@Rathor.ai)  
 **Affiliation:** independent of xAI — not affiliated, not sponsored, not an xAI product  
-**License:** AG-SML v1.1  
+**License:** AG-SML v1.2  
 **Status:** inspectable research software. **Spec only.** Not a crate. Not a runtime. Not a model. Not a safety case.
 
 This file is a follow-on map for later implementation agents. It names five research hooks and the order to attempt them.

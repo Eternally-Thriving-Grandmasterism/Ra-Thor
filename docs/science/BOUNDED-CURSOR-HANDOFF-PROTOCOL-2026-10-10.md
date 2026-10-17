@@ -41,7 +41,7 @@ Every Cursor session under this protocol must:
 4. Never claim product status, certification, legal resolution, or autonomous shipping.
 5. Leave a reviewable diff. The human reviews and approves before merge.
 6. Prefer single-path, path-filtered reads. Do not recursive-walk the repository root.
-7. Stay inside the current workspace identity (14.15.6) and the existing AG-SML v1.1 grant language.
+7. Stay inside the current workspace identity (14.15.6) and the existing AG-SML v1.2 grant language.
 
 ## 4. Handoff steps
 

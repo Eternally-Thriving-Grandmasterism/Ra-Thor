@@ -5,7 +5,7 @@
 **HEAD at land:** `df310546e9e27a72a65414f6cba1b2d3756f8f26`  
 **Repo:** https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor  
 **Contact:** info@Rathor.ai  
-**License:** AG-SML v1.1  
+**License:** AG-SML v1.2  
 **Status:** inspectable research software. Optional Grok session. Independent of xAI. Not certified. Not a legal product.
 
 This file is the public operating card for **Grok Build Mode** on this monorepo.  
@@ -124,7 +124,7 @@ Engage Grok Build Mode on https://github.com/Eternally-Thriving-Grandmasterism/R
 4. Default members only unless I name a research crate.
 5. Full files via create_or_update_file / push_files on a feature branch + PR.
 6. Keep workspace 14.15.6 unless I explicitly request a version motion.
-7. TOLC 8 + AG-SML v1.1. Independent of xAI. Not certified. Not a legal product.
+7. TOLC 8 + AG-SML v1.2. Independent of xAI. Not certified. Not a legal product.
 8. Contact in files: info@Rathor.ai
 
 Then do: <one named task>

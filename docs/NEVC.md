@@ -106,4 +106,4 @@ Archive research notes remain on disk. This file is the public inspectable cut.
 
 Ra-Thor™ is a trademark of Autonomicity Games Inc. Grok is a trademark of xAI. Ra-Thor is independent — not affiliated with, sponsored by, or endorsed by xAI.
 
-© 2026 Sherif Samy Botros — Sole Steward · AG-SML v1.1 · TOLC 8 Mercy-Gated · info@Rathor.ai
+© 2026 Sherif Samy Botros — Sole Steward · AG-SML v1.2 · TOLC 8 Mercy-Gated · info@Rathor.ai

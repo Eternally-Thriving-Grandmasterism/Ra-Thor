@@ -3,7 +3,7 @@
 **Project:** Ra-Thor / `mercy-security`  
 **Version baseline:** 14.15.6  
 **Contact:** info@Rathor.ai  
-**License:** AG-SML v1.1  
+**License:** AG-SML v1.2  
 **Stance:** Defensive admission & containment only — **not** a general malware detector
 
 ---

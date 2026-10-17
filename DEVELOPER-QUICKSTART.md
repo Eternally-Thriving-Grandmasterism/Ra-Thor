@@ -2,7 +2,7 @@
 
 **Ra-Thor workspace 14.15.6 / Rathor.ai** — developer companion to [`QUICKSTART.md`](QUICKSTART.md) and [`TIER_MAP.md`](TIER_MAP.md)
 
-**AG-SML v1.1** · Contact [info@Rathor.ai](mailto:info@Rathor.ai) · Independent of xAI · Not certified · Not a legal product
+**AG-SML v1.2** · Contact [info@Rathor.ai](mailto:info@Rathor.ai) · Independent of xAI · Not certified · Not a legal product
 
 Default `Cargo.toml` `members` are the TIER_MAP crates plus `mercy-security`. That is the Core Tier-1 merge gate. The on-disk research forest is **not** a default member set — do not `cargo build --workspace` and call it product-green. Conductor **v14 only**.
 

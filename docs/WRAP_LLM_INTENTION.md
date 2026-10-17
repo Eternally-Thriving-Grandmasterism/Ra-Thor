@@ -45,7 +45,7 @@ See [`LAYER_0_RUNTIME_BOUNDARY.md`](LAYER_0_RUNTIME_BOUNDARY.md).
 | Gated prompt before a cloud model sees text | wrap + copy, no secret dump |
 | Inspectable decision trail | council session result, not a vibe |
 | Model draft → lattice | `wrap_model_output` |
-| Commercial clarity | AG-SML v1.1 + employ.html + COMMERCIAL_LICENSE.md |
+| Commercial clarity | AG-SML v1.2 + employ.html + COMMERCIAL_LICENSE.md |
 | Dual-repo RBE feel | Powrush-MMO in the other repo; ingest here is read-only and off by default |
 
 ## Agent loop (every seat)

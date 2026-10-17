@@ -1,6 +1,6 @@
 # Commercial grant FAQ
 
-**Workspace:** 14.15.6 · **License:** AG-SML v1.1 · **EW2 solved = False** · **Combined AGSi = SURMISE** · **Independent of xAI** · **Not certified** · **Contact:** [info@Rathor.ai](mailto:info@Rathor.ai)
+**Workspace:** 14.15.6 · **License:** AG-SML v1.2 · **EW2 solved = False** · **Combined AGSi = SURMISE** · **Independent of xAI** · **Not certified** · **Contact:** [info@Rathor.ai](mailto:info@Rathor.ai)
 
 **Date:** 2026-09-28
 
@@ -15,7 +15,7 @@ This page does not replace the LICENSE or the signed schedule. It answers the qu
 
 ## Who may use it for free?
 
-A natural person, for personal, educational, research, or modest independent-professional work, under AG-SML v1.1 on the root `LICENSE`.
+A natural person, for personal, educational, research, or non-commercial creative work, under AG-SML v1.2 on the root `LICENSE`.
 
 Clone the repo. Run it locally. Wrap a model *you* already pay for. No form.
 
@@ -25,7 +25,7 @@ Clone the repo. Run it locally. Wrap a model *you* already pay for. No form.
 
 ## Who must pay?
 
-Modest personal income from freelance, artistic, or independent creative work stays on the free §1 grant for natural persons. A paid written grant from Autonomicity Games Inc. is required for cases in root `LICENSE` §1 exclusions and §2:
+Revenue or income from using, running, or outputs of the Software requires a paid commercial licence (see LICENSE §1A). Non-commercial personal use stays on the free §1 grant for natural persons. A paid written grant from Autonomicity Games Inc. is required for cases in root `LICENSE` §1 exclusions and §2:
 
 - hosting the Software for profit (§1 grant exclusion; see root `LICENSE` §1)
 
@@ -117,7 +117,7 @@ No. Mercy-Checks, PATSAGi structure, and the no-real-world-harm boundary stay. T
 
 ## Sister trees?
 
-Powrush-MMO and the simulator are separate Works under the same AG-SML v1.1 house text, each scoped to its title. A Ra-Thor commercial grant does not silently include a shipped game.
+Powrush-MMO and the simulator are separate Works under the same AG-SML v1.2 house text, each scoped to its title. A Ra-Thor commercial grant does not silently include a shipped game.
 
 ---
 

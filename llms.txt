@@ -84,7 +84,7 @@ For a direct chat with any model, a person can paste this longer form:
 - [How to employ](https://rathor.ai/employ.html)
 - [Contact](https://rathor.ai/contact.html)
 - [Public claim limits](https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/PUBLIC_CLAIM.lock.md)
-- [License: AG-SML v1.1](https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/LICENSE): personal and research use is free. Organization or product use needs a paid commercial license.
+- [License: AG-SML v1.2](https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/LICENSE): personal and research use is free. Organization or product use needs a paid commercial license.
 
 ## Optional
 

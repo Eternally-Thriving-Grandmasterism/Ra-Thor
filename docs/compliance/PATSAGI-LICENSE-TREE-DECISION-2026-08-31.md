@@ -1,5 +1,5 @@
 # PATSAGi Councils + Ra-Thor Living Thunder
-## License-Tree Decision — AG-SML v1.1 house grant (not a blind v1.2 bump)
+## License-Tree Decision — AG-SML v1.2 house grant (not a blind v1.2 bump)
 
 **Date:** 2026-08-31  
 **Authority:** Permanent PATSAGi Councils under TOLC 8  
@@ -12,9 +12,9 @@ House-grant execution order items 1–8 are **done** on the three controlling tr
 
 | Tree | Controlling grant on HEAD | Notes |
 |------|---------------------------|-------|
-| Ra-Thor | AG-SML v1.1 root `LICENSE` | `Cargo.toml` workspace + metadata license strings are v1.1. Workspace version stays **14.15.6**. |
-| Powrush-MMO | AG-SML v1.1 root `LICENSE` | `INFO@ACITYGAMES.COM` removed from `legal/COMMUNITY_GUIDELINES.md`. |
-| Powrush-MMO-Simulator | AG-SML v1.1 (parent sentence updated) | Still the scoped grant. |
+| Ra-Thor | AG-SML v1.2 root `LICENSE` | `Cargo.toml` workspace + metadata license strings are v1.1. Workspace version stays **14.15.6**. |
+| Powrush-MMO | AG-SML v1.2 root `LICENSE` | `INFO@ACITYGAMES.COM` removed from `legal/COMMUNITY_GUIDELINES.md`. |
+| Powrush-MMO-Simulator | AG-SML v1.2 (parent sentence updated) | Still the scoped grant. |
 
 Commercial exhibit: `COMMERCIAL_LICENSE.md` only. Hyphen / `License/` copies are stubs. Do not mint v1.2.
 
@@ -35,7 +35,7 @@ Pre-landing snapshot. See post-landing status above for HEAD.
 ### Ra-Thor (`Eternally-Thriving-Grandmasterism/Ra-Thor`)
 | Path | Version / role | Action |
 |------|----------------|--------|
-| `LICENSE` | AG-SML **v1.0 — April 11 2026**. | **REWRITE → AG-SML v1.1** (done). |
+| `LICENSE` | AG-SML **v1.0 — April 11 2026**. | **REWRITE → AG-SML v1.2** (done). |
 | `COMMERCIAL_LICENSE.md` | AG-SML v1.0 commercial exhibit. | **PROMOTE to v1.1 exhibit** (done). |
 | `COMMERCIAL-LICENSE.md` / `License/COMMERCIAL-LICENSE.md` | Duplicates. | Hyphen file: **retired stub** (done). `License/` copy: **removed** (LIC-2). |
 | `LICENSE_CLARIFICATION.md` / `LICENSE_SWEEP_COMPLETE.md` / `CONTACT.md` / `CLA.md` / `CODE_OF_CONDUCT.md` | v1.0 refs. | **Bumped / glossary-aligned** (done). |

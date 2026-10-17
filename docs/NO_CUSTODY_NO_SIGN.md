@@ -1,6 +1,6 @@
 # Ra-Thor does not custody, sign, or place orders
 
-**Workspace:** 14.15.6 · **License:** AG-SML v1.1 · **EW2 solved = False** · **Combined AGSi = SURMISE** · **Independent of xAI** · **Not certified** · **Contact:** [info@Rathor.ai](mailto:info@Rathor.ai)
+**Workspace:** 14.15.6 · **License:** AG-SML v1.2 · **EW2 solved = False** · **Combined AGSi = SURMISE** · **Independent of xAI** · **Not certified** · **Contact:** [info@Rathor.ai](mailto:info@Rathor.ai)
 
 **Date:** 2026-09-26
 

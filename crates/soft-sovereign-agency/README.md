@@ -3,7 +3,7 @@
 `SoftSovereignAgency::new` stores a participant id and a substrate. Human starts as `ViewMode::Poetic`. AI starts as `ViewMode::Structured`. `set_view_mode` replaces `preferred_view`. Nothing else is written.
 
 **Contact:** info@Rathor.ai  
-**License:** AG-SML v1.1  
+**License:** AG-SML v1.2  
 **Status:** `src/feature_flag.rs` and `src/dual_path.rs` are not modules. They are not compiled. `src/dual_path.rs` names the source literal `0.999999` in a string. That string is not emitted.
 
 ## Usage

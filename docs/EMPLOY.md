@@ -151,7 +151,7 @@ Google Translate = new tab.
 
 ## F. License
 
-Living grant: **AG-SML v1.1** — personal / research / modest freelance.
+Living grant: **AG-SML v1.2** — personal / research / non-revenue personal use.
 
 The August 31 work pack cited v1.0 as a freeze. See [`LICENSE-LIVING-STAMP.md`](compliance/LICENSE-LIVING-STAMP.md).
 

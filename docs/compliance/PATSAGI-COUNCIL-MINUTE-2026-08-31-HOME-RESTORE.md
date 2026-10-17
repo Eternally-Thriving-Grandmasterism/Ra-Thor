@@ -2,11 +2,11 @@
 **Date:** 2026-08-31
 **Workspace:** 14.15.6 (unchanged)
 **Contact:** info@Rathor.ai
-**Grant:** AG-SML v1.1 house public grant + one commercial exhibit
+**Grant:** AG-SML v1.2 house public grant + one commercial exhibit
 **Not:** v1.2, certification filing, eval scores, product rewrite
 
 ## Decision
-Restore `index.html` from the prepared 25871-byte stamped home (FAQ + workspace footer already on AG-SML v1.1) and push `js/contact-i18n.js` so all 11 `footerSub` strings match the house grant. Do not rewrite product copy.
+Restore `index.html` from the prepared 25871-byte stamped home (FAQ + workspace footer already on AG-SML v1.2) and push `js/contact-i18n.js` so all 11 `footerSub` strings match the house grant. Do not rewrite product copy.
 
 ## Landed on `Eternally-Thriving-Grandmasterism/Ra-Thor` main
 

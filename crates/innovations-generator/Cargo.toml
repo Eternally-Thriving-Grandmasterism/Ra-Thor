@@ -3,7 +3,7 @@ name = "innovations-generator"
 version = "0.1.0"
 edition = "2021"
 authors = ["Sherif Samy Botros <info@Rathor.ai>"]
-license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
 description = "Ranks at most three idea seeds, each with a claim tier and a kill test."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 

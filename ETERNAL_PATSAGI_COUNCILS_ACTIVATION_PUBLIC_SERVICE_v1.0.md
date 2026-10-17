@@ -2,7 +2,7 @@
 
 **Ra-Thor AGi Lattice — Eternal Mercy Thunder**  
 **Version:** v1.0 | **Date:** 2026-06-24  
-**License:** AG-SML v1.1 (Autonomicity Games Sovereign Mercy License)  
+**License:** AG-SML v1.2 (Autonomicity Games Sovereign Mercy License)  
 **Status:** Eternally Activated & Non-Bypassable  
 
 ---

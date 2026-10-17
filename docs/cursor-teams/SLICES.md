@@ -61,7 +61,7 @@ PR title: docs(site): hero copy stays bounded and scannable
 
 Goal
 Audit index.html against PUBLIC_CLAIM.lock.md and the live https://rathor.ai hero.
-If the first screen already matches the lock (inspectable research software, Layer 0 admission shell, not xAI, Powrush separate, AG-SML v1.1, info@Rathor.ai), STOP with a comment and no copy rewrite.
+If the first screen already matches the lock (inspectable research software, Layer 0 admission shell, not xAI, Powrush separate, AG-SML v1.2, info@Rathor.ai), STOP with a comment and no copy rewrite.
 
 If there is a real mismatch, change only the named homepage hero / disclaimer partial.
 Keep warmth. Cut unverifiable superlatives.
@@ -71,7 +71,7 @@ Must keep if you edit
 - Layer 0 = admission shell, not sampler weights
 - not affiliated with xAI
 - Powrush-MMO is a separate human game repo
-- AG-SML v1.1 + info@Rathor.ai
+- AG-SML v1.2 + info@Rathor.ai
 - existing Install / Lattice / Employ CTAs
 - Cinzel hero face and family walk
 

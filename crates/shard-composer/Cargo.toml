@@ -5,7 +5,7 @@ edition = "2021"
 # uuid 1.28.0, via patsagi-councils, declares rust-version 1.89.0.
 rust-version = "1.89.0"
 authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
-license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
 description = "Standalone shard composer. ShardComposerAdapter stores blessing arithmetic from caller inputs. patsagi-councils is re-exported as patsagi."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 publish = false

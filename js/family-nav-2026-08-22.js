@@ -290,7 +290,7 @@
           '</div>' +
           '<div class="md:col-span-3">' +
             '<h4' + fk('footerWorkspaceTitle') + '>Workspace</h4>' +
-            '<p class="rt-legal"' + fk('homeFooterWorkspace') + '>v14.15.6 · AG-SML v1.1 · TOLC 8 · Capable · Bounded · Corrigible</p>' +
+            '<p class="rt-legal"' + fk('homeFooterWorkspace') + '>v14.15.6 · AG-SML v1.2 · TOLC 8 · Capable · Bounded · Corrigible</p>' +
           '</div>' +
           '<div class="md:col-span-3">' +
             '<h4' + fk('footerFamilyTitle') + '>Directory</h4>' +

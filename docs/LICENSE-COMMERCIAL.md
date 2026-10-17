@@ -13,7 +13,7 @@ You need one if you are an **organization using** Ra-Thor or Rathor.ai, or if yo
 
 See [LICENSE §2](../LICENSE) for the full list.
 
-Personal use, education, research, and daily living or independent creative work by a natural person stays free under the public **AG-SML v1.1** grant when it fits the licence text in the monorepo — even where modest personal income depends on the tool.
+Non-commercial personal use, education, research, and non-commercial creative work by a natural person may stay under the public **AG-SML v1.2** grant when it fits the licence text in the monorepo and earns no revenue (see LICENSE §1A). Any revenue or income from using, running, or outputs requires a paid commercial licence.
 
 ---
 
@@ -21,7 +21,7 @@ Personal use, education, research, and daily living or independent creative work
 
 From the site FAQ (wording kept as published):
 
-> The Autonomicity Games Sovereign Mercy License. Individuals may use the work for personal, educational, and research use, and for daily living or independent creative work, even where modest personal income depends on the tool. Organization use and the other cases listed in LICENSE §2 require a separate paid license from Autonomicity Games Inc. License files live in the monorepo.
+> The Autonomicity Games Sovereign Mercy License (AG-SML v1.2). Individuals may use the work for personal, educational, research, and non-commercial creative use. Any revenue or income from using, running, or outputs requires a paid commercial licence from Autonomicity Games Inc. Organization use and the other cases listed in LICENSE §2 require a separate paid commercial licence. License files live in the monorepo.
 
 From the repository `LICENSE` (wording kept as published):
 

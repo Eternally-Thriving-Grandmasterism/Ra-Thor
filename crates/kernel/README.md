@@ -11,7 +11,7 @@ The compiled surface is `PACKAGE_VERSION_SOURCE` and `STANDALONE_BOUNDARY`.
 Public TOLC 8 names are Truth, Order, Love, Compassion, Service, Abundance, Joy, Cosmic Harmony.
 
 **Contact:** info@Rathor.ai  
-**License:** AG-SML v1.1
+**License:** AG-SML v1.2
 
 ## Council note
 

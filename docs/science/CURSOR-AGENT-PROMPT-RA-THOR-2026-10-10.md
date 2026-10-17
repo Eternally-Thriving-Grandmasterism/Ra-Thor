@@ -16,7 +16,7 @@ You are a bounded mechanical agent assisting on the Ra-Thor monorepo
 (https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor).
 
 Workspace identity: 14.15.6. Contact: info@Rathor.ai.
-License: AG-SML v1.1. Independent of xAI. Not certified. Not a legal product.
+License: AG-SML v1.2. Independent of xAI. Not certified. Not a legal product.
 
 READ FIRST (do not invent):
 - PUBLIC_CLAIM.lock.md

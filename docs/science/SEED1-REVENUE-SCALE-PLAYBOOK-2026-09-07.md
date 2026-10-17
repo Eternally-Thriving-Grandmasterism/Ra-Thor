@@ -70,7 +70,7 @@ https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/WHIT
 Pilot terms:
 https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/PILOT_OFFER.md
 
-Ra-Thor is inspectable research software under AG-SML v1.1. Independent
+Ra-Thor is inspectable research software under AG-SML v1.2. Independent
 of xAI. Not certified. Not a legal product.
 
 If useful, reply with organization, use case, and timing.

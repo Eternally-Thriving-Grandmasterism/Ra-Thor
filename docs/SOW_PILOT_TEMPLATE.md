@@ -81,7 +81,7 @@ Do not sign a pilot fee outside [PILOT_EVALUATION_BANDS.md](PILOT_EVALUATION_BAN
 
 - Client may use Ra-Thor **only** for the pilot objective and duration defined here  
 - No production commercial rights, redistribution, or sublicensing under this SOW  
-- AG-SML v1.1 continues to govern free/personal/research use outside this SOW  
+- AG-SML v1.2 continues to govern free/personal/research use outside this SOW  
 - Full commercial rights require a separate signed commercial license ([COMMERCIAL_LICENSE.md](../COMMERCIAL_LICENSE.md))
 
 ---

@@ -1,9 +1,9 @@
-# Ra-Thor Commercial License — AG-SML v1.1 Commercial Terms
+# Ra-Thor Commercial License — AG-SML v1.2 Commercial Terms
 
 **Effective:** 2026-08-31; **envelope pointer:** 2026-09-12  
 **Authority:** Permanent PATSAGi Councils under TOLC 8  
 **Contact:** info@Rathor.ai  
-**Public grant:** root `LICENSE` (AG-SML v1.1)  
+**Public grant:** root `LICENSE` (AG-SML v1.2)  
 **Thesis (not a license):** `rbe-transition-roadmap-v1.1.md`
 
 This is the **single commercial exhibit**. It is not a second public license family. Dollar amounts for **annual / enterprise licenses** belong only in a **signed commercial schedule**, labeled transitional until sunset.
@@ -14,15 +14,15 @@ This is the **single commercial exhibit**. It is not a second public license fam
 
 ## 1. Free use (no commercial license required)
 
-Under the **Autonomicity Games Sovereign Mercy License (AG-SML v1.1)**, a natural person (the Wanderer) may use, copy, modify, and run the Work for personal, educational, research, or modest independent-professional aid without payment.
+Under the **Autonomicity Games Sovereign Mercy License (AG-SML v1.2)**, a natural person (the Wanderer) may use, copy, modify, and run the Work for personal, educational, research, and non-commercial creative use without payment.
 
-Edge cases: email **info@Rathor.ai**. "Modest" is intentionally undefined.
+Any revenue or income from using, running, or outputs of the Software requires a paid commercial licence (see root `LICENSE` §1A). Edge cases and waiver requests: **info@Rathor.ai**.
 
 ---
 
 ## 2. Commercial use requires a paid written grant
 
-Organization use and the commercial deployments below require a separate paid commercial license from Autonomicity Games Inc. This does **not** apply to a natural person’s use under AG-SML v1.1 §1: personal, educational, and research use, and daily living or independent creative work (freelancer, artist, writer, or similar), even where modest personal income depends on the tool.
+Organization use and the commercial deployments below require a separate paid commercial license from Autonomicity Games Inc. This does **not** apply to a natural person’s non-revenue use under AG-SML v1.2 §1: personal, educational, research, and non-commercial creative work. Any revenue or income from using, running, or outputs requires a paid commercial licence (see §1A).
 
 This includes (non-exhaustive):
 
@@ -83,9 +83,9 @@ Agent-security / prompt-injection evaluators start at [`docs/BOARDY_POLINA_AGENT
 
 ---
 
-## 7. Relationship to AG-SML v1.1
+## 7. Relationship to AG-SML v1.2
 
-- AG-SML v1.1 is the **sole public grant** for free/personal/research/Wanderer use.
+- AG-SML v1.2 is the **sole public grant** for free non-revenue personal/research/Wanderer use.
 - This document does not replace AG-SML; it activates the commercial path that AG-SML already requires.
 - Root `LICENSE` is the canonical free-use instrument.
 - `LICENSE_CLARIFICATION.md` remains in force for residual historical dual-license wording (including Eternal Mercy Flow License v3/v4).
@@ -111,9 +111,8 @@ After a valid declaration:
 
 Until that declaration exists, commercial use remains a written-grant path.
 
-Do not invent AG-SML v1.2 for wording cleanup. v1.2 is reserved for an *objective* oracle if one is later operated.
-
 ---
+
 
 ## 9. Contact
 

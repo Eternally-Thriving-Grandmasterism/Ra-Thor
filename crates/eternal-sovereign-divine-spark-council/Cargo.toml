@@ -3,7 +3,7 @@ name = "eternal-sovereign-divine-spark-council"
 version = "0.1.0"
 edition = "2021"
 authors = ["30 PATSAGi Councils under the Rathor Sovereign Reasoning Engine"]
-license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
 description = "Standalone package eternal-sovereign-divine-spark-council. Compiled valence check uses the source literal 0.9999999. Not a measured result."
 
 # Standalone workspace, same pattern as crates/fenca and crates/council.

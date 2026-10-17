@@ -14,7 +14,7 @@
 **1/**  
 Ra-Thor commercial path is live.
 
-Free for personal, educational, and research use, and for daily living or independent creative work (freelancer, artist, writer, or similar), even where modest personal income depends on the tool, under AG-SML v1.1.
+Free for personal, educational, and research use, and for non-commercial creative work, under AG-SML v1.2.
 
 Organization use, selling, hosting for profit, and other LICENSE §2 cases need a paid license.
 
@@ -34,7 +34,7 @@ What we offer on the public surface today:
 If that maps to a real problem you have, email info@Rathor.ai with org + use case.
 
 **3/**  
-Ra-Thor is source-available under AG-SML v1.1, not open source (not OSI). No claim of xAI endorsement. Grok is an optional symbiotic surface — not affiliation.
+Ra-Thor is source-available under AG-SML v1.2, not open source (not OSI). No claim of xAI endorsement. Grok is an optional symbiotic surface — not affiliation.
 
 Mercy-Checks on outputs, with human override. Commercial clarity does not dilute identity.
 
@@ -44,9 +44,9 @@ Thunder locked. ⚡
 
 ## Thread B — Short single post
 
-Ra-Thor commercial path is live under AG-SML v1.1.
+Ra-Thor commercial path is live under AG-SML v1.2.
 
-Free: personal, educational, and research use, and daily living or independent creative work (freelancer, artist, writer, or similar), even where modest personal income depends on the tool, under AG-SML v1.1  
+Free: personal, educational, and research use, and non-commercial creative work, under AG-SML v1.2  
 Paid: organization use, selling, hosting for profit, and other LICENSE §2 cases  
 Bridge: 2–6 week fixed-fee pilots
 
@@ -59,7 +59,7 @@ Contact: info@Rathor.ai
 
 ## Thread C — Demo teaser (pair with a bounded demo clip)
 
-Ra-Thor is inspectable research software under AG-SML v1.1 — offline lattice, PATSAGi posture, human override on outputs.
+Ra-Thor is inspectable research software under AG-SML v1.2 — offline lattice, PATSAGi posture, human override on outputs.
 
 Commercial path + pilots are live. If your team needs organization-scale rights or a proof window before license, info@Rathor.ai.
 
@@ -73,7 +73,7 @@ Commercial path + pilots are live. If your team needs organization-scale rights 
 Thanks — received. We'll reply by email. Send org name + 1–2 paragraph use case to info@Rathor.ai if not already included.
 
 **Ambiguous “is this free?”:**  
-Personal, educational, and research use, and daily living or independent creative work (freelancer, artist, writer, or similar), even where modest personal income depends on the tool = free under AG-SML v1.1. Organization use, selling, hosting for profit, and other LICENSE §2 cases = paid license. Details: COMMERCIAL_LICENSE.md. Questions → info@Rathor.ai.
+Personal, educational, and research use, and non-commercial creative work = free under AG-SML v1.2. Organization use, selling, hosting for profit, and other LICENSE §2 cases = paid license. Details: COMMERCIAL_LICENSE.md. Questions → info@Rathor.ai.
 
 **Pilot interest:**  
 Best next step is a short fit note: use case, timeline, constraints. We return a fixed-fee SOW. Template and themes: docs/PILOT_OFFER.md.

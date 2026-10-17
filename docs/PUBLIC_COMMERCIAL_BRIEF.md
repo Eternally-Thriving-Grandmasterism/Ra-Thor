@@ -8,7 +8,7 @@
 **Doors:** [https://rathor.ai/contact.html#commercial-inquiry](https://rathor.ai/contact.html#commercial-inquiry) · [info@Rathor.ai](mailto:info@Rathor.ai)  
 **FAQ:** [`COMMERCIAL_GRANT_FAQ.md`](COMMERCIAL_GRANT_FAQ.md)  
 **Workspace:** 14.15.6  
-**License:** AG-SML v1.1 — personal and research use; organizations license  
+**License:** AG-SML v1.2 — personal and research use; organizations license  
 **Date:** 18 September 2026; FAQ stamp 2026-09-28
 
 Ra-Thor is inspectable research software from Autonomicity Games Inc.
@@ -21,7 +21,7 @@ Capable · Bounded · Corrigible.
 
 ## Who pays
 
-Personal, research, and modest freelance use stays free under AG-SML v1.1.
+Personal, research, and non-revenue personal use use stays free under AG-SML v1.2.
 
 Org-wide use pays.
 
@@ -119,7 +119,7 @@ Peaceful thriving is purpose under construction, not a national program.
 
 Inspectable research software. Workspace 14.15.6.
 
-Personal / research / modest freelance = AG-SML v1.1 free.
+Personal / research / non-revenue personal use = AG-SML v1.2 free.
 
 Organization use and other LICENSE §2 cases = paid pilot / commercial license.
 
@@ -145,4 +145,4 @@ Capable · Bounded · Corrigible.
 
 Ra-Thor™ is a trademark of Autonomicity Games Inc. Grok is a trademark of xAI. Ra-Thor is independent — not affiliated with, sponsored by, or endorsed by xAI.
 
-© 2026 Sherif Samy Botros — Sole Steward · AG-SML v1.1 · TOLC 8 Mercy-Gated · info@Rathor.ai
+© 2026 Sherif Samy Botros — Sole Steward · AG-SML v1.2 · TOLC 8 Mercy-Gated · info@Rathor.ai

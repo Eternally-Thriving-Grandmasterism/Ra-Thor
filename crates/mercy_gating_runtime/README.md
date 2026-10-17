@@ -11,7 +11,7 @@ Standalone workspace (`resolver = "2"`) with its own `Cargo.lock`. Not a root de
 `ma_at_threshold` and `gate_thresholds` are public fields, so the refuse-a-decrease guarantee covers the methods only, and a direct field write bypasses it.
 
 **Contact:** info@Rathor.ai  
-**License:** AG-SML v1.1
+**License:** AG-SML v1.2
 
 ## Council note
 

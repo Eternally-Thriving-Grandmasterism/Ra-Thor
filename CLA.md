@@ -4,14 +4,14 @@ By submitting a contribution to Ra-Thor, you agree to the following terms under 
 
 ## Agreement
 
-You grant Autonomicity Games Inc. and the Ra-Thor project a perpetual, worldwide, non-exclusive, royalty-free, irrevocable license to use, reproduce, modify, display, perform, sublicense, and distribute your contribution (including any modifications you make) under the terms of the AG-SML v1.1.
+You grant Autonomicity Games Inc. and the Ra-Thor project a perpetual, worldwide, non-exclusive, royalty-free, irrevocable license to use, reproduce, modify, display, perform, sublicense, and distribute your contribution (including any modifications you make) under the terms of the AG-SML v1.2.
 
 You confirm that:
 - You are the sole owner of the contribution or have the necessary rights to grant this license.
 - Your contribution does not violate any third-party rights.
 - You understand that future commercial use of Ra-Thor (including your contribution) may require a paid commercial license from Autonomicity Games Inc.
 
-This CLA does not change the free-use rights granted to natural persons (Wanderers) under the AG-SML v1.1.
+This CLA does not change the free-use rights granted to natural persons (Wanderers) under the AG-SML v1.2.
 
 ## Contact Information
 For questions about this CLA, commercial licensing, or any other inquiries:

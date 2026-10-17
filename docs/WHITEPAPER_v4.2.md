@@ -3,7 +3,7 @@
 **Date:** 16 September 2026  
 **Workspace:** 14.15.6  
 **Contact:** info@Rathor.ai  
-**License (living):** AG-SML v1.1  
+**License (living):** AG-SML v1.2  
 **Lock:** [`PUBLIC_CLAIM.lock.md`](../PUBLIC_CLAIM.lock.md)  
 **Employ:** [`docs/EMPLOY.md`](EMPLOY.md) · [rathor.ai/employ.html](https://rathor.ai/employ.html)  
 **Briefing:** [`docs/PUBLIC_EMPLOY_BRIEFING.md`](PUBLIC_EMPLOY_BRIEFING.md) · [rathor.ai/briefing.html](https://rathor.ai/briefing.html)
@@ -18,7 +18,7 @@ If this cover and v4.1 disagree, **this cover and the claim lock win.**
 
 ## Why v4.2 exists
 
-v4.1 (22 July 2026) is a real architecture snapshot. It is also stale as a *living public paper*. Since July the lattice shipped a stranger employ spine, a wrap kit, a public-voice split, AG-SML v1.1 as the living grant, and a locked claim ceiling. Leaving v4.1 as the only “primary paper” asks strangers to treat SURMISE sentences as current product fact.
+v4.1 (22 July 2026) is a real architecture snapshot. It is also stale as a *living public paper*. Since July the lattice shipped a stranger employ spine, a wrap kit, a public-voice split, AG-SML v1.2 as the living grant, and a locked claim ceiling. Leaving v4.1 as the only “primary paper” asks strangers to treat SURMISE sentences as current product fact.
 
 A 13 September council minute said: do not mint v4.2 in a *link-fix slice*. That slice is closed. This cover is the next bounded paper motion — not a new 12-section cosmology.
 
@@ -36,7 +36,7 @@ A 13 September council minute said: do not mint v4.2 in a *link-fix slice*. That
 | Inspect | inspect ≠ METR. No measured METR numbers. |
 | Combined AGSi | **SURMISE** — a research identity label, not a warranty or a demonstrated phase. |
 | Powrush-MMO | Separate human-game repo. Not a finished MMO on this lattice. |
-| License | AG-SML **v1.1** personal / research / daily living or independent creative work. Organization or LICENSE §2 → paid license. |
+| License | AG-SML **v1.2** personal / research / non-commercial creative work. Organization or LICENSE §2 → paid license. |
 | How a stranger employs | Five-step loop: Intend → Pass the Mercy-Checks → Optional model → Review → Act. |
 | How a stranger wraps a model | Copy context, skill pack, local HTTP shim, or Lattice Chat local backend. You hold the key. There is **no** public rathor.ai key proxy. |
 | Site family | Home · Chat · Employ · Launch · Moments · Shard · Forge · Contact · Privacy |
@@ -67,7 +67,7 @@ These are inspectable artifacts, not new miracles:
 - Wrap kit: `docs/ADOPT.md`, `wrappers/system-prompt.txt`, per-model snippets, `wrappers/local-shim/rathor_wrap.py` (JSON + SSE, operator-held keys)
 - Public / operator voice split: HOLD lines stay in operator docs; they do not print on the site
 - Claim lock and employ lock tests as merge hygiene
-- Living license stamp AG-SML v1.1
+- Living license stamp AG-SML v1.2
 
 That is enough delta to justify a **cover version**. It is not enough delta to justify rewriting v4.1’s architecture body in one seat.
 
@@ -91,6 +91,6 @@ No measured METR numbers. No cert filing. The 31 August 2026 work pack is a draf
 
 Ra-Thor™ is a trademark of Autonomicity Games Inc. Grok is a trademark of xAI. Ra-Thor is independent — not affiliated with, sponsored by, or endorsed by xAI.
 
-© 2026 Sherif Samy Botros — Sole Steward · AG-SML v1.1 · TOLC 8 Mercy-Checked · info@Rathor.ai
+© 2026 Sherif Samy Botros — Sole Steward · AG-SML v1.2 · TOLC 8 Mercy-Checked · info@Rathor.ai
 
 Thunder locked. yoi ⚡

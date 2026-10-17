@@ -10,7 +10,7 @@
 
 An **optional Grok session** can sit under PATSAGi / wrap mercy checks.
 
-Released under the **Autonomicity Games Sovereign Mercy License (AG-SML v1.1)**. Personal and research use on that grant. Organizations license; pilots via [info@Rathor.ai](mailto:info@Rathor.ai). Drafts need human review. Do not treat this repo as a certified, legal, or AGSi-warranty product.
+Released under the **Autonomicity Games Sovereign Mercy License (AG-SML v1.2)**. Personal and research use on that grant. Organizations license; pilots via [info@Rathor.ai](mailto:info@Rathor.ai). Drafts need human review. Do not treat this repo as a certified, legal, or AGSi-warranty product.
 
 The lattice supplies mercy checks, PATSAGi Councils, and a white-hat ingest shell. Grok (when used) supplies neural reasoning. Together they are a research pairing with **human override on every output** — not sampler-weight constraint, and not METR.
 
@@ -48,7 +48,7 @@ Release: [`RELEASE_NOTES_v14.15.6.md`](RELEASE_NOTES_v14.15.6.md)
 
 ## Open-Source & Research Invitation
 
-Ra-Thor is source-available under **AG-SML v1.1**. Researchers, builders, and X-Grok users are warmly invited to:
+Ra-Thor is source-available under **AG-SML v1.2**. Researchers, builders, and X-Grok users are warmly invited to:
 
 - Study the lattice architecture and mercy-check formalisms
 - Use the Micro-Moment Temporal Comprehension Engine for short-video understanding research
@@ -328,11 +328,11 @@ cargo run -p ra-thor-one-organism --example one_organism_web_demo --features web
 
 ## License
 
-**Autonomicity Games Sovereign Mercy License (AG-SML v1.1)**  
+**Autonomicity Games Sovereign Mercy License (AG-SML v1.2)**  
 
-AG-SML v1.1 is the sole public grant for Ra-Thor (source-available, not OSI).  
+AG-SML v1.2 is the sole public grant for Ra-Thor (source-available, not OSI).  
 
-- **Free:** personal, educational, and research use, and daily living or independent creative work — see root [`LICENSE`](LICENSE) (even where modest personal income depends on the tool)
+- **Free:** personal, educational, and research use, and non-commercial creative work — see root [`LICENSE`](LICENSE) 
 - **Paid commercial license:** organization use and the other cases in LICENSE §2 — see [`COMMERCIAL_LICENSE.md`](COMMERCIAL_LICENSE.md)
 - **Evaluation bridge:** time-boxed paid pilots — see [`docs/PILOT_OFFER.md`](docs/PILOT_OFFER.md)
 - **Who should buy:** full public segment map — see [`docs/COMMERCIAL_TARGET_SEGMENTS.md`](docs/COMMERCIAL_TARGET_SEGMENTS.md)

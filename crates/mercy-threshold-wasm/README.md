@@ -7,7 +7,7 @@ Standalone workspace (`resolver = "2"`) with its own `Cargo.lock`. Not a root de
 `native::evaluate_geometry_mercy_hybrid` calls `mial::mwpo`. A Platonic solid with order `0`, density `0`, and step `0` has resonance `0.96` and `truth` `0.999`. `valence` below the source literal `0.999999` returns an error.
 
 **Contact:** info@Rathor.ai  
-**License:** AG-SML v1.1
+**License:** AG-SML v1.2
 
 ## Verify
 

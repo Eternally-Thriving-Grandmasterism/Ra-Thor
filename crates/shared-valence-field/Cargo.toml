@@ -2,7 +2,7 @@
 name = "shared-valence-field"
 version = "0.1.0"
 edition = "2021"
-license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
 authors = ["Sherif Samy Botros <info@Rathor.ai>"]
 description = "In-memory field. new sets collective_valence to the source literal 0.999999 (not a measured value). emit floors with .max(0.999999)."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"

@@ -2,7 +2,7 @@
 name = "resonance-challenge"
 version = "0.1.0"
 edition = "2021"
-license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
 authors = ["Sherif Samy Botros <info@Rathor.ai>"]
 description = "ResonanceChallenge::new derives difficulty from field.observe() and the source literal 0.999999 (not a measured value). resolve(false) emits no quantum."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"

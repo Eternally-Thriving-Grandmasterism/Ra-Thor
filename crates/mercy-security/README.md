@@ -1,7 +1,7 @@
 # mercy-security — White-Hat AGSi Defense
 
 **Version:** 14.15.6  
-**License:** AG-SML v1.1 — Autonomicity Games Sovereign Mercy License  
+**License:** AG-SML v1.2 — Autonomicity Games Sovereign Mercy License  
 **Contact:** info@Rathor.ai
 
 Defensive surface for Ra-Thor ONE Organism against the July 2026 OpenAI → Hugging Face autonomous agent breach class and related AI supply-chain / containment failures.

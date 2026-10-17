@@ -2,7 +2,7 @@
 
 **Resolution ID:** `2026-09-12-Book-Lane-License-Funnels`  
 **Authority:** Permanent PATSAGi Councils under TOLC 8  
-**Consulted:** [rathor.ai](https://rathor.ai), [employ.html](https://rathor.ai/employ.html), root `LICENSE` (AG-SML v1.1), `COMMERCIAL_LICENSE.md`, `docs/COMMERCIAL_TARGET_SEGMENTS.md`, `docs/science/REVENUE_SCALE.md`, `docs/BOOK_LANE.md`, Masterism#1  
+**Consulted:** [rathor.ai](https://rathor.ai), [employ.html](https://rathor.ai/employ.html), root `LICENSE` (AG-SML v1.2), `COMMERCIAL_LICENSE.md`, `docs/COMMERCIAL_TARGET_SEGMENTS.md`, `docs/science/REVENUE_SCALE.md`, `docs/BOOK_LANE.md`, Masterism#1  
 **Contact:** info@Rathor.ai  
 **Claim tier:** ops decision · not booked revenue · not a certified product
 
@@ -18,16 +18,16 @@ Steward asked the Councils (via this lattice seat) to decide everything possible
 
 ### D1 — One house grant (no new license family)
 
-- Books and curriculum digests use **AG-SML v1.1**, the same house grant as Ra-Thor and sister trees.
-- **Do not invent AG-SML v1.2** for book wording (reserved per `COMMERCIAL_LICENSE.md` §8).
+- Books and curriculum digests use **AG-SML v1.2**, the same house grant as Ra-Thor and sister trees.
+- **AG-SML v1.2** is the living public grant (see root `LICENSE` §7).
 - Masterism `LICENSE` still stamped **v1.0** is **drift**. Align Masterism (and future TOLC / math digests) to **v1.1** text scoped to that Work title.
-- Free Wanderer use (personal / education / research / modest independent professional) stays free. Organizational, resale, reprint, hosted-for-profit, and classroom-pack *sales* need a **paid written grant** via info@Rathor.ai.
+- Free Wanderer use (personal / education / research / non-commercial creative work) stays free. Organizational, resale, reprint, hosted-for-profit, and classroom-pack *sales* need a **paid written grant** via info@Rathor.ai.
 
 ### D2 — Split "source grant" from "retail edition"
 
 | Layer | Instrument | Who |
 |-------|------------|-----|
-| Living markdown on GitHub | AG-SML v1.1 | Readers study/fork privately under Wanderer grant |
+| Living markdown on GitHub | AG-SML v1.2 | Readers study/fork privately under Wanderer grant |
 | Official print / ebook / audio SKU sold by Autonomicity Games Inc. | Retail terms of that SKU (Steward sells its own Work) | Buyer gets personal use of that edition — **not** a commercial reprint right |
 | Schools, publishers, translators, resellers, orgs | Paid commercial schedule | info@Rathor.ai |
 
@@ -85,7 +85,7 @@ Stack + TOLC 8: inspectable, offline-first. Does **not** bind other labs or end 
 
 ## 2. Deliberation notes (why)
 
-- **rathor.ai / employ** already teach Wanderer vs Company under **AG-SML v1.1**. Book lane saying v1.0 creates buyer confusion — fix the stamp, do not mint a second philosophy.
+- **rathor.ai / employ** already teach Wanderer vs Company under **AG-SML v1.2**. Book lane saying v1.0 creates buyer confusion — fix the stamp, do not mint a second philosophy.
 - **COMMERCIAL_TARGET_SEGMENTS** sells software pilots and modules; books are a **curriculum funnel**, not a seventh software package. Do not dilute Tier-1 software outreach with "buy our novel."
 - **REVENUE_SCALE** forbids minting a new product family for cash theater. Official editions of an existing curriculum are **application of what is built**, not a new constellation.
 - Durable retail (KDP + direct) outlasts Drive links and one-off PDFs emailed from chat.
@@ -97,7 +97,7 @@ Stack + TOLC 8: inspectable, offline-first. Does **not** bind other labs or end 
 | # | Action | Owner seat |
 |---|--------|------------|
 | A1 | Update `docs/BOOK_LANE.md` with D1–D6 | Lattice steward (this PR) |
-| A2 | Align Masterism `LICENSE` to AG-SML v1.1 (Work: Masterism) | Masterism book PR |
+| A2 | Align Masterism `LICENSE` to AG-SML v1.2 (Work: Masterism) | Masterism book PR |
 | A3 | Keep Masterism#1 / BOOK_LANE PR open until A2 lands or lands in follow-up commits | Steward merge call |
 | A4 | Human editor freeze before any paid SKU listing | Steward / named editor |
 | A5 | Direct store + KDP after freeze | Steward accounts (not agent-automated without leave) |

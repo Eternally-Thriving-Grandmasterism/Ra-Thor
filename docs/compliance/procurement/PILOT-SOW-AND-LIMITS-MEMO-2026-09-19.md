@@ -35,7 +35,7 @@ ISO/IEC 42001, SOC 2, EU AI Act conformity, METR scores, and Combined AGSi are *
 | Non-deliverables | Certificate, SLA, 24/7 on-call, model weights, METR number, affiliation with xAI |
 | Kill switch | Buyer stops the binary; steward will not remotely re-enable; policy changes require a written change note |
 | Data | No buyer confidential prompts into Grok/Claude/X. Default local. |
-| IP | AG-SML v1.1 + any paid commercial exhibit counsel attaches. No training-rights grant on buyer data. |
+| IP | AG-SML v1.2 + any paid commercial exhibit counsel attaches. No training-rights grant on buyer data. |
 | Exit | Buyer keeps the written artifacts. Steward keeps the public repo. No lock-in beyond the pin. |
 | Price | [TO BE SET BY OPERATOR — do not invent] |
 | Success | Artifacts produced. Not “the gate is safe.” |

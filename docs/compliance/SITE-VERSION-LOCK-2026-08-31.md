@@ -5,7 +5,7 @@ Workspace identity remains **14.15.6**. Do not bump.
 Public pages may show only:
 
 1. **workspace 14.15.6** — product identity
-2. **AG-SML v1.1** — public grant
+2. **AG-SML v1.2** — public grant
 3. Named documents (e.g. Whitepaper v4.1) as *document titles*, not product versions
 
 Do not show on chrome / footers / FAQ / i18n:

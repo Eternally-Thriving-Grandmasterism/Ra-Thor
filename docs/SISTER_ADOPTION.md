@@ -10,7 +10,7 @@ This map decides what is worth **linking or extracting into Ra-Thor docs**. It d
 
 `docs/FOREST_TRIAGE.md` is not on `main`. Forest bodies stay unread. Names in LEAVE come from the census only.
 
-**HOLD (same ceiling as the census):** Combined AGSi stays SURMISE. Living grant is **AG-SML v1.1**; a sister description that still says v1.0 is hygiene, not a reason to copy its crates. Fusion / High-Tc / Protein / Daedalus remain research surfaces — inspect the study, never “Ra-Thor ships fusion.” inspect ≠ METR. Powrush-MMO is a separate human-game repo.
+**HOLD (same ceiling as the census):** Combined AGSi stays SURMISE. Living grant is **AG-SML v1.2**; a sister description that still says v1.0 is hygiene, not a reason to copy its crates. Fusion / High-Tc / Protein / Daedalus remain research surfaces — inspect the study, never “Ra-Thor ships fusion.” inspect ≠ METR. Powrush-MMO is a separate human-game repo.
 
 ---
 
@@ -21,7 +21,7 @@ Already-true Employ / Launch use cases. Max 8. One sentence a stranger can act o
 | Sister | Act |
 |--------|-----|
 | [TOLC](https://github.com/Eternally-Thriving-Grandmasterism/TOLC) | Open [`docs/index.md`](https://github.com/Eternally-Thriving-Grandmasterism/TOLC/blob/main/docs/index.md) then [`nuggets.md`](https://github.com/Eternally-Thriving-Grandmasterism/TOLC/blob/main/nuggets.md) for the curriculum behind Employ’s “Pass the Mercy-Checks” — this repo is notes, not the Cargo workspace. |
-| [Masterism](https://github.com/Eternally-Thriving-Grandmasterism/Masterism) | Start at [`CORE.md`](https://github.com/Eternally-Thriving-Grandmasterism/Masterism/blob/main/CORE.md) then [`DAILY.md`](https://github.com/Eternally-Thriving-Grandmasterism/Masterism/blob/main/DAILY.md) for the intro path (AG-SML v1.1, info@Rathor.ai). |
+| [Masterism](https://github.com/Eternally-Thriving-Grandmasterism/Masterism) | Start at [`CORE.md`](https://github.com/Eternally-Thriving-Grandmasterism/Masterism/blob/main/CORE.md) then [`DAILY.md`](https://github.com/Eternally-Thriving-Grandmasterism/Masterism/blob/main/DAILY.md) for the intro path (AG-SML v1.2, info@Rathor.ai). |
 | [Space-Thriving-Manual](https://github.com/Eternally-Thriving-Grandmasterism/Space-Thriving-Manual) | Read [`docs/CONSTELLATION_POINTERS.md`](https://github.com/Eternally-Thriving-Grandmasterism/Space-Thriving-Manual/blob/main/docs/CONSTELLATION_POINTERS.md) as the how-to-read index; treat the root README’s old mail and Pinnacle cross-links as stale stamps, not product doors. |
 | [AlphaProMega-Air](https://github.com/Eternally-Thriving-Grandmasterism/AlphaProMega-Air) | Inspect [`docs/CURRENT-STATUS.md`](https://github.com/Eternally-Thriving-Grandmasterism/AlphaProMega-Air/blob/main/docs/CURRENT-STATUS.md) first; software compile is not a flight certificate, and this is research / NFP, not a certified aircraft product. |
 | [Powrush-MMO](https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO) | Play or inspect the human game **in that repo**; it is not a Ra-Thor crate and is not sold as finished from Rathor.ai. |

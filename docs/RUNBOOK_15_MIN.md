@@ -3,7 +3,7 @@
 **Claim tier:** DRAFT. This runbook is a draft procedure. Passing tests ≠ METR ≠ AGI ≠ AGSi warranty.
 
 **Workspace:** 14.15.6  
-**License:** AG-SML v1.1 — free personal, educational, research, and modest independent professional use. Commercial use needs a paid license or pilot.  
+**License:** AG-SML v1.2 — free personal, educational, research, and non-commercial creative work use. Commercial use needs a paid license or pilot.  
 **Contact:** [info@Rathor.ai](mailto:info@Rathor.ai)  
 **Affiliation:** Independent of xAI. Not affiliated, not sponsored, not an xAI product.  
 **Lock:** [`PUBLIC_CLAIM.lock.md`](../PUBLIC_CLAIM.lock.md)

@@ -5,7 +5,7 @@
 **Trigger:** public question — corrigibility as a runtime invariant, not a preference in weights.  
 **Repo:** https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor  
 **Contact:** info@Rathor.ai  
-**License:** AG-SML v1.1  
+**License:** AG-SML v1.2  
 **Status:** inspectable research software. Optional Grok session. Independent of xAI. Not certified. Not a legal product.
 
 This card is law for agents and public readers. It does not enlarge product scope. It names where Layer 0 is enforced and where it is not.

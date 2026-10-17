@@ -48,4 +48,4 @@ Do not `cargo test --workspace` as a product-green gate. See `TIER_MAP.md`.
 
 Workspace cite stays **14.15.6**. Gap OPEN. No 15.x. No ninth gate. No certification / AGSi-as-product / legal-product / xAI endorsement claims.
 
-License on this crate manifest: AG-SML v1.0 (workspace root currently states AG-SML v1.1).
+License on this crate manifest: AG-SML v1.0 (workspace root currently states AG-SML v1.2).

@@ -3,7 +3,7 @@ name = "fenca"
 version = "0.3.9"
 edition = "2021"
 authors = ["Sherif Samy Botros <info@Rathor.ai>"]
-license = "AG-SML v1.1 — Autonomicity Games Sovereign Mercy License"
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
 description = "Deterministic FENCA content audit. Mercy checks can fail."
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 
