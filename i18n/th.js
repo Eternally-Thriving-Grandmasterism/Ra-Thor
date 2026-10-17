@@ -331,7 +331,7 @@ window.translations["th"] = {
   "employBotSetup2": "เพิ่มบอตสามที่นั่ง (Reviewer Paths Core)",
   "employBotSetup3": "เชื่อม GitHub ด้วยสิทธิ์ที่กระบวนการรวมต้องใช้",
   "employBotSetup4": "ตั้งชื่อ issue กระดาน council หนึ่งสำหรับธงติดขัดและ HOLD",
-  "employBotSetup5": "เปิด watchdog ติดขัดรายชั่วโมง (ธงเท่านั้น — ไม่รวม revert หรือ push เอง)",
+  "employBotSetup5": "เปิด watchdog ติดขัดรายชั่วโมง (ธงเท่านั้น — จะไม่ merge revert หรือ push เอง)",
   "employBotSetupTitle": "ตั้งค่าห้าขั้น",
   "employBotTitle": "รันทีมบอตที่มีการกำกับขององค์กรเอง",
   "employSisterBody": "หลักสูตร เกมของมนุษย์ และงานศึกษาที่ตรวจสอบได้อยู่ในรีโป GitHub ของตนเอง — ไม่ใช่ประตูผลิตภัณฑ์เพิ่มบนไซต์นี้ เปิดแผนที่: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/SISTER_ADOPTION.md\" class=\"text-amber-300 underline\">docs/SISTER_ADOPTION.md</a> งาน Fusion, High-Tc, โปรตีน และยานโลกยังคงเป็นงานศึกษาที่คุณตรวจสอบที่นั่น",

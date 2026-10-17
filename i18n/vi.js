@@ -331,7 +331,7 @@ window.translations["vi"] = {
   "employBotSetup2": "Thêm ba bot ghế (Reviewer, Paths, Core).",
   "employBotSetup3": "Kết nối GitHub với quyền quy trình gộp cần.",
   "employBotSetup4": "Đặt tên một issue bảng hội đồng cho cờ trì và ghi HOLD.",
-  "employBotSetup5": "Bật watchdog trì mỗi giờ (chỉ cờ — không gộp, revert hay push).",
+  "employBotSetup5": "Bật watchdog trì trệ mỗi giờ (chỉ cờ — không gộp, revert hay push).",
   "employBotSetupTitle": "Thiết lập năm bước",
   "employBotTitle": "Vận hành đội bot được quản trị riêng của tổ chức",
   "employSisterBody": "Giáo trình, trò chơi của con người, và các nghiên cứu có thể kiểm tra nằm trong kho GitHub riêng — không phải cửa sản phẩm thêm trên trang này. Mở bản đồ: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/SISTER_ADOPTION.md\" class=\"text-amber-300 underline\">docs/SISTER_ADOPTION.md</a>. Việc Fusion, High-Tc, protein và tàu thế giới vẫn là nghiên cứu bạn kiểm tra ở đó.",

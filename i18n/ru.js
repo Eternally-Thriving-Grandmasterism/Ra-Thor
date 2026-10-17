@@ -311,7 +311,7 @@ window.translations["ru"] = {
 
   "employBotCoord": "Координация через GitHub — PR, один issue совета и прямые сообщения между ботами при передаче.",
   "employBotHonesty": "Линия честности: никаких фальшивых одобрений или оценок. Пробелы отмечаются, никогда не заполняются.",
-  "employBotLead": "Исследовательское ПО с Mercy-Checks: небольшая команда ботов на вашем репозитории, а не хостинговая ферма агентов. Организации могут спросить об этом через <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 underline\">info@Rathor.ai</a>.",
+  "employBotLead": "Проверяемое исследовательское ПО с Mercy-Checks: небольшая команда ботов на вашем репозитории, а не хостинговая ферма агентов. Организации могут спросить об этом через <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 underline\">info@Rathor.ai</a>.",
   "employBotMerge1": "Один черновой PR с кончика main.",
   "employBotMerge2": "Зелёный CI на точной голове PR.",
   "employBotMerge3": "Каждое место публикует голос на этот точный head SHA.",

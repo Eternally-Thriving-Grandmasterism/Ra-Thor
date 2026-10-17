@@ -79,7 +79,7 @@ files.forEach(function (f) {
 // 4. Fingerprints are pinned to the i18n pack text after LLMS-NO-GATE-WORDING-1 (#702, main e6e85a37).
 var PACKS = {
   'ar.js': '397a2709e53c29a3c2384f0860b10399d84da0e5416414efab89cd72cfdf77ac',
-  'de.js': '4b031b45b44ad65a1e5eb7db043587da0f0bc2265c589e50f352ab8e1895f7fb',
+  'de.js': '2b0d1a06c2fa1022f4e7990e2284c54ac57e8a50aab8834dc879f741cd804b9f',
   'el.js': 'b0c61e6878c260c187fb5317b2f8808caf86e3708e9031730bdeba628b907975',
   'en.js': '9c742edca25c5987d9812d778bbc7848a2d3b6fdffaf383e802fc6e89b30b2dd',
   'es.js': '027661e6fb095c7213f578953d8e761b732d5f34f1f55748424338c6d5572283',
@@ -88,18 +88,18 @@ var PACKS = {
   'he.js': 'ffee1e5ca7f952ec92fe0215007e3b045632c520bbebafbb299d27e96415d8bf',
   'hi.js': 'df9cf6e5d3cbf472147de9b6984388afcdc5c16afe367daa5c9ed4bfe20f816d',
   'id.js': 'f3556feba7b3423e094a4ff31aef84e40958d6e9319bc83ee661b94fd5e8bb6b',
-  'it.js': '6d934bc13d69b245c39287a417277bbd60732a8825cb4304b39a0d7981190af9',
+  'it.js': 'e363f102e4462328d286b7b6f0f18fe67fc913ad91e4600c6ba1d4292f10cdbd',
   'ja.js': '905e0a95a84f4b554db0c3ce537d4bab47444a644cf07ee3a27882ec97297983',
   'ko.js': '6ca18dd0f2624d894f4ace4fa65b1907ce991a47a8254f53a1628ac524a50d89',
   'nl.js': 'b2660d6b3c97ca6c8aab7689faa0d7ca8447803e9ca2610a75ee816cef6ff0d4',
   'pl.js': '02ee764dffb3af3a4b7533c87a778cdfc9ef832161484fb35b33bd69e409e4b6',
   'pt.js': 'f9cde5160c3e60b61cf4b808a1c735843223514cd8b4d0ac63b4e130de288bd6',
-  'ru.js': '2d6bbc5b23b477b2a790ed356e44ac3d6cd4097649bac47df9d5b6ecf4ea795a',
+  'ru.js': 'b28e3d839f4843374c9e2eba31cef6575fa240d0ced0668b225042e858a1e6a3',
   'sv.js': '60d9ee773af7c1141339b230b423ff8ac21fce1a9f3ff44b22f87b56b1d87039',
-  'th.js': '01e66d235edb084aea02999469f4ad596617176319af0c8bcde2e4eaa05e9573',
+  'th.js': '4d667274be06fdef18d65393d86cfd706563117d5a623120beaace99b6114e65',
   'tr.js': '0a3ac820b79861c29623b9480b8103655874fabad5e41b35e5f5cff482a76f89',
-  'uk.js': 'abedfe2d84be428ca9e73608d9b28bee8fe62702edcbf5b12cd3a2bdb7ebbe08',
-  'vi.js': 'c0daf778d69c87271ecd8c4c88c5a6a1bdb4b119d5b1d75c887c8962b460969b',
+  'uk.js': 'aa0b7db0bd914d8bc7c3c99b15e213da5855069d1ab734faf4d4ee2e84b9f458',
+  'vi.js': '881884914a6034525bc04cffe24c9862ffaac80d4f2deb0b4cf4fc7261cf9c3d',
   'zh.js': 'f2728b090fad9757205e4b28dd3bb7bc3cbcac6d50bab95ae7b368ad851038bd',
 };
 assert(Object.keys(PACKS).length === 23, 'pack manifest must list 23 packs');

@@ -333,7 +333,7 @@ window.translations["it"] = {
   "employBotSetup4": "Nominate un issue di bacheca del consiglio per segnali di stallo e note HOLD.",
   "employBotSetup5": "Attivate un watchdog orario di stallo (solo segnali — non merge, revert o push da solo).",
   "employBotSetupTitle": "Configurazione in cinque passi",
-  "employBotTitle": "Gestite il proprio team di bot governato dell’organizzazione",
+  "employBotTitle": "Gestite il vostro team di bot governato dell’organizzazione",
   "employSisterBody": "Il curriculum, il gioco umano e gli studi ispezionabili vivono nei propri repository GitHub — non come porte di prodotto extra su questo sito. Apra la mappa: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/SISTER_ADOPTION.md\" class=\"text-amber-300 underline\">docs/SISTER_ADOPTION.md</a>. Il lavoro di Fusion, High-Tc, proteine e worldship resta studio che si ispeziona lì.",
   "employSisterTitle": "Repository pubblici fratelli",
   "employSpine": "Spina: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/EMPLOY.md\" class=\"text-amber-300 underline\">docs/EMPLOY.md</a>. Nota pubblica: <a href=\"/briefing.html\" class=\"text-amber-300 underline\">/briefing.html</a>.",
