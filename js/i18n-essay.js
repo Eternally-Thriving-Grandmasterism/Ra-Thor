@@ -281,6 +281,7 @@
     licenceTitle: 1,
     licenceUpdated: 1,
     licenceWhoBody: 1,
+    licenceWhoSee: 1,
     licenceWhoTitle: 1,
     paperKicker: 1,
     privacyClosing: 1,

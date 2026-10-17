@@ -64,7 +64,7 @@ Quantum-resistant cryptographic primitives (primarily ML-DSA-65 and Falcon) used
 Hardware-based Physical Unclonable Function using Vertical-Cavity Surface-Emitting Laser technology for hardware-rooted cryptographic anchoring.
 
 **Eternal Mercy Flow License**  
-The commercial/enterprise license required for any revenue-generating or for-profit use of Ra-Thor. It includes the Mercy Covenant and ensures ethical stewardship.
+The commercial/enterprise license required for organizations and the paid triggers in LICENSE §2 (selling, forks or wrappers, paid products, large-scale public multiplayer hosting for revenue or advertising, and related cases). Individuals remain free for personal, educational, research, and modest independent professional use under AG-SML v1.1. It includes the Mercy Covenant and ensures ethical stewardship.
 
 **LumenasCI Fairness**  
 The application of LumenasCI to enforce perfect restorative fairness across all algorithms, proofs, and outputs in the lattice.
