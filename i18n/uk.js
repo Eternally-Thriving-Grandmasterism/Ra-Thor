@@ -438,7 +438,7 @@ window.translations["uk"] = {
   "licenceFreeIntro": "Особисте, освітнє, дослідницьке та помірне незалежне професійне використання може залишатися під публічною ліцензією, коли відповідає файлам ліцензії в монорепозиторії. FAQ сайту зазначає:",
   "licenceFaqQuote": "The Autonomicity Games Sovereign Mercy License. Individuals may use the work for personal, educational, research, and modest professional assistance. Commercial, enterprise, and revenue-generating use requires a paid license from Autonomicity Games Inc. License files live in the monorepo.",
   "licenceLicenseLead": "LICENSE у сховищі також каже:",
-  "licenceLicenseQuote": "The following require a <strong class=\"text-amber-300\">separate paid commercial license</strong> from Autonomicity Games Inc., written and signed (email to info@Rathor.ai):",
+  "licenceLicenseQuote": "The following require a <strong class=\"text-amber-300\">separate paid commercial license</strong> from Autonomicity Games Inc., written and signed (email to info@Rathor.ai).",
   "licenceLicensorTitle": "Ліцензіар",
   "licenceLicensorBody": "Autonomicity Games Inc.",
   "licenceAskTitle": "Як запитати",

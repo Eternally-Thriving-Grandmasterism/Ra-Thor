@@ -438,7 +438,7 @@ window.translations["vi"] = {
   "licenceFreeIntro": "Dùng cá nhân, giáo dục, nghiên cứu và nghề nghiệp độc lập vừa phải có thể ở lại giấy phép công khai khi phù hợp tệp giấy phép trong monorepo. FAQ của trang web nêu:",
   "licenceFaqQuote": "The Autonomicity Games Sovereign Mercy License. Individuals may use the work for personal, educational, research, and modest professional assistance. Commercial, enterprise, and revenue-generating use requires a paid license from Autonomicity Games Inc. License files live in the monorepo.",
   "licenceLicenseLead": "LICENSE trong kho cũng nói:",
-  "licenceLicenseQuote": "The following require a <strong class=\"text-amber-300\">separate paid commercial license</strong> from Autonomicity Games Inc., written and signed (email to info@Rathor.ai):",
+  "licenceLicenseQuote": "The following require a <strong class=\"text-amber-300\">separate paid commercial license</strong> from Autonomicity Games Inc., written and signed (email to info@Rathor.ai).",
   "licenceLicensorTitle": "Bên cấp phép",
   "licenceLicensorBody": "Autonomicity Games Inc.",
   "licenceAskTitle": "Cách hỏi",

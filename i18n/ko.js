@@ -438,7 +438,7 @@ window.translations["ko"] = {
   "licenceFreeIntro": "개인·교육·연구·소규모 독립 전문 용도는 모노레포 라이선스 파일에 맞으면 공개 라이선스 범위에 머물 수 있습니다. 사이트 FAQ는 다음과 같습니다:",
   "licenceFaqQuote": "The Autonomicity Games Sovereign Mercy License. Individuals may use the work for personal, educational, research, and modest professional assistance. Commercial, enterprise, and revenue-generating use requires a paid license from Autonomicity Games Inc. License files live in the monorepo.",
   "licenceLicenseLead": "저장소 LICENSE도 다음과 같이 말합니다:",
-  "licenceLicenseQuote": "The following require a <strong class=\"text-amber-300\">separate paid commercial license</strong> from Autonomicity Games Inc., written and signed (email to info@Rathor.ai):",
+  "licenceLicenseQuote": "The following require a <strong class=\"text-amber-300\">separate paid commercial license</strong> from Autonomicity Games Inc., written and signed (email to info@Rathor.ai).",
   "licenceLicensorTitle": "라이선스 제공자",
   "licenceLicensorBody": "Autonomicity Games Inc.",
   "licenceAskTitle": "문의 방법",

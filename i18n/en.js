@@ -447,7 +447,7 @@ window.translations["en"] = {
   "licenceFreeIntro": "Personal, educational, research, and modest independent professional use can stay under the public grant when it fits the licence files in the monorepo. The site FAQ states:",
   "licenceFaqQuote": "The Autonomicity Games Sovereign Mercy License. Individuals may use the work for personal, educational, research, and modest professional assistance. Commercial, enterprise, and revenue-generating use requires a paid license from Autonomicity Games Inc. License files live in the monorepo.",
   "licenceLicenseLead": "The repository LICENSE also says:",
-  "licenceLicenseQuote": "The following require a <strong class=\"text-amber-300\">separate paid commercial license</strong> from Autonomicity Games Inc., written and signed (email to info@Rathor.ai):",
+  "licenceLicenseQuote": "The following require a <strong class=\"text-amber-300\">separate paid commercial license</strong> from Autonomicity Games Inc., written and signed (email to info@Rathor.ai).",
   "licenceLicensorTitle": "Licensor",
   "licenceLicensorBody": "Autonomicity Games Inc.",
   "licenceAskTitle": "How to ask",

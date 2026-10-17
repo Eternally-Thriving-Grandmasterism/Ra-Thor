@@ -438,7 +438,7 @@ window.translations["id"] = {
   "licenceFreeIntro": "Penggunaan pribadi, pendidikan, riset, dan profesional mandiri yang sederhana dapat tetap di bawah lisensi publik bila sesuai dengan berkas lisensi di monorepo. FAQ situs menyatakan:",
   "licenceFaqQuote": "The Autonomicity Games Sovereign Mercy License. Individuals may use the work for personal, educational, research, and modest professional assistance. Commercial, enterprise, and revenue-generating use requires a paid license from Autonomicity Games Inc. License files live in the monorepo.",
   "licenceLicenseLead": "LICENSE repositori juga menyatakan:",
-  "licenceLicenseQuote": "The following require a <strong class=\"text-amber-300\">separate paid commercial license</strong> from Autonomicity Games Inc., written and signed (email to info@Rathor.ai):",
+  "licenceLicenseQuote": "The following require a <strong class=\"text-amber-300\">separate paid commercial license</strong> from Autonomicity Games Inc., written and signed (email to info@Rathor.ai).",
   "licenceLicensorTitle": "Pemberi lisensi",
   "licenceLicensorBody": "Autonomicity Games Inc.",
   "licenceAskTitle": "Cara bertanya",

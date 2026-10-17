@@ -438,7 +438,7 @@ window.translations["tr"] = {
   "licenceFreeIntro": "Kişisel, eğitim, araştırma ve ölçülü bağımsız profesyonel kullanım, monorepo lisans dosyalarına uyduğunda kamu lisansı altında kalabilir. Site SSS şunu söylüyor:",
   "licenceFaqQuote": "The Autonomicity Games Sovereign Mercy License. Individuals may use the work for personal, educational, research, and modest professional assistance. Commercial, enterprise, and revenue-generating use requires a paid license from Autonomicity Games Inc. License files live in the monorepo.",
   "licenceLicenseLead": "Depodaki LICENSE da şunu söylüyor:",
-  "licenceLicenseQuote": "The following require a <strong class=\"text-amber-300\">separate paid commercial license</strong> from Autonomicity Games Inc., written and signed (email to info@Rathor.ai):",
+  "licenceLicenseQuote": "The following require a <strong class=\"text-amber-300\">separate paid commercial license</strong> from Autonomicity Games Inc., written and signed (email to info@Rathor.ai).",
   "licenceLicensorTitle": "Lisans veren",
   "licenceLicensorBody": "Autonomicity Games Inc.",
   "licenceAskTitle": "Nasıl sorulur",

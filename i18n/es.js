@@ -438,7 +438,7 @@ window.translations["es"] = {
   "licenceFreeIntro": "El uso personal, educativo, de investigación y profesional independiente modesto puede permanecer bajo la licencia pública cuando encaje con los archivos de licencia del monorepo. Las preguntas frecuentes del sitio dicen:",
   "licenceFaqQuote": "The Autonomicity Games Sovereign Mercy License. Individuals may use the work for personal, educational, research, and modest professional assistance. Commercial, enterprise, and revenue-generating use requires a paid license from Autonomicity Games Inc. License files live in the monorepo.",
   "licenceLicenseLead": "El LICENSE del repositorio también dice:",
-  "licenceLicenseQuote": "The following require a <strong class=\"text-amber-300\">separate paid commercial license</strong> from Autonomicity Games Inc., written and signed (email to info@Rathor.ai):",
+  "licenceLicenseQuote": "The following require a <strong class=\"text-amber-300\">separate paid commercial license</strong> from Autonomicity Games Inc., written and signed (email to info@Rathor.ai).",
   "licenceLicensorTitle": "Licenciante",
   "licenceLicensorBody": "Autonomicity Games Inc.",
   "licenceAskTitle": "Cómo preguntar",
