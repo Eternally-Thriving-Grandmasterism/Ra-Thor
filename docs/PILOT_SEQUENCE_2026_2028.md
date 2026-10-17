@@ -16,7 +16,7 @@ You can employ the lattice today.
 
 - **Employ** — the five-step loop on [rathor.ai/employ.html](https://rathor.ai/employ.html): Intend → Pass the gates → Optional model → Review → Act. Outputs are drafts. A human reviews them before filing, sale, or public claims. Spine: [`docs/EMPLOY.md`](EMPLOY.md).
 - **Wrap** — copy context, a skill pack, a local HTTP shim, or Lattice Chat against a server you run. You hold the key. There is no public rathor.ai key proxy. Details: [`docs/ADOPT.md`](ADOPT.md).
-- **Inquiry form** — organization use and other LICENSE §2 cases go through the [commercial inquiry form](https://rathor.ai/contact.html#commercial-inquiry). Personal / research / non-revenue personal use stays free under AG-SML v1.2. A human replies. There is no instant license key and no public checkout.
+- **Inquiry form** — organization use and other LICENSE §2 cases go through the [commercial inquiry form](https://rathor.ai/contact.html#commercial-inquiry). Personal and research use without revenue stays free under AG-SML v1.2. A human replies. There is no instant license key and no public checkout.
 - **Inspectable lattice** — the source-available [monorepo](https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor). Named crate tests only. A full workspace run is not the product gate.
 - **GATE_EVAL** — published evidence for the living ingest / admit-or-block admission shell. Keyword ingest is not a METR lab. Compile green is not live safety. Failed bypasses stay published on purpose: eval-cheating and hide-the-payload classes are why the fixtures exist. Closing a keyword miss is not containment of a smarter agent. Honest remainder: [`docs/GATE_EVAL.md`](GATE_EVAL.md).
 

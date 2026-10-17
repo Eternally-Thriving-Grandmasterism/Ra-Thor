@@ -21,7 +21,7 @@ Capable · Bounded · Corrigible.
 
 ## Who pays
 
-Personal, research, and non-revenue personal use use stays free under AG-SML v1.2.
+Personal and research use stays free under AG-SML v1.2 when non-revenue.
 
 Org-wide use pays.
 
@@ -119,7 +119,7 @@ Peaceful thriving is purpose under construction, not a national program.
 
 Inspectable research software. Workspace 14.15.6.
 
-Personal / research / non-revenue personal use = AG-SML v1.2 free.
+Personal and research use when non-revenue = AG-SML v1.2 free.
 
 Organization use and other LICENSE §2 cases = paid pilot / commercial license.
 

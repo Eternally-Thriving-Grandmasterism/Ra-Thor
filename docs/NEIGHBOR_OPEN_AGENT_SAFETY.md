@@ -45,7 +45,7 @@ Hardware can keep an agent in a pen. It does not decide the grant, and it does n
 - No Cargo member
 - No site HTML change
 
-An organization that already runs OpenShell may still need a paid written grant for commercial use of this lattice. Personal / research / non-revenue personal use stays free under AG-SML v1.2.
+An organization that already runs OpenShell may still need a paid written grant for commercial use of this lattice. Personal and research use without revenue stays free under AG-SML v1.2.
 
 Doors: [`COMMERCIAL_GRANT_FAQ.md`](COMMERCIAL_GRANT_FAQ.md) · [commercial inquiry](https://rathor.ai/contact.html#commercial-inquiry)
 

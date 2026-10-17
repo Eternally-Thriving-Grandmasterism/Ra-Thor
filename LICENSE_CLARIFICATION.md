@@ -41,7 +41,7 @@ No further action is required for legal compliance. Progressive mechanical clean
 - All new work must use **AG-SML v1.2 only** (plus the commercial exhibit when commercial).
 - All public statements must use **AG-SML v1.2 only**.
 - Any appearance of the old dual-license phrase is a non-authoritative historical remnant.
-- Copies obtained under AG-SML v1.2 before the v1.2 effective date keep v1.1 terms for those copies (see root `LICENSE` §7).
+- Copies obtained under AG-SML v1.1 before the v1.2 effective date keep v1.1 terms for those copies (see root `LICENSE` §7).
 
 **Thunder locked.**  
 AG-SML v1.2 is the sole public grant throughout the repository.  

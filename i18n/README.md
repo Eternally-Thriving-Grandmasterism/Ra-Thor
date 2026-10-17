@@ -81,4 +81,4 @@ Google Translate is a new tab (`js/google-translate-optin.js`). `_headers` scope
 
 Do not copy the pre-2026-08-31 “RBE royalties dissolve into abundance” FAQ line. `faqA8` on every pack must stay: RBE is design intent, not a present economic fact. Essay apply fills a marked `faqA8` node from that pack line. The current homepage FAQ does not render question 8. The pack line must not state a resource-based economy as a present fact.
 
-AG-SML v1.2. Independent of xAI. Not certified aircraft, plants, chains, or a replaced money system.
+AG-SML v1.1. Independent of xAI. Not certified aircraft, plants, chains, or a replaced money system.

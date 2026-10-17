@@ -19,7 +19,7 @@ A natural person, for personal, educational, research, or non-commercial creativ
 
 Clone the repo. Run it locally. Wrap a model *you* already pay for. No form.
 
-"Modest" is undefined on purpose. If you are a one-person shop unsure which side you are on, write [info@Rathor.ai](mailto:info@Rathor.ai).
+If you are unsure whether your use earns revenue or falls under LICENSE §2, write [info@Rathor.ai](mailto:info@Rathor.ai).
 
 ---
 

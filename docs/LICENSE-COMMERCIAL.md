@@ -13,7 +13,7 @@ You need one if you are an **organization using** Ra-Thor or Rathor.ai, or if yo
 
 See [LICENSE §2](../LICENSE) for the full list.
 
-Non-commercial personal use, education, research, and non-commercial creative work by a natural person may stay under the public **AG-SML v1.2** grant when it fits the licence text in the monorepo and earns no revenue (see LICENSE §1A). Any revenue or income from using, running, or outputs requires a paid commercial licence.
+Personal use, education, research, and non-commercial creative work by a natural person may stay under the public **AG-SML v1.2** grant when it fits the licence text in the monorepo and earns no revenue (see LICENSE §1A). Any revenue or income from using, running, or outputs requires a paid commercial licence.
 
 ---
 

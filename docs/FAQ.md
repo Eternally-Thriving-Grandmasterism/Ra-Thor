@@ -27,7 +27,7 @@ APTD is **not** a public certificate, regulator mark, or “verified” badge on
 Powrush is the core RBE simulation engine associated with the lattice (see the sister Powrush-MMO repository). Players explore sovereign-asset and contribution mechanics and post-scarcity education themes. It is delivered as inspectable software — a world simulator, not a live economy or launched chain.
 
 ## 7. What is AG-SML v1.2 licensing?
-Autonomicity Games Sovereign Mercy License v1.1: Free for personal, educational, and research use, and for non-commercial creative work. Organization use and the other cases in LICENSE §2 require a paid license from Autonomicity Games Inc. Contributions must preserve TOLC invariants and zero-harm intent. Canonical free-use text is the root `LICENSE` file.
+Autonomicity Games Sovereign Mercy License v1.2: Free for personal, educational, research, and non-commercial creative use when non-revenue. Any revenue or income from using, running, or outputs requires a paid commercial licence. Organization use and the other cases in LICENSE §2 require a paid license from Autonomicity Games Inc. Contributions must preserve TOLC invariants and zero-harm intent. Canonical free-use text is the root `LICENSE` file.
 
 ## 8. How do I access and run Ra-Thor?
 - Public site: https://rathor.ai/ (Lattice Chat, launch map, optional Grok session under gates).
