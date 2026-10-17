@@ -3,7 +3,7 @@
 //! Domain profiles: education · research · enterprise · creative · robotics · biomedical
 //! Physical actuation + wet-lab synthesis hard-refuse under HarmRefusalPolicy.
 //! Medium+ ingestion blocks feed UnifiedAgentSurface isolation + fleet signals.
-//! TOLC 8 + PATSAGi | AG-SML v1.1 | Contact: info@Rathor.ai
+//! TOLC 8 + PATSAGi | AG-SML v1.2 | Contact: info@Rathor.ai
 
 mod decision_record;
 mod domain_profiles;

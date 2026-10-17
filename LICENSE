@@ -54,6 +54,8 @@ licence under §2 (see also §1A).
 
 ## 1A. Revenue (definition)
 
+"Income" means the same as revenue.
+
 For this licence, **revenue** means any money or paid consideration earned
 from using, running, or outputs of the Software — including sales, client
 work, subscriptions, ads, sponsorships, and commissions. Selling a single
@@ -123,12 +125,14 @@ DEALINGS IN THE SOFTWARE.
 ## 7. Transition for v1.1 users (council ruling)
 
 - Copies of the Software obtained under AG-SML v1.1 before the effective
-  date keep v1.1 terms for those copies.
+  date keep AG-SML v1.1 terms for those copies.
 - Any copy, update, or version obtained on or after the effective date is
   under AG-SML v1.2.
-- Existing revenue-earning individual users have a **60-day grace period**
-  from the effective date to obtain a paid commercial licence from
-  Autonomicity Games Inc. or to stop the revenue use.
+- Individuals who were already earning revenue from using the Software and
+  who take any copy or update on or after the effective date have a
+  **60-day grace period** from that date to obtain a paid commercial licence
+  from Autonomicity Games Inc. or to stop using that copy or update for
+  revenue-earning use.
 
 ## 8. Questions
 

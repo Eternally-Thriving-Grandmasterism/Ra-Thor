@@ -158,7 +158,7 @@ window.translations["en"] = {
   "weekLineWrap": "Public research bench, linked from this homepage. Evaluation drafts only. EW2 solved = False. No warranty. No AG-SML certification. Not a Cargo or workspace fold. AG-SML v1.2: personal and research use is free when non-revenue. Organization use or revenue needs a paid COMMERCIAL_LICENSE.",
   "weekLineResearch": "Also public (research / not product): Daedalus, Air, Space-Thriving, Mercy-Coordination, High-Tc, Fusion.",
   "weekMore": "Full update note →",
-  "weekRaThor": "Workspace 14.15.6; claim-discipline minutes; dual-repo stays telemetry; local Core tests on quantum-swarm and mercy algebra.",
+  "weekRaThor": "Inspectable research software. Whitepaper v4.2. AG-SML v1.1. Inspect ≠ METR. Layer 0 is an admission shell, not sampler weights.",
   "weekPowrush": "Human game repo (separate). Title Online grey. Not a live MMO service. No store or release from this site.",
   "weekMcs": "Phase 2.0 in-memory mercy-checked shards. Not a treasury or circulating token.",
   "weekAir": "systems / aviation studies. Not certified aircraft or a flying vessel.",

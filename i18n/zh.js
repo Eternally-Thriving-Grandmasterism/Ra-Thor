@@ -433,7 +433,7 @@ window.translations["zh"] = {
   "licenceLead": "使用 Ra-Thor 或 Rathor.ai 时，关于组织使用及 LICENSE §2 所列商业用途的简明摘要。",
   "licenceUpdated": "最后更新：2026-10-17 · Workspace 14.15.6",
   "licenceWhoTitle": "谁需要",
-  "licenceWhoBody": "若您是使用 Ra-Thor 或 Rathor.ai 的组织，或出售它、其分支、封装或托管实例、为盈利托管该软件、将其捆绑进付费产品，或为收入或广告运营其大规模公开多人托管，则需要 Ra-Thor Commercial Licence — 无论运行何种 AI 模型，例如 Grok、Claude、ChatGPT 等。这些名称仅为示例；任何厂商均非我们的合作伙伴、背书方或关联方。用于个人、教育、研究或独立创作的用途在 个人、教育、研究或非商业创作用途在无营收时仍可在 AG-SML v1.2 下免费使用。",
+  "licenceWhoBody": "若您是使用 Ra-Thor 或 Rathor.ai 的组织，或出售它、其分支、封装或托管实例、为盈利托管该软件、将其捆绑进付费产品，或为收入或广告运营其大规模公开多人托管，则需要 Ra-Thor Commercial Licence — 无论运行何种 AI 模型，例如 Grok、Claude、ChatGPT 等。这些名称仅为示例；任何厂商均非我们的合作伙伴、背书方或关联方。个人、教育、研究或非商业创作用途在无营收时仍可在 AG-SML v1.2 下免费使用。",
   "licenceWhoSee": "完整列表见 <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/LICENSE\" class=\"text-amber-300 underline\" target=\"_blank\" rel=\"noopener\">LICENSE</a> §2。",
   "licenceFreeTitle": "何时 AG-SML 可能足够",
   "licenceFreeIntro": "自然人的个人使用、教育、研究和非商业创作，在符合 monorepo 许可文件且无营收时，可继续适用公开 AG-SML v1.2 许可。网站常见问题写明：",

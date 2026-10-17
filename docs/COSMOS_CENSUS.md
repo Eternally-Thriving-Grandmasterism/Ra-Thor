@@ -28,7 +28,7 @@ This is a map, not a capability catalog. Combined AGSi stays SURMISE. inspect �
 
 | Repo | Last push | Lang | Notes |
 |------|-----------|------|-------|
-| [Ra-Thor](https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor) | 2026-09-16 | Rust | Public employ surface. Workspace **14.15.6**. AG-SML **v1.1**. info@Rathor.ai |
+| [Ra-Thor](https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor) | 2026-09-16 | Rust | Public employ surface. Workspace **14.15.6**. AG-SML **v1.2**. info@Rathor.ai |
 | [TOLC](https://github.com/Eternally-Thriving-Grandmasterism/TOLC) | 2026-09-13 | — | Curriculum / law notes. Not the Cargo workspace. |
 | [Masterism](https://github.com/Eternally-Thriving-Grandmasterism/Masterism) | 2026-09-12 | — | Intro path. Description names info@Rathor.ai on recent pages. |
 | [Space-Thriving-Manual](https://github.com/Eternally-Thriving-Grandmasterism/Space-Thriving-Manual) | 2026-09-10 | Python | Living manual. Distinct from `*-v5-Pinnacle`. |

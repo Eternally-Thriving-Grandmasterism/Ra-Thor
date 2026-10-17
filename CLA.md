@@ -1,6 +1,6 @@
 # Contributor License Agreement (CLA) – Ra-Thor
 
-By submitting a contribution to Ra-Thor, you agree to the following terms under the Autonomicity Games Sovereign Mercy License (AG-SML) v1.1.
+By submitting a contribution to Ra-Thor, you agree to the following terms under the Autonomicity Games Sovereign Mercy License (AG-SML) v1.2.
 
 ## Agreement
 
