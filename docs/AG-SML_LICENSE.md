@@ -54,12 +54,12 @@ licence under §2 (see also §1A).
 
 ## 1A. Revenue (definition)
 
-"Income" means the same as revenue.
-
 For this licence, **revenue** means any money or paid consideration earned
 from using, running, or outputs of the Software — including sales, client
 work, subscriptions, ads, sponsorships, and commissions. Selling a single
 hobby item made with the Software is revenue.
+
+"Income" means the same as revenue.
 
 Solicited tips, Patreon-style support, or subscription payments where the
 Software or its outputs are the offering are **revenue** under this definition.
