@@ -9,7 +9,7 @@ This is the constitution for step 3 of the employ loop. It is not a product SKU,
 
 ## What this file is
 
-Ra-Thor is inspectable research software. The lattice is the gates. The sampler is optional.
+Ra-Thor is inspectable research software. The lattice is the Mercy-Checks. The sampler is optional.
 
 You may stay on-device (Lattice Chat / Sovereign Shard) or copy context into any model you already run: Ollama, LM Studio, llama.cpp, OpenRouter, Claude, Gemini, ChatGPT, Grok, Nous Hermes models, or a local OpenAI-compatible server.
 
@@ -28,7 +28,7 @@ AgentOS, Open AgentOS, Agno AgentOS, @useAgentOS, and Hermes Agent are **differe
 ## The loop (unchanged)
 
 1. Intend  
-2. Pass the gates (TOLC 8 · PATSAGi · Conductor)  
+2. Pass the Mercy-Checks (TOLC 8 · PATSAGi · Conductor)  
 3. Optional model (this file)  
 4. Review — drafts until a human accepts  
 5. Act — the human owns the action  

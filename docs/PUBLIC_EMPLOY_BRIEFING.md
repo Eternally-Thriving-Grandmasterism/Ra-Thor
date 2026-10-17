@@ -26,7 +26,7 @@ Most people do not need a new model. They need a way to *use* the model they alr
 **What you *are* employing**
 
 - On-device Lattice Chat at [rathor.ai/chat.html](https://rathor.ai/chat.html).
-- A written employ loop: Intend → Pass the gates → Optional model → Review → Act.
+- A written employ loop: Intend → Pass the Mercy-Checks → Optional model → Review → Act.
 - A wrap kit so Grok, Claude, ChatGPT, Gemini, Cursor, or a local OpenAI-compatible server sit under the same constitution.
 - A source-available monorepo you can inspect, test by named crate, and refuse.
 - Standing ethics called **TOLC 8** (Truth, Order, Love, Compassion / zero-harm, Service, Abundance, Joy, Cosmic Harmony).
@@ -56,8 +56,8 @@ Use it if you already talk to a model and want that talk to stay draft-shaped an
 ## 3. The employ loop
 
 1. **Intend** — Ask for a draft, a plan, a review, or a refusal.
-2. **Pass the gates** — TOLC 8 is the standing test. PATSAGi is deliberation architecture, not a warranty.
-3. **Optional model** — Stay on-device, or copy context into a model you choose. The model is the sampler. The lattice is the gates.
+2. **Pass the Mercy-Checks** — TOLC 8 is the standing test. PATSAGi is deliberation architecture, not a warranty.
+3. **Optional model** — Stay on-device, or copy context into a model you choose. The model is the sampler. The lattice is the Mercy-Checks.
 4. **Review** — Keep or refuse. Fluency is not permission.
 5. **Act** — You own the action.
 

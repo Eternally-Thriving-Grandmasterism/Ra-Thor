@@ -27,7 +27,7 @@ var promptHash = crypto.createHash('sha256').update(prompt).digest('hex');
 assert(promptHash === 'b43b5bf8b6be4329dca09ec8a89ffd7ddabc45e50edca3b7da93d306b8f587d8', 'SYSTEM_PROMPT hash changed: ' + promptHash);
 assert(chat.indexOf("./vendor/web-llm/0.2.85/index.js") !== -1, 'WebLLM pin stays 0.2.85');
 assert(chat.indexOf('const PHONE_MAX_VRAM_MB = 1200;') !== -1, 'phone adapter cap stays 1200');
-assert(sw.indexOf("var LOCK = '20261017b';") !== -1, 'service worker LOCK stays 20261017b');
+assert(sw.indexOf("var LOCK = '20261017c';") !== -1, 'service worker LOCK stays 20261017c');
 assert(chat.indexOf("const BACKEND_KEY = 'rathor-local-backend-v1'") !== -1, 'backend storage key stays');
 
 var pure = chat.slice(chat.indexOf('/* chat-models-1-pure */'), chat.indexOf('/* chat-models-1-pure-end */'));

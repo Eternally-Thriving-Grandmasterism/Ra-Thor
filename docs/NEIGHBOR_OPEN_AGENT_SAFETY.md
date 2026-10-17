@@ -28,7 +28,7 @@ Source for the distinction: NVIDIA technical blog, 28 September 2026, “NVIDIA 
 Ra-Thor / Rathor.ai is inspectable research software.
 
 - The model you already employ is the sampler.
-- The lattice is the gates: what may be asked, what stays a draft, who files it.
+- The lattice is the Mercy-Checks: what may be asked, what stays a draft, who files it.
 - TOLC 8 is the standing test. PATSAGi is deliberation architecture, not a correctness warranty.
 - Outputs are drafts until a human accepts them.
 
