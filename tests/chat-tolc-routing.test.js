@@ -1,0 +1,58 @@
+/* MERCY-CHECKS-WORDING-3: word-bounded LOCAL_KNOWLEDGE routing to chatReplyTolc. */
+var fs = require('fs');
+var path = require('path');
+var crypto = require('crypto');
+
+var root = path.join(__dirname, '..');
+
+function assert(cond, msg) {
+  if (!cond) throw new Error(msg);
+}
+
+function read(rel) {
+  return fs.readFileSync(path.join(root, rel), 'utf8');
+}
+
+var chat = read('js/chat.js');
+var expected =
+  "{ q: /\\b(?:tolc|mercy[- ]?checks?|mercy[- ]?gates?|gates?|ethics|guardrails)\\b/i, k: 'chatReplyTolc' }";
+assert(chat.indexOf(expected) !== -1, 'chatReplyTolc regex must stay word-bounded');
+
+var promptMarker = 'const SYSTEM_PROMPT = `';
+var promptAt = chat.indexOf(promptMarker);
+var promptEnd = chat.indexOf('`;', promptAt);
+var prompt = chat.slice(promptAt + promptMarker.length, promptEnd);
+var promptHash = crypto.createHash('sha256').update(prompt).digest('hex');
+assert(
+  promptHash === 'b43b5bf8b6be4329dca09ec8a89ffd7ddabc45e50edca3b7da93d306b8f587d8',
+  'SYSTEM_PROMPT hash changed: ' + promptHash
+);
+
+var line = chat.split('\n').filter(function (l) {
+  return l.indexOf("k: 'chatReplyTolc'") !== -1;
+})[0];
+var reSrc = line.match(/q: (\/\\b.*?\/i)/)[1];
+var tolRegex = Function('return ' + reSrc)();
+
+var positives = [
+  'tolc',
+  'TOLC 8',
+  'mercy check',
+  'mercy checks',
+  'Mercy-Checks',
+  'mercy gate',
+  'gates',
+  'gate',
+  'ethics',
+  'guardrails'
+];
+positives.forEach(function (text) {
+  assert(tolRegex.test(text), 'expected match: ' + text);
+});
+
+var negatives = ['mercy checkout', 'mercy checking account', 'tolcfoo'];
+negatives.forEach(function (text) {
+  assert(!tolRegex.test(text), 'expected no match: ' + text);
+});
+
+console.log('chat-tolc-routing ok');
