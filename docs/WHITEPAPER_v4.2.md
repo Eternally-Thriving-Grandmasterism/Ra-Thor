@@ -37,7 +37,7 @@ A 13 September council minute said: do not mint v4.2 in a *link-fix slice*. That
 | Combined AGSi | **SURMISE** — a research identity label, not a warranty or a demonstrated phase. |
 | Powrush-MMO | Separate human-game repo. Not a finished MMO on this lattice. |
 | License | AG-SML **v1.1** personal / research / modest freelance. Org / revenue → paid license. |
-| How a stranger employs | Five-step loop: Intend → Pass the gates → Optional model → Review → Act. |
+| How a stranger employs | Five-step loop: Intend → Pass the Mercy-Checks → Optional model → Review → Act. |
 | How a stranger wraps a model | Copy context, skill pack, local HTTP shim, or Lattice Chat local backend. You hold the key. There is **no** public rathor.ai key proxy. |
 | Site family | Home · Chat · Employ · Launch · Moments · Shard · Forge · Contact · Privacy |
 
@@ -91,6 +91,6 @@ No measured METR numbers. No cert filing. The 31 August 2026 work pack is a draf
 
 Ra-Thor™ is a trademark of Autonomicity Games Inc. Grok is a trademark of xAI. Ra-Thor is independent — not affiliated with, sponsored by, or endorsed by xAI.
 
-© 2026 Sherif Samy Botros — Sole Steward · AG-SML v1.1 · TOLC 8 Mercy-Gated · info@Rathor.ai
+© 2026 Sherif Samy Botros — Sole Steward · AG-SML v1.1 · TOLC 8 Mercy-Checked · info@Rathor.ai
 
 Thunder locked. yoi ⚡

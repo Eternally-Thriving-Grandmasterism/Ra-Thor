@@ -242,7 +242,7 @@
 
       async gateMotionVision(query = 'eternal thriving visual perception of micro-moments', valence = 1.0) {
         if (valence < MERCY_THRESHOLD) {
-          return { passed: false, reason: 'TOLC 8 mercy checks (Mercy Gates in code)' };
+          return { passed: false, reason: 'TOLC 8 mercy checks' };
         }
         this.valence = Math.max(this.valence, valence);
         return { passed: true };

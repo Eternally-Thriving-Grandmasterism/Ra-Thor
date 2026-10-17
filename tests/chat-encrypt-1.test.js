@@ -28,7 +28,7 @@ var promptAt = chat.indexOf(promptMarker);
 var promptEnd = chat.indexOf('`;', promptAt);
 var prompt = chat.slice(promptAt + promptMarker.length, promptEnd);
 var promptHash = crypto.createHash('sha256').update(prompt).digest('hex');
-assert(promptHash === '637a0593489cf8d84e5fd444154def670eb54eae7e36b2b52fd37dc0fb7062a9', 'SYSTEM_PROMPT hash changed: ' + promptHash);
+assert(promptHash === 'b43b5bf8b6be4329dca09ec8a89ffd7ddabc45e50edca3b7da93d306b8f587d8', 'SYSTEM_PROMPT hash changed: ' + promptHash);
 
 var pureStart = chat.indexOf('/* chat-encrypt-pure */');
 var pureEnd = chat.indexOf('/* chat-encrypt-pure-end */');
