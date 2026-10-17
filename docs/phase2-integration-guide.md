@@ -138,7 +138,7 @@ This is the mathematical realization of “WhiteSmith’s Anvil Furnace” — e
 - Always route high-stakes decisions through `RegionalMercyCoordinator` or `QuantumSwarmBridge`.
 - Treat `godly_coherence < 0.93` as a yellow flag and `< 0.90` as a hard stop.
 - Use the JSON diagnostics for observability, logging, and cross-crate coordination.
-- Never try to bypass the gates — the architecture makes it geometrically expensive and mercy-violating to do so.
+- Never try to bypass the Mercy-Checks — the architecture makes it geometrically expensive and mercy-violating to do so.
 
 ---
 
