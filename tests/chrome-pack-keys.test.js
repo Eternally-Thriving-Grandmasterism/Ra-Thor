@@ -23,6 +23,7 @@ assert(KEYS.indexOf('employTitle') !== -1, 'employTitle must stay applied');
 assert(KEYS.indexOf('gTranslateNote') !== -1, 'gTranslateNote must stay applied');
 assert(KEYS.indexOf('navEmploy') !== -1, 'navEmploy must stay applied');
 assert(KEYS.indexOf('navPilot') !== -1, 'navPilot must stay applied');
+assert(KEYS.indexOf('navLicence') !== -1, 'navLicence must stay applied');
 assert(KEYS.indexOf('steward') !== -1, 'steward must be applied chrome');
 assert(KEYS.indexOf('langStoredNote') !== -1, 'lang storage note must be applied chrome');
 assert(KEYS.indexOf('installCta') !== -1, 'installCta must stay applied chrome');
@@ -186,7 +187,7 @@ assert(read('js/site-lock-2026-08-22.js').indexOf('rtApplyChromeI18n') !== -1, '
 var pages = [
   'index.html', 'employ.html', 'privacy.html', 'contact.html', 'chat.html',
   'go-x.html', 'Launch-Ra-Thor.html', 'constellation-week.html', 'offline.html',
-  'thanks.html', 'briefing.html', 'science-watches.html', 'pilot.html'
+  'thanks.html', 'briefing.html', 'science-watches.html', 'pilot.html', 'licence.html'
 ];
 pages.forEach(function (page) {
   var html = read(page);
@@ -226,7 +227,7 @@ ESSAY.forEach(function (key) {
   assert(typeof en[key] === 'string' && en[key].trim() !== '', 'en essay key ' + key + ' must be a non-empty string');
 });
 
-var essayPages = ['index.html', 'employ.html', 'privacy.html', 'briefing.html', 'contact.html', 'Launch-Ra-Thor.html', 'go-x.html', 'science-watches.html'];
+var essayPages = ['index.html', 'employ.html', 'privacy.html', 'licence.html', 'briefing.html', 'contact.html', 'Launch-Ra-Thor.html', 'go-x.html', 'science-watches.html'];
 var wired = {};
 essayPages.forEach(function (page) {
   var html = read(page);
