@@ -161,6 +161,8 @@ Who pays / what we never host (GitHub FAQ, not a site page): [`COMMERCIAL_GRANT_
 
 Public visitor-voice commercial brief: [`PUBLIC_COMMERCIAL_BRIEF.md`](PUBLIC_COMMERCIAL_BRIEF.md). Living Organizations card on [employ.html](https://rathor.ai/employ.html).
 
+Governed bot team (org playbook): [`docs/EMPLOY_BOT_TEAM.md`](EMPLOY_BOT_TEAM.md).
+
 Contact **info@Rathor.ai** only (never `ceo@acitygames.com`).
 
 ---

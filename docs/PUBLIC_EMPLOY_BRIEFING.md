@@ -132,6 +132,8 @@ Peaceful thriving is purpose under construction, not a national program.
 
 Canonical visitor-voice article: [`PUBLIC_COMMERCIAL_BRIEF.md`](PUBLIC_COMMERCIAL_BRIEF.md). Living cards: [employ.html](https://rathor.ai/employ.html) · [briefing.html](https://rathor.ai/briefing.html).
 
+Governed bot team playbook: [`docs/EMPLOY_BOT_TEAM.md`](EMPLOY_BOT_TEAM.md).
+
 ---
 
 ## 8. Honest gaps
