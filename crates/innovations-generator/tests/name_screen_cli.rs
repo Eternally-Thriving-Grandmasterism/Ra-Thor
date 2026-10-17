@@ -7,7 +7,7 @@ fn innovate_bin() -> Command {
 }
 
 #[test]
-fn screen_name_coil_fails_with_exit_2() {
+fn screen_name_coil_fails_with_exit_1() {
     let output = innovate_bin()
         .args(["screen-name", "Coil"])
         .output()
@@ -27,6 +27,17 @@ fn screen_name_hesper_succeeds() {
     assert!(output.status.success());
     let stdout = String::from_utf8_lossy(&output.stdout);
     assert!(stdout.contains("Sound-alikes: PASS"));
+}
+
+#[test]
+fn screen_name_empty_whitespace_fails_with_exit_1() {
+    let output = innovate_bin()
+        .args(["screen-name", "   "])
+        .output()
+        .expect("run screen-name");
+    assert_eq!(output.status.code(), Some(1));
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    assert!(stdout.contains("empty after trim"));
 }
 
 const NEEDS_RESEARCH_LINE: &str =

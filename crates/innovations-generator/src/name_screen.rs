@@ -42,20 +42,36 @@ impl NameScreenResult {
     }
 }
 
+/// Trim whitespace and strip leading/trailing punctuation; letters in the middle are kept.
+pub fn normalize_screen_name(name: &str) -> String {
+    let trimmed = name.trim();
+    let start = trimmed
+        .find(|ch: char| ch.is_ascii_alphabetic())
+        .unwrap_or(trimmed.len());
+    let end = trimmed
+        .rfind(|ch: char| ch.is_ascii_alphabetic())
+        .map(|index| index + 1)
+        .unwrap_or(start);
+    if start >= end {
+        return String::new();
+    }
+    trimmed[start..end].to_string()
+}
+
 /// Screen one name against optional cast members (other names already in the cast).
 pub fn screen_name(name: &str, cast: &[String]) -> NameScreenResult {
-    let trimmed = name.trim();
-    let display = if trimmed.is_empty() {
-        name.to_string()
-    } else {
-        trimmed.to_string()
-    };
+    let display = normalize_screen_name(name);
     let lower = display.to_lowercase();
 
     let mut lines = Vec::new();
 
     // Character-ness (hard)
-    if check_character_ness(&lower, &display) {
+    if display.is_empty() {
+        lines.push(ReportLine {
+            kind: LineKind::Fail,
+            message: "Character-ness: FAIL (empty after trim)".into(),
+        });
+    } else if check_character_ness(&lower) {
         lines.push(ReportLine {
             kind: LineKind::Pass,
             message: "Character-ness: PASS".into(),
@@ -69,7 +85,12 @@ pub fn screen_name(name: &str, cast: &[String]) -> NameScreenResult {
     }
 
     // Sound-alikes (hard)
-    match check_sound_alikes(&lower) {
+    let sound = if display.is_empty() {
+        None
+    } else {
+        check_sound_alikes(&lower)
+    };
+    match sound {
         None => {
             lines.push(ReportLine {
                 kind: LineKind::Pass,
@@ -105,17 +126,17 @@ pub fn screen_name(name: &str, cast: &[String]) -> NameScreenResult {
     let first = lower.chars().next();
     let mut cast_flags: Vec<String> = Vec::new();
     for other in cast {
-        let other_trim = other.trim();
-        if other_trim.is_empty() || other_trim.eq_ignore_ascii_case(&display) {
+        let other_display = normalize_screen_name(other);
+        if other_display.is_empty() || other_display.eq_ignore_ascii_case(&display) {
             continue;
         }
-        let other_lower = other_trim.to_lowercase();
+        let other_lower = other_display.to_lowercase();
         if first.is_some() && other_lower.chars().next() == first {
-            cast_flags.push(format!("shared first letter with \"{other_trim}\""));
+            cast_flags.push(format!("shared first letter with \"{other_display}\""));
         }
         if !tail.is_empty() && tail == rhyme_tail(&other_lower) {
             cast_flags.push(format!(
-                "identical rhyme tail \"{tail}\" with \"{other_trim}\""
+                "identical rhyme tail \"{tail}\" with \"{other_display}\""
             ));
         }
     }
@@ -196,14 +217,14 @@ fn has_name_like_ending(lower: &str) -> bool {
     lower.ends_with('y') || lower.ends_with("ie") || lower.ends_with('o')
 }
 
-fn check_character_ness(lower: &str, _display: &str) -> bool {
-    if lower.is_empty() {
-        return true;
+fn check_character_ness(lower: &str) -> bool {
+    if common_nouns().iter().any(|noun| noun == lower) {
+        return false;
     }
     if has_name_like_ending(lower) {
         return true;
     }
-    !common_nouns().iter().any(|noun| noun == lower)
+    true
 }
 
 fn check_sound_alikes(lower: &str) -> Option<String> {
@@ -325,6 +346,36 @@ mod tests {
             hard_lines(&result)
                 .iter()
                 .any(|line| line.kind == LineKind::Fail && line.message.contains("Character-ness"))
+        );
+    }
+
+    #[test]
+    fn clay_fails_despite_y_suffix() {
+        let result = screen_name("Clay", &[]);
+        assert!(result.hard_failed());
+        let lines = hard_lines(&result);
+        let char_line = lines
+            .iter()
+            .find(|line| line.message.starts_with("Character-ness"))
+            .expect("character-ness line");
+        assert_eq!(char_line.kind, LineKind::Fail);
+    }
+
+    #[test]
+    fn coil_with_trailing_punctuation_fails() {
+        let result = screen_name("Coil.", &[]);
+        assert!(result.hard_failed());
+        assert_eq!(normalize_screen_name("Coil."), "Coil");
+    }
+
+    #[test]
+    fn empty_name_fails_hard() {
+        let result = screen_name("   ", &[]);
+        assert!(result.hard_failed());
+        assert!(
+            hard_lines(&result)
+                .iter()
+                .any(|line| line.message.contains("empty after trim"))
         );
     }
 

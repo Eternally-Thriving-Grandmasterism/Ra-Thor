@@ -129,7 +129,7 @@ For each name, the tool prints `PASS`, `FAIL`, or `FLAG` lines:
 
 | Check | Severity | What it does |
 |-------|----------|----------------|
-| Character-ness | hard FAIL | Exact match (case-insensitive) to bundled common nouns/materials in `data/common_nouns.txt`, unless the name ends with a name-like `-y`, `-ie`, or `-o` suffix. |
+| Character-ness | hard FAIL | Exact match (case-insensitive) to bundled common nouns/materials in `data/common_nouns.txt` (listed nouns fail even when they end in `-y`, `-ie`, or `-o`, e.g. Clay). Names not on the list may pass via a `-y`/`-ie`/`-o` name-like ending (e.g. Coily). Leading/trailing punctuation is stripped before matching. |
 | Sound-alikes | hard FAIL | Lowercased name or rhyme tail (last vowel group + coda, minimum three letters) matches `data/negative_tease_words.txt`, or the name starts with a listed word’s approximate first syllable. Reports the triggering word. |
 | Shape | soft FLAG | Approximate syllable count (vowel-group heuristic) is not 1 or 2. |
 | Cast clash | soft FLAG | With `--cast`, shared first letter or identical rhyme tail with a cast name. |
@@ -141,4 +141,10 @@ It always prints these reminder lines (never filled in by the tool):
 - `NEEDS HUMAN: associations (ethnic, religious, place) and harmonic feel`
 - `Not legal trademark clearance.`
 
-Exit code `1` if any name fails a hard check; `0` when all hard checks pass (soft FLAGs alone still exit `0`).
+Exit code `1` if any name fails a hard check (including empty or whitespace-only input after trim); `0` when all hard checks pass (soft FLAGs alone still exit `0`).
+
+### Limits
+
+- The common-noun list is **small** and fixed in-repo; many ordinary nouns are not listed (e.g. Lamp and River pass character-ness).
+- Accented and non-Latin scripts are mostly unchecked (only ASCII letters participate in heuristics).
+- The first-syllable sound-alike check is approximate and can over-flag innocent names (e.g. Duncan, Nero, Bombay).
