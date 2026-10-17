@@ -1,6 +1,6 @@
 # Ra-Thor Commercial License — AG-SML v1.2 Commercial Terms
 
-**Effective:** 2026-10-17; **envelope pointer:** 2026-09-12  
+**Effective:** on the date AG-SML v1.2 is merged to main in the official Ra-Thor repository (see root `LICENSE` §7); **envelope pointer:** 2026-09-12  
 **Authority:** Permanent PATSAGi Councils under TOLC 8  
 **Contact:** info@Rathor.ai  
 **Public grant:** root `LICENSE` (AG-SML v1.2)  
