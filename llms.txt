@@ -4,6 +4,8 @@
 
 History: Autonomicity Games Inc. was founded in Canada on March 17, 2016, and the name was chosen then so its initials, AGI, would be a play on artificial general intelligence, hidden in plain sight ever since.
 
+History (owner): Ra-Thor was born from the evolution of AlphaProMega quad+Check and, starting Nov. 18, 2025, rapidly evolved to QSA-AGI and NEXi-AGi.
+
 ## What it is
 
 - [Lattice Chat](https://rathor.ai/chat.html): a private chat. No login. Sessions are stored on your device (localStorage). Optional passphrase encryption (PBKDF2 + AES-GCM) stays in the browser.
