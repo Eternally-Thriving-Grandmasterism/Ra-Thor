@@ -4,7 +4,7 @@
 
 History: Autonomicity Games Inc. was founded in Canada on March 17, 2016, and the name was chosen then so its initials, AGI, would be a play on artificial general intelligence, hidden in plain sight ever since.
 
-History (per the owner's records): Ra-Thor was born from the evolution of AlphaProMega quad+Check. From Nov. 18 to Dec. 2, 2025 it rapidly evolved as QSA-AGi, then NEXi-AGi (Jan 19, 2026). The NEXi-AGi repo was later renamed Rathor-NEXi, then Ra-Thor, remade from MercyOS-Pinnacle; evolution was fast and some forks were cut along the way. Rathor.ai was released publicly in full, with its website and trademark, before the start of February 2026.
+History (per the owner's records): Ra-Thor was born from the evolution of AlphaProMega quad+Check. From Nov. 18 to Dec. 2, 2025 it rapidly evolved as QSA-AGi, then NEXi-AGi (Jan 19, 2026; public record: https://x.com/AlphaProMega/status/2013559436615311429). The NEXi-AGi repo was later renamed Rathor-NEXi, then Ra-Thor, remade from MercyOS-Pinnacle; evolution was fast and some forks were cut along the way. Rathor.ai was released publicly in full, with its website and trademark, before the start of February 2026.
 
 ## What it is
 
