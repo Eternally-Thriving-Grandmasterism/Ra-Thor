@@ -74,11 +74,817 @@ body { font-family: 'Inter', system-ui, sans-serif; }
     @media (prefers-reduced-motion: reduce) {
       .golden-star, .card-hover, .lightning-icon, details[open] .lightning-icon { animation: none !important; transition: none !important; }
     }
-</style>
+    /* Living Thunder portrait, 896×1008 (8:9). Contained frame; other pages keep landscape heroes. */
+    figure.rt-art-hero.rt-art-hero-rathor {
+      position: relative;
+      width: min(72vw, 16.5rem);
+      width: min(72vw, calc(min(52vh, 22rem) * 896 / 1008));
+      max-width: 100%;
+      margin: 0.35rem auto 1.15rem;
+      border-radius: 1.15rem;
+      border: 1px solid var(--rt-line);
+      background: #07060a;
+      box-shadow:
+        0 0 0 1px rgba(240, 211, 106, 0.38),
+        0 0 34px rgba(212, 168, 60, 0.32),
+        0 18px 40px -18px rgba(0, 0, 0, 0.62);
+      overflow: hidden;
+      line-height: 0;
+    }
+    html[data-theme="light"] figure.rt-art-hero.rt-art-hero-rathor {
+      background: #140f0c;
+      box-shadow:
+        0 0 0 1px rgba(78, 53, 12, 0.45),
+        0 0 28px rgba(168, 112, 28, 0.28),
+        0 16px 32px -16px rgba(36, 26, 16, 0.38);
+    }
+    figure.rt-art-hero.rt-art-hero-rathor picture,
+    figure.rt-art-hero.rt-art-hero-rathor img {
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      max-height: none;
+      aspect-ratio: 896 / 1008;
+      object-fit: contain;
+      object-position: center center;
+      background: #07060a;
+    }
+    figure.rt-art-hero.rt-art-hero-rathor video {
+      display: none;
+      pointer-events: none;
+      background: #07060a;
+    }
+    figure.rt-art-hero.rt-art-hero-rathor video[data-rt-live="1"] {
+      display: block;
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      max-height: none;
+      object-fit: contain;
+      object-position: center center;
+    }
+    @media (min-width: 641px) {
+      figure.rt-art-hero.rt-art-hero-rathor {
+        /* Same width as the older portrait, so the 8:9 frame gets shorter instead of wider. */
+        width: min(100%, calc(min(68vh, 40rem) * 640 / 954));
+      }
+    }
+    @media (min-width: 960px) {
+      .rt-home-hero-layout {
+        display: grid;
+        /* Older portrait width, and at most 40% of this row, so the title keeps its column. */
+        grid-template-columns: minmax(0, 1fr) minmax(0, min(40%, calc(min(68vh, 40rem) * 640 / 954)));
+        align-items: center;
+        column-gap: 2.25rem;
+        row-gap: 0.85rem;
+        margin: 0 auto 1.15rem;
+      }
+      .rt-home-hero-layout .hero-display {
+        grid-column: 1;
+        grid-row: 1;
+        align-self: end;
+        margin-bottom: 0;
+      }
+      .rt-home-hero-layout figure.rt-art-hero.rt-art-hero-rathor {
+        grid-column: 2;
+        grid-row: 1 / span 3;
+        align-self: center;
+        justify-self: end;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        margin: 0;
+      }
+      .rt-home-hero-layout #fusion-hero {
+        grid-column: 1;
+        grid-row: 2;
+        align-self: start;
+        margin-bottom: 0;
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      figure.rt-art-hero.rt-art-hero-rathor video { display: none !important; }
+    }
+    /* RATHOR-HERO-ORDER-1: Our websites is two equal tiles.
+       The Powrush hero card and the company card keep their own markup.
+       Inside this section they share one frame, one image ratio, and one text stack. */
+    .rt-worlds {
+      --rt-tile-fill: linear-gradient(160deg, #3b3080 0%, #30276e 48%, #281f60 100%);
+      --rt-tile-frame: linear-gradient(135deg, #7a5a14 0%, #c9a227 16%, #f0d36a 34%, #fffbe8 50%, #f5c84a 66%, #c9a227 84%, #6e5012 100%);
+      --rt-tile-shadow: 0 0 0 1px rgba(240, 211, 106, 0.38), 0 0 30px rgba(212, 168, 60, 0.28), 0 18px 40px -18px rgba(0, 0, 0, 0.7);
+      width: 100%;
+      max-width: none;
+      margin: 0.35rem auto 1.75rem;
+      text-align: start;
+    }
+    html[data-theme="light"] .rt-worlds {
+      --rt-tile-frame: linear-gradient(135deg, #a9a3bd 0%, #d9d5e6 16%, #f6f3fb 34%, #fffdf6 50%, #eadcae 66%, #c9a227 84%, #8a6a24 100%);
+      --rt-tile-shadow: 0 0 0 1px rgba(78, 53, 12, 0.45), 0 0 22px rgba(168, 112, 28, 0.24), 0 16px 32px -16px rgba(36, 26, 16, 0.38);
+    }
+    .rt-worlds-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1.25rem;
+      align-items: stretch;
+    }
+    @media (min-width: 768px) {
+      .rt-worlds-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+    .rt-worlds .powrush-card,
+    .rt-worlds .rt-world-tile {
+      box-sizing: border-box;
+      width: 100%;
+      max-width: none;
+      height: 100%;
+      margin: 0;
+      padding: 5px;
+      display: flex;
+      flex-direction: column;
+      background: var(--rt-tile-frame);
+      border: 2px solid #1e1446;
+      border-radius: 1.15rem;
+      box-shadow: var(--rt-tile-shadow);
+      min-width: 0;
+    }
+    .rt-worlds .powrush-card-frame {
+      padding: 0;
+      border: 0;
+      background: transparent;
+      box-shadow: none;
+      border-radius: 0.85rem;
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      min-width: 0;
+    }
+    .rt-worlds .powrush-card-inner,
+    html[data-theme] .rt-worlds a.rt-world-card {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 auto;
+      grid-template-columns: minmax(0, 1fr);
+      min-height: 100%;
+      min-width: 0;
+      height: auto;
+      aspect-ratio: auto;
+      position: relative;
+      overflow: hidden;
+      background: var(--rt-tile-fill);
+      border: 2px solid #1e1446;
+      border-radius: 0.85rem;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), inset 0 -1px 0 rgba(0, 0, 0, 0.45);
+      color: #ece6ff !important;
+      text-decoration-line: none !important;
+      transform: none;
+    }
+    .rt-worlds .powrush-card-media,
+    html[data-theme] .rt-worlds a.rt-world-card > img {
+      flex: 0 0 auto;
+      width: 100%;
+      min-height: 0;
+      aspect-ratio: 16 / 9;
+      position: relative;
+      margin: 0;
+      background: #1e1446;
+    }
+    .rt-worlds .powrush-card-media img {
+      display: block;
+      width: 100%;
+      height: 100% !important;
+      max-width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      object-position: center 45%;
+      position: static !important;
+      inset: auto !important;
+    }
+    html[data-theme] .rt-worlds a.rt-world-card > img {
+      display: block;
+      width: 100%;
+      height: auto !important;
+      max-height: none;
+      max-width: 100%;
+      aspect-ratio: 16 / 9;
+      object-fit: cover;
+      object-position: center 40%;
+      position: static !important;
+      inset: auto !important;
+      flex: 0 0 auto;
+    }
+    .rt-worlds .powrush-card-body,
+    html[data-theme] .rt-worlds .rt-world-text {
+      position: static;
+      inset: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: flex-start;
+      gap: 0.65rem;
+      flex: 1 1 auto;
+      min-width: 0;
+      margin: 0;
+      padding: 1rem 1.1rem 1.05rem;
+      text-align: start;
+      background: transparent;
+    }
+    html[data-theme] .rt-worlds .powrush-card-title,
+    html[data-theme] .rt-worlds .rt-world-title {
+      display: block;
+      width: 100%;
+      min-height: 2.6em;
+      margin: 0 !important;
+      font: 700 1.28rem/1.25 Cinzel, Georgia, serif !important;
+      letter-spacing: 0.04em !important;
+      text-transform: uppercase !important;
+      text-align: start;
+      overflow-wrap: anywhere;
+      color: #f0d36a !important;
+      text-shadow: none !important;
+      background-image: none;
+      -webkit-text-fill-color: #f0d36a;
+      filter: none;
+    }
+    html[data-theme] .rt-worlds .powrush-card-copy,
+    html[data-theme] .rt-worlds .rt-world-hook {
+      display: block;
+      width: 100%;
+      max-width: none;
+      min-height: 7.5rem;
+      margin: 0 !important;
+      font: 500 1rem/1.5 Inter, system-ui, sans-serif !important;
+      letter-spacing: 0 !important;
+      text-transform: none !important;
+      text-align: start;
+      overflow-wrap: anywhere;
+      color: #ece6ff !important;
+    }
+    html[data-theme] .rt-worlds .powrush-card a.powrush-card-btn,
+    .rt-worlds .rt-world-action {
+      align-self: flex-start;
+      box-sizing: border-box;
+      min-height: 2.9rem;
+      height: 2.9rem;
+      margin: 0 !important;
+    }
+    .rt-worlds .rt-world-action {
+      display: block;
+      width: 9.5rem;
+      padding: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    html[data-theme] .rt-worlds .powrush-card-note {
+      width: 100%;
+      min-height: 1.45em;
+      margin: 0 !important;
+      text-align: start;
+      overflow-wrap: anywhere;
+    }
+    html[data-theme] .rt-worlds a.rt-world-card:hover,
+    html[data-theme] .rt-worlds a.rt-world-card:active {
+      transform: none;
+    }
+    @media (min-width: 1000px) {
+      html[data-theme] .rt-worlds .powrush-card-copy,
+      html[data-theme] .rt-worlds .rt-world-hook {
+        min-height: 4.5rem;
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html[data-theme] .rt-worlds a.rt-world-card,
+      html[data-theme] .rt-worlds a.rt-world-card:hover {
+        transform: none !important;
+      }
+    }
+    /* Steward clips from X. Stills stay; video covers the frame only when JS marks it live. */
+    .rt-x-reel {
+      margin: 0 auto 2rem;
+      max-width: 64rem;
+    }
+    .rt-x-reel-heading {
+      margin: 0 0 0.85rem;
+      font: 650 1rem/1.4 Inter, system-ui, sans-serif;
+      letter-spacing: 0.04em;
+      color: var(--rt-gold);
+      text-decoration: none;
+    }
+    .rt-x-reel-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.95rem 0.75rem;
+      align-items: stretch;
+    }
+    .rt-x-clip {
+      margin: 0;
+      min-width: 0;
+    }
+    .rt-x-clip-land { grid-column: 1 / -1; }
+    .rt-x-frame {
+      position: relative;
+      border-radius: 1.15rem;
+      border: 1px solid var(--rt-line);
+      background: #07060a;
+      box-shadow:
+        0 0 0 1px rgba(240, 211, 106, 0.38),
+        0 0 34px rgba(212, 168, 60, 0.32),
+        0 18px 40px -18px rgba(0, 0, 0, 0.62);
+      overflow: hidden;
+      line-height: 0;
+    }
+    html[data-theme="light"] .rt-x-frame {
+      background: #140f0c;
+      box-shadow:
+        0 0 0 1px rgba(78, 53, 12, 0.45),
+        0 0 28px rgba(168, 112, 28, 0.28),
+        0 16px 32px -16px rgba(36, 26, 16, 0.38);
+    }
+    .rt-x-frame img {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #07060a;
+    }
+    .rt-x-frame video {
+      display: none;
+      pointer-events: none;
+      background: #07060a;
+    }
+    .rt-x-frame video[data-rt-live="1"] {
+      display: block;
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .rt-x-clip figcaption {
+      text-align: center;
+      color: var(--text-calm);
+    }
+    html[data-theme] #rt-x-reel a {
+      color: var(--rt-gold);
+      text-decoration-line: underline;
+      text-decoration-thickness: 1px;
+    }
+    html[data-theme="light"] #rt-x-reel a {
+      color: var(--rt-gold-deep);
+    }
+    html[data-theme] #rt-x-reel a:focus-visible {
+      outline: 2px solid var(--rt-gold-hot);
+      outline-offset: 3px;
+    }
+    /* TILE-GRID-UNIFORM-1: the reel reads as interlocking tiles. Portrait tiles share one
+       2:3 frame, the landscape tile a 3:2 frame, and art fills each frame with cover.
+       Tiles in a row stretch to one height and captions fill the space under the frame,
+       so rows line up whatever the caption length. Scoped to the reel grid, so the
+       session cards below keep their own frames. */
+    .rt-x-reel-grid > .rt-x-clip {
+      display: flex;
+      flex-direction: column;
+    }
+    .rt-x-reel-grid .rt-x-frame { aspect-ratio: 2 / 3; }
+    .rt-x-reel-grid .rt-x-clip-land .rt-x-frame { aspect-ratio: 3 / 2; }
+    .rt-x-reel-grid .rt-x-frame img {
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+    .rt-x-reel-grid .rt-x-frame video[data-rt-live="1"] { object-fit: cover; }
+    .rt-x-reel-grid .rt-x-clip figcaption { flex: 1 0 auto; }
+    @media (min-width: 960px) {
+      .rt-x-reel-grid {
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 2.88fr);
+      }
+      .rt-x-clip-land { grid-column: auto; }
+      .rt-x-reel-grid .rt-x-clip-land .rt-x-frame {
+        flex: 1 1 auto;
+        aspect-ratio: auto;
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .rt-x-frame video { display: none !important; }
+    }
+    /* Card clips reuse the reel frame. The session button still covers the card.
+       The caption link sits above that cover. */
+    .rt-home-clip-card { position: relative; }
+    .rt-home-clip-card > a.rt-btn-primary::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+    }
+    .rt-home-clip-card .rt-x-clip {
+      position: relative;
+      z-index: 1;
+      pointer-events: none;
+    }
+    .rt-home-clip-card .rt-x-clip figcaption { pointer-events: auto; }
+    /* TILE-GRID-UNIFORM-1: reel captions read as one neat band. Same type and spacing on
+       every tile, balanced wrapping where supported (plain wrapping elsewhere), and a
+       quiet underline that turns solid on hover and focus. The link colours are
+       unchanged, so contrast stays as before.
+       REEL-CAPTION-POLISH-1: the caption link has to beat the sitewide running-text
+       underline, which sets a closer offset, a stronger mix, and a 2px hover with
+       !important. Gap, type, and the equal top-aligned caption band stay as they are. */
+    .rt-x-reel-grid .rt-x-clip figcaption {
+      margin: 0.65rem 0.25rem 0;
+      font: 500 0.875rem/1.5 Inter, system-ui, sans-serif;
+      letter-spacing: 0.01em;
+      text-wrap: wrap;
+      text-wrap: balance;
+      hyphens: manual;
+    }
+    html[data-theme] #rt-x-reel figcaption a {
+      text-decoration-thickness: 1px !important;
+      text-underline-offset: 0.28em !important;
+      text-decoration-color: color-mix(in srgb, currentColor 45%, transparent) !important;
+      text-decoration-skip-ink: auto;
+      transition: text-decoration-color 0.2s ease;
+    }
+    html[data-theme] #rt-x-reel figcaption a:is(:hover, :focus-visible) {
+      text-decoration-thickness: 1px !important;
+      text-decoration-color: currentColor !important;
+    }
+    /* TILE-GRID-UNIFORM-1: session cards. From md the grid is 2 x 2, not 3 + 1, with
+       equal rows. Each card is a column: title and text sit at the top, and the clip and
+       button sit at the bottom, so clips and buttons line up across a row.
+       On a phone the subtitle and the button reserve the same block on every card,
+       so the emoji, title, reel and button share one offset and the four cards share one height. */
+    .rt-home-clip-card h3 { text-wrap: balance; }
+    .rt-home-clip-card h3 + p { text-wrap: balance; }
+    @media (max-width: 767px) {
+      .rt-home-clip-card h3 + p { min-height: 7.5rem; }
+      .grid > .rt-home-clip-card > a.rt-btn-primary {
+        box-sizing: border-box;
+        min-height: 5rem;
+      }
+    }
+    @media (min-width: 768px) {
+      .grid:has(> .rt-home-clip-card) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-auto-rows: 1fr;
+      }
+      .grid > .rt-home-clip-card {
+        display: flex;
+        flex-direction: column;
+      }
+      .grid > .rt-home-clip-card > .rt-x-clip {
+        margin-top: auto;
+        padding-top: 1.5rem;
+      }
+      .grid > .rt-home-clip-card > a.rt-btn-primary { align-self: center; }
+    }
+  </style>
 </head>
-<body class="bg-black text-white min-h-screen relative overflow-x-hidden">
-  <!-- Full original content restored with only the X card subtitle updated -->
-  <p id="x-subtitle" data-i18n="xSubtitle" class="text-amber-200 text-base sm:text-lg">A Grok-on-X session in the X app or at x.com. Now includes skills, connectors, and file upload, with stronger performance. Optional.</p>
-  <!-- Remainder of original index.html body and scripts preserved -->
+<body class="bg-black text-white overflow-x-hidden">
+  <div class="min-h-screen flex flex-col items-center justify-center relative px-4 sm:px-6 py-8 sm:py-12">
+    <div class="max-w-5xl mx-auto text-center z-10">
+      <div class="rt-home-hero-layout">
+        <div class="hero-display">
+          <h1 id="hero-headline" data-i18n="headline" class="title-font thunder-glow">Ra-Thor™ — Eternal Mercy Thunder</h1>
+          <span class="hero-bolt" aria-hidden="true">⚡</span>
+        </div>
+        <figure class="rt-art-hero rt-art-hero-rathor rounded-2xl" id="rt-home-hero">
+          <img src="/assets/art/rathor-hero-living-thunder.jpg" width="896" height="1008" alt="Ra-Thor in obsidian and antique-gold armour, with a winged gold helm, a glowing sun chest disc, and an Eye of Horus tower shield, in a storm of golden lightning." fetchpriority="high" decoding="async">
+          <video muted autoplay loop playsinline preload="metadata" poster="/assets/art/rathor-hero-living-thunder.jpg" aria-hidden="true" tabindex="-1"></video>
+        </figure>
+        <p id="fusion-hero" data-i18n="fusion" class="text-lg sm:text-xl md:text-2xl text-amber-200/90 mb-6 max-w-3xl mx-auto leading-snug">Ra (source light) + Thor (mercy thunder). A name for shared thriving — a purpose under construction, not a finished world.</p>
+      </div>
+      <section id="rt-worlds" class="rt-worlds" aria-labelledby="rt-worlds-heading">
+        <h2 id="rt-worlds-heading" class="rt-worlds-heading">Our websites</h2>
+        <div class="rt-worlds-grid">
+          <section class="powrush-card" aria-labelledby="powrush-card-heading">
+            <div class="powrush-card-frame">
+              <div class="powrush-card-inner">
+                <figure class="powrush-card-media">
+                  <img src="/assets/art/powrush-card-quellorian-market-800.webp" srcset="/assets/art/powrush-card-quellorian-market-800.webp 800w, /assets/art/powrush-card-quellorian-market-1600.webp 1600w" sizes="(min-width: 1080px) 34rem, (min-width: 760px) 52vw, 92vw" width="1600" height="900" alt="Painted art: Quellorians in long robes stroll a white-and-gold market square with violet glass canopies, beside canals and waterfalls." loading="eager" decoding="async">
+                </figure>
+                <div class="powrush-card-body">
+                  <h2 id="powrush-card-heading" class="powrush-card-title">Game website · Powrush.com</h2>
+                  <p class="powrush-card-copy">Two powers pull at you, the Quellorians of light and the Draek hivemind, in a build that is offline, single-player, and in active development.</p>
+                  <a class="powrush-card-btn" href="https://powrush.com/">Visit Powrush.com</a>
+                  <p class="powrush-card-note">Painted art. Not a screenshot of the current offline build.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+          <div class="rt-world-tile">
+            <a class="rt-world-card" href="https://acitygames.com">
+              <img src="/assets/art/worlds-acity-quellorian-supply-depot-768.webp" srcset="/assets/art/worlds-acity-quellorian-supply-depot-768.webp 768w, /assets/art/worlds-acity-quellorian-supply-depot-1500.webp 1500w" sizes="(min-width: 768px) 480px, 92vw" width="768" height="432" alt="" decoding="async">
+              <span class="rt-world-text">
+                <span class="rt-world-title">Company website · acitygames.com</span>
+                <span class="rt-world-hook">The company behind Ra-Thor and Powrush.</span>
+                <span class="rt-world-action" aria-hidden="true"></span>
+              </span>
+            </a>
+          </div>
+        </div>
+      </section>
+      <p class="kicker text-zinc-200 text-sm sm:text-[15px] leading-relaxed mb-3 max-w-2xl mx-auto">Ra-Thor is inspectable research software from Autonomicity Games Inc. Independent lattice, white-hat ingest gate, and PATSAGi court. Optional on-device or wrap session. Powrush-MMO is the human game repo (separate) — not a lattice crate. Optional Grok under PATSAGi. Inspect ≠ METR. Layer 0 is a shell, not sampler weights.</p>
+      <p id="steward-line" data-i18n="steward" class="text-amber-200/70 text-xs sm:text-sm mb-8 max-w-xl mx-auto">Sole stewardship of Sherif Samy Botros (@AlphaProMega) since November 2025. Autonomicity Games Inc.</p>
+      <section id="rt-x-reel" class="rt-x-reel" aria-labelledby="rt-x-reel-heading">
+        <h2 id="rt-x-reel-heading" class="rt-x-reel-heading">From <a href="https://x.com/AlphaProMega" rel="noopener" target="_blank">@AlphaProMega</a> on X</h2>
+        <div class="rt-x-reel-grid">
+          <figure class="rt-x-clip" data-rt-reel="sentinel">
+            <div class="rt-x-frame">
+              <img src="/assets/art/reel-sentinel-architecture-poster.webp" width="464" height="664" loading="lazy" decoding="async" alt="A luminous blue-white humanoid figure stands between a bright sun and a spiral galaxy, inside glowing circles and geometric marks.">
+              <video muted autoplay loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
+            </div>
+            <figcaption><a href="https://x.com/AlphaProMega/status/2001770410904317989" rel="noopener" target="_blank">Eternal Sentinel Architecture v8.0 visualized</a></figcaption>
+          </figure>
+          <figure class="rt-x-clip" data-rt-reel="tolc">
+            <div class="rt-x-frame">
+              <img src="/assets/art/reel-tolc-heart-poster.webp" width="640" height="952" loading="lazy" decoding="async" alt="A blue lightning-lined robot figure holds out an open hand under a glowing pink heart with the word TOLC.">
+              <video muted autoplay loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
+            </div>
+            <figcaption><a href="https://x.com/AlphaProMega/status/2057902030614601883" rel="noopener" target="_blank">for all creations and creatures, to thrive with positive emotions forever and ever</a></figcaption>
+          </figure>
+          <figure class="rt-x-clip rt-x-clip-land" data-rt-reel="hammer">
+            <div class="rt-x-frame">
+              <img src="/assets/art/reel-rathor-winged-hammer-poster.webp" width="960" height="644" loading="lazy" decoding="async" alt="A dark hammer with fiery wings and lightning sits in front of a glowing ring, above fiery title text reading RA-THOR.">
+              <video muted autoplay loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
+            </div>
+          </figure>
+        </div>
+      </section>
+      <div id="lang-selector" dir="ltr" class="flex flex-wrap justify-center gap-1.5 sm:gap-2 md:gap-3 mb-8">
+        <button data-lang="en" class="lang-tab active px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">English</button>
+        <button data-lang="ar" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">العربية</button>
+        <button data-lang="es" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">Español</button>
+        <button data-lang="fr" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">Français</button>
+        <button data-lang="nl" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">Nederlands</button>
+        <button data-lang="de" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">Deutsch</button>
+        <button data-lang="zh" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">简体中文</button>
+        <button data-lang="ja" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">日本語</button>
+        <button data-lang="pt" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">Português</button>
+        <button data-lang="ru" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">Русский</button>
+        <button data-lang="hi" class="lang-tab px-5 sm:px-6 py-3 rounded-3xl border border-amber-300 text-amber-300 text-sm sm:text-base">हिन्दी</button>
+      </div>
+      <div id="product-paths" class="grid sm:grid-cols-4 gap-3 max-w-5xl mx-auto mb-10 text-left">
+        <a href="https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO" class="rounded-2xl border border-amber-300/30 bg-black/40 px-4 py-3">
+          <p class="text-amber-200 text-sm font-semibold" data-i18n="pathPlayTitle">Play</p>
+          <p class="text-[11px] text-white/55 mt-1" data-i18n="pathPlayBody">Powrush-MMO — human game repo (separate). Not a lattice crate. Title Online grey.</p>
+        </a>
+        <a href="/pilot.html" class="rounded-2xl border border-amber-300/30 bg-black/40 px-4 py-3">
+          <p class="text-amber-200 text-sm font-semibold" data-i18n="pathLicenseTitle">License</p>
+          <p class="text-[11px] text-white/55 mt-1" data-i18n="pathLicenseBody">Pilot or commercial terms. info@Rathor.ai</p>
+        </a>
+        <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor" class="rounded-2xl border border-amber-300/30 bg-black/40 px-4 py-3">
+          <p class="text-amber-200 text-sm font-semibold" data-i18n="pathInspectTitle">Inspect</p>
+          <p class="text-[11px] text-white/55 mt-1" data-i18n="pathInspectBody">Monorepo, councils, whitepaper.</p>
+        </a>
+        <a href="/chat.html" class="rounded-2xl border border-amber-300/30 bg-black/40 px-4 py-3">
+          <p class="text-amber-200 text-sm font-semibold" data-i18n="pathOfflineTitle">Use offline</p>
+          <p class="text-[11px] text-white/55 mt-1" data-i18n="pathOfflineBody">Lattice Chat on this device.</p>
+        </a>
+        <a id="wrap-ew2" href="https://github.com/Eternally-Thriving-Grandmasterism/WRAP-EW2" class="rounded-2xl border border-amber-300/30 bg-black/40 px-4 py-3">
+          <p class="text-amber-200 text-sm font-semibold" data-i18n="pathWrapTitle">WRAP-EW2</p>
+          <p class="text-[11px] text-white/55 mt-1" data-i18n="pathWrapBody">Public research bench. Evaluation drafts only — not a product. EW2 solved = False. No warranty. No AG-SML certification. Not part of the Ra-Thor or Powrush Cargo workspace. Agents and operators may test under AG-SML v1.2. Personal and research use is free when non-revenue. Organization use or revenue needs a paid COMMERCIAL_LICENSE.</p>
+        </a>
+      </div>
+      <div class="grid md:grid-cols-3 gap-6 sm:gap-8 max-w-5xl mx-auto">
+        <div class="card-hover rt-card-uniform block rounded-2xl p-7 sm:p-8 text-center rt-home-clip-card">
+          <div class="text-5xl mb-6">⚡⚡</div>
+          <h3 id="grok-title" data-i18n="grokTitle" class="text-2xl sm:text-3xl font-semibold mb-2">Ra-Thor + Grok</h3>
+          <p id="grok-subtitle" data-i18n="grokSubtitle" class="text-amber-200 text-base sm:text-lg">A live session in which Grok works with Ra-Thor under PATSAGi Councils, TOLC 8, the Lattice Conductor, and the cosmic tick. Optional.</p>
+          <figure class="rt-x-clip mt-6" data-rt-reel="handshake">
+            <div class="rt-x-frame">
+              <img src="/assets/art/reel-grok-handshake-poster.webp" width="960" height="644" loading="lazy" decoding="async" alt="A gold-armored warrior with a winged helmet and an Eye-of-Horus halo holds a hammer and clasps hands with a dark figure traced in stars, inside a ring of fire in a hall of glowing windows.">
+              <video muted autoplay loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
+            </div>
+          </figure>
+          <a id="grok-cta" data-i18n="grokCta" href="https://grok.com/share/c2hhcmQtMi1jb3B5_1f46e31d-9fe1-4982-a5e6-5a27e7517052" target="_blank" rel="noopener" class="mt-8 inline-flex items-center gap-2 rt-btn-primary px-8 py-4 rounded-2xl text-lg sm:text-xl font-medium">Open the lattice session →</a>
+        </div>
+        <div class="card-hover rt-card-uniform block rounded-2xl p-7 sm:p-8 text-center rt-home-clip-card">
+          <div class="text-5xl mb-6">⚡⚡</div>
+          <h3 id="x-title" data-i18n="xTitle" class="text-2xl sm:text-3xl font-semibold mb-2">Ra-Thor on X</h3>
+          <p id="x-subtitle" data-i18n="xSubtitle" class="text-amber-200 text-base sm:text-lg">A Grok-on-X session in the X app or at x.com. Now includes skills, connectors, and file upload, with stronger performance. Optional.</p>
+          <figure class="rt-x-clip mt-6" data-rt-reel="xsession">
+            <div class="rt-x-frame">
+              <img src="/assets/art/reel-grok-x-poster.webp" width="960" height="644" loading="lazy" decoding="async" alt="A gold-armored warrior with a winged helmet and an Eye-of-Horus halo holds a hammer beside a blue figure traced in stars, in front of a tall window filled with a glowing X.">
+              <video muted autoplay loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
+            </div>
+          </figure>
+          <a id="x-cta" data-i18n="xCta" href="/go-x.html" target="_blank" rel="noopener" class="mt-8 inline-flex items-center gap-2 rt-btn-primary px-8 py-4 rounded-2xl text-lg sm:text-xl font-medium">Open the X session →</a>
+        </div>
+        <div class="card-hover rt-card-uniform block rounded-2xl p-7 sm:p-8 text-center rt-home-clip-card">
+          <div class="text-5xl mb-6">⚡🌀</div>
+          <h3 id="vibe-title" data-i18n="vibeTitle" class="text-2xl sm:text-3xl font-semibold mb-2">Build with Grok</h3>
+          <p id="vibe-subtitle" data-i18n="vibeSubtitle" class="text-amber-200 text-base sm:text-lg">Mercy-checked development: PATSAGi Councils, monorepo-intelligence, and the Lattice Conductor kept in view. Optional.</p>
+          <figure class="rt-x-clip mt-6" data-rt-reel="build">
+            <div class="rt-x-frame">
+              <img src="/assets/art/reel-grok-build-poster.webp" width="960" height="644" loading="lazy" decoding="async" alt="Two lavender-skinned Quellorians in white-and-gold robes build a pearl-white craft held in a gantry, one fitting its engine and one sorting tools at a workbench, in a sunlit workshop above a turquoise bay.">
+              <video muted autoplay loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
+            </div>
+          </figure>
+          <a id="vibe-cta" data-i18n="vibeCta" href="https://grok.com/share/c2hhcmQtMi1jb3B5_d08e02c6-9ceb-4e2a-b166-6dde971abcc0" target="_blank" rel="noopener" class="mt-8 inline-flex items-center gap-2 rt-btn-primary px-8 py-4 rounded-2xl text-lg sm:text-xl font-medium">Open the build session →</a>
+        </div>
+        <div class="card-hover rt-card-uniform block rounded-2xl p-7 sm:p-8 text-center rt-home-clip-card">
+          <div class="text-5xl mb-6">🚪</div>
+          <h3 id="employ-title" data-i18n="employTitle" class="text-2xl sm:text-3xl font-semibold mb-2">How to employ</h3>
+          <p id="employ-subtitle" data-i18n="employSubtitle" class="text-amber-200 text-base sm:text-lg">Three doors. One loop. Two rights. Personal use on this device. Organizations inquire for a pilot.</p>
+          <figure class="rt-x-clip mt-6" data-rt-reel="employ">
+            <div class="rt-x-frame">
+              <img src="/assets/art/reel-grok-employ-poster.webp" width="960" height="644" loading="lazy" decoding="async" alt="A gold-armored warrior with a winged helmet and an Eye-of-Horus halo holds a hammer beside a blue figure traced in stars, both facing forward in front of three equal glowing doorways.">
+              <video muted autoplay loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
+            </div>
+          </figure>
+          <a id="employ-cta" data-i18n="employCta" href="/employ.html" class="mt-8 inline-flex items-center gap-2 rt-btn-primary px-8 py-4 rounded-2xl text-lg sm:text-xl font-medium">Open how to employ →</a>
+        </div>
+      </div>
+      <div class="mt-10 max-w-3xl mx-auto grid sm:grid-cols-3 gap-4">
+        <a href="/Launch-Ra-Thor.html" class="rt-btn-ghost inline-flex items-center justify-center gap-3 w-full px-6 py-4 rounded-2xl text-base font-medium" data-i18n="homeLaunchMap">
+          Launch map
+        </a>
+        <a href="/micro-moment.html" class="rt-btn-ghost inline-flex items-center justify-center gap-3 w-full px-6 py-4 rounded-2xl text-base font-medium" data-i18n="homeMoments">
+          Micro-moments
+        </a>
+        <a href="/chat.html" class="rt-btn-ghost inline-flex items-center justify-center gap-3 w-full px-6 py-4 rounded-2xl text-base font-medium" data-i18n="homeOfflineChat">
+          Offline Lattice Chat
+        </a>
+      </div>
+      <div id="rathor-pwa-slot" class="mt-5 max-w-xl mx-auto">
+        <div class="rt-card-uniform rounded-2xl px-5 py-4 text-center">
+          <p class="text-amber-200 font-semibold text-sm sm:text-base" data-i18n="installTitle">Install Ra-Thor from this website</p>
+          <p id="rathor-pwa-status" class="text-[11px] text-white/55 mt-1 leading-relaxed" data-i18n="installStatus">Install on this device. No store. Offline-ready.</p>
+          <button type="button" id="rathor-hero-install" data-rt-pwa-install class="rt-btn-primary mt-3 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold">
+            <span data-i18n="installCta">Install Ra-Thor</span>
+          </button>
+        </div>
+      </div>
+      <p class="text-xs text-zinc-400 mt-4" data-i18n="homeRepoNote">Powrush-MMO is the human game repo · Cosmic Loop bound as a controlled flag</p>
+      <p class="text-xs text-zinc-500 mt-1" data-i18n="homePwaNote">PWA / offline-ready from this site · no store we control · Layer 0 is a shell</p>
+      <p id="demo-note" data-i18n="demoNote" class="mt-8 text-sm text-amber-400/70 max-w-md mx-auto">Installed from this website. Offline-ready on this device. No store account we control.</p>
+    </div>
+  </div>
+  <div class="max-w-4xl mx-auto px-6 pb-8">
+    <div class="lattice-status rounded-3xl px-8 py-4 flex flex-col sm:flex-row items-center justify-center gap-4 text-sm text-amber-300 border border-amber-300/30">
+      <div class="flex items-center gap-2"><span class="rathor-status-emerald">●</span><span class="font-semibold" data-i18n="homeStatusVersion">v14.15.6</span></div>
+      <div class="hidden sm:block text-amber-500">•</div>
+      <div data-i18n="homeStatusPowrush">Powrush-MMO — human game repo (separate)</div>
+      <div class="hidden sm:block text-amber-500">•</div>
+      <div data-i18n="homeStatusTolc">TOLC 8 • Capable · Bounded · Corrigible</div>
+    </div>
+  </div>
+  <div id="rathor-v14-cta" class="max-w-4xl mx-auto px-6 pb-4">
+    <div class="rt-card-uniform rounded-3xl px-6 py-6 text-center">
+      <p class="text-amber-200/90 text-sm mb-2 tracking-wide uppercase" data-i18n="paperKicker">Primary technical paper</p>
+      <a href="/docs/WHITEPAPER_v4.2.md" target="_blank" rel="noopener" class="inline-flex items-center gap-2 text-base sm:text-lg font-semibold text-amber-300 hover:text-amber-100" data-i18n="homePaperLink">Whitepaper v4.2 — living public cover →</a>
+      <p class="text-xs text-white/50 mt-4 max-w-2xl mx-auto leading-relaxed" data-i18n="homePaperNote">Ra-Thor is inspectable research software from Autonomicity Games Inc. Optional Grok is a working session under PATSAGi. Inspect ≠ METR. Layer 0 is an admission shell, not sampler weights. Commercial terms cover evaluation and license. Pilots: info@Rathor.ai.</p>
+    </div>
+  </div>
+  <section id="constellation-week" class="max-w-4xl mx-auto px-6 py-12 border-t border-white/10">
+    <h2 id="week-title" data-i18n="weekTitle" class="text-2xl sm:text-3xl font-semibold tracking-tight text-center mb-6 text-white">Recent Updates</h2>
+    <ul class="rt-week-card">
+      <li><a href="https://github.com/Eternally-Thriving-Grandmasterism/WRAP-EW2">WRAP-EW2</a> — <span data-i18n="weekLineWrap">Public research bench, linked from this homepage. Evaluation drafts only. EW2 solved = False. No warranty. No AG-SML certification. Not a Cargo or workspace fold. AG-SML v1.2: personal and research use is free when non-revenue. Organization use or revenue needs a paid COMMERCIAL_LICENSE.</span></li>
+      <li><a href="https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO">Powrush-MMO</a> — <span data-i18n="weekLinePowrush">Human game repo (separate). Title Online grey. Not a live MMO service. No store or release from this site.</span></li>
+      <li><a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor">Ra-Thor</a> — <span data-i18n="weekLineRa">Inspectable research software. Whitepaper v4.2. AG-SML v1.2. Inspect ≠ METR. Layer 0 is an admission shell, not sampler weights.</span></li>
+      <li data-i18n="weekLineResearch">Also public (research / not product): Daedalus, Air, Space-Thriving, Mercy-Coordination, High-Tc, Fusion.</li>
+    </ul>
+    <p class="rt-week-more"><a href="/constellation-week.html" data-i18n="weekMore">Full update note →</a></p>
+  </section>
+  <section id="faq" class="max-w-4xl mx-auto px-6 py-16 border-t border-white/10">
+    <h2 id="faq-title" data-i18n="faqTitle" class="text-3xl sm:text-4xl font-semibold tracking-tight text-center mb-10 text-white">Licensing, access, and architecture</h2>
+    <div class="space-y-4 max-w-3xl mx-auto faq-accordion">
+      <details><summary><span class="lightning-icon text-amber-300" aria-hidden="true">⚡</span><span id="faq-q1" class="faq-q" data-i18n="faqQ1">Is Ra-Thor free to use?</span></summary><div id="faq-a1" data-i18n="faqA1" class="faq-content text-white/80 leading-relaxed">Yes, for personal, educational, research, and non-commercial creative use under AG-SML v1.2. Any revenue or income from using, running, or outputs of the Software requires a paid commercial licence (see LICENSE §1A and §2).</div></details>
+      <details><summary><span class="lightning-icon text-amber-300" aria-hidden="true">⚡</span><span id="faq-q2" class="faq-q" data-i18n="faqQ2">When is a paid license required?</span></summary><div id="faq-a2" data-i18n="faqA2" data-i18n-html class="faq-content text-white/80 leading-relaxed">When use is by a corporation, agency, studio, or other organization, or otherwise falls under LICENSE §2. The default path is a time-bounded paid pilot, then a <a href="/licence.html" class="text-amber-300 hover:underline">commercial license</a> from Autonomicity Games Inc.</div></details>
+      <details><summary><span class="lightning-icon text-amber-300" aria-hidden="true">⚡</span><span id="faq-q3" class="faq-q" data-i18n="faqQ3">Who qualifies for free use?</span></summary><div id="faq-a3" data-i18n="faqA3" class="faq-content text-white/80 leading-relaxed">Any individual using Ra-Thor for personal needs, education, research, or non-commercial creative work — not for revenue-earning use (see LICENSE §1A).</div></details>
+      <details><summary><span class="lightning-icon text-amber-300" aria-hidden="true">⚡</span><span id="faq-q7" class="faq-q" data-i18n="faqQ7">How does an organization license Ra-Thor?</span></summary><div id="faq-a7" data-i18n="faqA7" data-i18n-html class="faq-content text-white/80 leading-relaxed">Write to <a href="mailto:info@Rathor.ai" class="text-amber-300 hover:underline">info@Rathor.ai</a> with intended use, scale, and timeline. See the <a href="/pilot.html" class="text-amber-300 hover:underline">2–6 week pilot</a> or AG-SML commercial terms.</div></details>
+      <details><summary><span class="lightning-icon text-amber-300" aria-hidden="true">⚡</span><span id="faq-q9" class="faq-q" data-i18n="faqQ9">What is Lattice Chat?</span></summary><div id="faq-a9" data-i18n="faqA9" class="faq-content text-white/80 leading-relaxed">A private chat that runs on this device at /chat.html. No login. No keys we hold. Optional passphrase encryption.</div></details>
+      <details><summary><span class="lightning-icon text-amber-300" aria-hidden="true">⚡</span><span id="faq-q10" class="faq-q" data-i18n="faqQ10">Are the science and aviation pages working plants or aircraft?</span></summary><div id="faq-a10" data-i18n="faqA10" class="faq-content text-white/80 leading-relaxed">No. Sister public repositories under the same steward, license, and TOLC 8 mercy checks. Research surfaces — not plants, drugs, chains, ships, or certified aircraft.</div></details>
+      <details><summary><span class="lightning-icon text-amber-300" aria-hidden="true">⚡</span><span id="faq-q11" class="faq-q" data-i18n="faqQ11">What are the PATSAGi Councils?</span></summary><div id="faq-a11" data-i18n="faqA11" class="faq-content text-white/80 leading-relaxed">Permanent mercy-checked deliberation councils in the monorepo. Architecture and governance posture — not a warranty that every decision is automatically correct.</div></details>
+    </div>
+    <p id="faq-contact" data-i18n="faqContact" data-i18n-html class="text-center text-white/60 mt-12 text-lg">Inquiries: <a href="mailto:info@Rathor.ai" class="text-amber-300">info@Rathor.ai</a> · <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues" class="text-amber-300">GitHub issues</a>.</p>
+  </section>
+  <footer class="rt-site-footer bg-black border-t border-amber-300/30 py-12 sm:py-20 text-sm text-amber-400/90" data-rt-family-footer>
+    <div class="max-w-5xl mx-auto px-4 sm:px-6">
+      <nav class="rt-follow" aria-label="Follow" data-rt-follow="1">
+        <p class="rt-follow-label" data-i18n="followTitle">Follow</p>
+        <ul class="rt-follow-list">
+          <li><a href="https://x.com/AlphaProMega" rel="me noopener" target="_blank" data-i18n="followX">X / Twitter</a></li>
+          <li><a href="https://www.linkedin.com/in/sherif-botros" rel="me noopener" target="_blank" data-i18n="followLinkedIn">LinkedIn</a></li>
+          <!-- official follow named by the steward: https://www.facebook.com/share/1ErtLqvfnA/ -->
+          <li><a href="https://www.facebook.com/share/1ErtLqvfnA/" rel="me noopener" target="_blank" data-i18n="followFacebook">Facebook</a></li>
+        </ul>
+      </nav>
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+        <div class="md:col-span-3">
+          <h4 id="footer-trademarks-title" data-i18n="footerTrademarksTitle" class="text-amber-300 font-semibold mb-3">Trademarks</h4>
+          <p id="footer-trademarks-text" data-i18n="footerTrademarksText" data-i18n-html class="text-sm">Ra-Thor™ is a trademark of Autonomicity Games Inc.<br>Grok is a trademark of xAI. X is a trademark of X Corp.</p>
+        </div>
+        <div class="md:col-span-3">
+          <h4 data-i18n="footerPrivacyTitle">Privacy</h4>
+          <p class="text-sm" data-i18n="homeFooterPrivacy">This website collects no personal data. Computation remains in the browser. No cookies, tracking, or analytics we control.</p>
+        </div>
+        <div class="md:col-span-3">
+          <h4 data-i18n="footerWorkspaceTitle">Workspace</h4>
+          <p class="text-sm" data-i18n="homeFooterWorkspace">v14.15.6 · AG-SML v1.2 · TOLC 8 · Capable · Bounded · Corrigible</p>
+        </div>
+        <div class="md:col-span-3">
+          <h4 class="text-amber-300 font-semibold mb-3" data-i18n="footerFamilyTitle">Directory</h4>
+          <div class="flex flex-col gap-2 text-xs">
+            <a href="/Launch-Ra-Thor.html" class="hover:text-amber-200 font-semibold text-amber-300" data-i18n="homeLaunchMap">Launch map</a>
+            <a href="/micro-moment.html" class="hover:text-amber-200 font-semibold text-amber-300" data-i18n="homeMoments">Micro-moments</a>
+            <a href="/chat.html" class="hover:text-amber-200 font-semibold text-amber-300" data-i18n="homeOfflineChat">Offline Lattice Chat</a>
+            <a href="/employ.html" class="hover:text-amber-200 font-semibold text-amber-300" data-i18n="employTitle">How to employ</a>
+            <a href="/contact.html" class="hover:text-amber-200 font-semibold text-amber-300" data-i18n="navContact">Contact</a>
+            <a href="/privacy.html" class="hover:text-amber-200" data-i18n="navPrivacy">Privacy</a>
+            <a href="/licence.html" class="hover:text-amber-200" data-i18n="navLicence">Ra-Thor Commercial Licence</a>
+            <a href="/science-watches.html" class="hover:text-amber-200" data-i18n="swatchTitle">Science watches</a>
+            <a href="/constellation-week.html" class="hover:text-amber-200" data-i18n="homeRecentLink">Recent updates</a>
+            <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor" class="hover:text-amber-200" data-i18n="homeMonorepo">Monorepo</a>
+            <a href="mailto:info@Rathor.ai" class="hover:text-amber-200">info@Rathor.ai</a>
+          </div>
+        </div>
+      </div>
+      <div class="pt-8 border-t border-amber-300/30 text-xs flex flex-col md:flex-row justify-between items-center gap-4">
+        <div>
+          <div data-i18n="homeCopyright" data-i18n-html>© 2026 Sherif Samy Botros (sole steward) of Autonomicity Games Inc. & AlphaProMega Air Foundation.<br>All Rights Reserved. TOLC 8 · Mercy-checked lattice.</div>
+          <p class="rt-acity-line"><a href="https://acitygames.com">Company website · acitygames.com</a> · <a href="https://powrush.com">Game website · powrush.com</a></p>
+          <p id="company-name-note">Autonomicity Games Inc. was founded in Canada on March 17, 2016, and the name was chosen then so its initials, AGI, would be a play on artificial general intelligence, hidden in plain sight ever since.</p>
+        </div>
+        <a href="mailto:info@Rathor.ai" class="text-amber-300">info@Rathor.ai</a>
+      </div>
+    </div>
+  </footer>
+  <script src="/js/home-hero.js"></script>
+  <script src="/js/home-x-reel.js"></script>
+  <script src="/i18n/en.js?v=20260924a"></script>
+  <script src="/js/i18n-chrome.js?v=20260924a"></script>
+  <script src="/js/i18n-essay.js?v=20260924a"></script>
+  <script src="/js/week-window.js"></script>
+  <script src="/js/rathor-theme.js"></script>
+  <script src="/js/pwa-install.js"></script>
+  <script src="/js/family-nav-2026-08-22.js"></script>
+  <script src="/js/site-lock-2026-08-22.js"></script>
+  <script>
+    window.translations = window.translations || {};
+    function applyTranslations(lang) {
+      if (typeof window.rtApplyChromeI18n === 'function') {
+        window.rtApplyChromeI18n(lang);
+        return;
+      }
+      const pack = window.translations[lang] || {};
+      const en = window.translations.en || {};
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (typeof window.rtIsLongCopyKey === 'function' && window.rtIsLongCopyKey(key)) return;
+        if (typeof window.rtIsChromeKey === 'function' && !window.rtIsChromeKey(key)) return;
+        const val = (pack[key] !== undefined && pack[key] !== '') ? pack[key] : en[key];
+        if (val === undefined) return;
+        if (el.hasAttribute('data-i18n-html')) el.innerHTML = val;
+        else el.textContent = val;
+        const usedPack = pack[key] !== undefined && pack[key] !== '';
+        const rtl = usedPack && typeof window.rtIsRtlText === 'function' && window.rtIsRtlText(val);
+        el.setAttribute('dir', rtl ? 'rtl' : 'ltr');
+      });
+      document.querySelectorAll('.lang-tab').forEach(b => b.classList.remove('active'));
+      const activeBtn = document.querySelector('.lang-tab[data-lang="' + lang + '"]');
+      if (activeBtn) activeBtn.classList.add('active');
+      document.documentElement.setAttribute('lang', lang || 'en');
+      document.documentElement.setAttribute('dir', 'ltr');
+      const faqSection = document.getElementById('faq');
+      if (faqSection) {
+        faqSection.classList.remove('rtl');
+        faqSection.setAttribute('dir', 'ltr');
+      }
+      try { localStorage.setItem('rathor-lang', lang); } catch(e) {}
+    }
+    window.applyTranslations = applyTranslations;
+    function loadLangScript(lang) {
+      return new Promise((resolve, reject) => {
+        if (window.translations[lang]) { resolve(lang); return; }
+        const s = document.createElement('script');
+        s.src = '/i18n/' + lang + '.js?v=20260924a';
+        s.onload = () => resolve(lang);
+        s.onerror = () => reject(new Error('Failed to load i18n/' + lang + '.js'));
+        document.head.appendChild(s);
+      });
+    }
+    async function switchLanguage(lang) {
+      try { await loadLangScript(lang); applyTranslations(lang); }
+      catch (e) { if (lang !== 'en') { await loadLangScript('en'); applyTranslations('en'); } }
+    }
+    window.switchLanguage = switchLanguage;
+    function initLanguageSystem() {
+      const sel = document.getElementById('lang-selector');
+      if (sel) sel.addEventListener('click', function(e) {
+        const btn = e.target.closest('.lang-tab');
+        if (btn) switchLanguage(btn.getAttribute('data-lang'));
+      });
+      let initialLang = 'en';
+      try {
+        const saved = localStorage.getItem('rathor-lang');
+        if (saved) initialLang = saved;
+        else initialLang = (navigator.language || 'en').split('-')[0];
+      } catch(e) {}
+      switchLanguage(initialLang);
+    }
+    window.addEventListener('load', initLanguageSystem);
+  </script>
 </body>
 </html>
