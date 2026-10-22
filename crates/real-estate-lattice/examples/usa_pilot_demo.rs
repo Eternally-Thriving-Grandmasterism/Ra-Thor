@@ -35,9 +35,9 @@ async fn main() {
         .process_usa_offer_flow(
             UsState::CA,
             "Residential purchase in Los Angeles",
-            1_250_000.0,
+            1_250_000.0, // example value, not market data
             &mut game,
-            Some("123 Main St, Los Angeles, CA"),
+            Some("100 Demo Ave, Los Angeles, CA [FICTIONAL EXAMPLE — not a real address]"),
         )
         .await
         .unwrap();
@@ -50,9 +50,9 @@ async fn main() {
         .process_usa_offer_flow(
             UsState::CA,
             "Residential purchase in Los Angeles",
-            1_250_000.0,
+            1_250_000.0, // example value, not market data
             &mut game,
-            Some("123 Main St, Los Angeles, CA"),
+            Some("100 Demo Ave, Los Angeles, CA [FICTIONAL EXAMPLE — not a real address]"),
         )
         .await
         .unwrap();
@@ -65,9 +65,9 @@ async fn main() {
         .process_usa_offer_flow(
             UsState::FL,
             "Condo purchase in Miami Beach",
-            875_000.0,
+            875_000.0, // example value, not market data
             &mut game,
-            Some("456 Ocean Dr, Miami, FL"),
+            Some("200 Sample Blvd, Miami, FL [FICTIONAL EXAMPLE — not a real address]"),
         )
         .await
         .unwrap();

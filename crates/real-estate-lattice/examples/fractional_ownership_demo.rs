@@ -30,7 +30,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         property_mls_id: "CA-2026-0429-8847".to_string(),
         total_property_value: 1250000.0,
         shares_offered: 10000,
-        price_per_share: 125.0,
+        price_per_share: 125.0, // example value, not market data
         minimum_investment: 500.0,
     };
 

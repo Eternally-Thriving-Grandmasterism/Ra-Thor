@@ -1,6 +1,6 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Mortgage Demo — RREL v0.5.21
-//! Demonstrates mercy-gated, quantum-swarm, RECO-compliant mortgage approval
+//! Demonstrates mercy-gated, quantum-swarm mortgage approval (forms unverified — human review required)
 
 use real_estate_lattice::mortgage_engine::{MortgageEngine, MortgageApplication};
 use patsagi_councils::WorldGovernanceEngine;

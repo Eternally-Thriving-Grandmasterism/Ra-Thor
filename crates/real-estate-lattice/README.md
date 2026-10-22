@@ -12,11 +12,11 @@
 
 ## Overview
 
-RREL is a design-stage, mercy-gated real estate operating system integrated into the Ra-Thor / Powrush-MMO lattice.
+RREL is a design-stage real estate operating system integrated into the Ra-Thor / Powrush-MMO lattice.
 It models:
 
 - TREB / CREA MLS Integration surface (Ontario pilot, design only)
-- RECO / TRESA Compliance Engine scaffolding
+- compliance checklist scaffolding (unverified)
 - LAT & Divisional Court Evidence Generator (immutable legal lattice trails, unverified)
 - PMS Bridge for bidirectional sync (not wired to a live PMS)
 - WorldGovernanceEngine integration for Powrush-MMO

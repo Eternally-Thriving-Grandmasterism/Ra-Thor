@@ -165,6 +165,7 @@ impl TrebMlsAdapter {
 
             // Step 2: Quantum Swarm Consensus
             let consensus = self.quantum_swarm.reach_consensus(
+                // example value, not market data — listing.price is a design-only placeholder
                 &format!("TREB listing {} at ${:.0} in {}", listing.mls_id, listing.price, listing.city),
                 13
             ).await?;

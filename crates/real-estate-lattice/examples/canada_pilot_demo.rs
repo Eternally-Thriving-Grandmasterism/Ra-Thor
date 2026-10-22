@@ -76,7 +76,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("\n╔════════════════════════════════════════════════════════════════════════════╗");
     println!("║           ✅ CANADA PILOT COMPLETE — READY FOR ALPHAPROMEGA              ║");
-    println!("║   All systems mercy-gated • Quantum consensus achieved • RECO compliant  ║");
+    println!("║   All systems mercy-gated • Quantum consensus achieved • forms unverified  ║");
     println!("║   Next: Deploy to production → USA expansion → Multiplanetary            ║");
     println!("╚════════════════════════════════════════════════════════════════════════════╝\n");
 
