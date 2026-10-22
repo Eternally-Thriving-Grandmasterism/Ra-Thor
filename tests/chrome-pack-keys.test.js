@@ -250,8 +250,14 @@ var ESSAY_UNHOOKED_SITORDER1 = [
   'homePaperNote', 'homeRepoNote', 'homePwaNote',
   'homeStatusVersion', 'homeStatusPowrush', 'homeStatusTolc'
 ];
+// Keys intentionally unhooked from visitor pages by COPY-HUMAN-1 (version stamps removed from body copy per signoff).
+// They remain in js/i18n-essay.js and locale packs (locale packs are pinned by SHA-256).
+var ESSAY_UNHOOKED_COPYHUMAN1 = [
+  'launchKickerWs'
+];
 ESSAY.forEach(function (key) {
   if (ESSAY_UNHOOKED_SITORDER1.indexOf(key) !== -1) return;
+  if (ESSAY_UNHOOKED_COPYHUMAN1.indexOf(key) !== -1) return;
   assert(wired[key], 'essay key ' + key + ' must be marked data-i18n on a visitor page');
 });
 assert(read('employ.html').indexOf('article class="rt-prose"') !== -1, 'employ essay must stay a prose article');

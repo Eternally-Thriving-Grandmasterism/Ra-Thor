@@ -289,7 +289,7 @@
         '<div class="grid grid-cols-1 md:grid-cols-12 gap-8">' +
           '<div class="md:col-span-3">' +
             '<h4' + fk('footerTrademarksTitle') + '>Trademarks</h4>' +
-            '<p class="rt-legal"' + fk('footerTrademarksText') + '>AlphaProMega is a trademark of AlphaProMega Media Inc. Powrush, Autonomicity Games and the Autonomicity Games logo are trademarks of Autonomicity Games Inc. The Ra-Thor trademark is pending. Grok is a trademark of xAI. X is a trademark of X Corp.</p>' +
+            '<p class="rt-legal"' + fk('footerTrademarksText') + '>AlphaProMega is a trademark of AlphaProMega Media Inc. Powrush, Autonomicity Games and the Autonomicity Games logo are trademarks of Autonomicity Games Inc. The Ra-Thor trademark is pending.<br>Grok is a trademark of xAI. X is a trademark of X Corp.</p>' +
           '</div>' +
           '<div class="md:col-span-3">' +
             '<h4' + fk('footerPrivacyTitle') + '>Privacy</h4>' +

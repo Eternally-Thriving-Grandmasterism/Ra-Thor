@@ -25,7 +25,7 @@ var footer = src.slice(start, end);
 // 1. Every translatable footer element carries its pack key, next to its original English.
 var EXPECT = [
   ['footerTrademarksTitle', "'<h4' + fk('footerTrademarksTitle') + '>Trademarks</h4>'"],
-  ['footerTrademarksText', "'<p class=\"rt-legal\"' + fk('footerTrademarksText') + '>Ra-Thor™ is a trademark of Autonomicity Games Inc.<br>Grok is a trademark of xAI. X is a trademark of X Corp.</p>'"],
+  ['footerTrademarksText', "'<p class=\"rt-legal\"' + fk('footerTrademarksText') + '>AlphaProMega is a trademark of AlphaProMega Media Inc. Powrush, Autonomicity Games and the Autonomicity Games logo are trademarks of Autonomicity Games Inc. The Ra-Thor trademark is pending.<br>Grok is a trademark of xAI. X is a trademark of X Corp.</p>'"],
   ['footerPrivacyTitle', "'<h4' + fk('footerPrivacyTitle') + '>Privacy</h4>'"],
   ['homeFooterPrivacy', "'<p class=\"rt-legal\"' + fk('homeFooterPrivacy') + '>This website collects no personal data. Computations stay in your browser. No cookies, tracking, or analytics we control.</p>'"],
   ['footerWorkspaceTitle', "'<h4' + fk('footerWorkspaceTitle') + '>Workspace</h4>'"],
@@ -82,7 +82,7 @@ var PACKS = {
   'ar.js': '53f494b54d0c4fe103ef762df0ea7115fd7f6815ca1fbc3c29eb058976ca4676',
   'de.js': '5d13bda4cd8ac4e5ef76a8dcebd65f31921c961b9bfc9363d39ef1d19d29048c',
   'el.js': '26b5c8da5614cafa941d6e16bfe045180a675b7e0cb7dbc0909ff4513f8d962f',
-  'en.js': '6173c73da9a6d124c801145ee476be9a0376eca31f1734efa6dc7d99c4d82dc4',
+  'en.js': 'ab786d07053468894692f518c74918900bfa8acdc9c43bb2ed34e4d544e3e650',
   'es.js': '7394a23b199c7d1f7b7eb1eec72c06d02528aaf65c7402444d900c4d3174fbfe',
   'fa.js': '9cc6aa11b43dfc29c9380622a090e9055f3cdec9a354d5e41ecb9754c1e998e0',
   'fr.js': 'f1f931da3f98cd909abe296f81e0078ed049c1b472dfd1b819d7cf75fd6f135f',
