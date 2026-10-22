@@ -151,7 +151,7 @@ window.translations["th"] = {
   "weekAir": "การศึกษาด้านระบบและการบิน ไม่ใช่อากาศยานที่ได้รับการรับรองหรือยานที่บินได้",
   "weekPowrushSim": "พี่น้องของตัวจำลองในเบราว์เซอร์ ไม่ใช่บริการสด",
   "faqContact": "สอบถาม: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:text-amber-200\">info@Rathor.ai</a> · <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues\" class=\"text-amber-300 hover:text-amber-200\">ประเด็น GitHub</a>",
-  "watchTitle": "ชั้นเฝ้าดู — 1 กันยายน 2026",
+  "watchTitle": "ชั้นเฝ้าดู",
   "watchLead": "ข้ออ้างภายนอกถูกบันทึกไว้ เพื่อไม่ให้พาดหัวกลายเป็นค่าที่อนุญาตหรือสายที่มา ไม่ใช่ผลิตภัณฑ์",
   "watchPcg": "สายเทเทอร์ PCG / GSL",
   "watchPcgNote": "ISEC / CVD 1 กม. ของเกาหลี มีเงื่อนไข 90–99 GPa เฝ้าดูเท่านั้น — ไม่ใช่ค่าที่อนุญาตสำหรับที่อยู่อาศัย ไม่ใช่ลิฟต์ที่บินได้",

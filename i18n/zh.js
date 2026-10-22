@@ -151,7 +151,7 @@ window.translations["zh"] = {
   "weekAir": "系统／航空研究。不是认证航空器，也不是飞行器。",
   "weekPowrushSim": "浏览器模拟器姐妹页。不是在线服务。",
   "faqContact": "询问：<a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:text-amber-200\">info@Rathor.ai</a> · <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues\" class=\"text-amber-300 hover:text-amber-200\">GitHub 议题</a>。",
-  "watchTitle": "观察级 — 2026 年 9 月 1 日",
+  "watchTitle": "观察级",
   "watchLead": "记录外部主张，以免标题变成许用值或谱系。不是产品。",
   "watchPcg": "PCG / GSL 系绳流",
   "watchPcgNote": "ISEC／韩国 1 公里 CVD。有条件 90–99 GPa。仅观察——不是栖息地许用值，不是飞行电梯。",

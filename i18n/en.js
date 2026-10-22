@@ -188,7 +188,7 @@ window.translations["en"] = {
   "gTranslateBlocked": "Could not reach Google (offline or blocked). Offline language packs still work.",
   "gTranslateLoading": "Google Translate opens in a new tab. This leaves the device and is not the offline pack.",
   "gTranslateReady": "This link is Google\u2019s. It needs the network. The offline pack remains the default.",
-  "watchTitle": "Watch class \u2014 1 Sep 2026",
+  "watchTitle": "Watch class",
   "watchLead": "External claims recorded so headlines do not become allowables or lineage. Not products.",
   "watchPcg": "PCG / GSL tether stream",
   "watchPcgNote": "ISEC / Korean 1 km CVD. Conditional 90\u201399 GPa. Watch only \u2014 not a habitat allowable, not a flying elevator.",

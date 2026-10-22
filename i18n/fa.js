@@ -151,7 +151,7 @@ window.translations["fa"] = {
   "weekAir": "مطالعات سیستم / هوانوردی. نه هواپیمای گواهی‌شده و نه شناور پرنده.",
   "weekPowrushSim": "خواهر شبیه‌ساز مرورگر. نه سرویس زنده.",
   "faqContact": "پرسش‌ها: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:text-amber-200\">info@Rathor.ai</a> · <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues\" class=\"text-amber-300 hover:text-amber-200\">مسئله‌های GitHub</a>.",
-  "watchTitle": "رده‌ی دیده‌بانی — ۱ سپتامبر ۲۰۲۶",
+  "watchTitle": "رده‌ی دیده‌بانی",
   "watchLead": "ادعاهای بیرونی ثبت شده‌اند تا تیترها به مقدار مجاز یا تبار تبدیل نشوند. محصول نیستند.",
   "watchPcg": "جریان tether از PCG / GSL",
   "watchPcgNote": "ISEC / CVD کره‌ای ۱ کیلومتر. مشروط ۹۰–۹۹ GPa. فقط دیده‌بانی — نه مقدار مجاز زیستگاه، نه آسانسور پرنده.",

@@ -151,7 +151,7 @@ window.translations["de"] = {
   "weekAir": "System- / Luftfahrtstudien. Keine zertifizierten Luftfahrzeuge und kein fliegendes Schiff.",
   "weekPowrushSim": "Browser-Simulator-Schwester. Nicht der Live-Dienst.",
   "faqContact": "Anfragen: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:text-amber-200\">info@Rathor.ai</a> \u00b7 <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues\" class=\"text-amber-300 hover:text-amber-200\">GitHub-Issues</a>.",
-  "watchTitle": "Beobachtungsklasse \u2014 1. September 2026",
+  "watchTitle": "Beobachtungsklasse",
   "watchLead": "Externe Anspr\u00fcche festgehalten, damit Schlagzeilen weder zul\u00e4ssige Werte noch Abstammung werden. Keine Produkte.",
   "watchPcg": "Halteseilstrom PCG / GSL",
   "watchPcgNote": "ISEC / koreanisches 1-km-CVD. Bedingt 90\u201399 GPa. Nur Beobachtung \u2014 kein zul\u00e4ssiger Habitatwert, kein fliegender Aufzug.",

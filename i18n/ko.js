@@ -151,7 +151,7 @@ window.translations["ko"] = {
   "weekAir": "시스템 / 항공 스터디. 인증 항공기도 비행체도 아닙니다.",
   "weekPowrushSim": "브라우저 시뮬레이터 자매. 가동 중인 서비스가 아닙니다.",
   "faqContact": "문의: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:text-amber-200\">info@Rathor.ai</a> · <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues\" class=\"text-amber-300 hover:text-amber-200\">GitHub 이슈</a>.",
-  "watchTitle": "관찰급 — 2026년 9월 1일",
+  "watchTitle": "관찰급",
   "watchLead": "헤드라인이 허용값이나 계보가 되지 않도록, 바깥의 주장을 기록합니다. 제품이 아닙니다.",
   "watchPcg": "PCG / GSL 테더 스트림",
   "watchPcgNote": "ISEC / 한국 1 km CVD. 조건부 90–99 GPa. 관찰만 — 서식지 허용값이 아니며, 비행 엘리베이터도 아닙니다.",

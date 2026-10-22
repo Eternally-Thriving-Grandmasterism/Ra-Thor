@@ -1,9 +1,9 @@
 /* sw.js — Ra-Thor vanilla offline worker
- * Workspace 14.15.6 · LOCK 20261022b · i18n pack token 20260924a
+ * Workspace 14.15.6 · LOCK 20261022c · i18n pack token 20260924a
  * Pass-through documents. Fetch handler present for Chrome installability.
  * Contact: info@Rathor.ai
  */
-var LOCK = '20261022b'; /* GT-RESTORE-1: bumped 2026-10-22 */
+var LOCK = '20261022c'; /* WATCH-DATE-1: bumped 2026-10-22 — science-map-lock.js is precached cache-first */
 var CACHE = 'rathor-core-' + LOCK;
 var PRECACHE = [
   '/', '/index.html', '/chat.html', '/contact.html', '/privacy.html', '/licence.html',

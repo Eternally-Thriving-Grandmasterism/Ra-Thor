@@ -151,7 +151,7 @@ window.translations["nl"] = {
   "weekAir": "systeem- / luchtvaartstudies. Geen gecertificeerde luchtvaartuigen en geen vliegend vaartuig.",
   "weekPowrushSim": "Browsersimulator-zuster. Niet de livedienst.",
   "faqContact": "Vragen: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:text-amber-200\">info@Rathor.ai</a> \u00b7 <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues\" class=\"text-amber-300 hover:text-amber-200\">GitHub-issues</a>.",
-  "watchTitle": "Waakklasse \u2014 1 september 2026",
+  "watchTitle": "Waakklasse",
   "watchLead": "Externe claims vastgelegd, zodat koppen geen toelaatbare waarden of afstamming worden. Geen producten.",
   "watchPcg": "Tetherstroom PCG / GSL",
   "watchPcgNote": "ISEC / Koreaans 1-km-CVD. Voorwaardelijk 90\u201399 GPa. Alleen waak \u2014 geen toelaatbare habitatwaarde, geen vliegende lift.",

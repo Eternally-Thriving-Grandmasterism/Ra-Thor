@@ -151,7 +151,7 @@ window.translations["el"] = {
   "weekAir": "μελέτες συστημάτων / αεροπορίας. Όχι πιστοποιημένα αεροσκάφη ή ιπτάμενο σκάφος.",
   "weekPowrushSim": "Αδελφή προσομοιωτή στο πρόγραμμα περιήγησης. Όχι η ζωντανή υπηρεσία.",
   "faqContact": "Ερωτήματα: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:text-amber-200\">info@Rathor.ai</a> · <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues\" class=\"text-amber-300 hover:text-amber-200\">ζητήματα GitHub</a>.",
-  "watchTitle": "Τάξη παρακολούθησης — 1 Σεπτεμβρίου 2026",
+  "watchTitle": "Τάξη παρακολούθησης",
   "watchLead": "Εξωτερικοί ισχυρισμοί καταγράφονται ώστε οι τίτλοι να μη γίνουν επιτρεπτές τιμές ή γενεαλογία. Όχι προϊόντα.",
   "watchPcg": "Ροή tether PCG / GSL",
   "watchPcgNote": "ISEC / κορεατικό CVD 1 km. Υπό όρους 90–99 GPa. Μόνο παρακολούθηση — όχι επιτρεπτή τιμή ενδιαιτήματος, όχι ιπτάμενος ανελκυστήρας.",
