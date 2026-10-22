@@ -51,7 +51,7 @@ impl RecoEnforcementEngine {
         }
     }
 
-    /// Core method: Check any RECO-related action with full mercy + swarm gating
+    /// Core method: Check any RECO-related action with mercy + swarm checks (design-only, unverified)
     pub async fn check_reco_action(
         &mut self,
         action: RecoEnforcementAction,
@@ -97,7 +97,7 @@ impl RecoEnforcementEngine {
              - All decisions reviewed for valence ≥ 0.90 (design-only threshold)\n\
              - Quantum swarm consensus ≥ 0.80\n\
              - Immutable Legal Lattice audit trail attached\n\n\
-             Recommendation: Appeal strongly supported by RREL evidence.",
+             Recommendation: Appeal noted (design-only, unverified) — registrant and legal counsel must assess.",
             RREL_VERSION, case_id, violation_type, valence, 85.0, Utc::now()
         );
 
@@ -126,7 +126,7 @@ impl RecoEnforcementEngine {
              - Proactive compliance checklist (unverified) demonstrated\n\
              - Quantum swarm multi-stakeholder ethical review\n\
              - Immutable cryptographic audit trail\n\
-             - Penalty proportionality supported by real-time data",
+             - Penalty proportionality (design-only, unverified — human review required)",
             RREL_VERSION, case_id, legal_question, valence, 87.0, Utc::now()
         );
 

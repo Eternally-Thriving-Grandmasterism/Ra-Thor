@@ -56,7 +56,7 @@ impl PmsBridge {
         }
     }
 
-    /// Process any PMS webhook with full mercy + swarm + RECO gating
+    /// Process any PMS webhook with mercy + swarm checks + RECO checklist (design-only, unverified)
     pub async fn process_webhook(
         &mut self,
         provider: PmsProvider,

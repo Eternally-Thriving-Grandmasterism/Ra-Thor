@@ -53,9 +53,9 @@ impl EvidenceGenerator {
         );
 
         let recommendation = if mercy_valence > 0.92 && quantum_consensus > 0.85 {
-            "Strongly recommend full appeal. RREL evidence demonstrates proactive ethical governance exceeding statutory requirements."
+            "Draft only (design-only, unverified): factors noted — registrant and legal counsel must assess."
         } else {
-            "Appeal supported. RREL evidence provides clear mitigating factors and compliance record."
+            "Appeal noted (design-only, unverified). RREL output is a draft; legal counsel must assess."
         };
 
         LatAppealPackage {
@@ -81,7 +81,7 @@ impl EvidenceGenerator {
             "Proactive compliance checklist (unverified) at every decision point".to_string(),
             "Quantum swarm multi-stakeholder ethical review process".to_string(),
             "Immutable cryptographic audit trail with timestamps".to_string(),
-            "Penalty proportionality supported by real-time data and CEHI scoring".to_string(),
+            "Penalty proportionality (design-only, unverified — human review required)".to_string(),
         ];
 
         let supporting_exhibits = vec![
