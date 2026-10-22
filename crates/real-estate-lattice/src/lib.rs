@@ -1,7 +1,7 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! # Real Estate Lattice (RREL) — v14.15.0
 //!
-//! design-only, TOLC 8 enforced, PATSAGi-aligned real estate organism.
+//! design-only, TOLC 8 checks planned (design-only, unverified), PATSAGi-aligned real estate organism.
 //! Canada (Ontario/TREB/RECO) + USA pilot surfaces + Powrush land bridge.
 //!
 //! Living Cosmic Tick + ONE Organism readiness.

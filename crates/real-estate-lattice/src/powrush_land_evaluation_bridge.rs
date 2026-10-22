@@ -13,7 +13,7 @@
 //! Future evolution: Implement `RaThorSystemAdapter` for full epigenetic blessing
 //! participation and cross-system resonance.
 //!
-//! AG-SML v1.0 — Fully design-only, TOLC 8 enforced, PATSAGi-aligned.
+//! AG-SML v1.0 — design-only, TOLC 8 checks planned (design-only, unverified), PATSAGi-aligned.
 
 use crate::ontario_professional_judgment_layer::{
     DateLogicValidator, TimelineAdvisor, DealType, PropertyClassification, TransactionContext,

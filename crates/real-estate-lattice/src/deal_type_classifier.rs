@@ -9,7 +9,7 @@
 //! - Builder vs Resale separation prevents wrong APS clauses and disclosure packages
 //! - Family Transfer track triggers ILA (Independent Legal Advice) prompts
 //! - Assignment sales have specific Tarion/ deposit rules
-//! - RESA/TRESA and OREA compliance enforced at classification time
+//! - RESA/TRESA and OREA compliance checklist (design-only, unverified)
 //!
 //! **Privacy-by-Design**:
 //! - Pure classification on deal attributes only

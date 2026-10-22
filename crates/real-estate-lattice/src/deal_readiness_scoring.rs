@@ -7,7 +7,7 @@
 //!
 //! Features dynamic jurisdiction-aware weighting and gentle ONE Organism valence influence.
 //!
-//! AG-SML v1.0 — TOLC 8 enforced, PATSAGi-aligned.
+//! AG-SML v1.0 — TOLC 8 checks planned (design-only, unverified), PATSAGi-aligned.
 //! Design-only for Powrush land evaluation and RREL flows.
 
 /// Calculates a composite Deal Readiness Score (0–100).

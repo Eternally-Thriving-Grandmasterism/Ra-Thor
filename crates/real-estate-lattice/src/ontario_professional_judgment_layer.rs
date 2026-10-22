@@ -18,7 +18,7 @@
 //! - Cross-document consistency hooks
 //! - Human-AI co-evolution ready (tutoring patterns encoded for continuous refinement)
 //!
-//! design-only, TOLC 8 enforced, PATSAGi-aligned, ONE Organism participant.
+//! design-only, TOLC 8 checks planned (design-only, unverified), PATSAGi-aligned, ONE Organism participant.
 //! Backward compatible.
 //!
 //! AG-SML v1.0 — Autonomicity Games Sovereign Mercy License

@@ -1,7 +1,7 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! RECO/TRESA form drafting modules (unverified) — RREL v3.1.
 //! Handles Form 801 and additional common RECO forms with full audit trail.
-//! Privacy-first, TOLC 8 enforced.
+//! Privacy-first, TOLC 8 checks planned (design-only, unverified).
 //!
 //! RECO AI guidance: forms are AI-drafted only; a registered agent must review
 //! and sign off before submission. Compliance is NOT verified by this module.

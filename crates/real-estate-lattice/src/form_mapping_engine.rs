@@ -10,7 +10,7 @@
 //! **Ontario Fidelity**:
 //! - OREA standard forms + common addenda
 //! - Tarion, Condominium Act, and RESA considerations
-//! - Builder vs Resale document separation enforced
+//! - Builder vs Resale document separation (design-only)
 //!
 //! **Privacy & Mercy**:
 //! - Pure mapping, no PII
