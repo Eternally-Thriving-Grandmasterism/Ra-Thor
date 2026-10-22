@@ -13,9 +13,15 @@
   root.__rtI18nChrome = true;
 
   /* LANG-HIDE-1: set false to restore the language picker, auto-detect, and Google Translate.
-   * All JS that reads window.RT_LANG_HIDE will check this flag. */
+   * All JS that reads window.RT_LANG_HIDE will check this flag.
+   * CSS is scoped to html.rt-lang-hide; add the class here immediately so it applies
+   * as soon as this script is parsed. family-nav does the same for pages without i18n-chrome. */
   var RT_LANG_HIDE = true;
   root.RT_LANG_HIDE = RT_LANG_HIDE;
+  if (RT_LANG_HIDE && typeof document !== 'undefined' && document.documentElement &&
+      document.documentElement.classList) {
+    document.documentElement.classList.add('rt-lang-hide');
+  }
 
   var RTL_RE = /[\u0590-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFF]/;
 

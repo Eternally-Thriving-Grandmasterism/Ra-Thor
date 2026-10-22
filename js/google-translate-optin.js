@@ -125,7 +125,7 @@
   }
 
   function mount() {
-    if (window.RT_LANG_HIDE) return; /* LANG-HIDE-1: Google Translate hidden with the picker */
+    if (window.RT_LANG_HIDE !== false) return; /* LANG-HIDE-1: undefined or true both hide */
     if (underProxy()) return; // already inside Google's proxy: no nested proxy link
     if (document.getElementById('rt-gtranslate')) {
       sync();

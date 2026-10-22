@@ -55,9 +55,9 @@ body { font-family: 'Inter', system-ui, sans-serif; }
     .kicker { letter-spacing: 0.01em; }
     .lang-tab { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); min-height: 44px; white-space: normal; text-align: center; line-height: 1.3; }
     .lang-tab.active { background-color: #fcd34d !important; color: #000000 !important; border-color: #fcd34d !important; box-shadow: 0 0 25px #fcd34d; }
-    /* LANG-HIDE-1: remove these 2 lines to restore the picker and Google Translate strip */
-    #lang-selector { display: none !important; }
-    #rt-gtranslate, #rathor-lang-offer { display: none !important; }
+    /* LANG-HIDE-1: scoped to html.rt-lang-hide so setting RT_LANG_HIDE=false is the whole revert */
+    html.rt-lang-hide #lang-selector { display: none !important; }
+    html.rt-lang-hide #rt-gtranslate, html.rt-lang-hide #rathor-lang-offer { display: none !important; }
     .lattice-status { background: linear-gradient(90deg, #1a1a1a, #111); border: 1px solid #ffd70033; }
     .faq-accordion { direction: inherit; text-align: start; }
     .faq-accordion details { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid transparent; }
