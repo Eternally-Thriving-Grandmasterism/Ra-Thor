@@ -61,7 +61,7 @@ assert(hero.indexOf('rathor-hero-living-thunder.jpg') !== -1, 'home hero still m
 var reelStart = html.indexOf('id="rt-x-reel"');
 var reelEnd = html.indexOf('</section>', reelStart);
 assert(reelStart !== -1 && reelEnd > reelStart, 'reel section must exist');
-assert(html.indexOf('id="steward-line"') < reelStart && reelStart < html.indexOf('id="lang-selector"'), 'reel sits under the intro and above the language row');
+assert(html.indexOf('id="rt-worlds"') < reelStart && reelStart < html.indexOf('id="lang-selector"'), 'reel sits between Our websites and the language row (SITE-ORDER-1)');
 var reel = html.slice(reelStart, reelEnd);
 assert(reel.indexOf('data-i18n') === -1, 'reel copy stays verbatim and is not an i18n key');
 assert(reel.indexOf('From <a href="https://x.com/AlphaProMega" rel="noopener" target="_blank">@AlphaProMega</a> on X') !== -1, 'heading stays plain');
@@ -230,7 +230,7 @@ assertClip(
   'https://x.com/AlphaProMega/status/2107689413517979810',
   true
 );
-var employCard = cardSlice('employ-title', 'homeLaunchMap');
+var employCard = cardSlice('employ-title', 'rathor-v14-cta');
 assertClip(
   employCard,
   'employ',

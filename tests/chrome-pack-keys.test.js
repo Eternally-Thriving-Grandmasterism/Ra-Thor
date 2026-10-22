@@ -195,14 +195,19 @@ pages.forEach(function (page) {
   assert(html.indexOf('/i18n/en.js?v=20260924a') !== -1, page + ' must load the English pack at the pack token');
 });
 var homeHtml = read('index.html');
+// pathPlayTitle and pathWrapBody are unhooked from the homepage (SITE-ORDER-1 AMEND):
+// the tile shows "Game source (Powrush-MMO)" and "Public research bench. See FAQ." as
+// static text so i18n/en.js ("Play" / full disclaimer) does not overwrite them at runtime.
+var PATH_KEYS_UNHOOKED_SITORDER1 = ['pathPlayTitle', 'pathWrapBody'];
 PATH_KEYS.forEach(function (key) {
+  if (PATH_KEYS_UNHOOKED_SITORDER1.indexOf(key) !== -1) return;
   assert(homeHtml.indexOf('data-i18n="' + key + '"') !== -1, 'homepage must mark ' + key);
 });
 assert(homeHtml.indexOf('data-i18n="homeLaunchMap"') !== -1, 'homepage quick link must mark Launch map');
 assert(homeHtml.indexOf('data-i18n="homeMoments"') !== -1, 'homepage quick link must mark Micro-moments');
 assert(homeHtml.indexOf('data-i18n="homeOfflineChat"') !== -1, 'homepage quick link must mark Offline Lattice Chat');
 assert(homeHtml.indexOf('data-i18n="installCta"') !== -1, 'homepage install control must mark installCta');
-assert(homeHtml.indexOf('data-i18n="steward"') !== -1, 'homepage steward line must stay marked');
+assert(homeHtml.indexOf('id="steward-line"') !== -1, 'homepage steward line must exist (SITE-ORDER-1: moved to footer, static text)');
 assert(read('js/pwa-install.js').indexOf('installCta') !== -1, 'install button path must read installCta');
 assert(read('js/rathor-feedback.js').indexOf('langStoredNote') !== -1, 'language note must read langStoredNote');
 assert(read('js/site-lock-2026-08-22.js').indexOf('Operator bench') === -1, 'site-lock must not restamp English product paths');
@@ -238,7 +243,15 @@ essayPages.forEach(function (page) {
     if (ESSAY.indexOf(key) !== -1) wired[key] = page;
   });
 });
+// Keys intentionally unhooked from visitor pages by SITE-ORDER-1 (cut sections or dropped freshness stamps).
+// They remain in js/i18n-essay.js and locale packs (locale packs are pinned by SHA-256).
+var ESSAY_UNHOOKED_SITORDER1 = [
+  'employStamp', 'swatchStamp',
+  'homePaperNote', 'homeRepoNote', 'homePwaNote',
+  'homeStatusVersion', 'homeStatusPowrush', 'homeStatusTolc'
+];
 ESSAY.forEach(function (key) {
+  if (ESSAY_UNHOOKED_SITORDER1.indexOf(key) !== -1) return;
   assert(wired[key], 'essay key ' + key + ' must be marked data-i18n on a visitor page');
 });
 assert(read('employ.html').indexOf('article class="rt-prose"') !== -1, 'employ essay must stay a prose article');

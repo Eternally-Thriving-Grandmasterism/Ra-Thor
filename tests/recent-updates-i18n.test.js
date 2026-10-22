@@ -19,11 +19,10 @@ var weekJs = read('js/week-window.js');
 var weekJson = read('js/week-window.json');
 var chrome = read('js/i18n-chrome.js');
 
-assert(home.indexOf('Recent Updates') !== -1, 'homepage must title the section Recent Updates');
+assert(home.indexOf('Project status') !== -1, 'homepage must title the section Project status (SITE-ORDER-1)');
 assert(home.indexOf('data-week-window') === -1, 'homepage must not paint a week window');
 assert(home.indexOf('2026-09-08') === -1 && home.indexOf('2026-09-15') === -1, 'homepage must not stamp Sep 8–15');
-assert(home.indexOf('data-i18n="weekLineWrap"') !== -1, 'homepage must mark the WRAP line');
-assert(home.indexOf('EW2 solved = False') !== -1, 'homepage must keep EW2 solved = False');
+assert(home.indexOf('EW2 solved = False') !== -1, 'homepage must keep EW2 solved = False (now in FAQ)');
 assert(home.indexOf('This week in the constellation') === -1, 'homepage must drop the weekly title');
 assert(detail.indexOf('Recent Updates') !== -1, 'detail page must say Recent Updates');
 assert(detail.indexOf('data-week-window') === -1, 'detail page must not paint a week window');
