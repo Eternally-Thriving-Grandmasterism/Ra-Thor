@@ -125,7 +125,8 @@
   }
 
   function mount() {
-    if (window.RT_LANG_HIDE !== false) return; /* LANG-HIDE-1: undefined or true both hide */
+    /* GT-RESTORE-1: no RT_LANG_HIDE gate here; CSS on dual-pages hides only the
+       built-in picker and offer banner, not this strip. */
     if (underProxy()) return; // already inside Google's proxy: no nested proxy link
     if (document.getElementById('rt-gtranslate')) {
       sync();

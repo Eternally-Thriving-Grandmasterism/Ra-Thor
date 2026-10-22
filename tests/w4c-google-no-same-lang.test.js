@@ -146,10 +146,10 @@ PACKS.forEach(function (l) {
 var chatHref = run({ store: { 'rathor-lang': 'fr' }, path: '/chat.html' }).win.rtGTranslateHref('fr');
 assert(chatHref === 'https://translate.google.com/translate?sl=en&tl=fr&u=' + encodeURIComponent('https://rathor.ai/'), 'chat must map to /: ' + chatHref);
 
-// 7. LANG-HIDE-1: strip must not mount when RT_LANG_HIDE !== false (undefined = hidden, true = hidden).
+// 7. GT-RESTORE-1: strip must mount regardless of RT_LANG_HIDE (CSS controls visibility, not JS).
 var hiddenR = run({ store: { 'rathor-lang': 'en' }, languages: ['en-US'], rtLangHide: undefined });
-assert(!hiddenR.els['rt-gtranslate'] && !hiddenR.els['rt-gtranslate-open'], 'strip must not mount when RT_LANG_HIDE is not explicitly false (LANG-HIDE-1)');
+assert(hiddenR.els['rt-gtranslate'], 'strip must mount even when RT_LANG_HIDE is undefined (GT-RESTORE-1)');
 var hiddenTrue = run({ store: { 'rathor-lang': 'es' }, languages: ['es'], rtLangHide: true });
-assert(!hiddenTrue.els['rt-gtranslate'] && !hiddenTrue.els['rt-gtranslate-open'], 'strip must not mount when RT_LANG_HIDE is true (LANG-HIDE-1)');
+assert(hiddenTrue.els['rt-gtranslate'], 'strip must mount when RT_LANG_HIDE is true (GT-RESTORE-1)');
 
 console.log('W4c google no-same-lang checks passed');

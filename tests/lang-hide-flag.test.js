@@ -165,8 +165,9 @@ assert(flagOffSrc !== navSrc, 'src replacement failed: master flag line not foun
   );
 }());
 
-/* ── 6. flag=true on a dual page: family-nav clears 'fr' ────────────────────
- * navSrc has window.RT_LANG_HIDE = true; bootLangHide must add the class and remove 'fr'. */
+/* ── 6. flag=true on a dual page: family-nav clears 'fr' and loads GT ───────
+ * navSrc has window.RT_LANG_HIDE = true; bootLangHide must add the class and remove 'fr'.
+ * GT-RESTORE-1: google-translate-optin.js must be loaded regardless of the flag. */
 (function () {
   var ctx = makeWin({ store: { 'rathor-lang': 'fr' }, path: '/index.html' });
   vm.runInNewContext(navSrc, ctx.win);
@@ -179,6 +180,12 @@ assert(flagOffSrc !== navSrc, 'src replacement failed: master flag line not foun
   assert(
     !('rathor-lang' in ctx.store),
     "stored 'fr' must be cleared by bootLangHide when flag is true; got: " + ctx.store['rathor-lang']
+  );
+
+  var allScripts = (ctx.opts.headScripts || []).concat(ctx.opts.bodyScripts || []);
+  assert(
+    allScripts.some(function (s) { return s && s.indexOf('google-translate-optin') !== -1; }),
+    'google-translate-optin.js must be loaded even when flag is true (GT-RESTORE-1)'
   );
 }());
 
