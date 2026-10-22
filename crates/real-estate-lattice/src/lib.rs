@@ -1,4 +1,6 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
+//! RREL-BUILD-1 amendment: non-compiling stubs gated behind `#[cfg(feature = "design-only")]`;
+//! the always-on set compiles cleanly with standard workspace deps.
 //! # Real Estate Lattice (RREL) — v14.15.0
 //!
 //! design-only, TOLC 8 checks planned (design-only, unverified), PATSAGi-aligned real estate organism.
@@ -7,82 +9,269 @@
 //! Living Cosmic Tick + ONE Organism readiness.
 //! Contact: info@Rathor.ai
 
-pub mod offer_package;
-pub mod compliance_helpers;
-pub mod rrel_compliance;
-pub mod rrel_brokerage_assembler;
-pub mod powrush_rrel_bridge;
-pub mod reco_form_handlers;
-pub mod rrel_leptos_dashboard;
-pub mod rrel_lattice_conductor_bridge;
-pub mod rrel_quantum_swarm_participant;
-
-// v14.3 modules
-pub mod property_type_classifier;
-pub mod deal_type_classifier;
-pub mod form_mapping_engine;
-pub mod offer_package_validator;
-pub mod multi_offer_track_engine;
-pub mod disclosure_manager;
-pub mod lawyer_due_diligence_generator;
-pub mod lawyer_report_pdf_generator;
-
-// USA modules
-pub mod usa_pilot_module;
-pub mod usa_regulatory_engine;
-pub mod usa_state_adapters;
-pub mod usa_attom_cache;
-pub mod usa_attom_data_provider;
-
-// Ontario Professional Judgment Layer
-pub mod ontario_professional_judgment_layer;
-
-// Composite Deal Readiness Scoring
-pub mod deal_readiness_scoring;
-
-// Geometric Harmony Advisor
-pub mod geometric_harmony_advisor;
-
-// Powrush Land Evaluation Bridge
-pub mod powrush_land_evaluation_bridge;
-
 /// Canonical RREL surface version (Living Cosmic Tick aligned).
 pub const RREL_VERSION: &str = "14.15.0";
 
-// Re-exports
-pub use offer_package::*;
-pub use compliance_helpers::*;
+// ── Always-on modules (clean dependency graph, compile by default) ─────────
+
+// RECO AI Guidance compliance types — std-only, no external crate deps.
+// Added as always-on by RREL-BUILD-1 (file authored in #730).
+pub mod rrel_compliance;
 pub use rrel_compliance::*;
-pub use rrel_brokerage_assembler::*;
-pub use powrush_rrel_bridge::*;
-pub use reco_form_handlers::*;
-pub use rrel_leptos_dashboard::*;
-pub use rrel_lattice_conductor_bridge::*;
-pub use rrel_quantum_swarm_participant::*;
 
-pub use property_type_classifier::*;
-pub use deal_type_classifier::*;
-pub use form_mapping_engine::*;
-pub use offer_package_validator::*;
-pub use multi_offer_track_engine::*;
-pub use disclosure_manager::*;
-pub use lawyer_due_diligence_generator::*;
-pub use lawyer_report_pdf_generator::*;
+// Core Ontario classifiers & form mapping
+pub mod property_type_classifier;
+pub mod deal_type_classifier;
+pub mod form_mapping_engine;
 
-pub use usa_pilot_module::*;
-pub use usa_regulatory_engine::*;
-pub use usa_state_adapters::*;
-pub use usa_attom_cache::*;
-pub use usa_attom_data_provider::*;
+// Offer validation (uses only classifiers above)
+pub mod offer_package_validator;
 
-pub use ontario_professional_judgment_layer::*;
+// Multi-offer tracking (redis paths already cfg-gated inside the file)
+pub mod multi_offer_track_engine;
 
+// Risk & due diligence engines (no external crate deps)
+pub mod developer_risk_engine;
+pub mod status_certificate_analyzer;
+pub mod lawyer_due_diligence_generator;
+pub mod lawyer_report_generator;
+
+// Ontario professional judgment
+pub mod ontario_professional_judgment_layer;
+
+// Composite deal readiness scoring (pure function, no crate deps)
+pub mod deal_readiness_scoring;
 pub use deal_readiness_scoring::calculate_deal_readiness_score;
-pub use geometric_harmony_advisor::*;
-pub use powrush_land_evaluation_bridge::*;
 
-#[cfg(feature = "leptos")]
-pub use leptos;
+// LAT / Divisional Court evidence packaging (serde + chrono only)
+pub mod lat_divisional_court_evidence;
 
-#[cfg(feature = "tauri")]
-pub use tauri;
+// ── Design-only stubs (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1) ────────────────
+//
+// These modules carry the "design-only, unverified" label from their original
+// authorship. They are NOT compiled in the default build because they require
+// the powrush/patsagi-councils dependency tree, reference missing source files,
+// or reference types not yet implemented (MercyEngine, mercy::traits, leptos,
+// prometheus, …).
+//
+// Enable with `--features design-only` (requires resolving workspace-root
+// conflict for powrush/patsagi-councils before any gated module can link).
+//
+// Gated RECO-relevant modules (not compiled in default build; follow-up card
+// needed to ungate):
+//   offer_package_finalizer (RECO-relevant)
+//                          [type mismatch ValidationResult↔OfferPackageValidation;
+//                           disclosure_manager dep]
+//   reco_form_handlers (RECO-relevant)
+//                          [uses patsagi_councils]
+//   usa_mls_adapter (RECO-relevant)
+//                          [uses powrush, patsagi_councils]
+//   quantum_real_estate_valuation (RECO-relevant)
+//                          [uses powrush, patsagi_councils]
+//
+// Other gated modules:
+//   offer_package / compliance_helpers / disclosure_manager
+//                          [no source file; only callers are design-only stubs]
+//   offer_package_assembler
+//                          [type mismatch; disclosure_manager dep]
+//   rrel_brokerage_assembler, powrush_rrel_bridge, reco_form_handlers,
+//   rrel_leptos_dashboard, rrel_lattice_conductor_bridge,
+//   rrel_quantum_swarm_participant, rrel_tolc8_verifier,
+//   rrel_tolc8_quantum_swarm_safety, rrel_tolc8_runtime_verifier
+//                          [use patsagi_councils, mercy::traits, or leptos]
+//   geometric_harmony_advisor, powrush_land_evaluation_bridge
+//                          [use ra-thor-quantum-swarm-orchestrator (optional dep)]
+//   usa_pilot_module       [incomplete source fragment; references design-only types]
+//   usa_regulatory_engine, usa_state_adapters, usa_attom_cache,
+//   usa_attom_data_provider, usa_mls_adapter (RECO-relevant), california_mls_adapter,
+//   florida_mls_adapter, texas_mls_adapter, new_york_mls_adapter,
+//   new_jersey_mls_adapter
+//                          [use powrush, patsagi_councils, or MercyEngine]
+//   canada_pilot_module    [uses patsagi_councils, MercyEngine, QuantumSwarmOrchestrator]
+//   pms_bridge, pms_integration_bridge_engine
+//                          [use powrush, patsagi_councils, MercyEngine]
+//   mls_integration        [uses patsagi_councils]
+//   reco_enforcement       [uses patsagi_councils]
+//   observability          [uses prometheus/opentelemetry (not in deps)]
+//   rrel_offer_risk_summary [references canada_pilot_module types]
+//   avm_cache_invalidation, avm_invalidation_consumer, valuation_confidence_scorer
+//                          [valuation_confidence_scorer is a placeholder stub]
+//   quantum_real_estate_valuation (RECO-relevant), predictive_market_valuation_engine,
+//   tax_optimization_engine, sustainable_property_upgrades_engine,
+//   climate_resilience_engine, fintracker_integration_engine,
+//   fractional_ownership, fractional_ownership_engine,
+//   lease_renewal, lease_renewal_engine,
+//   eviction_prevention, eviction_prevention_engine,
+//   property_tax_appeal, property_tax_appeal_engine,
+//   rental_income_distribution, rental_income_distribution_engine,
+//   insurance_claim_engine, insurance_claim_risk_mitigation_engine,
+//   maintenance_engine, multi_generational_wealth_transfer_engine,
+//   emergency_response_disaster_recovery_engine,
+//   tenant_screening, tenant_screening_engine, tenant_rights_habitability_engine,
+//   community_land_trust_engine, landlord_compliance_reco_engine,
+//   portfolio_optimization_engine, mortgage_engine, mortgage_processing_engine
+//                          [use powrush, patsagi_councils, or MercyEngine]
+//   space (submodule directory)
+//                          [speculative research; uses mercy_radiation_shield etc.]
+
+// Missing-file stubs (callers are all design-only)
+#[cfg(feature = "design-only")]
+pub mod offer_package;
+#[cfg(feature = "design-only")]
+pub mod compliance_helpers;
+#[cfg(feature = "design-only")]
+pub mod disclosure_manager;
+
+// Offer lifecycle
+#[cfg(feature = "design-only")]
+pub mod offer_package_assembler;
+#[cfg(feature = "design-only")]
+pub mod offer_package_finalizer;
+
+// Bridge / orchestration stubs
+#[cfg(feature = "design-only")]
+pub mod rrel_brokerage_assembler;
+#[cfg(feature = "design-only")]
+pub mod powrush_rrel_bridge;
+#[cfg(feature = "design-only")]
+pub mod reco_form_handlers;
+#[cfg(feature = "design-only")]
+pub mod rrel_lattice_conductor_bridge;
+#[cfg(feature = "design-only")]
+pub mod rrel_quantum_swarm_participant;
+#[cfg(feature = "design-only")]
+pub mod rrel_leptos_dashboard;
+
+// TOLC8 verifier stubs
+#[cfg(feature = "design-only")]
+pub mod rrel_tolc8_verifier;
+#[cfg(feature = "design-only")]
+pub mod rrel_tolc8_quantum_swarm_safety;
+#[cfg(feature = "design-only")]
+pub mod rrel_tolc8_runtime_verifier;
+
+// Geometric harmony (needs optional quantum-swarm-orchestrator)
+#[cfg(feature = "design-only")]
+pub mod geometric_harmony_advisor;
+#[cfg(feature = "design-only")]
+pub mod powrush_land_evaluation_bridge;
+
+// USA modules
+#[cfg(feature = "design-only")]
+pub mod usa_pilot_module;
+#[cfg(feature = "design-only")]
+pub mod usa_regulatory_engine;
+#[cfg(feature = "design-only")]
+pub mod usa_state_adapters;
+#[cfg(feature = "design-only")]
+pub mod usa_attom_cache;
+#[cfg(feature = "design-only")]
+pub mod usa_attom_data_provider;
+#[cfg(feature = "design-only")]
+pub mod usa_mls_adapter;
+#[cfg(feature = "design-only")]
+pub mod california_mls_adapter;
+#[cfg(feature = "design-only")]
+pub mod florida_mls_adapter;
+#[cfg(feature = "design-only")]
+pub mod texas_mls_adapter;
+#[cfg(feature = "design-only")]
+pub mod new_york_mls_adapter;
+#[cfg(feature = "design-only")]
+pub mod new_jersey_mls_adapter;
+
+// Canada pilot
+#[cfg(feature = "design-only")]
+pub mod canada_pilot_module;
+
+// PMS / brokerage bridges
+#[cfg(feature = "design-only")]
+pub mod pms_bridge;
+#[cfg(feature = "design-only")]
+pub mod pms_integration_bridge_engine;
+
+// MLS / RECO
+#[cfg(feature = "design-only")]
+pub mod mls_integration;
+#[cfg(feature = "design-only")]
+pub mod reco_enforcement;
+
+// Observability (prometheus/otel not in deps)
+#[cfg(feature = "design-only")]
+pub mod observability;
+
+// Risk summary (references canada_pilot_module types)
+#[cfg(feature = "design-only")]
+pub mod rrel_offer_risk_summary;
+
+// AVM cache chain (valuation_confidence_scorer is a placeholder)
+#[cfg(feature = "design-only")]
+pub mod valuation_confidence_scorer;
+#[cfg(feature = "design-only")]
+pub mod avm_cache_invalidation;
+#[cfg(feature = "design-only")]
+pub mod avm_invalidation_consumer;
+
+// Additional domain stubs
+#[cfg(feature = "design-only")]
+pub mod quantum_real_estate_valuation;
+#[cfg(feature = "design-only")]
+pub mod predictive_market_valuation_engine;
+#[cfg(feature = "design-only")]
+pub mod tax_optimization_engine;
+#[cfg(feature = "design-only")]
+pub mod sustainable_property_upgrades_engine;
+#[cfg(feature = "design-only")]
+pub mod climate_resilience_engine;
+#[cfg(feature = "design-only")]
+pub mod fintracker_integration_engine;
+#[cfg(feature = "design-only")]
+pub mod fractional_ownership;
+#[cfg(feature = "design-only")]
+pub mod fractional_ownership_engine;
+#[cfg(feature = "design-only")]
+pub mod lease_renewal;
+#[cfg(feature = "design-only")]
+pub mod lease_renewal_engine;
+#[cfg(feature = "design-only")]
+pub mod eviction_prevention;
+#[cfg(feature = "design-only")]
+pub mod eviction_prevention_engine;
+#[cfg(feature = "design-only")]
+pub mod property_tax_appeal;
+#[cfg(feature = "design-only")]
+pub mod property_tax_appeal_engine;
+#[cfg(feature = "design-only")]
+pub mod rental_income_distribution;
+#[cfg(feature = "design-only")]
+pub mod rental_income_distribution_engine;
+#[cfg(feature = "design-only")]
+pub mod insurance_claim_engine;
+#[cfg(feature = "design-only")]
+pub mod insurance_claim_risk_mitigation_engine;
+#[cfg(feature = "design-only")]
+pub mod maintenance_engine;
+#[cfg(feature = "design-only")]
+pub mod multi_generational_wealth_transfer_engine;
+#[cfg(feature = "design-only")]
+pub mod emergency_response_disaster_recovery_engine;
+#[cfg(feature = "design-only")]
+pub mod tenant_screening;
+#[cfg(feature = "design-only")]
+pub mod tenant_screening_engine;
+#[cfg(feature = "design-only")]
+pub mod tenant_rights_habitability_engine;
+#[cfg(feature = "design-only")]
+pub mod community_land_trust_engine;
+#[cfg(feature = "design-only")]
+pub mod landlord_compliance_reco_engine;
+#[cfg(feature = "design-only")]
+pub mod portfolio_optimization_engine;
+#[cfg(feature = "design-only")]
+pub mod mortgage_engine;
+#[cfg(feature = "design-only")]
+pub mod mortgage_processing_engine;
+
+// Space / speculative research (uses mercy_radiation_shield etc.)
+#[cfg(feature = "design-only")]
+pub mod space;

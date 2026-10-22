@@ -90,3 +90,7 @@ jobs:
 
       - name: Test innovations-generator
         run: cargo test --locked -p innovations-generator -- --nocapture
+
+      # RREL-BUILD-1: real-estate-lattice compilation slice
+      - name: Test real-estate-lattice
+        run: cargo test --locked -p real-estate-lattice -- --nocapture
