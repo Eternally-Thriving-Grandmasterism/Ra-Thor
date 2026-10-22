@@ -16,6 +16,11 @@
                keeps its footer exactly as before (no hooks, no listener)
 */
 (function () {
+  /* LANG-HIDE-1: master flag — the ONE line to change on all 21 pages.
+   * family-nav runs on every page; setting this false restores the picker everywhere.
+   * i18n-chrome reads window.RT_LANG_HIDE and re-syncs the class in bootChrome
+   * (called on rathor-nav-ready, which fires after this line executes). */
+  window.RT_LANG_HIDE = true;
   if (window.__rtFamilyNav) return;
   window.__rtFamilyNav = true;
 

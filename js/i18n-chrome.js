@@ -12,13 +12,11 @@
   if (root.__rtI18nChrome) return;
   root.__rtI18nChrome = true;
 
-  /* LANG-HIDE-1: set false to restore the language picker, auto-detect, and Google Translate.
-   * All JS that reads window.RT_LANG_HIDE will check this flag.
-   * CSS is scoped to html.rt-lang-hide; add the class here immediately so it applies
-   * as soon as this script is parsed. family-nav does the same for pages without i18n-chrome. */
-  var RT_LANG_HIDE = true;
-  root.RT_LANG_HIDE = RT_LANG_HIDE;
-  if (RT_LANG_HIDE && typeof document !== 'undefined' && document.documentElement &&
+  /* LANG-HIDE-1: master flag lives in family-nav-2026-08-22.js (window.RT_LANG_HIDE = true).
+   * i18n-chrome reads window.RT_LANG_HIDE here; apply the class immediately for the common
+   * hidden case (undefined !== false = true). bootChrome removes it if family-nav later
+   * sets the flag to false and dispatches rathor-nav-ready. */
+  if (window.RT_LANG_HIDE !== false && typeof document !== 'undefined' && document.documentElement &&
       document.documentElement.classList) {
     document.documentElement.classList.add('rt-lang-hide');
   }
@@ -128,7 +126,7 @@
   function ensureLangSelector() {
     if (!document.body || document.getElementById('lang-selector')) return;
     if (document.body.getAttribute('data-rt-family') === 'off') return;
-    if (RT_LANG_HIDE) return; /* LANG-HIDE-1: picker suppressed */
+    if (window.RT_LANG_HIDE !== false) return; /* LANG-HIDE-1: picker suppressed */
     var lang = savedLang();
     var sel = document.createElement('div');
     sel.id = 'lang-selector';
@@ -222,7 +220,7 @@
   }
 
   function applyChromeI18n(lang) {
-    if (RT_LANG_HIDE) lang = 'en'; /* LANG-HIDE-1: always serve English */
+    if (window.RT_LANG_HIDE !== false) lang = 'en'; /* LANG-HIDE-1: always serve English */
     lang = lang || 'en';
     stampKnownChrome();
     var applied = 0;
@@ -328,7 +326,14 @@
   root.rtEnsureLangSelector = ensureLangSelector;
 
   function bootChrome() {
-    if (RT_LANG_HIDE) {
+    var hide = window.RT_LANG_HIDE !== false;
+    /* LANG-HIDE-1: re-sync the class now that family-nav has set the master flag.
+     * Removes it when flag is false (revert), ensuring one-flip correctness on dual pages. */
+    if (document.documentElement && document.documentElement.classList) {
+      if (hide) document.documentElement.classList.add('rt-lang-hide');
+      else document.documentElement.classList.remove('rt-lang-hide');
+    }
+    if (hide) {
       /* LANG-HIDE-1: clear any stored non-English choice so returning visitors get English. */
       try {
         var saved = localStorage.getItem('rathor-lang');
@@ -336,12 +341,12 @@
       } catch (e) {}
     }
     ensureLangSelector();
-    var lang = RT_LANG_HIDE ? 'en' : savedLang();
+    var lang = hide ? 'en' : savedLang();
     if (root.translations && root.translations[lang]) applyChromeI18n(lang);
     else if (root.translations && root.translations.en) {
       applyChromeI18n('en');
       /* Pack is not on the page yet. Do not replace a saved language with en. */
-      if (!RT_LANG_HIDE && lang && lang !== 'en') {
+      if (!hide && lang && lang !== 'en') {
         try { localStorage.setItem('rathor-lang', lang); } catch (e) {}
       }
     }
