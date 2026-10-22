@@ -39,8 +39,8 @@ assert(chat.indexOf("./vendor/web-llm/0.2.85/index.js") !== -1, 'WebLLM pin stay
 assert(chat.indexOf('max_tokens: budget.maxTokens') !== -1, 'completions use the reply budget');
 assert(chat.indexOf('max_tokens: 500') === -1, 'WebLLM no longer hard-codes max_tokens 500');
 assert(chat.indexOf('max_tokens: 900') === -1, 'Local Server no longer hard-codes max_tokens 900');
-// LANG-HIDE-1: LOCK bumped to 20261022a when lang-hide JS files were modified; update this assertion when LOCK changes again
-assert(sw.indexOf("var LOCK = '20261022a';") !== -1, 'service worker LOCK is 20261022a (LANG-HIDE-1; was 20261017j)');
+// GT-RESTORE-1: LOCK bumped to 20261022b; update this assertion when LOCK changes again
+assert(sw.indexOf("var LOCK = '20261022b';") !== -1, 'service worker LOCK is 20261022b (GT-RESTORE-1; was 20261022a)');
 
 var promptMarker = 'const SYSTEM_PROMPT = `';
 var promptAt = chat.indexOf(promptMarker);

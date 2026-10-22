@@ -17,7 +17,9 @@
 */
 (function () {
   /* LANG-HIDE-1: master flag — the ONE line to change on all 21 pages.
-   * family-nav runs on every page; setting this false restores the picker everywhere.
+   * family-nav runs on every page; setting this false restores the built-in picker
+   * (#lang-selector) and offer banner (#rathor-lang-offer) everywhere.
+   * GT-RESTORE-1: #rt-gtranslate is no longer gated on this flag — it always shows.
    * i18n-chrome reads window.RT_LANG_HIDE and re-syncs the class in bootChrome
    * (called on rathor-nav-ready, which fires after this line executes). */
   window.RT_LANG_HIDE = true;
@@ -430,9 +432,10 @@
       l.href = '/css/rathor-theme.css';
       (document.head || document.documentElement).appendChild(l);
     }
-    /* LANG-HIDE-1: only load Google Translate when the flag is explicitly false (revert mode).
-       undefined !== false so pages without i18n-chrome.js also stay hidden. */
-    if (window.RT_LANG_HIDE === false && !document.querySelector('script[src*="google-translate-optin"]')) {
+    /* GT-RESTORE-1: load Google Translate on every page; CSS hides only the built-in
+       picker (#lang-selector) and offer banner (#rathor-lang-offer) when flag is true.
+       The GT strip (#rt-gtranslate) is no longer in the rt-lang-hide CSS rule. */
+    if (!document.querySelector('script[src*="google-translate-optin"]')) {
       var g = document.createElement('script');
       g.src = '/js/google-translate-optin.js?v=20260930a';
       g.defer = true;
@@ -454,7 +457,8 @@
   }
 
   /* LANG-HIDE-1: applies to pages that load family-nav but not i18n-chrome.js.
-     Class: undefined (i18n-chrome absent) and true both hide (both !== false).
+     Class: undefined (i18n-chrome absent) and true both add rt-lang-hide (hides the built-in
+     picker and offer banner only; GT-RESTORE-1 removed #rt-gtranslate from that rule).
      localStorage: only cleared when flag is explicitly true; undefined keeps the stored choice. */
   function bootLangHide() {
     if (window.RT_LANG_HIDE !== false) {
