@@ -104,7 +104,7 @@ mod integration_tests {
     use super::*;
     use crate::property_type_classifier::OntarioPropertyType;
     use crate::deal_type_classifier::DealType;
-    use crate::status_certificate_analyzer::{StatusCertificateAnalyzer, StatusCertificateAnalysis};
+    use crate::status_certificate_analyzer::StatusCertificateAnalyzer;
     use crate::developer_risk_engine::DeveloperRiskEngine;
 
     #[test]

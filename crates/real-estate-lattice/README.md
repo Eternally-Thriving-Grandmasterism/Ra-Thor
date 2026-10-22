@@ -3,9 +3,12 @@
 **Global Real Estate Operating System (design-only)**
 **Canada-First · Ontario Pilot · Autonomicity Games Inc.**
 
-> **Status: design-only, not compiled.**
-> This crate is excluded from workspace members (no `powrush` workspace key in the root `Cargo.toml`).
-> Code is structural design and is not production-ready software.
+> **Status: research software, partially compiled.**
+> RREL-BUILD-1 added this crate to the workspace. RREL-UNGATE-1 compiled four RECO-relevant
+> modules (`reco_form_handlers`, `usa_mls_adapter`, `quantum_real_estate_valuation`,
+> `offer_package_finalizer`) in the default build. All other modules remain gated behind
+> `#[cfg(feature = "design-only")]` — they do not build yet (see Cargo.toml note).
+> No behaviour has been demonstrated against live systems.
 > See `PRODUCTION_READINESS.md` for what has and has not been demonstrated.
 
 ---
@@ -68,13 +71,29 @@ Key design constraints that flow from this guidance:
 
 ---
 
-## Quick Start (design exploration only)
+## What remains unproven
+
+The following have not been demonstrated and must not be stated as facts:
+
+- No module has been tested against live MLS data. `UsaMlsAdapter::fetch_new_listings`
+  returns `NotConfigured` for all states — no real feed is wired.
+- `QuantumRealEstateValuation` does not produce or verify property prices; regulatory-risk
+  scoring has not been validated against real case outcomes.
+- RECO/TRESA compliance checking is not implemented. `validate_reco_compliance` always
+  returns `passed: false` — this is intentional, not a passing test.
+- `offer_package_finalizer` enforces the `HumanVerified` check structurally; no end-to-end
+  submission flow has been exercised.
+- The `design-only`, `full`, and `focused-real-estate` feature flags do not build.
+- No module in this crate has been reviewed or approved by RECO or any regulatory body.
+
+---
+
+## Quick Start (test only)
 
 ```bash
-# From the Ra-Thor monorepo root — crate is NOT in workspace members
-# These commands will not build until the workspace key issue is resolved
-cd crates/real-estate-lattice
-# cargo run --example canada_pilot_demo  # (not buildable in current state)
+# From the Ra-Thor monorepo root
+cargo test --locked -p real-estate-lattice
+# Examples and design-only modules do not build yet — see Cargo.toml note.
 ```
 
 ---

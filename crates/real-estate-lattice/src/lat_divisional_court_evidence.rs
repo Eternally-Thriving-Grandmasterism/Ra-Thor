@@ -3,7 +3,6 @@
 //! Derived from RREL documentation (April 29, 2026)
 //! Produces professional, quantum-validated evidence packages (design-only, unverified)
 
-use crate::RREL_VERSION;
 use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
 

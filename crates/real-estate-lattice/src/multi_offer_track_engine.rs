@@ -56,8 +56,6 @@ impl MultiOfferTrackEngine {
     }
 
     pub fn register_offer(&mut self, state: &mut MultiOfferState, offer: Offer) {
-        let previous_highest = state.highest_price;
-
         if offer.price > state.highest_price {
             state.highest_price = offer.price;
         }
@@ -89,7 +87,7 @@ impl MultiOfferTrackEngine {
 
     pub fn analyze_and_recommend(&self, state: &MultiOfferState) -> (Vec<String>, String) {
         // existing implementation
-        let mut notes = state.fairness_notes.clone();
+        let notes = state.fairness_notes.clone();
         let mut strategy = String::from("Standard multi-offer protocol. ");
 
         if state.active_escalations > 0 {

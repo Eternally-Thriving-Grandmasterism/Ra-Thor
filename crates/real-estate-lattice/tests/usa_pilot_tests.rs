@@ -5,7 +5,7 @@
 
 use real_estate_lattice::{
     property_type_classifier::{PropertyTypeClassifier, OntarioPropertyType},
-    deal_type_classifier::{DealTypeClassifier, DealType},
+    deal_type_classifier::DealTypeClassifier,
     developer_risk_engine::DeveloperRiskEngine,
     status_certificate_analyzer::StatusCertificateAnalyzer,
     lat_divisional_court_evidence::EvidenceGenerator,
