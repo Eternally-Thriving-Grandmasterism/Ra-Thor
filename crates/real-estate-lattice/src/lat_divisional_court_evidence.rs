@@ -1,7 +1,7 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! LAT Appeal & Divisional Court Evidence Generator
 //! Derived from RREL documentation (April 29, 2026)
-//! Produces professional, mercy-gated, quantum-validated evidence packages
+//! Produces professional, quantum-validated evidence packages (design-only, unverified)
 
 use crate::RREL_VERSION;
 use serde::{Deserialize, Serialize};
@@ -46,16 +46,16 @@ impl EvidenceGenerator {
     ) -> LatAppealPackage {
         let evidence_summary = format!(
             "RREL Proactive Compliance Record:\n\
-             - All decisions mercy-gated ≥ 0.90\n\
+             - All decisions reviewed for valence ≥ 0.90 (design-only threshold)\n\
              - Quantum swarm consensus ≥ 0.80\n\
              - Immutable Legal Lattice audit trail attached\n\
              - No prior RECO discipline history"
         );
 
         let recommendation = if mercy_valence > 0.92 && quantum_consensus > 0.85 {
-            "Strongly recommend full appeal. RREL evidence demonstrates proactive ethical governance exceeding statutory requirements."
+            "Draft only (design-only, unverified): factors noted — registrant and legal counsel must assess."
         } else {
-            "Appeal supported. RREL evidence provides clear mitigating factors and compliance record."
+            "Appeal noted (design-only, unverified). RREL output is a draft; legal counsel must assess."
         };
 
         LatAppealPackage {
@@ -78,10 +78,10 @@ impl EvidenceGenerator {
         quantum_consensus: f64,
     ) -> DivisionalCourtPackage {
         let key_arguments = vec![
-            "Proactive mercy-gated compliance demonstrated at every decision point".to_string(),
+            "Proactive compliance checklist (unverified) at every decision point".to_string(),
             "Quantum swarm multi-stakeholder ethical review process".to_string(),
             "Immutable cryptographic audit trail with timestamps".to_string(),
-            "Penalty proportionality supported by real-time data and CEHI scoring".to_string(),
+            "Penalty proportionality (design-only, unverified — human review required)".to_string(),
         ];
 
         let supporting_exhibits = vec![

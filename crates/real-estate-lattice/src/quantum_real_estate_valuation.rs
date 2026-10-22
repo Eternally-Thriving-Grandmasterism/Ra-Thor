@@ -1,10 +1,13 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Quantum Real Estate Valuation Engine
 //! Derived from RREL documentation (April 29, 2026)
-//! Combines quantum swarm consensus, mercy valence, regulatory risk, and CEHI scoring
+//!
+//! RECO AI guidance: price and risk advice is the registrant's responsibility.
+//! This module must not emit a price without a cited source and registrant sign-off.
+//! Source: https://www.reco.on.ca/agents-and-brokerages/reco-bulletins/reco-guidance-use-of-artificial-intelligence/
 
 use crate::RREL_VERSION;
-use patsagi_councils::PowrushGame;
+use crate::rrel_compliance::{AiOutput, AuditEntry, OutputStatus, Provenance};
 use ra_thor_mercy::MercyEngine;
 use ra_thor_quantum_swarm_orchestrator::QuantumSwarmOrchestrator;
 use serde::{Deserialize, Serialize};
@@ -13,14 +16,15 @@ use chrono::{DateTime, Utc};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ValuationResult {
     pub property_id: String,
-    pub base_price: f64,
-    pub final_valuation: f64,
-    pub mercy_valence: f64,
-    pub quantum_consensus: f64,
+    /// The price submitted by the caller as a starting reference (e.g. listing price).
+    /// This is NOT an AI-generated valuation — RREL does not produce prices.
+    pub reference_price: Option<f64>,
+    /// Cited comparables provided by the registrant.
+    pub cited_comparables: Vec<String>,
     pub regulatory_risk_score: f64,
-    pub cehi_bonus: f64,
     pub timestamp: DateTime<Utc>,
-    pub recommendation: String,
+    /// Human-readable note. Always a draft until HumanVerified.
+    pub draft_note: String,
 }
 
 pub struct QuantumRealEstateValuation {
@@ -36,62 +40,65 @@ impl QuantumRealEstateValuation {
         }
     }
 
-    /// Main valuation method — used across RREL (MLS, PMS, regulatory, appeals)
-    pub async fn value_property(
+    /// Analyse a property for regulatory risk.
+    ///
+    /// Does NOT produce or adjust a price. Price advice must come from a registered
+    /// agent citing verifiable comparables, not from AI multipliers.
+    ///
+    /// Returns an `AiOutput<ValuationResult>` always in `Draft` status.
+    /// The registrant must call `.verify(agent_id)` before sharing the output.
+    pub async fn analyse_property(
         &mut self,
         property_id: &str,
-        base_price: f64,
         description: &str,
-        game: &mut PowrushGame,
-    ) -> ValuationResult {
-        // Step 1: Mercy Gate
-        let mercy_valence = self.mercy_engine
-            .evaluate_action(description, "Property Valuation", 5.0, 0.95)
-            .await
-            .unwrap_or(0.75);
-
-        // Step 2: Quantum Swarm Consensus
-        let quantum_consensus = self.quantum_swarm
-            .reach_consensus(description, 13)
-            .await
-            .unwrap_or(0.80);
-
-        // Step 3: Regulatory Risk Score (RECO/TRESA/LAT aware)
+        cited_comparables: Vec<String>,
+    ) -> AiOutput<ValuationResult> {
         let regulatory_risk = self.calculate_regulatory_risk(description);
 
-        // Step 4: CEHI Bonus from PowrushGame
-        let cehi_bonus = game.get_average_cehi() * 0.015; // 1.5% per CEHI point
+        let needs_verification = vec![
+            "Regulatory risk score must be reviewed by a registered agent.".to_string(),
+            "Any price guidance must be sourced from verifiable comparables, not this output.".to_string(),
+            "Cross-check all AI-generated descriptions against verifiable property documents \
+             and physical facts before publishing.".to_string(),
+        ];
 
-        // Step 5: Final Valuation Calculation
-        let quantum_multiplier = 1.0 + (quantum_consensus * 0.22);
-        let mercy_multiplier = 1.0 + (mercy_valence * 0.18);
-        let risk_adjustment = 1.0 - (regulatory_risk * 0.12);
+        let mut sources: Vec<Provenance> = cited_comparables
+            .iter()
+            .map(|c| Provenance {
+                label: c.clone(),
+                reference: None,
+                notes: Some("Registrant-supplied comparable".to_string()),
+            })
+            .collect();
 
-        let final_valuation = base_price 
-            * quantum_multiplier 
-            * mercy_multiplier 
-            * risk_adjustment 
-            * (1.0 + cehi_bonus);
+        if sources.is_empty() {
+            sources.push(Provenance {
+                label: "No comparables provided".to_string(),
+                reference: None,
+                notes: Some(
+                    "A registrant must supply verified comparables before any \
+                     price guidance can be given."
+                        .to_string(),
+                ),
+            });
+        }
 
-        let recommendation = if mercy_valence > 0.90 && quantum_consensus > 0.85 {
-            "Strongly recommended — high mercy alignment and strong quantum consensus"
-        } else if mercy_valence > 0.82 && quantum_consensus > 0.75 {
-            "Recommended with standard due diligence"
-        } else {
-            "Proceed with caution — consider additional review"
+        let result = ValuationResult {
+            property_id: property_id.to_string(),
+            reference_price: None, // price requires a cited source and registrant sign-off
+            cited_comparables: cited_comparables.clone(),
+            regulatory_risk_score: regulatory_risk,
+            timestamp: Utc::now(),
+            draft_note: format!(
+                "DRAFT — regulatory risk score {:.2}. No price has been generated. \
+                 Price and investment advice is the registrant's responsibility, \
+                 not the AI's. This output requires human verification before use. \
+                 (RREL v{})",
+                regulatory_risk, RREL_VERSION
+            ),
         };
 
-        ValuationResult {
-            property_id: property_id.to_string(),
-            base_price,
-            final_valuation: final_valuation.round(),
-            mercy_valence,
-            quantum_consensus,
-            regulatory_risk_score: regulatory_risk,
-            cehi_bonus,
-            timestamp: Utc::now(),
-            recommendation: recommendation.to_string(),
-        }
+        AiOutput::draft(result, needs_verification, sources)
     }
 
     fn calculate_regulatory_risk(&self, description: &str) -> f64 {

@@ -1,6 +1,6 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Real Estate Tax Optimization Engine — RREL v0.5.21
-//! Mercy-Gated • Quantum Swarm • Ethical Tax Strategy for Generational Thriving
+//! Quantum Swarm • Ethical Tax Strategy for Generational Thriving
 //!
 //! Delivers mercy-first, CEHI-weighted tax optimization with full ethical oversight and long-term thriving focus.
 

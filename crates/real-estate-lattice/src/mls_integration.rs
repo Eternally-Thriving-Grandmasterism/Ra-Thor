@@ -1,6 +1,6 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! TREB MLS Adapter for Ra-Thor Real Estate Lattice (RREL)
-//! Full RETS 1.8 + RESO Web API integration with mercy-gated + quantum swarm validation
+//! Full RETS 1.8 + RESO Web API integration with design-only + quantum swarm validation
 //! Canada (Ontario) First — TREB Pilot (AlphaProMega Real Estate Inc.)
 
 use crate::RREL_VERSION;
@@ -165,6 +165,7 @@ impl TrebMlsAdapter {
 
             // Step 2: Quantum Swarm Consensus
             let consensus = self.quantum_swarm.reach_consensus(
+                // example value, not market data — listing.price is a design-only placeholder
                 &format!("TREB listing {} at ${:.0} in {}", listing.mls_id, listing.price, listing.city),
                 13
             ).await?;

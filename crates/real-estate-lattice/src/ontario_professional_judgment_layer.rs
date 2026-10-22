@@ -18,11 +18,13 @@
 //! - Cross-document consistency hooks
 //! - Human-AI co-evolution ready (tutoring patterns encoded for continuous refinement)
 //!
-//! Fully mercy-gated, TOLC 8 enforced, PATSAGi-aligned, ONE Organism participant.
-//! Backward compatible. Eternal forward compatibility.
+//! design-only, TOLC 8 checks planned (design-only, unverified), PATSAGi-aligned, ONE Organism participant.
+//! Backward compatible.
 //!
 //! AG-SML v1.0 — Autonomicity Games Sovereign Mercy License
-//! Status: Production-grade addition to Real Estate Lattice. Thunder locked.
+//! Status: Design-only stub. Not compiled. Not production-ready.
+//! RECO AI guidance: professional judgment under TRESA remains the registrant's
+//! responsibility. This module encodes structural patterns only, not legal advice.
 
 use chrono::{NaiveDate, Duration, Utc};
 use std::collections::HashMap;

@@ -7,7 +7,7 @@ license.workspace = true
 description.workspace = true
 repository.workspace = true
 readme = "README.md"
-keywords = ["real-estate", "ra-thor", "rrel", "powrush", "mercy-gated", "usa", "california", "florida", "texas", "new-york", "treb", "reco", "ontario", "quantum", "agi"]
+keywords = ["real-estate", "ra-thor", "rrel", "powrush", "design-only", "usa", "california", "florida", "texas", "new-york", "treb", "reco", "ontario", "quantum", "agi"]
 categories = ["simulation", "artificial-intelligence", "finance", "games"]
 
 [dependencies]

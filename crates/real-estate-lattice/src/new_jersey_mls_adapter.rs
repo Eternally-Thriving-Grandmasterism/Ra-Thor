@@ -1,7 +1,7 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! New Jersey MLS Adapter — RREL v0.5.21
 //! State-Specific Adapter for New Jersey (NJMLS, Garden State MLS)
-//! Mercy-Gated • Quantum Swarm • Coastal Zone + Flood + Mount Laurel Affordable Housing
+//! Quantum Swarm • Coastal Zone + Flood + Mount Laurel Affordable Housing
 //!
 //! Derived from RREL-USA-Expansion-Codex-v0.6.0.md
 

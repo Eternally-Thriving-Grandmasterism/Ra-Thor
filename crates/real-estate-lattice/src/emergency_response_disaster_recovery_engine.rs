@@ -1,6 +1,6 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Emergency Response & Disaster Recovery Engine — RREL v0.5.21
-//! Mercy-Gated • Quantum Swarm • Life-Saving Disaster Coordination
+//! Quantum Swarm • Life-Saving Disaster Coordination
 //!
 //! Coordinates immediate response, temporary housing, insurance, and long-term recovery with full mercy-first, CEHI-weighted priority.
 

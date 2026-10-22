@@ -1,6 +1,6 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Mortgage Demo — RREL v0.5.21
-//! Demonstrates mercy-gated, quantum-swarm, RECO-compliant mortgage approval
+//! Demonstrates design-only, quantum-swarm mortgage approval (forms unverified — human review required)
 
 use real_estate_lattice::mortgage_engine::{MortgageEngine, MortgageApplication};
 use patsagi_councils::WorldGovernanceEngine;
@@ -12,7 +12,7 @@ use ra_thor_quantum_swarm_orchestrator::QuantumSwarmOrchestrator;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n╔════════════════════════════════════════════════════════════════════════════╗");
     println!("║           🏠 RREL MORTGAGE DEMO — v0.5.21                                 ║");
-    println!("║   Mercy-Gated • Quantum Swarm • RECO/TRESA Compliant                     ║");
+    println!("║   Quantum Swarm • RECO/TRESA (unverified)                     ║");
     println!("╚════════════════════════════════════════════════════════════════════════════╝\n");
 
     let mercy_engine = MercyEngine::new();

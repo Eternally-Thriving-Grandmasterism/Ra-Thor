@@ -1,7 +1,7 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Texas MLS Adapter — RREL v0.5.21
 //! State-Specific Adapter for Texas (HAR, NTREIS, SABOR)
-//! Mercy-Gated • Quantum Swarm • Property Tax Protest + Homestead Exemption + Energy Disclosures
+//! Quantum Swarm • Property Tax Protest + Homestead Exemption + Energy Disclosures
 //!
 //! Derived from RREL-USA-Expansion-Codex-v0.6.0.md
 

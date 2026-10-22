@@ -1,6 +1,6 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Insurance Claim Demo — RREL v0.5.21
-//! Demonstrates mercy-gated, quantum-swarm insurance claim processing with risk mitigation
+//! Demonstrates design-only, quantum-swarm insurance claim processing with risk mitigation
 
 use real_estate_lattice::insurance_claim_engine::{InsuranceClaimEngine, InsuranceClaimRequest};
 use patsagi_councils::WorldGovernanceEngine;
@@ -12,7 +12,7 @@ use ra_thor_quantum_swarm_orchestrator::QuantumSwarmOrchestrator;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n╔════════════════════════════════════════════════════════════════════════════╗");
     println!("║           🛡️ RREL INSURANCE CLAIM DEMO — v0.5.21                          ║");
-    println!("║   Mercy-Gated • Quantum Swarm • Risk Mitigation                          ║");
+    println!("║   Quantum Swarm • Risk Mitigation                          ║");
     println!("╚════════════════════════════════════════════════════════════════════════════╝\n");
 
     let mercy_engine = MercyEngine::new();

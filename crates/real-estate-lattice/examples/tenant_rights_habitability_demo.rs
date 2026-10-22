@@ -1,6 +1,6 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Tenant Rights & Habitability Demo — RREL v0.5.21
-//! Demonstrates mercy-gated tenant rights enforcement and habitability protection
+//! Demonstrates design-only tenant rights enforcement and habitability protection
 
 use real_estate_lattice::tenant_rights_habitability_engine::{TenantRightsHabitabilityEngine, HabitabilityInspection};
 use patsagi_councils::WorldGovernanceEngine;
@@ -12,7 +12,7 @@ use ra_thor_quantum_swarm_orchestrator::QuantumSwarmOrchestrator;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n╔════════════════════════════════════════════════════════════════════════════╗");
     println!("║           🏠 RREL TENANT RIGHTS & HABITABILITY DEMO — v0.5.21             ║");
-    println!("║   Mercy-Gated • Quantum Swarm • Tenant Protection & Habitability         ║");
+    println!("║   Quantum Swarm • Tenant Protection & Habitability         ║");
     println!("╚════════════════════════════════════════════════════════════════════════════╝\n");
 
     let mercy_engine = MercyEngine::new();

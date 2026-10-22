@@ -1,6 +1,6 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Sustainable Property Upgrades & Green Certification Engine — RREL v0.5.21
-//! Mercy-Gated • Quantum Swarm • Ethical Green Building Acceleration
+//! Quantum Swarm • Ethical Green Building Acceleration
 //!
 //! Helps owners upgrade to sustainable standards with CEHI incentives and mercy-first oversight.
 
@@ -82,9 +82,9 @@ impl SustainablePropertyUpgradesEngine {
         }
 
         let new_certification = if request.proposed_upgrades.iter().any(|u| u.to_lowercase().contains("solar") || u.to_lowercase().contains("heat pump")) {
-            "LEED Gold / ENERGY STAR Certified"
+            "LEED Gold / ENERGY STAR Certified" // design-scenario label only; not an RREL certification claim
         } else {
-            "ENERGY STAR Certified"
+            "ENERGY STAR Certified" // design-scenario label only; not an RREL certification claim
         };
 
         let _ = self.world_governance

@@ -1,7 +1,7 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! RREL TOLC 8 Gate Traversal + Quantum Swarm Blessing Propagation Safety
 //! Part of PR #164 continuation
-//! Inspects full TOLC 8 traversal logic and adds mercy-gated safety for blessing propagation in Quantum Swarm.
+//! Inspects full TOLC 8 traversal logic and adds design-only safety for blessing propagation in Quantum Swarm.
 
 use mercy::traits::{MercyAligned, TOLC8Gate};
 use patsagi_councils::PatsagiCouncil;

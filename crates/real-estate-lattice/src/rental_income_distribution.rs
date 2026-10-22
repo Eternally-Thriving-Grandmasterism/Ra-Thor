@@ -1,6 +1,6 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Rental Income Distribution Engine — RREL v0.5.21
-//! Mercy-Gated • Quantum Swarm • Automatic Rental Income Distribution to Fractional Owners
+//! Quantum Swarm • Automatic Rental Income Distribution to Fractional Owners
 //!
 //! Allows the 13+ PATSAGi Councils to approve and execute fair, transparent rental income distribution.
 

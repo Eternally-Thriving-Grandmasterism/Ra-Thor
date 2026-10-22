@@ -23,7 +23,7 @@ pub fn RrelMainDashboard(state: DashboardState) -> impl IntoView {
                 <div class="flex items-center justify-between mb-8">
                     <div>
                         <h1 class="text-4xl font-bold tracking-tight">RREL Dashboard</h1>
-                        <p class="text-zinc-400 mt-1">v14.3 • Ontario + USA • Mercy-Gated • Cached</p>
+                        <p class="text-zinc-400 mt-1">v14.3 • Ontario + USA • design-only • Cached</p>
                     </div>
                     <div class="px-4 py-2 bg-zinc-900 rounded-xl text-sm border border-zinc-800">
                         "TOLC 8 Active | ATTOM Cache: Synced"
@@ -143,7 +143,7 @@ pub fn RrelMainDashboard(state: DashboardState) -> impl IntoView {
                 </section>
 
                 <div class="mt-8 text-xs text-zinc-500">
-                    "All data mercy-gated • ATTOM cache active • Quantum Swarm synced • Geometric Harmony active"
+                    "All data design-only • ATTOM cache active • Quantum Swarm synced • Geometric Harmony active"
                 </div>
             </div>
         </div>

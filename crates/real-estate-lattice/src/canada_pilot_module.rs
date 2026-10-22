@@ -2,7 +2,7 @@
 //! Canada Pilot Module (Ontario-First) — v14.3 Execution Stabilized
 //! Central orchestration layer for RREL in Canada
 //! Wires: New v14.3 Real Estate Lattice (classifiers, offer package, multi-offer, risk engines) + legacy bridges
-//! Mercy-gated, PATSAGi-aligned, ready for AlphaProMega Real Estate Inc. Ontario pilot.
+//! design-only, PATSAGi-aligned, ready for AlphaProMega Real Estate Inc. Ontario pilot.
 
 use crate::deal_type_classifier::{DealType, DealTypeClassifier};
 use crate::form_mapping_engine::FormMappingEngine;
@@ -183,7 +183,7 @@ impl CanadaPilotModule {
         status_certificate_data: Option<&str>,
         is_pre_construction: bool,
     ) -> Result<OntarioOfferFlowReport, crate::RrelError> {
-        info!("🇨🇦 RREL v{} Ontario Offer Flow — Starting mercy-gated processing", RREL_VERSION);
+        info!("🇨🇦 RREL v{} Ontario Offer Flow — Starting design-only processing", RREL_VERSION);
 
         // 1. Classify property type
         let prop_class = self.property_classifier.classify(legal_description);

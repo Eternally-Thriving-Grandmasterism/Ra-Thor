@@ -4,7 +4,7 @@
 //!
 //! This is the final integrated demo that runs the complete Canada Pilot:
 //! TREB MLS + PMS Bridge + RECO Enforcement + Quantum Valuation + LAT/Divisional Court Evidence
-//! All mercy-gated, quantum-swarm consensus, 13+ PATSAGi Councils, and WorldGovernanceEngine
+//! All design-only, quantum-swarm consensus, 13+ PATSAGi Councils, and WorldGovernanceEngine
 
 use real_estate_lattice::{
     CanadaPilotModule,
@@ -29,7 +29,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n╔════════════════════════════════════════════════════════════════════════════╗");
     println!("║           🇨🇦 RREL CANADA PILOT — PRODUCTION DEMO (v{})           ║", RREL_VERSION);
     println!("║   AlphaProMega Real Estate Inc. — Ontario-First Global OS              ║");
-    println!("║   Mercy-Gated • Quantum Swarm • 13+ PATSAGi Councils • TREB + RECO     ║");
+    println!("║   Quantum Swarm • 13+ PATSAGi Councils • TREB + RECO     ║");
     println!("╚════════════════════════════════════════════════════════════════════════════╝\n");
 
     // === Initialize All Systems ===
@@ -76,7 +76,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("\n╔════════════════════════════════════════════════════════════════════════════╗");
     println!("║           ✅ CANADA PILOT COMPLETE — READY FOR ALPHAPROMEGA              ║");
-    println!("║   All systems mercy-gated • Quantum consensus achieved • RECO compliant  ║");
+    println!("║   All systems design-only • Quantum consensus achieved • forms unverified  ║");
     println!("║   Next: Deploy to production → USA expansion → Multiplanetary            ║");
     println!("╚════════════════════════════════════════════════════════════════════════════╝\n");
 

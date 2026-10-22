@@ -1,6 +1,6 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Eviction Prevention Engine — RREL v0.5.21
-//! Mercy-Gated • Quantum Swarm • Mercy-First Eviction Prevention
+//! Quantum Swarm • Mercy-First Eviction Prevention
 //!
 //! Prevents evictions through mercy intervention, payment plans, and support — while still protecting owners.
 
@@ -81,7 +81,7 @@ impl EvictionPreventionEngine {
             return Err(EvictionPreventionError::QuantumConsensusTooLow(consensus));
         }
 
-        // Trigger the specific mercy-gated world impact
+        // Trigger the specific design-only world impact
         let _ = self.world_governance
             .apply_world_impact(WorldImpactType::PMS_EvictionPreventionViaMercy, game)
             .await;

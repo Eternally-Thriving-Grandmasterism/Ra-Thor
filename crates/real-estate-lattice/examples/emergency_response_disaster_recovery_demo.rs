@@ -1,6 +1,6 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Emergency Response & Disaster Recovery Demo — RREL v0.5.21
-//! Demonstrates mercy-gated, life-saving disaster response and community recovery
+//! Demonstrates design-only, life-saving disaster response and community recovery
 
 use real_estate_lattice::emergency_response_disaster_recovery_engine::{EmergencyResponseDisasterRecoveryEngine, DisasterEvent};
 use patsagi_councils::WorldGovernanceEngine;
@@ -12,7 +12,7 @@ use ra_thor_quantum_swarm_orchestrator::QuantumSwarmOrchestrator;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n╔════════════════════════════════════════════════════════════════════════════╗");
     println!("║           🚨 RREL EMERGENCY RESPONSE & DISASTER RECOVERY DEMO — v0.5.21    ║");
-    println!("║   Mercy-Gated • Quantum Swarm • Life-Saving Coordination                 ║");
+    println!("║   Quantum Swarm • Life-Saving Coordination                 ║");
     println!("╚════════════════════════════════════════════════════════════════════════════╝\n");
 
     let mercy_engine = MercyEngine::new();

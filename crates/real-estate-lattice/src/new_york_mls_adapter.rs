@@ -1,7 +1,7 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! New York MLS Adapter — RREL v0.5.21
 //! State-Specific Adapter for New York (OneKey MLS, REBNY, Hudson Gateway)
-//! Mercy-Gated • Quantum Swarm • Rent Stabilization + Co-op Board + Lead Paint Disclosures
+//! Quantum Swarm • Rent Stabilization + Co-op Board + Lead Paint Disclosures
 //!
 //! Derived from RREL-USA-Expansion-Codex-v0.6.0.md
 

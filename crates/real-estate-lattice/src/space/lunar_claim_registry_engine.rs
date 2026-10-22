@@ -1,6 +1,6 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Lunar Claim Registry Engine — SREL v0.5.21
-//! Mercy-Gated • Quantum Swarm • TOLC 7 Gates Radiation Mapping
+//! Quantum Swarm • TOLC 7 Gates Radiation Mapping
 //! Perfect merge: Your exact style + full materials + electronics protection + in-situ production + nth-degree radiation
 
 use mercy_radiation_shield::RadiationType;
@@ -95,7 +95,7 @@ impl LunarClaimRegistryEngine {
             info!("Rathor.ai: Lunar claim mercy-alchemized via all 7 TOLC Gates + optimal material + electronics protection");
             report
         } else {
-            LunarClaimRegistryReport { approved: false, valence: avg_valence, energy_recovered: 0.0, joy_bonus: 0.0, cehi_bonus: 0.0, message: "MERCY-GATED".to_string() }
+            LunarClaimRegistryReport { approved: false, valence: avg_valence, energy_recovered: 0.0, joy_bonus: 0.0, cehi_bonus: 0.0, message: "requires-review".to_string() }
         }
     }
 }

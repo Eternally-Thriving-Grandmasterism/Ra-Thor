@@ -1,6 +1,6 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Maintenance & Repair Request Engine — RREL v0.5.21
-//! Mercy-Gated • Quantum Swarm • Intelligent Maintenance Prioritization
+//! Quantum Swarm • Intelligent Maintenance Prioritization
 //!
 //! Allows the 13+ PATSAGi Councils to approve and prioritize maintenance requests
 //! with full mercy, quantum consensus, and predictive optimization.

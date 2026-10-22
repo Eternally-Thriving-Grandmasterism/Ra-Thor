@@ -1,6 +1,6 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Property Management System (PMS) Integration & Bridge Engine — RREL v0.5.21
-//! Mercy-Gated • Quantum Swarm • Universal PMS Connectivity
+//! Quantum Swarm • Universal PMS Connectivity
 //!
 //! Universal bridge to Yardi, RealPage, AppFolio, Entrata, Buildium and all major PMS platforms with full mercy-first governance.
 

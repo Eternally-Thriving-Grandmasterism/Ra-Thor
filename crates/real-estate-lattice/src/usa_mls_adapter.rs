@@ -1,12 +1,13 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! USA MLS Adapter — RREL v0.6.0
 //! Generic + State-Specific MLS Integration Layer for All 50 States
-//! Mercy-Gated • Quantum Swarm • Immutable Legal Lattice
+//! Quantum Swarm • Immutable Legal Lattice
 //!
 //! Derived from RREL-USA-Expansion-Codex-v0.6.0.md
 
 use crate::RREL_VERSION;
 use crate::usa_regulatory_engine::{UsaRegulatoryEngine, UsaRegulatoryResult};
+use crate::rrel_compliance::AiImageRecord;
 use patsagi_councils::WorldGovernanceEngine;
 use powrush::PowrushGame;
 use ra_thor_mercy::MercyEngine;
@@ -21,16 +22,24 @@ pub enum UsaMlsError {
     MlsFetchFailed { state: String, message: String },
     #[error("Regulatory check failed: {0}")]
     RegulatoryCheckFailed(#[from] crate::usa_regulatory_engine::UsaRegulatoryError),
+    #[error("No real MLS connection configured for state {0}")]
+    NotConfigured(String),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UsaListing {
     pub mls_id: String,
     pub state: String,
-    pub price: f64,
+    /// Price as reported by the MLS data source. None when not yet sourced.
+    pub price: Option<f64>,
     pub description: String,
-    pub photos: Vec<String>,
+    /// Images with alteration labels per RECO AI guidance.
+    pub photos: Vec<AiImageRecord>,
     pub address: String,
+    /// Identifier of the verified data source (e.g. MLS feed name + record ID).
+    pub source: Option<String>,
+    /// True only after a registrant has cross-checked against verifiable property documents.
+    pub registrant_verified: bool,
 }
 
 pub struct UsaMlsAdapter {
@@ -58,24 +67,22 @@ impl UsaMlsAdapter {
         }
     }
 
-    /// Fetch new listings for any USA state (extensible)
+    /// Fetch new listings for any USA state.
+    ///
+    /// Returns `Err(NotConfigured)` when no real MLS connection is available.
+    /// A real implementation would call state-specific MLS APIs (CRMLS, FMLS, HAR,
+    /// OneKey, etc.) with proper auth and return listings with verified sources.
+    ///
+    /// No price is emitted until a sourced, registrant-verified listing is available.
     pub async fn fetch_new_listings(&self, state: &str) -> Result<Vec<UsaListing>, UsaMlsError> {
-        info!("🇺🇸 Fetching new MLS listings for {} (RREL v{})", state, RREL_VERSION);
+        info!(
+            "🇺🇸 Fetching new MLS listings for {} (RREL v{}) — no live MLS connection",
+            state, RREL_VERSION
+        );
 
-        // Placeholder for real MLS API calls (CRMLS, FMLS, HAR, OneKey, etc.)
-        // In production this would call state-specific MLS APIs with proper auth
-        let mock_listings = vec![
-            UsaListing {
-                mls_id: format!("{}-2026-0429-001", state),
-                state: state.to_string(),
-                price: 875000.0,
-                description: "Beautiful 4-bed home with modern kitchen and large backyard. TILA disclosure included. No kickbacks.".to_string(),
-                photos: vec!["photo1.jpg".to_string(), "photo2.jpg".to_string()],
-                address: "123 Main St, Example City, CA".to_string(),
-            },
-        ];
-
-        Ok(mock_listings)
+        // No real MLS connection is wired. Return NotConfigured so callers know
+        // that no data (not invented data) is available. Wire a real MLS feed here.
+        Err(UsaMlsError::NotConfigured(state.to_string()))
     }
 
     /// Full end-to-end processing for a USA listing (mercy + quantum + regulatory)
@@ -84,23 +91,59 @@ impl UsaMlsAdapter {
         listing: &UsaListing,
         game: &mut PowrushGame,
     ) -> Result<UsaRegulatoryResult, UsaMlsError> {
-        // Run full regulatory check (federal + state)
+        // Require a sourced listing — no invented prices processed downstream
+        if listing.source.is_none() {
+            return Err(UsaMlsError::MlsFetchFailed {
+                state: listing.state.clone(),
+                message: "Listing has no verified source. A cited MLS source is \
+                          required before regulatory processing.".to_string(),
+            });
+        }
+
+        let price_for_check = listing.price.unwrap_or(0.0);
+
         let result = self.regulatory_engine
             .check_usa_transaction(
                 &listing.state,
                 &listing.description,
-                listing.price,
+                price_for_check,
                 game,
             )
             .await?;
 
         if result.passed {
-            info!("✅ USA listing {} approved in {} — mercy {:.2}, consensus {:.2}",
-                  listing.mls_id, listing.state, result.mercy_valence, result.quantum_consensus);
+            info!(
+                "✅ USA listing {} approved in {} — mercy {:.2}, consensus {:.2}",
+                listing.mls_id, listing.state, result.mercy_valence, result.quantum_consensus
+            );
         } else {
             info!("❌ USA listing {} blocked — regulatory issues detected", listing.mls_id);
         }
 
         Ok(result)
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Test-only mock data — clearly scoped to #[cfg(test)]
+// ---------------------------------------------------------------------------
+
+#[cfg(test)]
+pub mod test_fixtures {
+    use super::*;
+
+    /// Returns a clearly-labelled mock listing for unit tests only.
+    /// This data is synthetic and must never be presented as real property information.
+    pub fn mock_listing(state: &str) -> UsaListing {
+        UsaListing {
+            mls_id: format!("{}-MOCK-001", state),
+            state: state.to_string(),
+            price: None, // price requires a cited source
+            description: "[MOCK — synthetic test data, not a real property]".to_string(),
+            photos: vec![],
+            address: "[MOCK — no real address]".to_string(),
+            source: Some("test-fixture".to_string()),
+            registrant_verified: false,
+        }
     }
 }

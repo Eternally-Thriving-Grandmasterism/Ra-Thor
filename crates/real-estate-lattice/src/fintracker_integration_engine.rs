@@ -1,8 +1,8 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! FinTracker Integration Engine — RREL v0.5.21
-//! Mercy-Gated • Quantum Swarm • Ethical Financial Intelligence Bridge
+//! Quantum Swarm • Ethical Financial Intelligence Bridge
 //!
-//! Seamlessly connects RREL to FinTracker for real-time financial syncing, mercy-gated insights, and CEHI-weighted investment decisions.
+//! Seamlessly connects RREL to FinTracker for real-time financial syncing, design-only insights, and CEHI-weighted investment decisions.
 
 use crate::RREL_VERSION;
 use patsagi_councils::{WorldGovernanceEngine, WorldImpactType};

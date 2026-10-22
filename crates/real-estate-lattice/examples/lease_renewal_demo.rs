@@ -1,6 +1,6 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Lease Renewal Demo — RREL v0.5.21
-//! Demonstrates mercy-gated lease renewal with loyalty discounts and CEHI rewards
+//! Demonstrates design-only lease renewal with loyalty discounts and CEHI rewards
 
 use real_estate_lattice::lease_renewal_engine::{LeaseRenewalEngine, LeaseRenewalRequest};
 use patsagi_councils::WorldGovernanceEngine;
@@ -12,7 +12,7 @@ use ra_thor_quantum_swarm_orchestrator::QuantumSwarmOrchestrator;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n╔════════════════════════════════════════════════════════════════════════════╗");
     println!("║           📝 RREL LEASE RENEWAL DEMO — v0.5.21                            ║");
-    println!("║   Mercy-Gated • Quantum Swarm • Loyalty Discount System                  ║");
+    println!("║   Quantum Swarm • Loyalty Discount System                  ║");
     println!("╚════════════════════════════════════════════════════════════════════════════╝\n");
 
     let mercy_engine = MercyEngine::new();

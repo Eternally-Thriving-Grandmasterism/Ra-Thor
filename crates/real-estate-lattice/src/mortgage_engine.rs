@@ -1,6 +1,6 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Mortgage Automation Engine — RREL v0.5.21
-//! Mercy-Gated • Quantum Swarm • RECO/TRESA Compliant Mortgage Processing
+//! Quantum Swarm • RECO/TRESA Mortgage Processing (unverified, design-only)
 //!
 //! Allows the 13+ PATSAGi Councils to approve mortgages with full regulatory and mercy alignment.
 
@@ -52,7 +52,7 @@ impl MortgageEngine {
         }
     }
 
-    /// Full mercy-gated + regulatory mortgage approval
+    /// Full design-only + regulatory mortgage approval
     pub async fn process_mortgage_application(
         &mut self,
         application: &MortgageApplication,

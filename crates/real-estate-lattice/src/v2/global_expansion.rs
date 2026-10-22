@@ -1,6 +1,6 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 // Real-Estate Lattice v2 - Global Expansion Module
-// Mercy-gated, quantum valuation, RBE-integrated, Thriving Heavens Simulator
+// design-only, quantum valuation, RBE-integrated, Thriving Heavens Simulator
 // Full Quantum Valuation Engine fleshed out with TOLC + 7 Mercy Gates + positive emotion propagation
 
 use crate::quantum_valuation::QuantumValuationEngine;
@@ -156,7 +156,7 @@ impl QuantumValuationEngine {
         RBEImpactReport::new(valuation.final_value, rbe_impact)
     }
 
-    /// Full mercy-gated property transfer
+    /// Full design-only property transfer
     pub async fn mercy_gated_transfer(
         &self,
         from: &str,

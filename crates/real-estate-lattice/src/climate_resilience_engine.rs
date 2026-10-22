@@ -1,6 +1,6 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Climate Resilience & Disaster Preparedness Engine — RREL v0.5.21
-//! Mercy-Gated • Quantum Swarm • Ethical Climate Protection
+//! Quantum Swarm • Ethical Climate Protection
 //!
 //! Helps properties prepare for and recover from climate events with full mercy-first, community-centered oversight.
 

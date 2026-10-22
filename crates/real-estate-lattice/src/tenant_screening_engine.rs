@@ -1,6 +1,6 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Tenant Screening & Fair Housing Engine — RREL v0.5.21
-//! Mercy-Gated • Quantum Swarm • Ethical Tenant Risk Assessment
+//! Quantum Swarm • Ethical Tenant Risk Assessment
 //!
 //! Processes applications with full fair housing compliance and mercy-first decision making.
 
@@ -121,7 +121,7 @@ impl TenantScreeningEngine {
              Decision: {}\n\
              Mercy Valence: {:.2}\n\
              Council Consensus: {:.2}\n\
-             Fair Housing: FULLY COMPLIANT ✓",
+             Fair Housing: unverified (design-only)",
             RREL_VERSION,
             application.application_id,
             application.property_mls_id,
