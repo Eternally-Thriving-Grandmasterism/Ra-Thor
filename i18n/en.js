@@ -150,7 +150,7 @@ window.translations["en"] = {
   "faqQ25": "What does the Grok button open?",
   "faqA25": "A live Grok session under the PATSAGi Councils, TOLC 8 Mercy-Checks, the Lattice Conductor and the cosmic tick, the same method used to maintain this site and its public repositories. The session can use skills, connectors and file upload when the current Grok interface offers them. Grok remains an xAI product.",
   "faqQ26": "What does the X button open?",
-  "faqA26": "A Grok-on-X session. It may open in the X app or in a browser at x.com. It can use skills, connectors and file upload where X offers them. It’s a shared Grok chat started from our prompt, not a built-in Grok mode. X and Grok remain products of X Corp and xAI.",
+  "faqA26": "A Grok-on-X session. It may open in the X app or in a browser at x.com. It can use skills, connectors and file upload where X offers them. It's a shared Grok chat started from our prompt, not a built-in Grok mode. X and Grok remain products of X Corp and xAI.",
   "weekTitle": "Recent Updates",
   "weekLead": "Inspectable software. Studies are not products.",
   "weekLineRa": "Inspectable research software. Whitepaper v4.2. AG-SML v1.2. Inspect ≠ METR. Layer 0 is an admission shell, not sampler weights.",
