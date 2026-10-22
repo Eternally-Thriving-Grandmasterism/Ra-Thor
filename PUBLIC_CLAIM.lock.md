@@ -22,6 +22,10 @@ Ra-Thor is **inspectable research software** from Autonomicity Games Inc.
 - **Layer 0 is a shell**, not sampler weights. Enforced on lattice apply-class that crosses `handle_request`. See [`docs/LAYER_0_RUNTIME_BOUNDARY.md`](docs/LAYER_0_RUNTIME_BOUNDARY.md).
 - **No custody, no sign, no orders.** Ra-Thor does not hold funds or keys, does not sign transactions, and does not place trades. A human remains the signer. See [`docs/NO_CUSTODY_NO_SIGN.md`](docs/NO_CUSTODY_NO_SIGN.md).
 
+### Companies
+
+rathor.ai is the website of AlphaProMega Media Inc., which sells the Ra-Thor comic books and animated web series. Autonomicity Games Inc. (acitygames.com) sells everything else Ra-Thor — commercial licences and games — and partners with AlphaProMega Media Inc. on the comic and the series. AlphaProMega Air Foundation is a not-for-profit. All three are wholly owned by Sherif Samy Botros.
+
 ### Follow (steward)
 
 Visible labels, same three destinations on Contact and the site footer:
