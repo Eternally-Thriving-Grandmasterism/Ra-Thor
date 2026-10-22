@@ -54,7 +54,11 @@ function run(opts) {
     addEventListener: function () {}
   };
   var langs = opts.languages || ['en-US'];
+  /* LANG-HIDE-1: mount() is gated on window.RT_LANG_HIDE !== false.
+     Default to false here so all existing assertions run in revert-mode;
+     pass rtLangHide: undefined (or true) to test the hidden-mode behaviour. */
   var win = {
+    RT_LANG_HIDE: 'rtLangHide' in opts ? opts.rtLangHide : false,
     document: doc,
     localStorage: {
       getItem: function (k) { return k in store ? store[k] : null; },
@@ -141,5 +145,11 @@ PACKS.forEach(function (l) {
 // 6. /chat.html still maps to / (COEP document never proxied).
 var chatHref = run({ store: { 'rathor-lang': 'fr' }, path: '/chat.html' }).win.rtGTranslateHref('fr');
 assert(chatHref === 'https://translate.google.com/translate?sl=en&tl=fr&u=' + encodeURIComponent('https://rathor.ai/'), 'chat must map to /: ' + chatHref);
+
+// 7. LANG-HIDE-1: strip must not mount when RT_LANG_HIDE !== false (undefined = hidden, true = hidden).
+var hiddenR = run({ store: { 'rathor-lang': 'en' }, languages: ['en-US'], rtLangHide: undefined });
+assert(!hiddenR.els['rt-gtranslate'] && !hiddenR.els['rt-gtranslate-open'], 'strip must not mount when RT_LANG_HIDE is not explicitly false (LANG-HIDE-1)');
+var hiddenTrue = run({ store: { 'rathor-lang': 'es' }, languages: ['es'], rtLangHide: true });
+assert(!hiddenTrue.els['rt-gtranslate'] && !hiddenTrue.els['rt-gtranslate-open'], 'strip must not mount when RT_LANG_HIDE is true (LANG-HIDE-1)');
 
 console.log('W4c google no-same-lang checks passed');

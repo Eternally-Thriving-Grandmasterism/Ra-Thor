@@ -27,7 +27,8 @@ var promptHash = crypto.createHash('sha256').update(prompt).digest('hex');
 assert(promptHash === 'b4fe56c33d663249f58a6a99de1ff0b2c3131218805b9ffa67faee2dcc65b4f0', 'SYSTEM_PROMPT hash changed: ' + promptHash);
 assert(chat.indexOf("./vendor/web-llm/0.2.85/index.js") !== -1, 'WebLLM pin stays 0.2.85');
 assert(chat.indexOf('const PHONE_MAX_VRAM_MB = 1200;') !== -1, 'phone adapter cap stays 1200');
-assert(sw.indexOf("var LOCK = '20261017j';") !== -1, 'service worker LOCK stays 20261017j');
+// LANG-HIDE-1: LOCK bumped to 20261022a when lang-hide JS files were modified; update this assertion when LOCK changes again
+assert(sw.indexOf("var LOCK = '20261022a';") !== -1, 'service worker LOCK is 20261022a (LANG-HIDE-1; was 20261017j)');
 assert(chat.indexOf("const BACKEND_KEY = 'rathor-local-backend-v1'") !== -1, 'backend storage key stays');
 
 var pure = chat.slice(chat.indexOf('/* chat-models-1-pure */'), chat.indexOf('/* chat-models-1-pure-end */'));

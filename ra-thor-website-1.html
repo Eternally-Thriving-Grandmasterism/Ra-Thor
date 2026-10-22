@@ -20,6 +20,9 @@
     @keyframes pulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.15);} }
     .lang-tab { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); min-height: 44px; }
     .lang-tab.active { background-color: #fcd34d !important; color: #000000 !important; border-color: #fcd34d !important; box-shadow: 0 0 25px #fcd34d; }
+    /* LANG-HIDE-1: scoped to html.rt-lang-hide so setting RT_LANG_HIDE=false is the whole revert */
+    html.rt-lang-hide #lang-selector { display: none !important; }
+    html.rt-lang-hide #rt-gtranslate, html.rt-lang-hide #rathor-lang-offer { display: none !important; }
     .lattice-status { background: linear-gradient(90deg, #1a1a1a, #111); border: 1px solid #ffd70033; }
     .faq-accordion details { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid transparent; }
     .faq-accordion details[open] { border-color: #00f0ff; box-shadow: 0 0 30px rgba(0, 240, 255, 0.3); }

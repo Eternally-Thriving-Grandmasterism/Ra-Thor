@@ -16,6 +16,11 @@
                keeps its footer exactly as before (no hooks, no listener)
 */
 (function () {
+  /* LANG-HIDE-1: master flag — the ONE line to change on all 21 pages.
+   * family-nav runs on every page; setting this false restores the picker everywhere.
+   * i18n-chrome reads window.RT_LANG_HIDE and re-syncs the class in bootChrome
+   * (called on rathor-nav-ready, which fires after this line executes). */
+  window.RT_LANG_HIDE = true;
   if (window.__rtFamilyNav) return;
   window.__rtFamilyNav = true;
 
@@ -313,6 +318,7 @@
         '<div class="pt-8 mt-8 border-t border-amber-300/20 text-xs flex flex-col md:flex-row justify-between items-center gap-4">' +
           '<div>© 2026 Sherif Samy Botros — sole steward of Autonomicity Games Inc. & AlphaProMega Air Foundation. TOLC 8.' +
             '<p class="rt-acity-line"><a href="https://acitygames.com">Company website · acitygames.com</a> · <a href="https://powrush.com">Game website · powrush.com</a></p>' +
+            '<p class="rt-companies-line text-xs text-white/40 mt-2">rathor.ai is the website of AlphaProMega Media Inc., which sells the Ra-Thor comic books and animated web series. Autonomicity Games Inc. (<a href="https://acitygames.com" class="hover:text-amber-200">acitygames.com</a>) sells everything else Ra-Thor — commercial licences and games — and partners with AlphaProMega Media Inc. on the comic and the series. AlphaProMega Air Foundation is a not-for-profit. All three are wholly owned by Sherif Samy Botros.</p>' +
           '</div>' +
           '<a href="mailto:info@Rathor.ai">info@Rathor.ai</a>' +
         '</div>' +
@@ -424,7 +430,9 @@
       l.href = '/css/rathor-theme.css';
       (document.head || document.documentElement).appendChild(l);
     }
-    if (!document.querySelector('script[src*="google-translate-optin"]')) {
+    /* LANG-HIDE-1: only load Google Translate when the flag is explicitly false (revert mode).
+       undefined !== false so pages without i18n-chrome.js also stay hidden. */
+    if (window.RT_LANG_HIDE === false && !document.querySelector('script[src*="google-translate-optin"]')) {
       var g = document.createElement('script');
       g.src = '/js/google-translate-optin.js?v=20260930a';
       g.defer = true;
@@ -445,13 +453,30 @@
     }
   }
 
+  /* LANG-HIDE-1: applies to pages that load family-nav but not i18n-chrome.js.
+     Class: undefined (i18n-chrome absent) and true both hide (both !== false).
+     localStorage: only cleared when flag is explicitly true; undefined keeps the stored choice. */
+  function bootLangHide() {
+    if (window.RT_LANG_HIDE !== false) {
+      if (document.documentElement) document.documentElement.classList.add('rt-lang-hide');
+      if (window.RT_LANG_HIDE === true) {
+        try {
+          var saved = localStorage.getItem('rathor-lang');
+          if (saved && saved !== 'en') localStorage.removeItem('rathor-lang');
+        } catch (e) {}
+      }
+    }
+  }
+
   if (document.body) {
+    bootLangHide();
     bootTheme();
     mount();
     lockForgeCopy();
     bootScienceMap();
   } else {
     document.addEventListener('DOMContentLoaded', function () {
+      bootLangHide();
       bootTheme();
       mount();
       lockForgeCopy();

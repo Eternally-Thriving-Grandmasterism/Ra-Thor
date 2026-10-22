@@ -12,6 +12,15 @@
   if (root.__rtI18nChrome) return;
   root.__rtI18nChrome = true;
 
+  /* LANG-HIDE-1: master flag lives in family-nav-2026-08-22.js (window.RT_LANG_HIDE = true).
+   * i18n-chrome reads window.RT_LANG_HIDE here; apply the class immediately for the common
+   * hidden case (undefined !== false = true). bootChrome removes it if family-nav later
+   * sets the flag to false and dispatches rathor-nav-ready. */
+  if (window.RT_LANG_HIDE !== false && typeof document !== 'undefined' && document.documentElement &&
+      document.documentElement.classList) {
+    document.documentElement.classList.add('rt-lang-hide');
+  }
+
   var RTL_RE = /[\u0590-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFF]/;
 
   var CHROME = {
@@ -117,6 +126,7 @@
   function ensureLangSelector() {
     if (!document.body || document.getElementById('lang-selector')) return;
     if (document.body.getAttribute('data-rt-family') === 'off') return;
+    if (window.RT_LANG_HIDE !== false) return; /* LANG-HIDE-1: picker suppressed */
     var lang = savedLang();
     var sel = document.createElement('div');
     sel.id = 'lang-selector';
@@ -210,6 +220,7 @@
   }
 
   function applyChromeI18n(lang) {
+    if (window.RT_LANG_HIDE !== false) lang = 'en'; /* LANG-HIDE-1: always serve English */
     lang = lang || 'en';
     stampKnownChrome();
     var applied = 0;
@@ -282,7 +293,13 @@
     var langBar = document.getElementById('lang-selector');
     if (langBar) langBar.setAttribute('dir', 'ltr');
 
-    try { localStorage.setItem('rathor-lang', lang); } catch (e) {}
+    /* LANG-HIDE-1: skip the write when flag is undefined (family-nav absent or late).
+     * undefined forces English for rendering but must not delete the stored preference.
+     * true  = explicit hide → writing 'en' is intentional.
+     * false = revert        → writing the chosen language is intentional. */
+    if (window.RT_LANG_HIDE !== undefined) {
+      try { localStorage.setItem('rathor-lang', lang); } catch (e) {}
+    }
     if (typeof root.rtGTranslateSync === 'function') {
       try { root.rtGTranslateSync(); } catch (e2) {}
     }
@@ -315,18 +332,33 @@
   root.rtEnsureLangSelector = ensureLangSelector;
 
   function bootChrome() {
+    var hide = window.RT_LANG_HIDE !== false;
+    /* LANG-HIDE-1: re-sync the class now that family-nav has set the master flag.
+     * Removes it when flag is false (revert), ensuring one-flip correctness on dual pages. */
+    if (document.documentElement && document.documentElement.classList) {
+      if (hide) document.documentElement.classList.add('rt-lang-hide');
+      else document.documentElement.classList.remove('rt-lang-hide');
+    }
+    if (window.RT_LANG_HIDE === true) {
+      /* LANG-HIDE-1: clear stored non-English only when flag is explicitly true.
+       * undefined (family-nav absent or late) renders English but must not delete localStorage. */
+      try {
+        var saved = localStorage.getItem('rathor-lang');
+        if (saved && saved !== 'en') localStorage.removeItem('rathor-lang');
+      } catch (e) {}
+    }
     ensureLangSelector();
-    var lang = savedLang();
+    var lang = hide ? 'en' : savedLang();
     if (root.translations && root.translations[lang]) applyChromeI18n(lang);
     else if (root.translations && root.translations.en) {
       applyChromeI18n('en');
       /* Pack is not on the page yet. Do not replace a saved language with en. */
-      if (lang && lang !== 'en') {
+      if (!hide && lang && lang !== 'en') {
         try { localStorage.setItem('rathor-lang', lang); } catch (e) {}
       }
     }
   }
-  document.addEventListener('rathor-nav-ready', bootChrome);
+  window.addEventListener('rathor-nav-ready', bootChrome); /* family-nav dispatches on window */
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bootChrome);
   else bootChrome();
 })(typeof window !== 'undefined' ? window : this);
