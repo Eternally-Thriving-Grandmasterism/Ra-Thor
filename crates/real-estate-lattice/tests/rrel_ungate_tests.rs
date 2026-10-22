@@ -100,9 +100,11 @@ mod quantum_valuation_tests {
     #[tokio::test]
     async fn with_comparables_still_draft_no_price() {
         let engine = QuantumRealEstateValuation::new();
+        // Fictional example data — these identifiers and prices are invented for test
+        // purposes only; they do not represent real MLS listings or property values.
         let comps = vec![
-            "MLS-CA-2026-001 — $650k (registrant verified)".to_string(),
-            "MLS-CA-2026-002 — $640k (registrant verified)".to_string(),
+            "MLS-CA-2026-001 — $650k (registrant verified) [fictional example data]".to_string(),
+            "MLS-CA-2026-002 — $640k (registrant verified) [fictional example data]".to_string(),
         ];
         let output = engine
             .analyse_property("PROP-003", "resale detached", comps)

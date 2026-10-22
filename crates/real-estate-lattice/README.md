@@ -81,7 +81,7 @@ The following have not been demonstrated and must not be stated as facts:
   scoring has not been validated against real case outcomes.
 - RECO/TRESA compliance checking is not implemented. `validate_reco_compliance` always
   returns `passed: false` — this is intentional, not a passing test.
-- `offer_package_finalizer` enforces the `HumanVerified` gate structurally; no end-to-end
+- `offer_package_finalizer` enforces the `HumanVerified` check structurally; no end-to-end
   submission flow has been exercised.
 - The `design-only`, `full`, and `focused-real-estate` feature flags do not build.
 - No module in this crate has been reviewed or approved by RECO or any regulatory body.

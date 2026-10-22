@@ -46,3 +46,7 @@ default = []
 design-only = []
 full = ["design-only"]
 focused-real-estate = ["design-only"]
+# redis: declared so #[cfg(feature = "redis")] in multi_offer_track_engine and
+# status_certificate_analyzer compiles without unexpected-cfg warnings.
+# No redis crate is added; the gated code paths are stubs only.
+redis = []
