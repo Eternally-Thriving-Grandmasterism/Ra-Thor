@@ -120,5 +120,7 @@ Until that declaration exists, commercial use remains a written-grant path.
 **Project:** https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor  
 **Site:** https://rathor.ai
 
+**Companies:** rathor.ai is the website of AlphaProMega Media Inc., which sells the Ra-Thor comic books and animated web series. Autonomicity Games Inc. (acitygames.com) sells everything else Ra-Thor — commercial licences and games — and partners with AlphaProMega Media Inc. on the comic and the series. AlphaProMega Air Foundation is a not-for-profit. All three are wholly owned by Sherif Samy Botros.
+
 **One Organism. Mercy first. One grant. One exhibit. One contact.**  
 Yoi ⚡
