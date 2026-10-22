@@ -313,6 +313,7 @@
         '<div class="pt-8 mt-8 border-t border-amber-300/20 text-xs flex flex-col md:flex-row justify-between items-center gap-4">' +
           '<div>© 2026 Sherif Samy Botros — sole steward of Autonomicity Games Inc. & AlphaProMega Air Foundation. TOLC 8.' +
             '<p class="rt-acity-line"><a href="https://acitygames.com">Company website · acitygames.com</a> · <a href="https://powrush.com">Game website · powrush.com</a></p>' +
+            '<p class="rt-companies-line text-xs text-white/40 mt-2">rathor.ai is the website of AlphaProMega Media Inc., which sells the Ra-Thor comic books and animated web series. Autonomicity Games Inc. (<a href="https://acitygames.com">acitygames.com</a>) sells everything else Ra-Thor — commercial licences and games — and partners with AlphaProMega Media Inc. on the comic and the series. AlphaProMega Air Foundation is a not-for-profit. All three are wholly owned by Sherif Samy Botros.</p>' +
           '</div>' +
           '<a href="mailto:info@Rathor.ai">info@Rathor.ai</a>' +
         '</div>' +
@@ -424,7 +425,8 @@
       l.href = '/css/rathor-theme.css';
       (document.head || document.documentElement).appendChild(l);
     }
-    if (!document.querySelector('script[src*="google-translate-optin"]')) {
+    if (!window.RT_LANG_HIDE && !document.querySelector('script[src*="google-translate-optin"]')) {
+      /* LANG-HIDE-1: Google Translate strip not loaded when picker is hidden */
       var g = document.createElement('script');
       g.src = '/js/google-translate-optin.js?v=20260930a';
       g.defer = true;

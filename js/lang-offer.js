@@ -94,6 +94,7 @@
     setTimeout(closeOffer, 28000);
   }
   function boot() {
+    if (window.RT_LANG_HIDE) return; /* LANG-HIDE-1: offer suppressed */
     var saved = stored();
     if (saved && SUPPORTED.indexOf(saved) !== -1) { applyLang(saved); return; }
     var g = guess();

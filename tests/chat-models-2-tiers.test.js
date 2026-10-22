@@ -22,7 +22,8 @@ var vendor = read('js/vendor/web-llm/0.2.85/index.js');
 
 assert(chat.indexOf("./vendor/web-llm/0.2.85/index.js") !== -1, 'WebLLM pin stays 0.2.85');
 assert(chat.indexOf('0.2.86') === -1, 'this card must not bump the WebLLM pin');
-assert(sw.indexOf("var LOCK = '20261017j';") !== -1, 'service worker LOCK stays 20261017j');
+// LANG-HIDE-1: LOCK bumped to 20261022a; revert: set RT_LANG_HIDE=false in i18n-chrome.js
+assert(sw.indexOf("var LOCK = '20261022a';") !== -1, 'service worker LOCK is 20261022a (LANG-HIDE-1; was 20261017j)');
 assert(chat.indexOf('DeepSeek') === -1, 'no DeepSeek id is pinned');
 assert(chat.indexOf('<think>') === -1, 'no think-tag model is introduced');
 assert(chat.indexOf('@huggingface/hub') === -1, 'no custom Hugging Face loader');

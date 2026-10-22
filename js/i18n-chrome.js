@@ -12,6 +12,11 @@
   if (root.__rtI18nChrome) return;
   root.__rtI18nChrome = true;
 
+  /* LANG-HIDE-1: set false to restore the language picker, auto-detect, and Google Translate.
+   * All JS that reads window.RT_LANG_HIDE will check this flag. */
+  var RT_LANG_HIDE = true;
+  root.RT_LANG_HIDE = RT_LANG_HIDE;
+
   var RTL_RE = /[\u0590-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFF]/;
 
   var CHROME = {
@@ -117,6 +122,7 @@
   function ensureLangSelector() {
     if (!document.body || document.getElementById('lang-selector')) return;
     if (document.body.getAttribute('data-rt-family') === 'off') return;
+    if (RT_LANG_HIDE) return; /* LANG-HIDE-1: picker suppressed */
     var lang = savedLang();
     var sel = document.createElement('div');
     sel.id = 'lang-selector';
@@ -210,6 +216,7 @@
   }
 
   function applyChromeI18n(lang) {
+    if (RT_LANG_HIDE) lang = 'en'; /* LANG-HIDE-1: always serve English */
     lang = lang || 'en';
     stampKnownChrome();
     var applied = 0;
@@ -315,13 +322,20 @@
   root.rtEnsureLangSelector = ensureLangSelector;
 
   function bootChrome() {
+    if (RT_LANG_HIDE) {
+      /* LANG-HIDE-1: clear any stored non-English choice so returning visitors get English. */
+      try {
+        var saved = localStorage.getItem('rathor-lang');
+        if (saved && saved !== 'en') localStorage.removeItem('rathor-lang');
+      } catch (e) {}
+    }
     ensureLangSelector();
-    var lang = savedLang();
+    var lang = RT_LANG_HIDE ? 'en' : savedLang();
     if (root.translations && root.translations[lang]) applyChromeI18n(lang);
     else if (root.translations && root.translations.en) {
       applyChromeI18n('en');
       /* Pack is not on the page yet. Do not replace a saved language with en. */
-      if (lang && lang !== 'en') {
+      if (!RT_LANG_HIDE && lang && lang !== 'en') {
         try { localStorage.setItem('rathor-lang', lang); } catch (e) {}
       }
     }
