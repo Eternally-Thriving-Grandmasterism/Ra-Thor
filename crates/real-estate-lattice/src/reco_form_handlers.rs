@@ -3,8 +3,13 @@
 //! Additional RECO/TRESA compliant form modules for RREL v3.1.
 //! Privacy-first, mercy-gated, TOLC 8 enforced.
 //! Handles Form 801 and additional common RECO forms with full audit trail.
+//!
+//! RECO AI guidance: forms are AI-drafted only; a registered agent must review
+//! and sign off before submission. Compliance is NOT verified by this module.
+//! Source: https://www.reco.on.ca/agents-and-brokerages/reco-bulletins/reco-guidance-use-of-artificial-intelligence/
 
 use crate::compliance_helpers::ComplianceResult;
+use crate::rrel_compliance::{AiOutput, AuditLog, ConsentRecord, Provenance};
 use mercy::traits::{MercyAligned, TOLC8Gate};
 use std::collections::HashMap;
 
@@ -14,7 +19,8 @@ pub struct RecoForm {
     pub form_type: RecoFormType,
     pub data: HashMap<String, String>,
     pub compliance: ComplianceResult,
-    pub tolC8_seal: bool,
+    /// Seal is never set by AI. A registered agent sets this after review.
+    pub tolc8_seal: bool,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -26,53 +32,75 @@ pub enum RecoFormType {
     Custom(String),
 }
 
-pub struct RecoFormHandlers;
+pub struct RecoFormHandlers {
+    pub audit_log: AuditLog,
+}
 
 impl RecoFormHandlers {
     pub fn new() -> Self {
-        Self
+        Self {
+            audit_log: AuditLog::new(),
+        }
     }
 
-    /// Process a RECO form with full TOLC 8 and compliance gates.
+    /// Process a RECO form with compliance gating.
+    ///
+    /// Requires written client consent before any client data is processed.
+    /// Always returns a Draft output — the registrant must verify before submission.
     pub fn process_reco_form(
-        &self,
+        &mut self,
         form_type: RecoFormType,
         data: HashMap<String, String>,
-    ) -> Result<RecoForm, String> {
-        // Genesis + Truth Gates
+        consent: &ConsentRecord,
+    ) -> Result<AiOutput<RecoForm>, String> {
+        // Consent gate — written client consent required (RECO AI guidance)
+        consent.gate()?;
+
         if data.is_empty() {
-            return Err("Genesis Gate: Form data cannot be empty".to_string());
+            return Err("Form data cannot be empty".to_string());
         }
 
         let compliance = self.validate_reco_compliance(&form_type, &data);
-        if !compliance.passed {
-            return Err(format!("Truth Gate failed: {:?}", compliance.issues));
-        }
-
-        // Evolution Gate: Log for PATSAGi audit
-        // (In full: scheduler.log_event)
 
         let form = RecoForm {
             form_id: format!("RECO-{}-{:?}", chrono::Utc::now().timestamp(), form_type),
             form_type,
             data,
             compliance,
-            tolC8_seal: true,
+            tolc8_seal: false, // never set by AI; agent sets this after independent review
         };
 
-        Ok(form)
+        let needs_verification = vec![
+            "RECO/TRESA compliance has NOT been verified by this module. A registered \
+             agent must independently review all form fields before submission.".to_string(),
+            "Cross-check all auto-populated fields against source documents.".to_string(),
+            "Confirm all disclosure obligations are met per TRESA.".to_string(),
+        ];
+
+        let sources = vec![Provenance {
+            label: "Agent-supplied form data".to_string(),
+            reference: None,
+            notes: Some("No AI-generated client data included.".to_string()),
+        }];
+
+        Ok(AiOutput::draft(form, needs_verification, sources))
     }
 
     fn validate_reco_compliance(
         &self,
-        form_type: &RecoFormType,
+        _form_type: &RecoFormType,
         _data: &HashMap<String, String>,
     ) -> ComplianceResult {
-        // Real implementation would check RECO/TRESA rules, disclosures, timelines
+        // Not implemented — real RECO/TRESA rule checks require a licensed
+        // compliance engine. Returning unverified so callers are not misled.
         ComplianceResult {
-            passed: true,
-            issues: vec![],
-            score: 0.98,
+            passed: false,
+            issues: vec![
+                "Compliance not implemented — human review required before submission. \
+                 This module does not verify RECO/TRESA rules."
+                    .to_string(),
+            ],
+            score: 0.0,
         }
     }
 }
