@@ -157,7 +157,8 @@ impl QuantumValuationEngine {
     }
 
     /// Full design-only property transfer
-    pub async fn mercy_gated_transfer(
+    // Renamed mercy_gated_transfer → consent_checked_transfer (RREL-BUILD-1).
+    pub async fn consent_checked_transfer(
         &self,
         from: &str,
         to: &str,

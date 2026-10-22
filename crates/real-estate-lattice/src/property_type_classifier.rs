@@ -57,7 +57,7 @@ impl PropertyTypeClassifier {
     pub fn classify_from_legal_description(description: &str) -> ClassificationResult {
         let desc_lower = description.to_lowercase();
         let mut warnings = vec![];
-        let mut confidence = 0.7;
+        let mut confidence: f64 = 0.7;
 
         let property_type = if desc_lower.contains("condo") || desc_lower.contains("unit ") || desc_lower.contains("suite ") {
             if desc_lower.contains("townhouse") || desc_lower.contains("row") {

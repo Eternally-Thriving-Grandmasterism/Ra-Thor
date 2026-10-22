@@ -48,6 +48,8 @@ members = [
     # RECYCLER-REAL-1: buildable recyclers. No path into common, fenca, or spartan_valence.
     "crates/idea-recycling",
     "crates/innovations-generator",
+    # RREL-BUILD-1: real-estate-lattice compilation slice
+    "crates/real-estate-lattice",
 ]
 
 # On-disk only (not default members):
@@ -76,6 +78,8 @@ nalgebra = { version = "0.33", features = ["serde-serialize"] }
 thiserror = "1.0"
 tracing = "0.1"
 tracing-subscriber = "0.3"
+tokio-test = "0.4"
+pretty_assertions = "1.4"
 uuid = { version = "1.0", features = ["v4", "serde"] }
 rand = "0.8"
 chrono = { version = "0.4", features = ["serde"] }

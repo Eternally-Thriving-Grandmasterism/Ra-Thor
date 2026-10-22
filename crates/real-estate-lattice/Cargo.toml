@@ -9,16 +9,18 @@ repository.workspace = true
 readme = "README.md"
 keywords = ["real-estate", "ra-thor", "rrel", "powrush", "design-only", "usa", "california", "florida", "texas", "new-york", "treb", "reco", "ontario", "quantum", "agi"]
 categories = ["simulation", "artificial-intelligence", "finance", "games"]
+# RREL-BUILD-1: disable auto-discovery; only named tests compile
+autoexamples = false
+autobins = false
+
+# RREL-BUILD-1: ra-thor-mercy, ra-thor-kernel, ra-thor-council,
+# ra-thor-mercy-orchestrator-v2, patsagi-councils, powrush removed from
+# [dependencies] because they carry standalone [workspace] tables (or transitive
+# deps that do), triggering Cargo's "multiple workspace roots" error when added
+# to this workspace. Code that depends on them is gated with
+# #[cfg(feature = "design-only")] in src/lib.rs.
 
 [dependencies]
-ra-thor-mercy = { workspace = true }
-ra-thor-quantum-swarm-orchestrator = { workspace = true, optional = true }
-ra-thor-kernel = { workspace = true }
-ra-thor-council = { workspace = true }
-ra-thor-mercy-orchestrator-v2 = { workspace = true }
-patsagi-councils = { workspace = true, optional = true }
-powrush = { workspace = true }
-
 tokio = { workspace = true, features = ["full"] }
 async-trait = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
@@ -34,21 +36,10 @@ tracing-subscriber = { workspace = true }
 tokio-test = { workspace = true }
 pretty_assertions = { workspace = true }
 
-[[example]]
-name = "canada_pilot_demo"
-path = "examples/canada_pilot_demo.rs"
-
-[[example]]
-name = "usa_pilot_demo"
-path = "examples/usa_pilot_demo.rs"
-
 [features]
 default = []
-full = [
-    "ra-thor-quantum-swarm-orchestrator",
-    "patsagi-councils",
-]
-focused-real-estate = [
-    "ra-thor-quantum-swarm-orchestrator",
-    "patsagi-councils",
-]
+# design-only: compile design stubs (requires resolving workspace-root conflict
+# for powrush / patsagi-councils before any gated module can link).
+design-only = []
+full = ["design-only"]
+focused-real-estate = ["design-only"]
