@@ -208,7 +208,7 @@ window.translations["en"] = {
   "briefDoorsTitle": "Four ways to connect",
   "briefLead1": "Ra-Thor is inspectable research software from Autonomicity Games Inc. Rathor.ai is the public surface. Grok, Claude, ChatGPT, Gemini, Ollama, LM Studio, and Cursor remain <em>your</em> models. Ra-Thor is the constitution you can put around them.",
   "briefLead2": "Outputs are drafts. A human reviews them before filing, sale, or public claims. Canonical file: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/PUBLIC_EMPLOY_BRIEFING.md\" class=\"text-amber-300 underline\">docs/PUBLIC_EMPLOY_BRIEFING.md</a>.",
-  "briefLoop2": "<strong class=\"text-amber-300\">Pass the TOLC 8 mercy checks</strong> — PATSAGi Councils (review groups that advise and vote) are how work is judged. That is not a stamp that every answer is correct.",
+  "briefLoop2": "<strong class=\"text-amber-300\">Pass the TOLC 8 mercy checks</strong> — PATSAGi Councils (review groups) are how work is judged. That is not a stamp that every answer is correct.",
   "briefLoop3": "<strong class=\"text-amber-300\">Optional model</strong> — on-device, or copy context into a model you choose.",
   "briefLoop4": "<strong class=\"text-amber-300\">Review</strong> — keep or refuse. Fluency is not permission.",
   "briefLoopNote": "Same loop for a student at midnight and a risk committee on Tuesday. Only the rights change.",
