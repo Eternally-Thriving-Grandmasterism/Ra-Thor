@@ -195,7 +195,12 @@ pages.forEach(function (page) {
   assert(html.indexOf('/i18n/en.js?v=20260924a') !== -1, page + ' must load the English pack at the pack token');
 });
 var homeHtml = read('index.html');
+// pathPlayTitle and pathWrapBody are unhooked from the homepage (SITE-ORDER-1 AMEND):
+// the tile shows "Game source (Powrush-MMO)" and "Public research bench. See FAQ." as
+// static text so i18n/en.js ("Play" / full disclaimer) does not overwrite them at runtime.
+var PATH_KEYS_UNHOOKED_SITORDER1 = ['pathPlayTitle', 'pathWrapBody'];
 PATH_KEYS.forEach(function (key) {
+  if (PATH_KEYS_UNHOOKED_SITORDER1.indexOf(key) !== -1) return;
   assert(homeHtml.indexOf('data-i18n="' + key + '"') !== -1, 'homepage must mark ' + key);
 });
 assert(homeHtml.indexOf('data-i18n="homeLaunchMap"') !== -1, 'homepage quick link must mark Launch map');
