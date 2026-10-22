@@ -90,7 +90,7 @@ window.translations["en"] = {
   "mapTitle": "Indexed lattice (public)",
   "mapBody": "Workspace 14.15.6 is the version truth. Lattice Chat is a surface on this site, with no separate product number. Capable · bounded · corrigible.",
   "footerTrademarksTitle": "Trademarks",
-  "footerTrademarksText": "Ra-Thor\u2122 is a trademark of Autonomicity Games Inc.<br>Grok is a trademark of xAI. X is a trademark of X Corp.",
+  "footerTrademarksText": "AlphaProMega is a trademark of AlphaProMega Media Inc. Powrush, Autonomicity Games and the Autonomicity Games logo are trademarks of Autonomicity Games Inc. The Ra-Thor trademark is pending. Grok is a trademark of xAI. X is a trademark of X Corp.",
   "footerPrivacyTitle": "Privacy",
   "footerPrivacyText": "This website does not collect personal data. Computation stays in the browser. No cookies, tracking, or analytics we control.",
   "footerComplianceTitle": "Compliance",
