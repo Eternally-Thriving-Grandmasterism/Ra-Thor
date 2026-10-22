@@ -1,6 +1,6 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Landlord Compliance & RECO Enforcement Engine — RREL v0.5.21
-//! Mercy-Gated • Quantum Swarm • Ethical Landlord Oversight
+//! Quantum Swarm • Ethical Landlord Oversight
 //!
 //! Enforces RECO compliance, landlord licensing, trust account rules, and tenant protection with full mercy-first governance.
 
@@ -124,11 +124,11 @@ impl LandlordComplianceRecoEngine {
              Property: {}\n\
              Landlord: {}\n\
              License: VALID ✓\n\
-             Trust Account: COMPLIANT ✓\n\
+             Trust Account: unverified (design-only)\n\
              Tenant Complaints: {}\n\
              Mercy Valence: {:.2}\n\
              Council Consensus: {:.2}\n\
-             Status: FULLY COMPLIANT — MERCY-ALIGNED LANDLORD",
+             Status: unverified (design-only) — MERCY-ALIGNED LANDLORD",
             RREL_VERSION,
             check.check_id,
             check.property_mls_id,

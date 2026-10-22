@@ -1,7 +1,7 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Powrush <-> RREL NEXi Bridge v1.0.0
 //! Enables sovereign integration between Powrush RBE game engine and RREL real estate systems.
-//! Mercy-gated, TOLC 8 enforced, PATSAGi coordinated.
+//! design-only, TOLC 8 enforced, PATSAGi coordinated.
 //! Supports resource-based real estate transactions, faction mechanics, and eternal thriving.
 
 use crate::offer_package::OfferPackage;

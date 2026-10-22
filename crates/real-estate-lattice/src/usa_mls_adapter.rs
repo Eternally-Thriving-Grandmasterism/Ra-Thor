@@ -1,7 +1,7 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! USA MLS Adapter — RREL v0.6.0
 //! Generic + State-Specific MLS Integration Layer for All 50 States
-//! Mercy-Gated • Quantum Swarm • Immutable Legal Lattice
+//! Quantum Swarm • Immutable Legal Lattice
 //!
 //! Derived from RREL-USA-Expansion-Codex-v0.6.0.md
 

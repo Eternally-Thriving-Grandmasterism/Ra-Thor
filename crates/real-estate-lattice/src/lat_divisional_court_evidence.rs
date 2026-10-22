@@ -1,7 +1,7 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! LAT Appeal & Divisional Court Evidence Generator
 //! Derived from RREL documentation (April 29, 2026)
-//! Produces professional, mercy-gated, quantum-validated evidence packages
+//! Produces professional, quantum-validated evidence packages (design-only, unverified)
 
 use crate::RREL_VERSION;
 use serde::{Deserialize, Serialize};
@@ -46,7 +46,7 @@ impl EvidenceGenerator {
     ) -> LatAppealPackage {
         let evidence_summary = format!(
             "RREL Proactive Compliance Record:\n\
-             - All decisions mercy-gated ≥ 0.90\n\
+             - All decisions reviewed for valence ≥ 0.90 (design-only threshold)\n\
              - Quantum swarm consensus ≥ 0.80\n\
              - Immutable Legal Lattice audit trail attached\n\
              - No prior RECO discipline history"
@@ -78,7 +78,7 @@ impl EvidenceGenerator {
         quantum_consensus: f64,
     ) -> DivisionalCourtPackage {
         let key_arguments = vec![
-            "Proactive mercy-gated compliance demonstrated at every decision point".to_string(),
+            "Proactive compliance checklist (unverified) at every decision point".to_string(),
             "Quantum swarm multi-stakeholder ethical review process".to_string(),
             "Immutable cryptographic audit trail with timestamps".to_string(),
             "Penalty proportionality supported by real-time data and CEHI scoring".to_string(),

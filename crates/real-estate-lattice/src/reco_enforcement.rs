@@ -1,7 +1,7 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! RECO Enforcement, LAT Appeal & Divisional Court Evidence Generator
 //! Derived directly from RREL documentation (April 29, 2026)
-//! Mercy-gated + Quantum Swarm validated at every layer
+//! Quantum Swarm validated at every layer (design-only, unverified)
 
 use crate::RREL_VERSION;
 use patsagi_councils::{WorldGovernanceEngine, PmsError, WorldImpactType};
@@ -94,7 +94,7 @@ impl RecoEnforcementEngine {
              Quantum Consensus: {:.1}%\n\
              Timestamp: {}\n\n\
              RREL Proactive Compliance Record:\n\
-             - All decisions mercy-gated ≥ 0.90\n\
+             - All decisions reviewed for valence ≥ 0.90 (design-only threshold)\n\
              - Quantum swarm consensus ≥ 0.80\n\
              - Immutable Legal Lattice audit trail attached\n\n\
              Recommendation: Appeal strongly supported by RREL evidence.",
@@ -123,7 +123,7 @@ impl RecoEnforcementEngine {
              Quantum Consensus: {:.1}%\n\
              Timestamp: {}\n\n\
              Key RREL Arguments:\n\
-             - Proactive mercy-gated compliance demonstrated\n\
+             - Proactive compliance checklist (unverified) demonstrated\n\
              - Quantum swarm multi-stakeholder ethical review\n\
              - Immutable cryptographic audit trail\n\
              - Penalty proportionality supported by real-time data",

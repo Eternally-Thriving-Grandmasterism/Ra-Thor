@@ -1,6 +1,6 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Landlord Compliance & RECO Enforcement Demo — RREL v0.5.21
-//! Demonstrates mercy-gated RECO compliance enforcement and landlord accountability
+//! Demonstrates design-only RECO compliance enforcement and landlord accountability
 
 use real_estate_lattice::landlord_compliance_reco_engine::{LandlordComplianceRecoEngine, LandlordComplianceCheck};
 use patsagi_councils::WorldGovernanceEngine;
@@ -12,7 +12,7 @@ use ra_thor_quantum_swarm_orchestrator::QuantumSwarmOrchestrator;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n╔════════════════════════════════════════════════════════════════════════════╗");
     println!("║           ⚖️ RREL LANDLORD COMPLIANCE & RECO DEMO — v0.5.21               ║");
-    println!("║   Mercy-Gated • Quantum Swarm • RECO Enforcement & Tenant Protection     ║");
+    println!("║   Quantum Swarm • RECO Enforcement & Tenant Protection     ║");
     println!("╚════════════════════════════════════════════════════════════════════════════╝\n");
 
     let mercy_engine = MercyEngine::new();

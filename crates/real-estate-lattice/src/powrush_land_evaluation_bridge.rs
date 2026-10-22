@@ -8,12 +8,12 @@
 //! - Composite Deal Readiness Scoring (dynamic weighting + gentle valence influence)
 //!
 //! This bridge enables Powrush in-game land systems to receive professional-grade,
-//! mercy-gated real estate intelligence while staying aligned with the ONE Organism.
+//! design-only real estate intelligence while staying aligned with the ONE Organism.
 //!
 //! Future evolution: Implement `RaThorSystemAdapter` for full epigenetic blessing
 //! participation and cross-system resonance.
 //!
-//! AG-SML v1.0 — Fully mercy-gated, TOLC 8 enforced, PATSAGi-aligned.
+//! AG-SML v1.0 — Fully design-only, TOLC 8 enforced, PATSAGi-aligned.
 
 use crate::ontario_professional_judgment_layer::{
     DateLogicValidator, TimelineAdvisor, DealType, PropertyClassification, TransactionContext,
@@ -127,4 +127,4 @@ impl PowrushLandEvaluationBridge {
 // impl RaThorSystemAdapter for PowrushLandSystemAdapter { ... }
 //
 // This will allow Powrush land evaluations to receive epigenetic blessings,
-// contribute to global coherence, and evolve via mercy-gated self-improvement.
+// contribute to global coherence, and evolve via design-only self-improvement.

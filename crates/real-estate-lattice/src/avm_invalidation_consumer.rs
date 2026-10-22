@@ -1,5 +1,5 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
-//! Production-ready helper for running the Redis Streams AVM Invalidation Consumer.
+//! Design-only helper for running the Redis Streams AVM Invalidation Consumer.
 //!
 //! This module provides a clean, resilient way to run the consumer in production
 //! with graceful shutdown, automatic restart on error, and good observability hooks.

@@ -1,6 +1,6 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Community Land Trust & Affordable Housing Engine — RREL v0.5.21
-//! Mercy-Gated • Quantum Swarm • Permanent Affordable Housing Protection
+//! Quantum Swarm • Permanent Affordable Housing Protection
 //!
 //! Creates, governs, and protects Community Land Trusts with mercy-first, multi-generational oversight.
 

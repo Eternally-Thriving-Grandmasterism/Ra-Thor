@@ -1,6 +1,6 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Tenant Rights & Habitability Engine — RREL v0.5.21
-//! Mercy-Gated • Quantum Swarm • Ethical Tenant Protection
+//! Quantum Swarm • Ethical Tenant Protection
 //!
 //! Enforces habitability standards, tenant rights, and prevents slumlord behavior with full mercy-first oversight.
 

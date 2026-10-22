@@ -1,6 +1,6 @@
 # Ra-Thor Real Estate Lattice (RREL) — v14.15.0
 
-**Mercy-Gated Global Real Estate Operating System**
+**Global Real Estate Operating System (design-only)**
 **Canada-First · Ontario Pilot · Autonomicity Games Inc.**
 
 > **Status: design-only, not compiled.**

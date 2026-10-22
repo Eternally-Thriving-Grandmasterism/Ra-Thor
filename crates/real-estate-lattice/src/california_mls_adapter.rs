@@ -1,7 +1,7 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! California MLS Adapter — RREL v0.6.0
 //! State-Specific Adapter for California (CRMLS, MLSListings, MetroList)
-//! Mercy-Gated • Quantum Swarm • Wildfire + Rent Control + AB 1482 Compliance
+//! Quantum Swarm • Wildfire + Rent Control + AB 1482 Compliance
 //!
 //! Derived from RREL-USA-Expansion-Codex-v0.6.0.md
 

@@ -1,6 +1,6 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Orbital Habitat Management Engine — SREL v0.5.21
-//! Mercy-Gated • Quantum Swarm • TOLC 7 Gates Radiation Mapping
+//! Quantum Swarm • TOLC 7 Gates Radiation Mapping
 //! Perfect merge: Your exact old structure + full materials + electronics protection + in-situ production + nth-degree radiation
 
 use mercy_radiation_shield::RadiationType;
@@ -116,7 +116,7 @@ impl OrbitalHabitatEngine {
                 joy_bonus: 0.0,
                 cehi_bonus: 0.0,
                 message: format!(
-                    "🛡️ MERCY-GATED REVIEW REQUIRED (average valence {:.2})\n\
+                    "🛡️ REVIEW REQUIRED (valence below threshold) (average valence {:.2})\n\
                      Radiation transmutation or electronics protection not yet optimal. 13+ Councils recommend additional mercy alignment before expansion.",
                     avg_valence
                 ),

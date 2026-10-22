@@ -1,6 +1,6 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Portfolio Optimization Engine — RREL v0.5.21
-//! Mercy-Gated • Quantum Swarm • Intelligent Portfolio Decision Making
+//! Quantum Swarm • Intelligent Portfolio Decision Making
 //!
 //! Recommends optimal real estate portfolio actions with full ethical alignment.
 

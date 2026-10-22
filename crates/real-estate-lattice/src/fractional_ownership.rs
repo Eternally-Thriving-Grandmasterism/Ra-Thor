@@ -1,6 +1,6 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Fractional Ownership Engine — RREL v0.5.21
-//! Mercy-Gated • Quantum Swarm • Tokenized Property Ownership
+//! Quantum Swarm • Tokenized Property Ownership
 //!
 //! Allows 13+ PATSAGi Councils to approve fractional ownership of real estate with full regulatory compliance.
 

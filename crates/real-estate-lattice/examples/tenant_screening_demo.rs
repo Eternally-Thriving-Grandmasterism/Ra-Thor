@@ -1,6 +1,6 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Tenant Screening Demo — RREL v0.5.21
-//! Demonstrates mercy-gated, fair-housing-compliant tenant screening with ethical risk scoring
+//! Demonstrates design-only, fair-housing-aware tenant screening with ethical risk scoring (unverified)
 
 use real_estate_lattice::tenant_screening_engine::{TenantScreeningEngine, TenantApplication};
 use patsagi_councils::WorldGovernanceEngine;
@@ -12,7 +12,7 @@ use ra_thor_quantum_swarm_orchestrator::QuantumSwarmOrchestrator;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n╔════════════════════════════════════════════════════════════════════════════╗");
     println!("║           👤 RREL TENANT SCREENING DEMO — v0.5.21                         ║");
-    println!("║   Mercy-Gated • Quantum Swarm • Fair Housing Compliant                   ║");
+    println!("║   Quantum Swarm • Fair Housing (unverified)                   ║");
     println!("╚════════════════════════════════════════════════════════════════════════════╝\n");
 
     let mercy_engine = MercyEngine::new();

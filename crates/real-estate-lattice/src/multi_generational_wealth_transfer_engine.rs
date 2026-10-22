@@ -1,6 +1,6 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Multi-Generational Wealth Transfer & Family Office Engine — RREL v0.5.21
-//! Mercy-Gated • Quantum Swarm • Ethical Legacy for Generations
+//! Quantum Swarm • Ethical Legacy for Generations
 //!
 //! Transfers wealth across 3+ generations with CEHI inheritance multipliers, epigenetic blessings,
 //! tax optimization integration, and mercy-first governance that maximizes thriving for all.

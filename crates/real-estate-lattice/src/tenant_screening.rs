@@ -1,6 +1,6 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Tenant Screening Engine — RREL v0.5.21
-//! Mercy-Gated • Quantum Swarm • RECO/TRESA Compliant Tenant Screening
+//! Quantum Swarm • RECO/TRESA Tenant Screening (unverified, design-only)
 //!
 //! Allows the 13+ PATSAGi Councils to approve or reject tenant applications with full regulatory and mercy alignment.
 

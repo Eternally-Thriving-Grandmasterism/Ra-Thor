@@ -1,6 +1,6 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Mortgage Processing Engine — RREL v0.5.21
-//! Mercy-Gated • Quantum Swarm • Ethical Mortgage Approval
+//! Quantum Swarm • Ethical Mortgage Approval
 //!
 //! Processes mortgage applications with fair lending, CEHI-weighted decisions, and mercy-first oversight.
 
@@ -108,7 +108,7 @@ impl MortgageProcessingEngine {
              Loan Amount: ${:.0}\n\
              Mercy Valence: {:.2}\n\
              Council Consensus: {:.2}\n\
-             Fair Lending: FULLY COMPLIANT ✓\n\
+             Fair Lending: unverified (design-only)\n\
              Status: MERCY-ALIGNED • ETHICAL FINANCING",
             RREL_VERSION,
             application.application_id,

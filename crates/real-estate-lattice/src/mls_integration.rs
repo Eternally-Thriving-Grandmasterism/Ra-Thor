@@ -1,6 +1,6 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! TREB MLS Adapter for Ra-Thor Real Estate Lattice (RREL)
-//! Full RETS 1.8 + RESO Web API integration with mercy-gated + quantum swarm validation
+//! Full RETS 1.8 + RESO Web API integration with design-only + quantum swarm validation
 //! Canada (Ontario) First — TREB Pilot (AlphaProMega Real Estate Inc.)
 
 use crate::RREL_VERSION;

@@ -1,6 +1,6 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Radiation Shielding Integration — SREL v0.5.21
-//! Mercy-Gated • Quantum Swarm • TOLC 7 Gates Radiation Mapping
+//! Quantum Swarm • TOLC 7 Gates Radiation Mapping
 //!
 //! ## Human-Readable Context (for all future collaborators)
 //!
@@ -143,7 +143,7 @@ impl RadiationShieldingIntegration {
                 joy_bonus: 0.0,
                 cehi_bonus: 0.0,
                 message: format!(
-                    "🛡️ MERCY-GATED REVIEW REQUIRED (average valence {:.2})\n\
+                    "🛡️ REVIEW REQUIRED (valence below threshold) (average valence {:.2})\n\
                      Radiation transmutation or electronics protection not yet optimal. 13+ Councils recommend additional mercy alignment before expansion.",
                     avg_valence
                 ),

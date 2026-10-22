@@ -1,6 +1,6 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Portfolio Optimization Demo — RREL v0.5.21
-//! Demonstrates mercy-gated portfolio optimization with CEHI-weighted recommendations
+//! Demonstrates design-only portfolio optimization with CEHI-weighted recommendations
 
 use real_estate_lattice::portfolio_optimization_engine::{PortfolioOptimizationEngine, PortfolioOptimizationRequest};
 use patsagi_councils::WorldGovernanceEngine;
@@ -12,7 +12,7 @@ use ra_thor_quantum_swarm_orchestrator::QuantumSwarmOrchestrator;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n╔════════════════════════════════════════════════════════════════════════════╗");
     println!("║           📈 RREL PORTFOLIO OPTIMIZATION DEMO — v0.5.21                   ║");
-    println!("║   Mercy-Gated • Quantum Swarm • Intelligent Asset Allocation             ║");
+    println!("║   Quantum Swarm • Intelligent Asset Allocation             ║");
     println!("╚════════════════════════════════════════════════════════════════════════════╝\n");
 
     let mercy_engine = MercyEngine::new();

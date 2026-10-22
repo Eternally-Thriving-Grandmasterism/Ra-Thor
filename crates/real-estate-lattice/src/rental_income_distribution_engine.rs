@@ -1,6 +1,6 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Rental Income Distribution Engine — RREL v0.5.21
-//! Mercy-Gated • Quantum Swarm • Fair & Ethical Rental Income Distribution
+//! Quantum Swarm • Fair & Ethical Rental Income Distribution
 //!
 //! Automatically distributes rental income to owners, fractional stakeholders, and tenants with full mercy-first logic.
 

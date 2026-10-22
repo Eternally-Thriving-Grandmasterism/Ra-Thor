@@ -1,6 +1,6 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Fractional Ownership Demo — RREL v0.5.21
-//! Demonstrates mercy-gated, quantum-swarm tokenized fractional real estate ownership
+//! Demonstrates design-only, quantum-swarm tokenized fractional real estate ownership
 
 use real_estate_lattice::fractional_ownership::{FractionalOwnershipEngine, FractionalOwnershipRequest};
 use patsagi_councils::WorldGovernanceEngine;
@@ -12,7 +12,7 @@ use ra_thor_quantum_swarm_orchestrator::QuantumSwarmOrchestrator;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n╔════════════════════════════════════════════════════════════════════════════╗");
     println!("║           🏠 RREL FRACTIONAL OWNERSHIP DEMO — v0.5.21                     ║");
-    println!("║   Mercy-Gated • Quantum Swarm • Tokenized Property Shares                ║");
+    println!("║   Quantum Swarm • Tokenized Property Shares                ║");
     println!("╚════════════════════════════════════════════════════════════════════════════╝\n");
 
     let mercy_engine = MercyEngine::new();

@@ -42,7 +42,7 @@ impl RecoFormHandlers {
         }
     }
 
-    /// Process a RECO form with compliance gating.
+    /// Process a RECO form with consent and verification gates.
     ///
     /// Requires written client consent before any client data is processed.
     /// Always returns a Draft output — the registrant must verify before submission.

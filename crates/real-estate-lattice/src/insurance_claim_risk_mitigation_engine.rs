@@ -1,6 +1,6 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Insurance Claim & Risk Mitigation Engine — RREL v0.5.21
-//! Mercy-Gated • Quantum Swarm • Intelligent Claim Processing & Risk Reduction
+//! Quantum Swarm • Intelligent Claim Processing & Risk Reduction
 //!
 //! Processes insurance claims with full mercy, consensus, and proactive risk mitigation.
 

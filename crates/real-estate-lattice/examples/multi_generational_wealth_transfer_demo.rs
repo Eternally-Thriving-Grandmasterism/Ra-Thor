@@ -1,6 +1,6 @@
 //! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Multi-Generational Wealth Transfer Demo — RREL v0.5.21
-//! Demonstrates mercy-gated wealth transfer across generations with CEHI inheritance bonuses
+//! Demonstrates design-only wealth transfer across generations with CEHI inheritance bonuses
 
 use real_estate_lattice::multi_generational_wealth_transfer_engine::{MultiGenerationalWealthTransferEngine, WealthTransferRequest};
 use patsagi_councils::WorldGovernanceEngine;
@@ -12,7 +12,7 @@ use ra_thor_quantum_swarm_orchestrator::QuantumSwarmOrchestrator;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("\n╔════════════════════════════════════════════════════════════════════════════╗");
     println!("║           🌳 RREL MULTI-GENERATIONAL WEALTH TRANSFER DEMO — v0.5.21        ║");
-    println!("║   Mercy-Gated • Quantum Swarm • Legacy for Generations                   ║");
+    println!("║   Quantum Swarm • Legacy for Generations                   ║");
     println!("╚════════════════════════════════════════════════════════════════════════════╝\n");
 
     let mercy_engine = MercyEngine::new();

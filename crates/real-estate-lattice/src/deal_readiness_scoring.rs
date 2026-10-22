@@ -7,8 +7,8 @@
 //!
 //! Features dynamic jurisdiction-aware weighting and gentle ONE Organism valence influence.
 //!
-//! AG-SML v1.0 — Fully mercy-gated, TOLC 8 enforced, PATSAGi-aligned.
-//! Production ready for Powrush land evaluation and RREL flows.
+//! AG-SML v1.0 — TOLC 8 enforced, PATSAGi-aligned.
+//! Design-only for Powrush land evaluation and RREL flows.
 
 /// Calculates a composite Deal Readiness Score (0–100).
 ///
