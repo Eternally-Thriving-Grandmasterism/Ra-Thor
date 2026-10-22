@@ -17,7 +17,9 @@
 */
 (function () {
   /* LANG-HIDE-1: master flag — the ONE line to change on all 21 pages.
-   * family-nav runs on every page; setting this false restores the picker everywhere.
+   * family-nav runs on every page; setting this false restores the built-in picker
+   * (#lang-selector) and offer banner (#rathor-lang-offer) everywhere.
+   * GT-RESTORE-1: #rt-gtranslate is no longer gated on this flag — it always shows.
    * i18n-chrome reads window.RT_LANG_HIDE and re-syncs the class in bootChrome
    * (called on rathor-nav-ready, which fires after this line executes). */
   window.RT_LANG_HIDE = true;
@@ -455,7 +457,8 @@
   }
 
   /* LANG-HIDE-1: applies to pages that load family-nav but not i18n-chrome.js.
-     Class: undefined (i18n-chrome absent) and true both hide (both !== false).
+     Class: undefined (i18n-chrome absent) and true both add rt-lang-hide (hides the built-in
+     picker and offer banner only; GT-RESTORE-1 removed #rt-gtranslate from that rule).
      localStorage: only cleared when flag is explicitly true; undefined keeps the stored choice. */
   function bootLangHide() {
     if (window.RT_LANG_HIDE !== false) {
