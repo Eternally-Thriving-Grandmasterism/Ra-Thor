@@ -293,7 +293,13 @@
     var langBar = document.getElementById('lang-selector');
     if (langBar) langBar.setAttribute('dir', 'ltr');
 
-    try { localStorage.setItem('rathor-lang', lang); } catch (e) {}
+    /* LANG-HIDE-1: skip the write when flag is undefined (family-nav absent or late).
+     * undefined forces English for rendering but must not delete the stored preference.
+     * true  = explicit hide → writing 'en' is intentional.
+     * false = revert        → writing the chosen language is intentional. */
+    if (window.RT_LANG_HIDE !== undefined) {
+      try { localStorage.setItem('rathor-lang', lang); } catch (e) {}
+    }
     if (typeof root.rtGTranslateSync === 'function') {
       try { root.rtGTranslateSync(); } catch (e2) {}
     }

@@ -182,4 +182,37 @@ assert(flagOffSrc !== navSrc, 'src replacement failed: master flag line not foun
   );
 }());
 
-console.log('lang-hide-flag: all cases pass (flag=false family-nav-only, flag=false chrome-only, flag=true dual-page)');
+/* ── 7. flag=undefined, i18n-chrome only, translations.en present ────────────
+ * When family-nav is absent/blocked, window.RT_LANG_HIDE is undefined.
+ * i18n-chrome must render English (hide behaviour) but must NOT write 'en'
+ * to localStorage — not on initial boot, and not on a site-lock re-apply. */
+(function () {
+  var ctx = makeWin({
+    store: { 'rathor-lang': 'fr' },
+    readyState: 'complete'
+    /* RT_LANG_HIDE deliberately absent → undefined inside the VM */
+  });
+  /* Provide translations.en so bootChrome calls applyChromeI18n (triggering the write path). */
+  ctx.win.translations = { en: { kicker: 'Test' } };
+
+  vm.runInNewContext(chromeSrc, ctx.win);
+
+  assert(
+    ctx.store['rathor-lang'] === 'fr',
+    "flag=undefined: initial boot must not overwrite 'fr'; got: " + ctx.store['rathor-lang']
+  );
+
+  /* Simulate a site-lock re-apply: applyLockI18n calls rtApplyChromeI18n('en'). */
+  assert(
+    typeof ctx.win.rtApplyChromeI18n === 'function',
+    'i18n-chrome must export rtApplyChromeI18n'
+  );
+  ctx.win.rtApplyChromeI18n('en');
+
+  assert(
+    ctx.store['rathor-lang'] === 'fr',
+    "flag=undefined: re-apply of applyChromeI18n('en') must not overwrite 'fr'; got: " + ctx.store['rathor-lang']
+  );
+}());
+
+console.log('lang-hide-flag: all cases pass (flag=false family-nav-only, flag=false chrome-only, flag=true dual-page, flag=undefined preserves stored lang)');
