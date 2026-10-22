@@ -26,7 +26,7 @@
 //! RECO AI guidance: professional judgment under TRESA remains the registrant's
 //! responsibility. This module encodes structural patterns only, not legal advice.
 
-use chrono::{NaiveDate, Duration, Utc};
+use chrono::{NaiveDate, Duration};
 use std::collections::HashMap;
 
 // === Core Enums & Structs ===
@@ -314,8 +314,8 @@ impl ScheduleAStandards {
 // === Cross-Document Consistency Hook (stub for integration) ===
 
 pub fn cross_validate_form111_vs_form801(
-    form111_dates: &RecommendedDates,
-    form801_summary: &str,
+    _form111_dates: &RecommendedDates,
+    _form801_summary: &str,
 ) -> Vec<String> {
     // In production: parse and compare key fields (dates, names, irrevocability, property legal desc)
     // Flag mismatches between main APS and Offer Summary

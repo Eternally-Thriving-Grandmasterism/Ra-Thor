@@ -58,9 +58,12 @@ fn test_process_ontario_listings_consent_checked() {
 }
 
 #[test]
-fn test_generate_full_ontario_compliance_package() {
-    // RREL-BUILD-1: uses EvidenceGenerator (always-on) in place of
+fn ontario_package_checklist_draft() {
+    // Renamed from test_generate_full_ontario_compliance_package (RREL-UNGATE-1):
+    // the previous name implied a complete, production-ready compliance package.
+    // This uses EvidenceGenerator (always-on) in place of the gated
     // CanadaPilotModule.generate_full_ontario_compliance_package (design-only).
+    // Output is a draft checklist only — not a verified compliance artefact.
     let gen = EvidenceGenerator::new();
     let package = gen.generate_lat_appeal_package(
         "ONT-TEST-001",

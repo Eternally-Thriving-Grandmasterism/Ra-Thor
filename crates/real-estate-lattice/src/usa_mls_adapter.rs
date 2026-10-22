@@ -1,30 +1,33 @@
-//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! USA MLS Adapter — RREL v0.6.0
 //! Generic + State-Specific MLS Integration Layer for All 50 States
-//! Quantum Swarm • Immutable Legal Lattice
 //!
 //! Derived from RREL-USA-Expansion-Codex-v0.6.0.md
+//!
+//! RREL-UNGATE-1: ungated — powrush/patsagi/mercy/quantum-swarm imports replaced
+//! with local std-only stubs. process_usa_listing removed (depended on external
+//! regulatory engine). fetch_new_listings NotConfigured behaviour preserved (#730).
 
 use crate::RREL_VERSION;
-use crate::usa_regulatory_engine::{UsaRegulatoryEngine, UsaRegulatoryResult};
 use crate::rrel_compliance::AiImageRecord;
-use patsagi_councils::WorldGovernanceEngine;
-use powrush::PowrushGame;
-use ra_thor_mercy::MercyEngine;
-use ra_thor_quantum_swarm_orchestrator::QuantumSwarmOrchestrator;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 use tracing::info;
+
+// ---------------------------------------------------------------------------
+// Errors
+// ---------------------------------------------------------------------------
 
 #[derive(Debug, Clone, Serialize, Deserialize, Error)]
 pub enum UsaMlsError {
     #[error("MLS fetch failed for state {state}: {message}")]
     MlsFetchFailed { state: String, message: String },
-    #[error("Regulatory check failed: {0}")]
-    RegulatoryCheckFailed(#[from] crate::usa_regulatory_engine::UsaRegulatoryError),
     #[error("No real MLS connection configured for state {0}")]
     NotConfigured(String),
 }
+
+// ---------------------------------------------------------------------------
+// UsaListing
+// ---------------------------------------------------------------------------
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct UsaListing {
@@ -42,29 +45,17 @@ pub struct UsaListing {
     pub registrant_verified: bool,
 }
 
-pub struct UsaMlsAdapter {
-    mercy_engine: MercyEngine,
-    quantum_swarm: QuantumSwarmOrchestrator,
-    regulatory_engine: UsaRegulatoryEngine,
-}
+// ---------------------------------------------------------------------------
+// UsaMlsAdapter
+// ---------------------------------------------------------------------------
+
+/// MLS adapter stub. No live MLS connection is wired; all state-specific
+/// fetch paths return `NotConfigured`. Wire a real MLS feed to replace.
+pub struct UsaMlsAdapter;
 
 impl UsaMlsAdapter {
-    pub fn new(
-        mercy_engine: MercyEngine,
-        quantum_swarm: QuantumSwarmOrchestrator,
-        world_governance: WorldGovernanceEngine,
-    ) -> Self {
-        let regulatory_engine = UsaRegulatoryEngine::new(
-            mercy_engine.clone(),
-            quantum_swarm.clone(),
-            world_governance,
-        );
-
-        Self {
-            mercy_engine,
-            quantum_swarm,
-            regulatory_engine,
-        }
+    pub fn new() -> Self {
+        Self
     }
 
     /// Fetch new listings for any USA state.
@@ -84,43 +75,11 @@ impl UsaMlsAdapter {
         // that no data (not invented data) is available. Wire a real MLS feed here.
         Err(UsaMlsError::NotConfigured(state.to_string()))
     }
+}
 
-    /// Full end-to-end processing for a USA listing (mercy + quantum + regulatory)
-    pub async fn process_usa_listing(
-        &mut self,
-        listing: &UsaListing,
-        game: &mut PowrushGame,
-    ) -> Result<UsaRegulatoryResult, UsaMlsError> {
-        // Require a sourced listing — no invented prices processed downstream
-        if listing.source.is_none() {
-            return Err(UsaMlsError::MlsFetchFailed {
-                state: listing.state.clone(),
-                message: "Listing has no verified source. A cited MLS source is \
-                          required before regulatory processing.".to_string(),
-            });
-        }
-
-        let price_for_check = listing.price.unwrap_or(0.0);
-
-        let result = self.regulatory_engine
-            .check_usa_transaction(
-                &listing.state,
-                &listing.description,
-                price_for_check,
-                game,
-            )
-            .await?;
-
-        if result.passed {
-            info!(
-                "✅ USA listing {} approved in {} — mercy {:.2}, consensus {:.2}",
-                listing.mls_id, listing.state, result.mercy_valence, result.quantum_consensus
-            );
-        } else {
-            info!("❌ USA listing {} blocked — regulatory issues detected", listing.mls_id);
-        }
-
-        Ok(result)
+impl Default for UsaMlsAdapter {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

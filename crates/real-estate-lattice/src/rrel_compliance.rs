@@ -9,6 +9,7 @@
 //! AI output is a draft only. No AI output constitutes professional real estate advice.
 //! Every output must be independently verified by a registered agent before use.
 
+use serde::{Deserialize, Serialize};
 use std::time::{SystemTime, UNIX_EPOCH};
 
 fn now_millis() -> u64 {
@@ -98,7 +99,7 @@ impl<T> AiOutput<T> {
 // AI Image label — RECO guidance: label any digitally altered images
 // ---------------------------------------------------------------------------
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AiImageRecord {
     pub file_ref: String,
     /// True when any AI or digital editing was applied to this image.

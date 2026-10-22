@@ -1,17 +1,21 @@
-//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! Quantum Real Estate Valuation Engine
 //! Derived from RREL documentation (April 29, 2026)
 //!
 //! RECO AI guidance: price and risk advice is the registrant's responsibility.
 //! This module must not emit a price without a cited source and registrant sign-off.
 //! Source: https://www.reco.on.ca/agents-and-brokerages/reco-bulletins/reco-guidance-use-of-artificial-intelligence/
+//!
+//! RREL-UNGATE-1: ungated — ra-thor-mercy and quantum-swarm imports replaced with
+//! local std-only logic. analyse_property Draft behaviour preserved (#730).
 
 use crate::RREL_VERSION;
-use crate::rrel_compliance::{AiOutput, AuditEntry, OutputStatus, Provenance};
-use ra_thor_mercy::MercyEngine;
-use ra_thor_quantum_swarm_orchestrator::QuantumSwarmOrchestrator;
+use crate::rrel_compliance::{AiOutput, Provenance};
 use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
+
+// ---------------------------------------------------------------------------
+// ValuationResult
+// ---------------------------------------------------------------------------
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ValuationResult {
@@ -27,17 +31,17 @@ pub struct ValuationResult {
     pub draft_note: String,
 }
 
-pub struct QuantumRealEstateValuation {
-    mercy_engine: MercyEngine,
-    quantum_swarm: QuantumSwarmOrchestrator,
-}
+// ---------------------------------------------------------------------------
+// QuantumRealEstateValuation
+// ---------------------------------------------------------------------------
+
+/// Regulatory-risk analyser. Does not produce or adjust prices.
+/// All outputs are Draft until a registered agent calls `.verify(agent_id)`.
+pub struct QuantumRealEstateValuation;
 
 impl QuantumRealEstateValuation {
-    pub fn new(mercy_engine: MercyEngine, quantum_swarm: QuantumSwarmOrchestrator) -> Self {
-        Self {
-            mercy_engine,
-            quantum_swarm,
-        }
+    pub fn new() -> Self {
+        Self
     }
 
     /// Analyse a property for regulatory risk.
@@ -48,7 +52,7 @@ impl QuantumRealEstateValuation {
     /// Returns an `AiOutput<ValuationResult>` always in `Draft` status.
     /// The registrant must call `.verify(agent_id)` before sharing the output.
     pub async fn analyse_property(
-        &mut self,
+        &self,
         property_id: &str,
         description: &str,
         cited_comparables: Vec<String>,
@@ -102,7 +106,7 @@ impl QuantumRealEstateValuation {
     }
 
     fn calculate_regulatory_risk(&self, description: &str) -> f64 {
-        let mut risk = 0.25;
+        let mut risk: f64 = 0.25;
 
         if description.to_lowercase().contains("trust account") { risk += 0.20; }
         if description.to_lowercase().contains("conflict") { risk += 0.18; }
@@ -110,5 +114,11 @@ impl QuantumRealEstateValuation {
         if description.to_lowercase().contains("advertising") { risk += 0.12; }
 
         risk.min(0.85)
+    }
+}
+
+impl Default for QuantumRealEstateValuation {
+    fn default() -> Self {
+        Self::new()
     }
 }

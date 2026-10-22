@@ -1,4 +1,3 @@
-//! Design-only (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1 council note): not compiled; inherits workspace key powrush that the root does not define.
 //! RECO/TRESA form drafting modules (unverified) — RREL v3.1.
 //! Handles Form 801 and additional common RECO forms with full audit trail.
 //! Privacy-first, TOLC 8 checks planned (design-only, unverified).
@@ -6,11 +5,38 @@
 //! RECO AI guidance: forms are AI-drafted only; a registered agent must review
 //! and sign off before submission. Compliance is NOT verified by this module.
 //! Source: https://www.reco.on.ca/agents-and-brokerages/reco-bulletins/reco-guidance-use-of-artificial-intelligence/
+//!
+//! RREL-UNGATE-1: ungated — powrush/patsagi/mercy imports replaced with local
+//! std-only stubs. #730 behaviours and wording preserved.
 
-use crate::compliance_helpers::ComplianceResult;
 use crate::rrel_compliance::{AiOutput, AuditLog, ConsentRecord, Provenance};
-use mercy::traits::{MercyAligned, TOLC8Gate};
 use std::collections::HashMap;
+
+// ---------------------------------------------------------------------------
+// ComplianceResult — local stub (compliance_helpers is still design-only)
+// ---------------------------------------------------------------------------
+
+/// Minimal compliance result. Real RECO/TRESA rule checks require a licensed
+/// compliance engine; this stub makes the unverified state explicit.
+#[derive(Debug, Clone)]
+pub struct ComplianceResult {
+    pub passed: bool,
+    pub issues: Vec<String>,
+    pub score: f64,
+}
+
+// ---------------------------------------------------------------------------
+// RecoFormType / RecoForm
+// ---------------------------------------------------------------------------
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum RecoFormType {
+    Form801,
+    ListingAgreement,
+    BuyerRepresentation,
+    OfferToPurchase,
+    Custom(String),
+}
 
 #[derive(Debug, Clone)]
 pub struct RecoForm {
@@ -22,14 +48,9 @@ pub struct RecoForm {
     pub tolc8_seal: bool,
 }
 
-#[derive(Debug, Clone, PartialEq)]
-pub enum RecoFormType {
-    Form801,
-    ListingAgreement,
-    BuyerRepresentation,
-    OfferToPurchase,
-    Custom(String),
-}
+// ---------------------------------------------------------------------------
+// RecoFormHandlers
+// ---------------------------------------------------------------------------
 
 pub struct RecoFormHandlers {
     pub audit_log: AuditLog,
@@ -104,14 +125,8 @@ impl RecoFormHandlers {
     }
 }
 
-impl MercyAligned for RecoFormHandlers {
-    fn check_mercy_gates(&self) -> Vec<TOLC8Gate> {
-        vec![
-            TOLC8Gate::Genesis,
-            TOLC8Gate::Truth,
-            TOLC8Gate::Evolution,
-            TOLC8Gate::Sovereignty,
-            TOLC8Gate::Infinite,
-        ]
+impl Default for RecoFormHandlers {
+    fn default() -> Self {
+        Self::new()
     }
 }

@@ -46,6 +46,18 @@ pub use deal_readiness_scoring::calculate_deal_readiness_score;
 // LAT / Divisional Court evidence packaging (serde + chrono only)
 pub mod lat_divisional_court_evidence;
 
+// ── RECO-relevant modules (RREL-UNGATE-1) ──────────────────────────────────
+//
+// These four modules were gated design-only in RREL-BUILD-1. RREL-UNGATE-1
+// replaced their powrush/patsagi/mercy/quantum-swarm imports with local
+// std-only stubs and fixed the ValidationResult↔OfferPackageValidation
+// mismatch. They compile in the default build.
+
+pub mod reco_form_handlers;
+pub mod usa_mls_adapter;
+pub mod quantum_real_estate_valuation;
+pub mod offer_package_finalizer;
+
 // ── Design-only stubs (STUB-AUDIT-1 WORKSPACE-KEY-SHELLS-1) ────────────────
 //
 // These modules carry the "design-only, unverified" label from their original
@@ -56,18 +68,6 @@ pub mod lat_divisional_court_evidence;
 //
 // Enable with `--features design-only` (requires resolving workspace-root
 // conflict for powrush/patsagi-councils before any gated module can link).
-//
-// Gated RECO-relevant modules (not compiled in default build; follow-up card
-// needed to ungate):
-//   offer_package_finalizer (RECO-relevant)
-//                          [type mismatch ValidationResult↔OfferPackageValidation;
-//                           disclosure_manager dep]
-//   reco_form_handlers (RECO-relevant)
-//                          [uses patsagi_councils]
-//   usa_mls_adapter (RECO-relevant)
-//                          [uses powrush, patsagi_councils]
-//   quantum_real_estate_valuation (RECO-relevant)
-//                          [uses powrush, patsagi_councils]
 //
 // Other gated modules:
 //   offer_package / compliance_helpers / disclosure_manager
@@ -125,16 +125,14 @@ pub mod disclosure_manager;
 // Offer lifecycle
 #[cfg(feature = "design-only")]
 pub mod offer_package_assembler;
-#[cfg(feature = "design-only")]
-pub mod offer_package_finalizer;
+// offer_package_finalizer moved to always-on above (RREL-UNGATE-1)
 
 // Bridge / orchestration stubs
 #[cfg(feature = "design-only")]
 pub mod rrel_brokerage_assembler;
 #[cfg(feature = "design-only")]
 pub mod powrush_rrel_bridge;
-#[cfg(feature = "design-only")]
-pub mod reco_form_handlers;
+// reco_form_handlers moved to always-on above (RREL-UNGATE-1)
 #[cfg(feature = "design-only")]
 pub mod rrel_lattice_conductor_bridge;
 #[cfg(feature = "design-only")]
@@ -167,8 +165,7 @@ pub mod usa_state_adapters;
 pub mod usa_attom_cache;
 #[cfg(feature = "design-only")]
 pub mod usa_attom_data_provider;
-#[cfg(feature = "design-only")]
-pub mod usa_mls_adapter;
+// usa_mls_adapter moved to always-on above (RREL-UNGATE-1)
 #[cfg(feature = "design-only")]
 pub mod california_mls_adapter;
 #[cfg(feature = "design-only")]
@@ -213,8 +210,7 @@ pub mod avm_cache_invalidation;
 pub mod avm_invalidation_consumer;
 
 // Additional domain stubs
-#[cfg(feature = "design-only")]
-pub mod quantum_real_estate_valuation;
+// quantum_real_estate_valuation moved to always-on above (RREL-UNGATE-1)
 #[cfg(feature = "design-only")]
 pub mod predictive_market_valuation_engine;
 #[cfg(feature = "design-only")]

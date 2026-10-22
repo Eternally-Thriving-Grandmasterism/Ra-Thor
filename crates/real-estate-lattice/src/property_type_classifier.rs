@@ -21,7 +21,6 @@
 //!
 //! Part of the Real Estate Lattice v14.3+ Thunder Lattice initiative.
 
-use std::collections::HashMap;
 
 /// Ontario property types aligned with OREA and municipal zoning.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
