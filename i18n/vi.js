@@ -151,7 +151,7 @@ window.translations["vi"] = {
   "weekAir": "nghiên cứu hệ thống / hàng không. Không phải máy bay được chứng nhận hay tàu đang bay.",
   "weekPowrushSim": "Kho chị em trình mô phỏng trình duyệt. Không phải dịch vụ trực tuyến.",
   "faqContact": "Thắc mắc: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:text-amber-200\">info@Rathor.ai</a> · <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues\" class=\"text-amber-300 hover:text-amber-200\">vấn đề GitHub</a>.",
-  "watchTitle": "Lớp theo dõi — 1 tháng 9 năm 2026",
+  "watchTitle": "Lớp theo dõi",
   "watchLead": "Các tuyên bố bên ngoài được ghi lại để các tiêu đề không trở thành giá trị cho phép hay dòng dõi. Không phải sản phẩm.",
   "watchPcg": "Dòng dây neo PCG / GSL",
   "watchPcgNote": "ISEC / CVD 1 km của Hàn Quốc. Có điều kiện 90–99 GPa. Chỉ theo dõi — không phải giá trị cho phép của môi trường sống, không phải thang máy đang bay.",

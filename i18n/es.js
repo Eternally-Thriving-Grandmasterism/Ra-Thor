@@ -151,7 +151,7 @@ window.translations["es"] = {
   "weekAir": "estudios de sistemas / aviación. No aeronaves certificadas ni una nave en vuelo.",
   "weekPowrushSim": "Hermana simuladora de navegador. No el servicio en vivo.",
   "faqContact": "Consultas: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:text-amber-200\">info@Rathor.ai</a> · <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues\" class=\"text-amber-300 hover:text-amber-200\">issues de GitHub</a>.",
-  "watchTitle": "Clase de vigilancia — 1 de septiembre de 2026",
+  "watchTitle": "Clase de vigilancia",
   "watchLead": "Reivindicaciones externas registradas para que los titulares no se vuelvan valores admisibles ni linaje. No son productos.",
   "watchPcg": "Flujo de amarre PCG / GSL",
   "watchPcgNote": "ISEC / CVD coreano de 1 km. Condicional 90–99 GPa. Solo vigilancia — no un valor admisible de hábitat, no un ascensor en vuelo.",

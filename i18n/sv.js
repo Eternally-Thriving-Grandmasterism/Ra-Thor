@@ -151,7 +151,7 @@ window.translations["sv"] = {
   "weekAir": "system- och flygstudier. Inte certifierade luftfartyg eller ett flygande fartyg.",
   "weekPowrushSim": "Syster till webbläsarsimulatorn. Inte live-tjänsten.",
   "faqContact": "Förfrågningar: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:text-amber-200\">info@Rathor.ai</a> · <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues\" class=\"text-amber-300 hover:text-amber-200\">GitHub-ärenden</a>.",
-  "watchTitle": "Bevakningsklass — 1 september 2026",
+  "watchTitle": "Bevakningsklass",
   "watchLead": "Externa påståenden är nedtecknade så att rubriker inte blir tillåtna värden eller härstamning. Inte produkter.",
   "watchPcg": "PCG / GSL-tetherström",
   "watchPcgNote": "ISEC / koreansk 1 km CVD. Villkorligt 90–99 GPa. Endast bevakning — inte ett tillåtet habitatvärde, inte en flygande hiss.",

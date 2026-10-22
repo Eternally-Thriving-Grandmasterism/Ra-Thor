@@ -151,7 +151,7 @@ window.translations["it"] = {
   "weekAir": "studi di sistemi / aviazione. Non aeromobili certificati n\u00e9 un vascello in volo.",
   "weekPowrushSim": "Sorella simulatrice browser. Non il servizio dal vivo.",
   "faqContact": "Richieste: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:text-amber-200\">info@Rathor.ai</a> \u00b7 <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues\" class=\"text-amber-300 hover:text-amber-200\">issue GitHub</a>.",
-  "watchTitle": "Classe di vigilanza \u2014 1 settembre 2026",
+  "watchTitle": "Classe di vigilanza",
   "watchLead": "Pretese esterne registrate perch\u00e9 i titoli non diventino valori ammissibili o lignaggio. Non prodotti.",
   "watchPcg": "Flusso tether PCG / GSL",
   "watchPcgNote": "ISEC / CVD coreano di 1 km. Condizionale 90\u201399 GPa. Solo vigilanza \u2014 non un valore ammissibile di habitat, non un ascensore in volo.",

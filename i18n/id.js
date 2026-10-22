@@ -151,7 +151,7 @@ window.translations["id"] = {
   "weekAir": "studi sistem / penerbangan. Bukan pesawat tersertifikasi atau wahana yang terbang.",
   "weekPowrushSim": "Saudara simulator peramban. Bukan layanan langsung.",
   "faqContact": "Pertanyaan: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:text-amber-200\">info@Rathor.ai</a> · <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues\" class=\"text-amber-300 hover:text-amber-200\">isu GitHub</a>.",
-  "watchTitle": "Kelas pantau — 1 Sep 2026",
+  "watchTitle": "Kelas pantau",
   "watchLead": "Klaim eksternal dicatat agar tajuk tidak menjadi nilai yang diizinkan atau silsilah. Bukan produk.",
   "watchPcg": "Aliran tether PCG / GSL",
   "watchPcgNote": "ISEC / CVD 1 km Korea. Bersyarat 90–99 GPa. Hanya pantau — bukan nilai yang diizinkan untuk habitat, bukan elevator yang terbang.",

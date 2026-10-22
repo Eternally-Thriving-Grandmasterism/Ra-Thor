@@ -151,7 +151,7 @@ window.translations["he"] = {
   "weekAir": "לימודי מערכות / תעופה. לא כלי טיס מוסמך ולא כלי שיט מעופף.",
   "weekPowrushSim": "אחות מדמה הדפדפן. לא השירות החי.",
   "faqContact": "פניות: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:text-amber-200\">info@Rathor.ai</a> · <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues\" class=\"text-amber-300 hover:text-amber-200\">סוגיות GitHub</a>.",
-  "watchTitle": "מחלקת מעקב — 1 בספטמבר 2026",
+  "watchTitle": "מחלקת מעקב",
   "watchLead": "טענות חיצוניות נרשמו כדי שכותרות לא יהפכו לערכים מותרים או לשושלת. לא מוצרים.",
   "watchPcg": "זרם ה-tether של PCG / GSL",
   "watchPcgNote": "ISEC / CVD קוריאני 1 ק״מ. מותנה 90–99 GPa. מעקב בלבד — לא ערך מותר לבית גידול, לא מעלית מעופפת.",

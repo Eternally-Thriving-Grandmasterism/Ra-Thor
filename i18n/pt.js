@@ -151,7 +151,7 @@ window.translations["pt"] = {
   "weekAir": "estudos de sistemas / avia\u00e7\u00e3o. N\u00e3o aeronaves certificadas nem uma nave em voo.",
   "weekPowrushSim": "Irm\u00e3 simuladora de navegador. N\u00e3o o servi\u00e7o em direto.",
   "faqContact": "Pedidos: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:text-amber-200\">info@Rathor.ai</a> \u00b7 <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues\" class=\"text-amber-300 hover:text-amber-200\">issues GitHub</a>.",
-  "watchTitle": "Classe de vigil\u00e2ncia \u2014 1 de setembro de 2026",
+  "watchTitle": "Classe de vigil\u00e2ncia",
   "watchLead": "Pretens\u00f5es externas registadas para que as manchetes n\u00e3o se tornem valores admiss\u00edveis nem linhagem. N\u00e3o s\u00e3o produtos.",
   "watchPcg": "Fluxo de amarra PCG / GSL",
   "watchPcgNote": "ISEC / CVD coreano de 1 km. Condicional 90\u201399 GPa. S\u00f3 vigil\u00e2ncia \u2014 n\u00e3o um valor admiss\u00edvel de habitat, n\u00e3o um elevador em voo.",

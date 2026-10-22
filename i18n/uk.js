@@ -151,7 +151,7 @@ window.translations["uk"] = {
   "weekAir": "системні / авіаційні студії. Не сертифіковані повітряні судна й не літальний апарат.",
   "weekPowrushSim": "Сестринський браузерний симулятор. Не живий сервіс.",
   "faqContact": "Запити: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:text-amber-200\">info@Rathor.ai</a> · <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues\" class=\"text-amber-300 hover:text-amber-200\">звернення на GitHub</a>.",
-  "watchTitle": "Клас спостереження — 1 вересня 2026",
+  "watchTitle": "Клас спостереження",
   "watchLead": "Зовнішні твердження записано, щоб заголовки не стали допустимими значеннями чи лінією походження. Не продукти.",
   "watchPcg": "Потік троса PCG / GSL",
   "watchPcgNote": "ISEC / корейський CVD на 1 км. Умовно 90–99 GPa. Лише спостереження — не допустиме для оселища, не літальний ліфт.",

@@ -74,7 +74,11 @@
 
   function go() {
     var living = document.getElementById('living-surfaces');
-    var insertAfter = living || document.getElementById('rathor-v14-cta');
+    // Anchor after the X reel wrapper (SITE-ORDER-1: sections must follow the reel).
+    // Falls back through legacy anchors so the script still works on non-home pages.
+    var insertAfter = document.getElementById('rt-x-reel-wrap') ||
+                      living ||
+                      document.getElementById('rathor-v14-cta');
 
     if (insertAfter && !document.getElementById('public-works')) {
       insertAfter.insertAdjacentHTML(
@@ -123,7 +127,7 @@
       sci.insertAdjacentHTML(
         'afterend',
         '<section id="science-watches" class="max-w-4xl mx-auto px-6 pb-8">' +
-          '<h2 class="text-2xl sm:text-3xl font-semibold tracking-tight text-center mb-3 text-white" data-i18n="watchTitle">Watch class — 1 Sep 2026</h2>' +
+          '<h2 class="text-2xl sm:text-3xl font-semibold tracking-tight text-center mb-3 text-white" data-i18n="watchTitle">Watch class</h2>' +
           '<p class="text-center text-sm text-white/60 mb-6 max-w-2xl mx-auto" data-i18n="watchLead">External claims recorded so headlines do not become allowables or lineage. Not products.</p>' +
           '<div class="grid sm:grid-cols-2 gap-4">' +
           '<a href="https://github.com/Eternally-Thriving-Grandmasterism/Daedalus-Skin-Eternal-Ark/blob/main/materials/pcg-gsl-tether-watch-2026-09-01.md" target="_blank" rel="noopener" class="card-hover block rounded-2xl border border-sky-300/30 bg-black p-5"><p class="font-semibold text-sky-200" data-i18n="watchPcg">PCG / GSL tether stream</p><p class="text-xs text-white/60 mt-2" data-i18n="watchPcgNote">ISEC / Korean 1 km CVD. Conditional 90–99 GPa. Watch only — not a habitat allowable, not a flying elevator.</p></a>' +

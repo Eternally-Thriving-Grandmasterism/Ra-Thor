@@ -151,7 +151,7 @@ window.translations["pl"] = {
   "weekAir": "studia systemów / lotnictwa. Nie certyfikowane statki powietrzne ani jednostka latająca.",
   "weekPowrushSim": "Siostrzany symulator przeglądarkowy. Nie żywa usługa.",
   "faqContact": "Zapytania: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:text-amber-200\">info@Rathor.ai</a> · <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues\" class=\"text-amber-300 hover:text-amber-200\">zgłoszenia na GitHub</a>.",
-  "watchTitle": "Klasa obserwacji — 1 września 2026",
+  "watchTitle": "Klasa obserwacji",
   "watchLead": "Zewnętrzne twierdzenia zapisano, aby nagłówki nie stały się wartościami dopuszczalnymi ani linią pochodzenia. Nie produkty.",
   "watchPcg": "Strumień liny PCG / GSL",
   "watchPcgNote": "ISEC / koreański CVD na 1 km. Warunkowo 90–99 GPa. Tylko obserwacja — nie wartość dopuszczalna dla habitatu, nie latająca winda.",

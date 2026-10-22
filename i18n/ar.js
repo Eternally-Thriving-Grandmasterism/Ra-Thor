@@ -153,7 +153,7 @@ window.translations["ar"] = {
   "weekAir": "دراسات نظم / طيران. ليست طائرات معتمدة ولا وعاءًا طائرًا.",
   "weekPowrushSim": "شقيقة محاكية للمتصفح. ليست الخدمة الحيّة.",
   "faqContact": "الاستفسارات: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:text-amber-200\">info@Rathor.ai</a> · <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues\" class=\"text-amber-300 hover:text-amber-200\">مسائل GitHub</a>.",
-  "watchTitle": "فئة المراقبة — 1 أيلول/سبتمبر 2026",
+  "watchTitle": "فئة المراقبة",
   "watchLead": "مطالبات خارجية مسجّلة حتى لا تتحول العناوين إلى مسموحات أو نسب. ليست منتجات.",
   "watchPcg": "تيار حبل PCG / GSL",
   "watchPcgNote": "ISEC / كوري 1 كم CVD. 90–99 غيغاباسكال مشروط. مراقبة فقط — ليس مسموح موطن، وليس مصعدًا طائرًا.",

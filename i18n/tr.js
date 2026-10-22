@@ -151,7 +151,7 @@ window.translations["tr"] = {
   "weekAir": "sistem / havacılık çalışmaları. Sertifikalı hava aracı veya uçan bir araç değil.",
   "weekPowrushSim": "Tarayıcı simülatörü kardeşi. Canlı hizmet değil.",
   "faqContact": "Sorular: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:text-amber-200\">info@Rathor.ai</a> · <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/issues\" class=\"text-amber-300 hover:text-amber-200\">GitHub sorunları</a>.",
-  "watchTitle": "İzleme sınıfı — 1 Eylül 2026",
+  "watchTitle": "İzleme sınıfı",
   "watchLead": "Dış iddialar, manşetlerin kabul değerlerine veya soy çizgisine dönüşmemesi için kaydedildi. Ürün değildir.",
   "watchPcg": "PCG / GSL halat akışı",
   "watchPcgNote": "ISEC / Kore 1 km CVD. Koşullu 90–99 GPa. Yalnızca izleme — bir habitat kabul değeri değil, uçan bir asansör değil.",
