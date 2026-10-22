@@ -454,14 +454,17 @@
   }
 
   /* LANG-HIDE-1: applies to pages that load family-nav but not i18n-chrome.js.
-     window.RT_LANG_HIDE !== false: undefined (i18n-chrome absent) and true both hide. */
+     Class: undefined (i18n-chrome absent) and true both hide (both !== false).
+     localStorage: only cleared when flag is explicitly true; undefined keeps the stored choice. */
   function bootLangHide() {
     if (window.RT_LANG_HIDE !== false) {
       if (document.documentElement) document.documentElement.classList.add('rt-lang-hide');
-      try {
-        var saved = localStorage.getItem('rathor-lang');
-        if (saved && saved !== 'en') localStorage.removeItem('rathor-lang');
-      } catch (e) {}
+      if (window.RT_LANG_HIDE === true) {
+        try {
+          var saved = localStorage.getItem('rathor-lang');
+          if (saved && saved !== 'en') localStorage.removeItem('rathor-lang');
+        } catch (e) {}
+      }
     }
   }
 

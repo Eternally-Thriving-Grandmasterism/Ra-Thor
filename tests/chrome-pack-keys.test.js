@@ -313,6 +313,7 @@ assert(chatHtml.indexOf('ceo@acitygames.com') === -1, 'chat.html must not print 
 assert(read('i18n/README.md').indexOf('does not speak 23 languages') !== -1, 'readme must not claim a 23-language responder');
 
 var chromeSandbox = {
+  addEventListener: function () {}, /* i18n-chrome listens for rathor-nav-ready on window */
   document: {
     readyState: 'loading',
     addEventListener: function () {},

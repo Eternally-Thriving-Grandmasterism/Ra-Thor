@@ -333,8 +333,9 @@
       if (hide) document.documentElement.classList.add('rt-lang-hide');
       else document.documentElement.classList.remove('rt-lang-hide');
     }
-    if (hide) {
-      /* LANG-HIDE-1: clear any stored non-English choice so returning visitors get English. */
+    if (window.RT_LANG_HIDE === true) {
+      /* LANG-HIDE-1: clear stored non-English only when flag is explicitly true.
+       * undefined (family-nav absent or late) renders English but must not delete localStorage. */
       try {
         var saved = localStorage.getItem('rathor-lang');
         if (saved && saved !== 'en') localStorage.removeItem('rathor-lang');
@@ -351,7 +352,7 @@
       }
     }
   }
-  document.addEventListener('rathor-nav-ready', bootChrome);
+  window.addEventListener('rathor-nav-ready', bootChrome); /* family-nav dispatches on window */
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bootChrome);
   else bootChrome();
 })(typeof window !== 'undefined' ? window : this);
