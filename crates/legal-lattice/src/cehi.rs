@@ -9,7 +9,7 @@ impl FiveGeneCEHI {
 
     pub async fn calculate(&self, action: &str) -> Result<f64, crate::LegalError> {
         // Real implementation will pull from sensor fusion in next crate integration
-        let base = 2.8;
+        let base: f64 = 2.8;
         let bonus = if action.to_lowercase().contains("joy") || action.to_lowercase().contains("mercy") { 0.9 } else { 0.0 };
         Ok((base + bonus).min(4.99))
     }
