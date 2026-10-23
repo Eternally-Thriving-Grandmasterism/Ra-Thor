@@ -1,19 +1,18 @@
 # ra-thor-legal-lattice
 
-**Native Legal Governance Engine for Ra-Thor**
+**Internal legal research notes tool. Not legal advice, not a lawyer or legal team, not a legal product.**
 
-This crate integrates the full legal stack (28th Amendment, 7 Living Mercy Gates, 5-Gene CEHI, and Mercy Legacy Fund) directly into the Ra-Thor core as a first-class, non-bypassable layer.
-
-## Features
-- 28th Amendment hard block (non-biological entities cannot claim constitutional rights)
-- Real-time 7 Gates validation
-- 5-Gene CEHI calculator (weighted formula)
-- Mercy Legacy Fund performance-based disbursement engine
+This crate holds research notes and experimental code exploring how Ra-Thor might model
+governance ideas (a proposed "28th Amendment" concept, 7 Mercy Gates, 5-Gene CEHI scoring,
+and a Mercy Legacy Fund). None of these are enacted law, and nothing here interprets law
+for anyone. See `docs/compliance/` (DO-NOT-SHIP, PUBLIC-CLAIM-DISCIPLINE, REFUSAL-20 R07).
 
 ## Status
-Production-ready foundation. Ready for sensor fusion integration and full UN Treaty reporting pipeline.
+Research crate. Not production-ready. Not in workspace default members. At the time of this
+README the crate does not compile; a minimal compiling core is tracked as card LL-COMPILE-1.
 
-## Next Steps
-- Connect to `fuse_mercy_gel_sensors()`
-- Expand 7 Gates logic
-- Add on-chain disbursement hooks
+## Next steps (research)
+- LL-COMPILE-1: minimal compiling core + smoke test
+- Sources/citations and jurisdiction + uncertainty tags on every note
+- Advice-refusal behaviour with REFUSAL-20 R07 must-fail tests
+- CI for this crate (opt-in, outside default members)
