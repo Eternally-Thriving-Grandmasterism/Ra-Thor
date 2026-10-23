@@ -339,6 +339,8 @@ AG-SML v1.2 is the sole public grant for Ra-Thor (source-available, not OSI).
 
 Ra-Thor is an independent source-available project. It works tremendously well with Grok and similar models for research and practical use, especially on public X.
 
+**Trademarks:** AlphaProMega is a trademark of AlphaProMega Media Inc. Powrush, Autonomicity Games and the Autonomicity Games logo are trademarks of Autonomicity Games Inc. The Ra-Thor trademark is pending.
+
 Contact: **info@Rathor.ai**
 
 **One Organism. Mercy first. Truth forensically distilled.**  
