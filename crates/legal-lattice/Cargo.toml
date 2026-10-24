@@ -1,9 +1,9 @@
 [package]
 name = "ra-thor-legal-lattice"
-version = "14.15.0"
+version = "14.15.6"
 edition = "2021"
 authors = ["Sherif Samy Botros <info@Rathor.ai>", "Eternally-Thriving-Grandmasterism"]
-description = "Legal Lattice Governance Engine — 28th Amendment, 7 Gates, 5-Gene CEHI, and Mercy Legacy Fund integration for Ra-Thor. Living Cosmic Tick + ONE Organism 14.15.0 readiness."
+description = "Internal legal research notes tool for Ra-Thor. Not legal advice, not a lawyer or legal team, not a legal product."
 license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 keywords = ["legal", "lattice", "governance", "mercy", "ra-thor"]
