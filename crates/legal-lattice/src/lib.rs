@@ -32,6 +32,6 @@ pub enum LegalError {
     #[error("28th Amendment research-concept check failed: {0}")]
     Amendment28Violation(String),
 
-    #[error("7 Gates research check failed: {0}")]
+    #[error("7 Mercy-Checks research check failed: {0}")]
     GatesValidationFailed(String),
 }
