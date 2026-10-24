@@ -10,7 +10,18 @@ keywords = ["legal", "lattice", "governance", "mercy", "ra-thor"]
 categories = ["science", "simulation"]
 
 [dependencies]
-tokio = { version = "1", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 thiserror = "1.0"
 tracing = "0.1"
+
+[features]
+default = []
+# Known-broken legacy module kept for history; does not compile yet.
+legacy-sensor-bridge = []
+
+[dev-dependencies]
+tokio = { version = "1", features = ["rt", "macros"] }
+
+# Standalone workspace root so `cargo test -p ra-thor-legal-lattice` works from this
+# directory without adding the crate to the monorepo's default members.
+[workspace]
