@@ -1,5 +1,5 @@
 // Ra-Thor API Worker for api.rathor.ai — SANDBOX DRAFT, not deployed.
-// Ported from app/api/grok/route.js. Hosted credits sold by Autonomicity Games Inc.
+// Ported from app/api/grok/route.js. Seller of hosted credits: PENDING Sherif (proposed: Autonomicity Games Inc.).
 // All secrets come from Worker secrets; none live in this repo.
 import { creditsForUsage, getBalance, decrement, grant, PLACEHOLDER_PRICING } from './credits.js';
 import { verifyStripeSignature } from './stripe.js';
@@ -47,7 +47,7 @@ async function sendReceipt(env, to, credits) {
   const r = await fetch(RESEND_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${env.RESEND_API_KEY}` },
-    body: JSON.stringify({ from: RECEIPT_FROM, to: [to], subject: 'Ra-Thor credits receipt (test mode)', text: `Test-mode receipt: ${credits} credits were added to your Ra-Thor account. Sold by Autonomicity Games Inc.` }),
+    body: JSON.stringify({ from: RECEIPT_FROM, to: [to], subject: 'Ra-Thor credits receipt (test mode)', text: `Test-mode receipt: ${credits} credits were added to your Ra-Thor account.` }),
   });
   return r.ok;
 }
