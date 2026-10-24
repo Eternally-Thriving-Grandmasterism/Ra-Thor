@@ -1,0 +1,22 @@
+name: api-worker-tests
+on:
+  pull_request:
+    paths: ['workers/api/**', '.github/workflows/api-worker-tests.yml']
+  push:
+    branches: [main]
+    paths: ['workers/api/**']
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: workers/api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm install --no-audit --no-fund
+      - run: npm test

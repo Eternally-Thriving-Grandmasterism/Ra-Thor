@@ -1,0 +1,17 @@
+# Ra-Thor API Worker (api.rathor.ai) — SANDBOX / DRAFT. NOT DEPLOYED.
+# Do not run `wrangler deploy`/`publish` without Sherif's explicit approval.
+# Secrets (set via `wrangler secret put`, never committed):
+#   XAI_API_KEY, STRIPE_WEBHOOK_SECRET, RESEND_API_KEY
+name = "rathor-api-sandbox"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+workers_dev = false
+
+[vars]
+ALLOWED_ORIGIN = "https://rathor.ai"
+STRIPE_MODE = "test"   # webhook refuses livemode events regardless
+
+# KV binding for credits. Placeholder id — no namespace has been created.
+[[kv_namespaces]]
+binding = "CREDITS"
+id = "PLACEHOLDER_NOT_CREATED"
