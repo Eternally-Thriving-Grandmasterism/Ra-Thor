@@ -2,7 +2,7 @@
 
 Status: **not deployed**. No Cloudflare, Stripe, or Resend resources have been created. Stripe handling is **test mode only** (events with `livemode: true` are refused).
 
-Ported from `app/api/grok/route.js`. Seller of hosted credits: PENDING Sherif (proposed: Autonomicity Games Inc.).
+Ported from `app/api/grok/route.js`. Seller of hosted credits: Autonomicity Games Inc.
 
 ## Routes
 - `GET /health`

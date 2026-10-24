@@ -1,5 +1,5 @@
 // Ra-Thor API Worker for api.rathor.ai — SANDBOX DRAFT, not deployed.
-// Ported from app/api/grok/route.js. Seller of hosted credits: PENDING Sherif (proposed: Autonomicity Games Inc.).
+// Ported from app/api/grok/route.js. Seller of hosted credits: Autonomicity Games Inc.
 // All secrets come from Worker secrets; none live in this repo.
 import { creditsForUsage, getBalance, decrement, grant, PLACEHOLDER_PRICING } from './credits.js';
 import { verifyStripeSignature } from './stripe.js';
