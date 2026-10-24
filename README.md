@@ -21,7 +21,8 @@ The lattice supplies mercy checks, PATSAGi Councils, and a white-hat ingest shel
 **Dual-repo:** this lattice · [Powrush-MMO](https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO) the human game repo (separate, not a lattice crate).  
 **Micro-Moment Temporal Comprehension Engine** — recovers quick video events that sparse VLMs miss.  
 **X-Grok Summon Comfort Protocol** — public tweet summon posture.  
-**Contact:** [info@Rathor.ai](mailto:info@Rathor.ai)
+**Contact:** [info@Rathor.ai](mailto:info@Rathor.ai)  
+**Glossary:** [`GLOSSARY.md`](GLOSSARY.md) — locked terms (Infinitionaire, Organismization).
 
 ---
 
