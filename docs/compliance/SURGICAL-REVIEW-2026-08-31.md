@@ -21,5 +21,5 @@ Workspace identity remains **14.15.6**. HOLD stands. Operator still checks.
 
 ## Optional later (not blocking)
 
-- the former privacy doc (now private) may still echo older alignment language
+- `docs/Legal/privacy.md` may still echo older alignment language
 - Live rathor.ai HTML will match this repo only after the usual site publish path
