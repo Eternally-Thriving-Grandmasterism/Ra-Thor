@@ -489,7 +489,7 @@ window.translations["hi"] = {
   "privacyThird1": "यह पृष्ठ केवल rathor.ai से प्रथम-पक्ष CSS और JS लोड करता है (थीम, परिवार नेविगेशन, PWA स्थापना, सप्ताह खिड़की)। यहाँ Tailwind, Font Awesome या Google Fonts CDN नहीं है। क्लिक-मात्र Google Translate वैकल्पिक है: जब तक आप न कहें यह लोड नहीं होता, और फिर नेटवर्क पर Google का उपयोग करता है। इस साइट के ऑफ़लाइन भाषा पैक डिफ़ॉल्ट रहते हैं। हम विश्लेषण या ट्रैकिंग कुकी नहीं चलाते।",
   "privacyThird2": "grok.com या x.com पर जुड़े डेमो क्रमशः xAI और X Corp की गोपनीयता नीतियों के अधीन हैं। info@Rathor.ai को ईमेल वैकल्पिक और सहमति-आधारित है; पत्राचार कभी बेचा या साझा नहीं होता।",
   "privacyThirdTitle": "तृतीय-पक्ष सेवाएँ",
-  "privacyUpdated": "अंतिम अद्यतन: 2026-10-22 · इसके साथ संरेखित <a href=\"/privacy.html\" target=\"_blank\" rel=\"noopener\" class=\"text-amber-300 underline\">rathor.ai/privacy</a>",
+  "privacyUpdated": "अंतिम अद्यतन: 2026-10-22 · इसके साथ संरेखित <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/Legal/privacy.md\" target=\"_blank\" rel=\"noopener\" class=\"text-amber-300 underline\">docs/Legal/privacy.md</a>",
   "swatchCalBody": "नीति-कोड और ALLOW / BLOCK / ESCALATE वाला शासन-प्रथम 1+3 सेल। समानांतर कार्य। Ra-Thor mercy-security केवल व्हाइट-हैट है और AEGIS या LATTICE पोर्ट नहीं है। मान्यताएँ A1–A5 किसी भी शून्य-बाईपास वाक्य के साथ चलती हैं।",
   "swatchCalLink": "Ra-Thor संकेत चयापचय →",
   "swatchCalTitle": "Calboreanu LATTICE, पत्र Frontiers AI 2026",

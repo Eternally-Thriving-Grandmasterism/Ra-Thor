@@ -489,7 +489,7 @@ window.translations["ja"] = {
   "privacyThird1": "このページが読み込む第一方の CSS と JS は rathor.ai だけです（テーマ、家族のナビゲーション、PWA のインストール、週の窓）。ここに Tailwind、Font Awesome、Google Fonts の CDN はありません。クリックしたときだけの Google Translate は任意です。頼むまで読み込まれず、読み込まれた後はネットワーク上の Google を使います。このサイトのオフライン言語包が既定のままです。分析や追跡 cookie は動かしていません。",
   "privacyThird2": "grok.com または x.com 上の接続デモは、それぞれ xAI と X Corp のプライバシー方針に従います。info@Rathor.ai へのメールは任意であり、同意に基づきます。往復の文面は販売も共有もされません。",
   "privacyThirdTitle": "第三者サービス",
-  "privacyUpdated": "最終更新：2026-10-22 · <a href=\"/privacy.html\" target=\"_blank\" rel=\"noopener\" class=\"text-amber-300 underline\">rathor.ai/privacy</a> に揃える",
+  "privacyUpdated": "最終更新：2026-10-22 · <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/Legal/privacy.md\" target=\"_blank\" rel=\"noopener\" class=\"text-amber-300 underline\">docs/Legal/privacy.md</a> に揃える",
   "swatchCalBody": "ガバナンス優先の 1+3 セル。ポリシーをコードとし、ALLOW / BLOCK / ESCALATE を持ちます。平行する仕事です。Ra-Thor mercy-security はホワイトハットのみであり、AEGIS や LATTICE の移植ではありません。仮定 A1–A5 は、ゼロ迂回の文には必ず伴います。",
   "swatchCalLink": "Ra-Thor 信号代謝 →",
   "swatchCalTitle": "Calboreanu LATTICE (Frontiers AI 2026)",

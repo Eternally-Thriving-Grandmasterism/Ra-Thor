@@ -489,7 +489,7 @@ window.translations["ar"] = {
   "privacyThird1": "تحمّل هذه الصفحة CSS وJS من الطرف الأول من rathor.ai فقط (السمة، وتنقل العائلة، وتثبيت PWA، ونافذة الأسبوع). لا CDN لـ Tailwind أو Font Awesome أو Google Fonts هنا. ترجمة Google بالنقر فقط اختيارية: لا تُحمَّل حتى تطلبوها، ثم تستخدم Google على الشبكة. حزم اللغة دون اتصال على هذا الموقع تبقى الافتراض. لا نشغّل تحليلات ولا ملفات تتبع.",
   "privacyThird2": "العروض المتصلة على grok.com أو x.com تخضع لسياسات خصوصية xAI وX Corp على التوالي. البريد إلى info@Rathor.ai اختياري وقائم على الموافقة؛ المراسلات لا تُباع ولا تُشارَك.",
   "privacyThirdTitle": "خدمات طرف ثالث",
-  "privacyUpdated": "آخر تحديث: 2026-10-22 · متوافق مع <a href=\"/privacy.html\" target=\"_blank\" rel=\"noopener\" class=\"text-amber-300 underline\">rathor.ai/privacy</a>",
+  "privacyUpdated": "آخر تحديث: 2026-10-22 · متوافق مع <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/Legal/privacy.md\" target=\"_blank\" rel=\"noopener\" class=\"text-amber-300 underline\">docs/Legal/privacy.md</a>",
   "swatchCalBody": "خلية حوكمة أولاً 1+3 مع السياسة كشفرة وALLOW / BLOCK / ESCALATE. عمل موازٍ. mercy-security في Ra-Thor قبعة بيضاء فقط، وليست منفذ AEGIS أو LATTICE. الافتراضات A1–A5 تسير مع أي جملة صفر-تجاوز.",
   "swatchCalLink": "أيض إشارة Ra-Thor ←",
   "swatchCalTitle": "Calboreanu LATTICE (Frontiers AI 2026) — ورقة موازية",

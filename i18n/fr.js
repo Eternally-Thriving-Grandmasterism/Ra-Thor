@@ -489,7 +489,7 @@ window.translations["fr"] = {
   "privacyThird1": "Cette page charge du CSS et du JS de première partie depuis rathor.ai seulement (thème, navigation de famille, installation PWA, fenêtre de la semaine). Il n'y a pas ici de CDN Tailwind, Font Awesome ou Google Fonts. Google Translate au clic seul est optionnel : il ne se charge pas avant votre demande, puis il utilise Google sur le réseau. Les packs de langue hors ligne de ce site restent le choix par défaut. Nous ne faisons pas d'analytique ni de cookies de suivi.",
   "privacyThird2": "Les démos connectées sur grok.com ou x.com sont soumises aux politiques de confidentialité de xAI et de X Corp respectivement. Le courriel à info@Rathor.ai est optionnel et fondé sur le consentement ; la correspondance n'est jamais vendue ni partagée.",
   "privacyThirdTitle": "Services tiers",
-  "privacyUpdated": "Dernière mise à jour : 2026-10-22 · Aligné avec <a href=\"/privacy.html\" target=\"_blank\" rel=\"noopener\" class=\"text-amber-300 underline\">rathor.ai/privacy</a>",
+  "privacyUpdated": "Dernière mise à jour : 2026-10-22 · Aligné avec <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/Legal/privacy.md\" target=\"_blank\" rel=\"noopener\" class=\"text-amber-300 underline\">docs/Legal/privacy.md</a>",
   "swatchCalBody": "Une cellule 1+3 gouvernance d'abord, avec politique comme code et ALLOW / BLOCK / ESCALATE. Travail parallèle. mercy-security de Ra-Thor est uniquement chapeau blanc et n'est pas un portage d'AEGIS ni de LATTICE. Les hypothèses A1–A5 accompagnent toute phrase de zéro contournement.",
   "swatchCalLink": "Métabolisme du signal de Ra-Thor →",
   "swatchCalTitle": "LATTICE de Calboreanu (Frontiers AI 2026)",

@@ -489,7 +489,7 @@ window.translations["es"] = {
   "privacyThird1": "Esta página carga CSS y JS de primera parte solo desde rathor.ai (tema, navegación de familia, instalación PWA, ventana de la semana). Aquí no hay CDN de Tailwind, Font Awesome ni Google Fonts. Google Translate solo al hacer clic es opcional: no se carga hasta que usted lo pide, y entonces usa Google en la red. Los paquetes de idioma sin conexión de este sitio siguen siendo lo predeterminado. No ejecutamos analítica ni cookies de seguimiento.",
   "privacyThird2": "Las demos conectadas en grok.com o x.com están sujetas a las políticas de privacidad de xAI y de X Corp, respectivamente. El correo a info@Rathor.ai es opcional y se basa en el consentimiento; la correspondencia nunca se vende ni se comparte.",
   "privacyThirdTitle": "Servicios de terceros",
-  "privacyUpdated": "Última actualización: 2026-10-22 · Alineado con <a href=\"/privacy.html\" target=\"_blank\" rel=\"noopener\" class=\"text-amber-300 underline\">rathor.ai/privacy</a>",
+  "privacyUpdated": "Última actualización: 2026-10-22 · Alineado con <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/Legal/privacy.md\" target=\"_blank\" rel=\"noopener\" class=\"text-amber-300 underline\">docs/Legal/privacy.md</a>",
   "swatchCalBody": "Una celda 1+3 con la gobernanza primero, política como código y ALLOW / BLOCK / ESCALATE. Trabajo paralelo. mercy-security de Ra-Thor es solo de sombrero blanco y no es un puerto de AEGIS ni de LATTICE. Los supuestos A1–A5 acompañan cualquier frase de cero elusión.",
   "swatchCalLink": "Metabolismo de señales de Ra-Thor →",
   "swatchCalTitle": "LATTICE de Calboreanu (Frontiers AI 2026)",

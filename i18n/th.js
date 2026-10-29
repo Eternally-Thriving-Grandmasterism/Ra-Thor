@@ -489,7 +489,7 @@ window.translations["th"] = {
   "privacyThird1": "หน้านี้โหลด CSS และ JS ของฝ่ายแรกจาก rathor.ai เท่านั้น (ธีม, การนำทางครอบครัว, การติดตั้ง PWA, หน้าต่างสัปดาห์) ไม่มี CDN ของ Tailwind, Font Awesome หรือ Google Fonts ที่นี่ Google Translate แบบคลิกเท่านั้นเป็นทางเลือก: มันไม่โหลดจนกว่าคุณจะขอ แล้วจึงใช้ Google บนเครือข่าย ชุดภาษาออฟไลน์บนไซต์นี้เป็นค่าปริยาย เราไม่ทำการวิเคราะห์และไม่ใช้คุกกี้ติดตาม",
   "privacyThird2": "การสาธิตที่เชื่อมต่อบน grok.com หรือ x.com อยู่ภายใต้นโยบายความเป็นส่วนตัวของ xAI และ X Corp ตามลำดับ อีเมลถึง info@Rathor.ai เป็นทางเลือกและตั้งอยู่บนความยินยอม การติดต่อไม่ถูกขายหรือแบ่งปัน",
   "privacyThirdTitle": "บริการของบุคคลที่สาม",
-  "privacyUpdated": "ปรับปรุงล่าสุด: 2026-10-22 · สอดคล้องกับ <a href=\"/privacy.html\" target=\"_blank\" rel=\"noopener\" class=\"text-amber-300 underline\">rathor.ai/privacy</a>",
+  "privacyUpdated": "ปรับปรุงล่าสุด: 2026-10-22 · สอดคล้องกับ <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/Legal/privacy.md\" target=\"_blank\" rel=\"noopener\" class=\"text-amber-300 underline\">docs/Legal/privacy.md</a>",
   "swatchCalBody": "เซลล์ 1+3 ที่ให้การกำกับดูแลมาก่อน พร้อมนโยบายในรูปโค้ด และ ALLOW / BLOCK / ESCALATE นี่คืองานคู่ขนาน mercy-security ของ Ra-Thor เป็นหมวกขาวเท่านั้น และไม่ใช่พอร์ตของ AEGIS หรือ LATTICE สมมติฐาน A1–A5 ไปกับประโยคเรื่องศูนย์การเลี่ยงทุกประโยค",
   "swatchCalLink": "เมแทบอลิซึมสัญญาณของ Ra-Thor →",
   "swatchCalTitle": "Calboreanu LATTICE (Frontiers AI 2026)",

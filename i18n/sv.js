@@ -489,7 +489,7 @@ window.translations["sv"] = {
   "privacyThird1": "Den här sidan laddar CSS och JS endast från första part på rathor.ai (tema, familjenavigering, PWA-installation, veckofönster). Här finns inget CDN för Tailwind, Font Awesome eller Google Fonts. Google Översätt endast vid klick är valfritt: det laddas inte förrän du ber om det, och använder då Google på nätet. Offlinespråkpaket på den här webbplatsen förblir standard. Vi kör inte analys eller spårningskakor.",
   "privacyThird2": "Anslutna demon på grok.com eller x.com omfattas av integritetspolicyerna för xAI respektive X Corp. E-post till info@Rathor.ai är valfri och samtyckesbaserad; korrespondens säljs eller delas aldrig.",
   "privacyThirdTitle": "Tredjepartstjänster",
-  "privacyUpdated": "Senast uppdaterad: 2026-10-22 · Anpassad till <a href=\"/privacy.html\" target=\"_blank\" rel=\"noopener\" class=\"text-amber-300 underline\">rathor.ai/privacy</a>",
+  "privacyUpdated": "Senast uppdaterad: 2026-10-22 · Anpassad till <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/Legal/privacy.md\" target=\"_blank\" rel=\"noopener\" class=\"text-amber-300 underline\">docs/Legal/privacy.md</a>",
   "swatchCalBody": "En styrning-först 1+3-cell med policy-as-code och ALLOW / BLOCK / ESCALATE. Parallellt arbete. Ra-Thor mercy-security är endast white-hat och är inte en AEGIS- eller LATTICE-port. Antaganden A1–A5 följer med varje mening om noll kringgång.",
   "swatchCalLink": "Ra-Thor-signalmetabolism →",
   "swatchCalTitle": "Calboreanu LATTICE (Frontiers AI 2026)",

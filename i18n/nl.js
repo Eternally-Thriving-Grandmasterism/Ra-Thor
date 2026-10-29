@@ -489,7 +489,7 @@ window.translations["nl"] = {
   "privacyThird1": "Deze pagina laadt CSS en JS alleen uit de eerste hand van rathor.ai (thema, familienavigatie, PWA-installatie, weekvenster). Hier is geen CDN van Tailwind, Font Awesome of Google Fonts. Google Translate alleen op klik is optioneel: het laadt niet tot u het vraagt, en gebruikt dan Google op het netwerk. Offline taalpakketten op deze site blijven de standaard. Wij draaien geen analytics en geen trackingcookies.",
   "privacyThird2": "Verbonden demo's op grok.com of x.com vallen onder het privacybeleid van respectievelijk xAI en X Corp. E-mail naar info@Rathor.ai is optioneel en op basis van toestemming; correspondentie wordt nooit verkocht of gedeeld.",
   "privacyThirdTitle": "Diensten van derden",
-  "privacyUpdated": "Laatst bijgewerkt: 2026-10-22 · Afgestemd op <a href=\"/privacy.html\" target=\"_blank\" rel=\"noopener\" class=\"text-amber-300 underline\">rathor.ai/privacy</a>",
+  "privacyUpdated": "Laatst bijgewerkt: 2026-10-22 · Afgestemd op <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/Legal/privacy.md\" target=\"_blank\" rel=\"noopener\" class=\"text-amber-300 underline\">docs/Legal/privacy.md</a>",
   "swatchCalBody": "Een governance-eerst 1+3-cel met policy-as-code en ALLOW / BLOCK / ESCALATE. Parallel werk. Ra-Thor mercy-security is alleen white-hat en is geen AEGIS- of LATTICE-poort. Aannames A1–A5 reizen mee met elke zin over nul omzeiling.",
   "swatchCalLink": "Ra-Thor-signaalmetabolisme →",
   "swatchCalTitle": "Calboreanu LATTICE (Frontiers AI 2026)",

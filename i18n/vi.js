@@ -489,7 +489,7 @@ window.translations["vi"] = {
   "privacyThird1": "Trang này chỉ tải CSS và JS bên thứ nhất từ rathor.ai (chủ đề, điều hướng gia đình, cài PWA, cửa sổ tuần). Không có CDN Tailwind, Font Awesome, hay Google Fonts ở đây. Google Translate chỉ khi bấm là tùy chọn: nó không tải cho đến khi bạn yêu cầu, rồi dùng Google trên mạng. Các gói ngôn ngữ ngoại tuyến trên trang này vẫn là mặc định. Chúng tôi không chạy phân tích hay cookie theo dõi.",
   "privacyThird2": "Các bản demo nối trên grok.com hoặc x.com chịu chính sách riêng tư của xAI và X Corp theo thứ tự ấy. Thư tới info@Rathor.ai là tùy chọn và dựa trên sự đồng ý; thư từ không bao giờ bị bán hoặc chia sẻ.",
   "privacyThirdTitle": "Dịch vụ bên thứ ba",
-  "privacyUpdated": "Cập nhật lần cuối: 2026-10-22 · Khớp với <a href=\"/privacy.html\" target=\"_blank\" rel=\"noopener\" class=\"text-amber-300 underline\">rathor.ai/privacy</a>",
+  "privacyUpdated": "Cập nhật lần cuối: 2026-10-22 · Khớp với <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/Legal/privacy.md\" target=\"_blank\" rel=\"noopener\" class=\"text-amber-300 underline\">docs/Legal/privacy.md</a>",
   "swatchCalBody": "Một ô 1+3 ưu tiên quản trị, với chính sách thành mã và ALLOW / BLOCK / ESCALATE. Việc song song. mercy-security của Ra-Thor chỉ là mũ trắng và không phải bản chuyển AEGIS hay LATTICE. Các giả định A1–A5 đi cùng mọi câu không-vòng-tránh.",
   "swatchCalLink": "Trao đổi tín hiệu Ra-Thor →",
   "swatchCalTitle": "Calboreanu LATTICE, bài Frontiers AI 2026",

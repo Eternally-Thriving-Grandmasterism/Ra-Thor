@@ -489,7 +489,7 @@ window.translations["ko"] = {
   "privacyThird1": "이 페이지는 자사 CSS와 JS를 rathor.ai에서만 불러옵니다(테마, 가족 탐색, PWA 설치, 주간 창). 여기에는 Tailwind, Font Awesome, Google Fonts CDN이 없습니다. 클릭할 때만 쓰는 Google Translate는 선택입니다. 요청하기 전에는 불러오지 않고, 그 뒤에는 네트워크의 Google을 씁니다. 이 사이트의 오프라인 언어 묶음이 기본으로 남습니다. 분석이나 추적 쿠키는 돌리지 않습니다.",
   "privacyThird2": "grok.com 또는 x.com의 연결된 데모는 각각 xAI와 X Corp의 개인정보 처리방침을 따릅니다. info@Rathor.ai로의 이메일은 선택이며, 동의에 기반합니다. 서신은 판매되거나 공유되지 않습니다.",
   "privacyThirdTitle": "제3자 서비스",
-  "privacyUpdated": "마지막 업데이트: 2026-10-22 · <a href=\"/privacy.html\" target=\"_blank\" rel=\"noopener\" class=\"text-amber-300 underline\">rathor.ai/privacy</a> 에 맞춤",
+  "privacyUpdated": "마지막 업데이트: 2026-10-22 · <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/Legal/privacy.md\" target=\"_blank\" rel=\"noopener\" class=\"text-amber-300 underline\">docs/Legal/privacy.md</a> 에 맞춤",
   "swatchCalBody": "거버넌스 우선의 1+3 칸. 정책을 코드로 두고, ALLOW / BLOCK / ESCALATE 를 갖습니다. 나란히 놓인 작업입니다. Ra-Thor mercy-security는 화이트햇만이며, AEGIS나 LATTICE의 이식이 아닙니다. 가정 A1–A5는 제로 우회 문장과 함께 갑니다.",
   "swatchCalLink": "Ra-Thor 신호 대사 →",
   "swatchCalTitle": "Calboreanu LATTICE (Frontiers AI 2026)",

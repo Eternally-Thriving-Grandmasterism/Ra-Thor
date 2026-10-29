@@ -489,7 +489,7 @@ window.translations["fa"] = {
   "privacyThird1": "این صفحه CSS و JS طرف‌اول را فقط از rathor.ai بار می‌کند (پوسته، ناوبری خانواده، نصب PWA، پنجره‌ی هفته). اینجا CDN برای Tailwind، Font Awesome یا Google Fonts نیست. ترجمه‌ی Google فقط با کلیک اختیاری است: تا نخواهید بار نمی‌شود، و سپس Google را روی شبکه به کار می‌برد. بسته‌های زبان آفلاین روی این سایت پیش‌فرض می‌مانند. تحلیل یا کوکی ردیابی اجرا نمی‌کنیم.",
   "privacyThird2": "نمایش‌های متصل در grok.com یا x.com تابع سیاست حریم خصوصی xAI و X Corp هستند. ایمیل به info@Rathor.ai اختیاری و مبتنی بر رضایت است؛ مکاتبه هرگز فروخته یا هم‌رسانی نمی‌شود.",
   "privacyThirdTitle": "خدمات شخص ثالث",
-  "privacyUpdated": "آخرین به‌روزرسانی: 2026-10-22 · هم‌راستا با <a href=\"/privacy.html\" target=\"_blank\" rel=\"noopener\" class=\"text-amber-300 underline\">rathor.ai/privacy</a>",
+  "privacyUpdated": "آخرین به‌روزرسانی: 2026-10-22 · هم‌راستا با <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/Legal/privacy.md\" target=\"_blank\" rel=\"noopener\" class=\"text-amber-300 underline\">docs/Legal/privacy.md</a>",
   "swatchCalBody": "یک سلول ۱+۳ با حکمرانی در اولویت، با سیاست-به‌مثابه-کد و ALLOW / BLOCK / ESCALATE. کار موازی. mercy-security در Ra-Thor فقط سفیدکلاه است و درگاه AEGIS یا LATTICE نیست. فرض‌های A1–A5 با هر جمله‌ی صفر-دورزدن سفر می‌کنند.",
   "swatchCalLink": "سوخت‌وساز سیگنال Ra-Thor ←",
   "swatchCalTitle": "Calboreanu LATTICE (Frontiers AI 2026) — مقاله‌ی موازی",

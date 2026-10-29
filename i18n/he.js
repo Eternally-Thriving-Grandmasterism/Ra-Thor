@@ -489,7 +489,7 @@ window.translations["he"] = {
   "privacyThird1": "העמוד הזה טוען CSS ו-JS מצד ראשון מ-rathor.ai בלבד (ערכת נושא, ניווט משפחה, התקנת PWA, חלון שבוע). אין כאן CDN של Tailwind, Font Awesome או Google Fonts. Google Translate בלחיצה בלבד הוא אופציונלי: הוא אינו נטען עד שאתם מבקשים, ואז הוא משתמש ב-Google ברשת. חבילות שפה לא-מקוונות באתר הזה נשארות ברירת המחדל. איננו מריצים אנליטיקה או עוגיות מעקב.",
   "privacyThird2": "הדגמות מחוברות ב-grok.com או ב-x.com כפופות למדיניות הפרטיות של xAI ושל X Corp בהתאמה. דוא״ל אל info@Rathor.ai הוא אופציונלי ומבוסס הסכמה; התכתבות אינה נמכרת ואינה משותפת.",
   "privacyThirdTitle": "שירותי צד שלישי",
-  "privacyUpdated": "עודכן לאחרונה: 2026-10-22 · מיושר עם <a href=\"/privacy.html\" target=\"_blank\" rel=\"noopener\" class=\"text-amber-300 underline\">rathor.ai/privacy</a>",
+  "privacyUpdated": "עודכן לאחרונה: 2026-10-22 · מיושר עם <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/Legal/privacy.md\" target=\"_blank\" rel=\"noopener\" class=\"text-amber-300 underline\">docs/Legal/privacy.md</a>",
   "swatchCalBody": "תא 1+3 עם ממשל תחילה, עם מדיניות-כקוד ו-ALLOW / BLOCK / ESCALATE. עבודה מקבילה. mercy-security של Ra-Thor הוא כובע לבן בלבד ואינו פורט של AEGIS או של LATTICE. הנחות A1–A5 נוסעות עם כל משפט אפס-עקיפה.",
   "swatchCalLink": "מטבוליזם האות של Ra-Thor →",
   "swatchCalTitle": "Calboreanu LATTICE (Frontiers AI 2026) — מאמר מקביל",

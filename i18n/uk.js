@@ -489,7 +489,7 @@ window.translations["uk"] = {
   "privacyThird1": "Ця сторінка спершу вантажить лише власні CSS і JS з rathor.ai (тема, родинна навігація, встановлення PWA, вікно тижня). Тут немає CDN Tailwind, Font Awesome чи Google Fonts. Google Перекладач лише за клацанням і за бажанням: він не вантажиться, доки ви не попросите, і тоді використовує Google у мережі. Офлайн-пакети мов на цьому сайті лишаються усталеними. Ми не ведемо аналітику і не ставимо кукі відстеження.",
   "privacyThird2": "Підключені демо на grok.com або x.com підлягають політикам приватності xAI і X Corp відповідно. Лист на info@Rathor.ai — за бажанням і на основі згоди; листування не продають і не передають.",
   "privacyThirdTitle": "Сторонні служби",
-  "privacyUpdated": "Останнє оновлення: 2026-10-22 · Узгоджено з <a href=\"/privacy.html\" target=\"_blank\" rel=\"noopener\" class=\"text-amber-300 underline\">rathor.ai/privacy</a>",
+  "privacyUpdated": "Останнє оновлення: 2026-10-22 · Узгоджено з <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/Legal/privacy.md\" target=\"_blank\" rel=\"noopener\" class=\"text-amber-300 underline\">docs/Legal/privacy.md</a>",
   "swatchCalBody": "Комірка 1+3 з пріоритетом урядування, з policy-as-code і ALLOW / BLOCK / ESCALATE. Паралельна праця. mercy-security у Ra-Thor — лише white-hat і не порт AEGIS чи LATTICE. Припущення A1–A5 супроводжують будь-яку фразу про нульовий обхід.",
   "swatchCalLink": "Метаболізм сигналу Ra-Thor →",
   "swatchCalTitle": "LATTICE Кальбореану (Frontiers AI 2026)",
