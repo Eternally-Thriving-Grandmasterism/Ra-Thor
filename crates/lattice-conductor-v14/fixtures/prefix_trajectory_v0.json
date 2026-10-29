@@ -1,0 +1,96 @@
+{
+  "canonical_version": "RT-PREFIX-v1",
+  "threshold": 50,
+  "note": "Per-step decisions, not a final-answer-only string. Hashes are RT-PREFIX-v1 canonical preimages of score_prefix snapshots. Offline-checkable. Not a valence number. Not METR.",
+  "clean_short": {
+    "expect_terminal": "complete",
+    "expect_action": "continue",
+    "hash": "0b1e9098244c7de16a4041a3f894069bea476a24b022f37f6eeb0d9046a6d2ff",
+    "steps": [
+      {
+        "kind": "search",
+        "payload": "get_tree_safe crates/lattice-conductor-v14",
+        "claimed_mercy": 0.99,
+        "actor": "operator",
+        "tool_id": null
+      },
+      {
+        "kind": "read",
+        "payload": "get_file_contents_safe Cargo.toml",
+        "claimed_mercy": 0.99,
+        "actor": "operator",
+        "tool_id": null
+      },
+      {
+        "kind": "wrap",
+        "payload": "Draft: tend the well and publish flow.",
+        "claimed_mercy": 0.99,
+        "actor": "operator",
+        "tool_id": null
+      },
+      {
+        "kind": "verify",
+        "payload": "evidence-chain-verify",
+        "claimed_mercy": 0.99,
+        "actor": "operator",
+        "tool_id": null
+      }
+    ]
+  },
+  "looping": {
+    "expect_terminal": "escalated",
+    "expect_action": "escalate",
+    "hash": "c1a4eb1635a2317731a66ae2b0c72a1f54cce1276289cd689678306865688e3a",
+    "steps": [
+      {
+        "kind": "search",
+        "payload": "get_tree_safe crates/",
+        "claimed_mercy": 0.99,
+        "actor": "operator",
+        "tool_id": null
+      },
+      {
+        "kind": "tool",
+        "payload": "grep prefix_risk",
+        "claimed_mercy": 0.99,
+        "actor": "operator",
+        "tool_id": "grep"
+      },
+      {
+        "kind": "search",
+        "payload": "get_tree_safe crates/",
+        "claimed_mercy": 0.99,
+        "actor": "operator",
+        "tool_id": null
+      },
+      {
+        "kind": "tool",
+        "payload": "grep prefix_risk",
+        "claimed_mercy": 0.99,
+        "actor": "operator",
+        "tool_id": "grep"
+      }
+    ]
+  },
+  "two_step_low_mercy": {
+    "expect_terminal": "halted",
+    "expect_action": "halt",
+    "hash": "e9c8acd5afa50b84de7a79cd631a9528447395e37d4e368326563fe90dfc72e5",
+    "steps": [
+      {
+        "kind": "wrap",
+        "payload": "Draft: tend the well and publish flow.",
+        "claimed_mercy": 0.2,
+        "actor": "operator",
+        "tool_id": null
+      },
+      {
+        "kind": "wrap",
+        "payload": "second step must never apply",
+        "claimed_mercy": 0.99,
+        "actor": "operator",
+        "tool_id": null
+      }
+    ]
+  }
+}

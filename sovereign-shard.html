@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shard — Ra-Thor</title>
+    <meta name="description" content="A demo that runs only on your device. Not a live conductor node.">
+    <meta name="theme-color" content="#050505">
+    <meta name="color-scheme" content="dark light">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/icons/ra-thor-icon-192.png" type="image/png">
+    <link rel="stylesheet" href="/css/rathor-theme.css">
+    <script>
+        (function () {
+            try { document.documentElement.setAttribute('data-theme', localStorage.getItem('rathor-theme') || 'dark'); }
+            catch (e) { document.documentElement.setAttribute('data-theme', 'dark'); }
+        })();
+    </script>
+</head>
+<body>
+    <main class="rt-demo-page" id="rt-family-main">
+        <p><a class="rt-week-back" href="/">← Home</a></p>
+        <figure class="rt-art-hero rounded-2xl">
+          <img src="/assets/art/hero-shard-crystal-city-768.webp" srcset="/assets/art/hero-shard-crystal-city-768.webp 768w, /assets/art/hero-shard-crystal-city-1500.webp 1500w" sizes="(max-width: 900px) 192px, 1400px" width="1500" height="844" alt="A lavender-skinned figure in a flowing gown and a blue-skinned companion look out from a balcony over a city of tall crystal spires and cascading waterfalls at dusk, with a large planet and two moons in the sky." fetchpriority="high" decoding="async">
+        </figure>
+        <p class="rt-kicker">Demo · not a product</p>
+        <h1>Shard v8</h1>
+        <p class="rt-demo-lead">A demo that runs only on your device. Nothing is sent to us. It's a demo, not a live Lattice Conductor node, and not a superintelligence warranty.</p>
+        <p class="rt-cta-row"><button type="button" onclick="exportFullShard()" class="rt-btn-ghost">Export full shard</button></p>
+        <div class="rt-shard-grid">
+            <section class="rt-card">
+                <p class="rt-kicker">Sovereign shard</p>
+                <div id="shard-name">Alpha Shard</div>
+                <p><span id="offline-badge"><span id="offline-text">ONLINE</span></span></p>
+                <div class="rt-metric-grid">
+                    <div><span>Mercy score</span><div id="mercy-score" class="rt-mono">0.95</div></div>
+                    <div><span>Evolution</span><div id="evolution" class="rt-mono">0.12</div></div>
+                    <div><span>Valence</span><div id="valence" class="rt-mono">1.05</div></div>
+                    <div><span>TOLC alignment</span><div id="tolc" class="rt-mono">1.00</div></div>
+                </div>
+            </section>
+            <section class="rt-card">
+                <h2>Shard actions</h2>
+                <div class="rt-actions">
+                    <button type="button" onclick="performTick()" class="rt-btn-primary">Next step</button>
+                    <button type="button" onclick="participateQuantumSwarm()" class="rt-btn-ghost">Participate in quantum swarm</button>
+                    <button type="button" onclick="toggleOfflineMode()" class="rt-btn-ghost"><span id="offline-btn-text">Enter offline mode</span></button>
+                    <button type="button" onclick="reconcileWithConductor()" class="rt-btn-ghost">Reconcile with conductor</button>
+                </div>
+            </section>
+            <section class="rt-card">
+                <h2>TOLC 8 mercy checks</h2>
+                <p>The TOLC 8 mercy checks stay on. Weights stay on this device.</p>
+                <div class="rt-preset-row" id="mercy-gates"></div>
+            </section>
+            <section class="rt-card">
+                <h2>Deeper check (simulated)</h2>
+                <p>Runs a longer, simulated set of checks. It's an illustration, not a guarantee.</p>
+                <p id="tolc24-score" class="rt-mono">—</p>
+                <button type="button" onclick="runTolc24Evaluation()" class="rt-btn-ghost">Run deeper check</button>
+                <p class="rt-week-note">Simulates expanded 24-check scrutiny. Influences reconciliation strength. Not a PATSAGi warranty.</p>
+            </section>
+            <section class="rt-card rt-shard-log">
+                <h2>Shard log</h2>
+                <p><button type="button" onclick="clearLog()" class="rt-btn-ghost rt-btn-sm">Clear</button></p>
+                <div id="log" class="rt-log"></div>
+            </section>
+        </div>
+    </main>
+<script src="/js/sovereign-shard.js"></script>
+    <script src="/js/rathor-theme.js"></script>
+    <script src="/js/pwa-install.js"></script>
+    <script src="/js/family-nav-2026-08-22.js"></script>
+  <script src="/js/site-lock-2026-08-22.js"></script>
+</body>
+</html>

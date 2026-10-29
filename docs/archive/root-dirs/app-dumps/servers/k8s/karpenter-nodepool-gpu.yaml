@@ -1,0 +1,38 @@
+apiVersion: karpenter.sh/v1beta1
+kind: NodePool
+metadata:
+  name: rathor-gpu-inference
+  namespace: karpenter
+spec:
+  template:
+    metadata:
+      labels:
+        node-role: inference-gpu
+        mercy-priority: high
+    spec:
+      nodeClassRef:
+        name: default
+      requirements:
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values: ["spot", "on-demand"]
+        - key: karpenter.k8s.aws/instance-category
+          operator: In
+          values: ["g", "p"]  # G-series (A10G/G5), P-series (P4/P5)
+        - key: karpenter.k8s.aws/instance-gpu-count
+          operator: Gt
+          values: ["0"]
+        - key: karpenter.k8s.aws/instance-gpu-name
+          operator: In
+          values: ["a10g", "a100", "h100", "l4", "t4"]  # adjust to your region
+        - key: kubernetes.io/arch
+          operator: In
+          values: ["amd64"]
+  limits:
+    cpu: 1000
+    memory: 4000Gi
+    nvidia.com/gpu: 100
+  disruption:
+    consolidationPolicy: WhenUnderutilized
+    expireAfter: 720h  # 30 days
+  weight: 100

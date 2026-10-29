@@ -1,0 +1,228 @@
+diff --git a/gpu_compute_pipeline.rs b/gpu_compute_pipeline.rs
+index 8e4f2c1..c7a9d3e 100644
+--- a/gpu_compute_pipeline.rs
++++ b/gpu_compute_pipeline.rs
+@@ -120,12 +120,15 @@ impl StagingBufferPool {
+     }
+ }
+ 
+-// === Async Readback simulation ===
++// === Async Readback (simulation fallback + real wgpu path) ===
+ pub async fn readback_buffer_async(buffer: Vec<u8>) -> Result<Vec<u8>, String> {
+     tokio::time::sleep(tokio::time::Duration::from_millis(5)).await;
+     Ok(buffer)
+ }
+ 
++pub fn readback_buffer_blocking(buffer: Vec<u8>) -> Result<Vec<u8>, String> {
++    Ok(buffer)
++}
++
+ // === GPU Compute Pipeline (simplified struct for context) ===
+ // (existing Pipeline struct with allocator: Arc<Mutex<GpuMemoryAllocator>>, staging_pool, etc. assumed)
+ 
+@@ -165,15 +168,12 @@ pub async fn dispatch(&self, task: GpuTask) -> Result<GpuTaskResult, String> {
+     let mut staging = self.staging_pool.lock().await;
+ 
+     let staging_buf = staging.acquire_staging(task.buffer_size);
+-
+-    if cfg!(feature = "wgpu") {
+-        let _ = self.try_real_gpu_launch(task.buffer_size).await;
+-    }
+-    if cfg!(feature = "cudarc") {
+-        let _ = self.try_real_cuda_launch(task.buffer_size).await;
+-    }
+-    tokio::time::sleep(tokio::time::Duration::from_millis(70)).await;
+-
+-    let readback = readback_buffer_async(staging_buf.clone()).await?;
++    
++    // Real GPU path returns actual output bytes; falls back to simulation
++    let readback: Vec<u8> = if cfg!(feature = "wgpu") {
++        self.try_real_gpu_launch(task.buffer_size, &staging_buf).await?
++    } else if cfg!(feature = "cudarc") {
++        self.try_real_cuda_launch(task.buffer_size, &staging_buf).await?
++    } else {
++        readback_buffer_async(staging_buf.clone()).await?
++    };
++
+     let debug = DebugOutputBuffer::new(&task.name, readback.clone());
+ 
+     staging.release_staging(staging_buf);
+@@ -220,13 +220,13 @@ pub async fn submit_tu_batch_inference(
+     let total_size = batch.agent_count * batch.state_size;
+     let staging_buf = staging.acquire_staging(total_size);
+ 
+-    if cfg!(feature = "wgpu") {
+-        let _ = self.try_real_gpu_launch(total_size).await;
+-    }
+-    if cfg!(feature = "cudarc") {
+-        let _ = self.try_real_cuda_launch(total_size).await;
+-    }
+-
+-    tokio::time::sleep(tokio::time::Duration::from_millis(40 * batch.agent_count as u64)).await;
++    let readback: Vec<u8> = if cfg!(feature = "wgpu") {
++        self.try_real_gpu_launch(total_size, &staging_buf).await?
++    } else if cfg!(feature = "cudarc") {
++        self.try_real_cuda_launch(total_size, &staging_buf).await?
++    } else {
++        readback_buffer_async(staging_buf.clone()).await?
++    };
+ 
+     // Stub TU values + mercy norms (production: replace with real compute_tu on readback data)
+     let mut tu_values = Vec::with_capacity(batch.agent_count);
+@@ -280,23 +280,68 @@ pub async fn submit_tu_batch_inference(
+ /// REAL GPU SHADER SUBMISSION LOGIC (wgpu feature)
+ /// Expanded for full TU batch compute_tu integration.
+ /// Now performs complete pipeline setup, dispatch, and async readback.
+-#[cfg(feature = "wgpu")]
+-async fn try_real_gpu_launch(&self, buffer_size: usize) -> Result<(), String> {
++#[cfg(feature = "wgpu")]
++async fn try_real_gpu_launch(&self, buffer_size: usize, input_data: &[u8]) -> Result<Vec<u8>, String> {
+     use wgpu::util::DeviceExt;
+ 
+     let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
+         backends: wgpu::Backends::all(),
+         ..Default::default()
+     });
+ 
+-    let adapter = instance
+-        .request_adapter(&wgpu::RequestAdapterOptions {
+-            power_preference: wgpu::PowerPreference::HighPerformance,
+-            force_fallback_adapter: false,
+-            compatible_surface: None,
+-        })
+-        .await
+-        .ok_or("No suitable GPU adapter found")?;
++    let adapter = instance.request_adapter(&wgpu::RequestAdapterOptions {
++        power_preference: wgpu::PowerPreference::HighPerformance,
++        force_fallback_adapter: false,
++        compatible_surface: None,
++    }).await.ok_or("No suitable GPU adapter found")?;
+ 
+     let (device, queue) = adapter
+         .request_device(
+             &wgpu::DeviceDescriptor {
+                 required_features: wgpu::Features::empty(),
+                 required_limits: wgpu::Limits::downlevel_defaults(),
+                 label: Some("Ra-Thor GPU Compute Device"),
+             },
+             None,
+-        )
+-        .await
+-        .map_err(|e| format!("Device request failed: {}", e))?; 
++        ).await.map_err(|e| format!("Device request failed: {}", e))?;
+ 
+-    // Expanded TU batch shader - mercy-aligned gentle transformation + entropy proxy
+-    let shader_source = r#"
++    // Create GPU buffers (input staging data + output)
++    let gpu_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
++        label: Some("Ra-Thor Input/Output Buffer"),
++        contents: input_data,
++        usage: wgpu::BufferUsages::STORAGE | wgpu::BufferUsages::COPY_SRC | wgpu::BufferUsages::COPY_DST,
++    });
++
++    let output_buffer = device.create_buffer(&wgpu::BufferDescriptor {
++        label: Some("Ra-Thor Readback Buffer"),
++        size: input_data.len() as u64,
++        usage: wgpu::BufferUsages::COPY_DST | wgpu::BufferUsages::MAP_READ,
++        mapped_at_creation: false,
++    });
++
++    // Expanded TU batch shader (existing)
++    let shader_source = r#"
+         @group(0) @binding(0) var<storage, read_write> data: array<f32>;
+ 
+         @compute @workgroup_size(64)
+         fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
+             let idx = global_id.x;
+             if (idx < arrayLength(&data)) {
+                 let val = data[idx];
+                 let transformed = val * 1.01 + 0.001;
+                 let entropy_factor = (transformed - val) * 0.1;
+                 data[idx] = transformed + entropy_factor;
+             }
+         }
+     "#;
+ 
+-    let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
+-        label: Some("Ra-Thor TU Compute Shader - Expanded"),
+-        source: wgpu::ShaderSource::Wgsl(shader_source.into()),
+-    });
+-
+-    let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+-        label: Some("Ra-Thor Bind Group Layout"),
+-        entries: &[wgpu::BindGroup...
++    let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
++        label: Some("Ra-Thor TU Compute Shader"),
++        source: wgpu::ShaderSource::Wgsl(shader_source.into()),
++    });
++
++    let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
++        label: Some("Ra-Thor Bind Group Layout"),
++        entries: &[wgpu::BindGroupLayoutEntry {
++            binding: 0,
++            visibility: wgpu::ShaderStages::COMPUTE,
++            ty: wgpu::BindingType::Buffer {
++                ty: wgpu::BufferBindingType::Storage { read_only: false },
++                has_dynamic_offset: false,
++                min_binding_size: None,
++            },
++            count: None,
++        }],
++    });
++
++    let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
++        label: Some("Ra-Thor Pipeline Layout"),
++        bind_group_layouts: &[&bind_group_layout],
++        push_constant_ranges: &[],
++    });
++
++    let compute_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
++        label: Some("Ra-Thor Compute Pipeline"),
++        layout: Some(&pipeline_layout),
++        module: &shader,
++        entry_point: "main",
++    });
++
++    let bind_group = device.create_bind_group(&wgpu::BindGroupDescriptor {
++        label: Some("Ra-Thor Bind Group"),
++        layout: &bind_group_layout,
++        entries: &[wgpu::BindGroupEntry {
++            binding: 0,
++            resource: gpu_buffer.as_entire_binding(),
++        }],
++    });
++
++    // Dispatch
++    let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor {
++        label: Some("Ra-Thor Encoder"),
++    });
++    {
++        let mut compute_pass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor {
++            label: Some("Ra-Thor Compute Pass"),
++            timestamp_writes: None,
++        });
++        compute_pass.set_pipeline(&compute_pipeline);
++        compute_pass.set_bind_group(0, &bind_group, &[]);
++        compute_pass.dispatch_workgroups((input_data.len() as u32 / 4 + 63) / 64, 1, 1);
++    }
++    encoder.copy_buffer_to_buffer(&gpu_buffer, 0, &output_buffer, 0, input_data.len() as u64);
++    queue.submit(Some(encoder.finish()));
++
++    // Async readback (real GPU result)
++    let buffer_slice = output_buffer.slice(..);
++    let (tx, rx) = tokio::sync::oneshot::channel();
++    buffer_slice.map_async(wgpu::MapMode::Read, move |result| {
++        let _ = tx.send(result);
++    });
++    device.poll(wgpu::Maintain::Wait);
++    rx.await.map_err(|_| "Readback channel closed".to_string())?
++        .map_err(|e| format!("Map async failed: {:?}", e))?;
++
++    let data = buffer_slice.get_mapped_range();
++    let result = data.to_vec();
++    drop(data);
++    output_buffer.unmap();
++
++    // TODO (surgical follow-up): integrate real compute_tu on result bytes + mercy_norm
++    Ok(result)
+ }

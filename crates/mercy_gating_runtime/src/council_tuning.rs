@@ -1,0 +1,419 @@
+// Council tuning.
+// apply_council_tuning and set_gate_threshold refuse when
+// `!new_value.is_finite() || new_value < current`. The stored value stays.
+// An equal or higher finite value is stored.
+// `ma_at_threshold` and `gate_thresholds` are public fields, so the refuse-a-decrease guarantee covers the methods only, and a direct field write bypasses it.
+
+use std::collections::HashMap;
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum TuningTarget {
+    MaAtThreshold,
+    GateThreshold { gate: String },
+    RaceAmplifier { race: String, gate: String },
+}
+
+#[derive(Debug, Clone)]
+pub struct CouncilTuningProposal {
+    pub council_id: u32,
+    pub target: TuningTarget,
+    pub new_value: f64,
+    pub justification: String,
+    pub proposed_at_turn: u64,
+}
+
+#[derive(Debug, Clone)]
+pub struct TuningResult {
+    pub success: bool,
+    pub previous_value: f64,
+    pub new_value: f64,
+    pub message: String,
+}
+
+/// `ma_at_threshold` and `gate_thresholds` are public fields, so the refuse-a-decrease guarantee covers the methods only, and a direct field write bypasses it.
+#[derive(Debug, Clone)]
+pub struct MercyGatingRuntime {
+    pub ma_at_threshold: f64,
+    pub gate_thresholds: HashMap<String, f64>,
+}
+
+impl Default for MercyGatingRuntime {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl MercyGatingRuntime {
+    /// `ma_at_threshold` starts at the source literal `717.0`.
+    /// Gate defaults are the source literals written in this function, not measured results.
+    pub fn new() -> Self {
+        let mut rt = Self {
+            ma_at_threshold: 717.0,
+            gate_thresholds: HashMap::new(),
+        };
+        // Defaults for gates 17-24
+        rt.gate_thresholds
+            .insert("ma_at_resonance".to_string(), 0.78);
+        rt.gate_thresholds
+            .insert("one_organism_unity".to_string(), 0.90);
+        rt.gate_thresholds
+            .insert("council_harmony".to_string(), 0.80);
+        rt.gate_thresholds
+            .insert("sovereign_legacy".to_string(), 0.80);
+        rt
+    }
+
+    pub fn get_gate_threshold(&self, gate: &str) -> f64 {
+        self.gate_thresholds.get(gate).copied().unwrap_or(0.75)
+    }
+
+    /// Returns `Err` when `value` is non-finite or below the stored value.
+    /// The stored value stays. An equal or higher finite `value` is stored.
+    /// A missing name uses `get_gate_threshold` (the source literal `0.75`).
+    /// `apply_council_tuning` does not call this method.
+    pub fn set_gate_threshold(&mut self, gate: String, value: f64) -> Result<f64, String> {
+        let current = self.get_gate_threshold(&gate);
+        if !value.is_finite() || value < current {
+            return Err(format!(
+                "value for '{gate}' must be finite and must not be below the stored value (current: {current:.2})"
+            ));
+        }
+        self.gate_thresholds.insert(gate, value);
+        Ok(value)
+    }
+
+    /// Refuses `new_value` when it is non-finite or below the stored value.
+    /// The stored value stays. `success` is false on a refusal.
+    /// An equal or higher finite `new_value` is stored.
+    /// `MaAtThreshold` compares with `ma_at_threshold`.
+    /// `GateThreshold` compares with `get_gate_threshold` (a missing name reports `0.75`).
+    /// `0.75` is that function's source literal, not a measured floor.
+    /// `RaceAmplifier` does not change a threshold. `success` is true for that target.
+    pub fn apply_council_tuning(&mut self, proposal: &CouncilTuningProposal) -> TuningResult {
+        match &proposal.target {
+            TuningTarget::MaAtThreshold => {
+                let previous = self.ma_at_threshold;
+                if !proposal.new_value.is_finite() || proposal.new_value < previous {
+                    return TuningResult {
+                        success: false,
+                        previous_value: previous,
+                        new_value: previous,
+                        message: format!(
+                            "Ma'at threshold must be finite and must not be below the stored value (current: {previous:.1})"
+                        ),
+                    };
+                }
+                self.ma_at_threshold = proposal.new_value;
+                TuningResult {
+                    success: true,
+                    previous_value: previous,
+                    new_value: self.ma_at_threshold,
+                    message: format!(
+                        "Council #{} adjusted Ma'at threshold → {:.1} | {}",
+                        proposal.council_id, self.ma_at_threshold, proposal.justification
+                    ),
+                }
+            }
+            TuningTarget::GateThreshold { gate } => {
+                let previous = self.get_gate_threshold(gate);
+                if !proposal.new_value.is_finite() || proposal.new_value < previous {
+                    return TuningResult {
+                        success: false,
+                        previous_value: previous,
+                        new_value: previous,
+                        message: format!(
+                            "Threshold for '{gate}' must be finite and must not be below the stored value (current: {previous:.2})"
+                        ),
+                    };
+                }
+                self.gate_thresholds
+                    .insert(gate.clone(), proposal.new_value);
+                TuningResult {
+                    success: true,
+                    previous_value: previous,
+                    new_value: proposal.new_value,
+                    message: format!(
+                        "Council #{} tuned gate '{}' threshold → {:.2} | {}",
+                        proposal.council_id, gate, proposal.new_value, proposal.justification
+                    ),
+                }
+            }
+            _ => TuningResult {
+                success: true,
+                previous_value: 0.0,
+                new_value: proposal.new_value,
+                message: format!("Council #{} tuning acknowledged", proposal.council_id),
+            },
+        }
+    }
+
+    pub fn apply_council_tunings(
+        &mut self,
+        proposals: &[CouncilTuningProposal],
+    ) -> Vec<TuningResult> {
+        proposals
+            .iter()
+            .map(|p| self.apply_council_tuning(p))
+            .collect()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn maat_raise_to_755_stores_755() {
+        let mut runtime = MercyGatingRuntime::new();
+        assert_eq!(runtime.ma_at_threshold, 717.0);
+
+        let proposal = CouncilTuningProposal {
+            council_id: 13,
+            target: TuningTarget::MaAtThreshold,
+            new_value: 755.0,
+            justification: "Raised during arbitration".to_string(),
+            proposed_at_turn: 42,
+        };
+
+        let result = runtime.apply_council_tuning(&proposal);
+        assert!(result.success);
+        assert_eq!(result.previous_value, 717.0);
+        assert_eq!(result.new_value, 755.0);
+        assert_eq!(runtime.ma_at_threshold, 755.0);
+    }
+
+    #[test]
+    fn test_dynamic_per_gate_threshold_update() {
+        let mut runtime = MercyGatingRuntime::new();
+        let proposal = CouncilTuningProposal {
+            council_id: 13,
+            target: TuningTarget::GateThreshold {
+                gate: "one_organism_unity".to_string(),
+            },
+            new_value: 0.95,
+            justification: "Strengthen One Organism Unity during high-stakes phase".to_string(),
+            proposed_at_turn: 50,
+        };
+
+        let result = runtime.apply_council_tuning(&proposal);
+        assert!(result.success);
+        assert_eq!(runtime.get_gate_threshold("one_organism_unity"), 0.95);
+    }
+
+    #[test]
+    fn lower_ma_at_proposal_is_rejected_and_717_stays() {
+        let mut runtime = MercyGatingRuntime::new();
+        let proposal = CouncilTuningProposal {
+            council_id: 99,
+            target: TuningTarget::MaAtThreshold,
+            new_value: 100.0,
+            justification: "lower attempt".to_string(),
+            proposed_at_turn: 1,
+        };
+        let result = runtime.apply_council_tuning(&proposal);
+        assert!(!result.success);
+        assert_eq!(result.previous_value, 717.0);
+        assert_eq!(result.new_value, 717.0);
+        assert_eq!(runtime.ma_at_threshold, 717.0);
+    }
+
+    #[test]
+    fn equal_ma_at_proposal_is_accepted() {
+        let mut runtime = MercyGatingRuntime::new();
+        let proposal = CouncilTuningProposal {
+            council_id: 13,
+            target: TuningTarget::MaAtThreshold,
+            new_value: 717.0,
+            justification: "same value".to_string(),
+            proposed_at_turn: 2,
+        };
+        let result = runtime.apply_council_tuning(&proposal);
+        assert!(result.success);
+        assert_eq!(result.previous_value, 717.0);
+        assert_eq!(result.new_value, 717.0);
+        assert_eq!(runtime.ma_at_threshold, 717.0);
+    }
+
+    #[test]
+    fn lower_named_threshold_is_rejected_and_the_old_value_stays() {
+        let mut runtime = MercyGatingRuntime::new();
+        assert_eq!(runtime.get_gate_threshold("one_organism_unity"), 0.90);
+        let proposal = CouncilTuningProposal {
+            council_id: 13,
+            target: TuningTarget::GateThreshold {
+                gate: "one_organism_unity".to_string(),
+            },
+            new_value: 0.50,
+            justification: "lower attempt".to_string(),
+            proposed_at_turn: 3,
+        };
+        let result = runtime.apply_council_tuning(&proposal);
+        assert!(!result.success);
+        assert_eq!(result.previous_value, 0.90);
+        assert_eq!(result.new_value, 0.90);
+        assert_eq!(runtime.get_gate_threshold("one_organism_unity"), 0.90);
+        assert_eq!(runtime.get_gate_threshold("council_harmony"), 0.80);
+    }
+
+    #[test]
+    fn higher_named_threshold_is_accepted() {
+        let mut runtime = MercyGatingRuntime::new();
+        let proposal = CouncilTuningProposal {
+            council_id: 13,
+            target: TuningTarget::GateThreshold {
+                gate: "council_harmony".to_string(),
+            },
+            new_value: 0.81,
+            justification: "raise".to_string(),
+            proposed_at_turn: 4,
+        };
+        let result = runtime.apply_council_tuning(&proposal);
+        assert!(result.success);
+        assert_eq!(result.previous_value, 0.80);
+        assert_eq!(result.new_value, 0.81);
+        assert_eq!(runtime.get_gate_threshold("council_harmony"), 0.81);
+        assert_eq!(runtime.get_gate_threshold("one_organism_unity"), 0.90);
+    }
+
+    fn ma_at_proposal(new_value: f64) -> CouncilTuningProposal {
+        CouncilTuningProposal {
+            council_id: 99,
+            target: TuningTarget::MaAtThreshold,
+            new_value,
+            justification: "non-finite or lower".to_string(),
+            proposed_at_turn: 7,
+        }
+    }
+
+    fn named_proposal(new_value: f64) -> CouncilTuningProposal {
+        CouncilTuningProposal {
+            council_id: 13,
+            target: TuningTarget::GateThreshold {
+                gate: "one_organism_unity".to_string(),
+            },
+            new_value,
+            justification: "non-finite or lower".to_string(),
+            proposed_at_turn: 8,
+        }
+    }
+
+    #[test]
+    fn non_finite_ma_at_values_are_refused_and_717_stays() {
+        let mut runtime = MercyGatingRuntime::new();
+        for value in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY] {
+            let result = runtime.apply_council_tuning(&ma_at_proposal(value));
+            assert!(!result.success);
+            assert!(result.message.contains("finite"));
+            assert_eq!(result.previous_value, 717.0);
+            assert_eq!(result.new_value, 717.0);
+            assert_eq!(runtime.ma_at_threshold, 717.0);
+        }
+    }
+
+    #[test]
+    fn refused_nan_then_a_lower_ma_at_value_is_still_refused() {
+        let mut runtime = MercyGatingRuntime::new();
+        let nan = runtime.apply_council_tuning(&ma_at_proposal(f64::NAN));
+        assert!(!nan.success);
+        assert_eq!(runtime.ma_at_threshold, 717.0);
+        let lower = runtime.apply_council_tuning(&ma_at_proposal(100.0));
+        assert!(!lower.success);
+        assert_eq!(lower.previous_value, 717.0);
+        assert_eq!(lower.new_value, 717.0);
+        assert_eq!(runtime.ma_at_threshold, 717.0);
+    }
+
+    #[test]
+    fn non_finite_named_values_are_refused_and_0_90_stays() {
+        let mut runtime = MercyGatingRuntime::new();
+        for value in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY] {
+            let result = runtime.apply_council_tuning(&named_proposal(value));
+            assert!(!result.success);
+            assert!(result.message.contains("finite"));
+            assert_eq!(result.previous_value, 0.90);
+            assert_eq!(result.new_value, 0.90);
+            assert_eq!(runtime.get_gate_threshold("one_organism_unity"), 0.90);
+        }
+    }
+
+    #[test]
+    fn refused_nan_then_a_lower_named_value_is_still_refused() {
+        let mut runtime = MercyGatingRuntime::new();
+        let nan = runtime.apply_council_tuning(&named_proposal(f64::NAN));
+        assert!(!nan.success);
+        assert_eq!(runtime.get_gate_threshold("one_organism_unity"), 0.90);
+        let lower = runtime.apply_council_tuning(&named_proposal(0.50));
+        assert!(!lower.success);
+        assert_eq!(lower.previous_value, 0.90);
+        assert_eq!(lower.new_value, 0.90);
+        assert_eq!(runtime.get_gate_threshold("one_organism_unity"), 0.90);
+    }
+
+    // `-0.0` is finite. The stored Ma'at value is 717.0, and `-0.0 < 717.0`,
+    // so `apply_council_tuning` refuses it on the `< current` check and keeps 717.0.
+    #[test]
+    fn negative_zero_ma_at_proposal_is_refused_and_717_stays() {
+        let mut runtime = MercyGatingRuntime::new();
+        let result = runtime.apply_council_tuning(&ma_at_proposal(-0.0));
+        assert!(!result.success);
+        assert_eq!(result.previous_value, 717.0);
+        assert_eq!(result.new_value, 717.0);
+        assert_eq!(runtime.ma_at_threshold, 717.0);
+    }
+
+    // `-0.0` is finite. The stored named value is 0.90, and `-0.0 < 0.90`,
+    // so the GateThreshold arm refuses it on the `< current` check and keeps 0.90.
+    #[test]
+    fn negative_zero_named_proposal_is_refused_and_0_90_stays() {
+        let mut runtime = MercyGatingRuntime::new();
+        let result = runtime.apply_council_tuning(&named_proposal(-0.0));
+        assert!(!result.success);
+        assert_eq!(result.previous_value, 0.90);
+        assert_eq!(result.new_value, 0.90);
+        assert_eq!(runtime.get_gate_threshold("one_organism_unity"), 0.90);
+    }
+
+    // `-0.0` is finite. `set_gate_threshold` refuses it because `-0.0 < 0.90`.
+    // The stored value stays 0.90.
+    #[test]
+    fn negative_zero_named_setter_is_refused_and_0_90_stays() {
+        let mut runtime = MercyGatingRuntime::new();
+        assert!(runtime
+            .set_gate_threshold("one_organism_unity".to_string(), -0.0)
+            .is_err());
+        assert_eq!(runtime.get_gate_threshold("one_organism_unity"), 0.90);
+    }
+
+    #[test]
+    fn setter_refuses_a_decrease_and_a_non_finite_value() {
+        let mut runtime = MercyGatingRuntime::new();
+        assert!(runtime
+            .set_gate_threshold("one_organism_unity".to_string(), 0.89)
+            .is_err());
+        assert_eq!(runtime.get_gate_threshold("one_organism_unity"), 0.90);
+        for value in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY] {
+            let err = runtime
+                .set_gate_threshold("one_organism_unity".to_string(), value)
+                .expect_err("non-finite");
+            assert!(err.contains("finite"));
+            assert_eq!(runtime.get_gate_threshold("one_organism_unity"), 0.90);
+        }
+        let nan_err = runtime
+            .set_gate_threshold("council_harmony".to_string(), f64::NAN)
+            .expect_err("nan");
+        assert!(nan_err.contains("finite"));
+        assert_eq!(runtime.get_gate_threshold("council_harmony"), 0.80);
+        assert!(runtime
+            .set_gate_threshold("council_harmony".to_string(), 0.50)
+            .is_err());
+        assert_eq!(runtime.get_gate_threshold("council_harmony"), 0.80);
+        assert_eq!(
+            runtime
+                .set_gate_threshold("council_harmony".to_string(), 0.81)
+                .unwrap(),
+            0.81
+        );
+        assert_eq!(runtime.get_gate_threshold("council_harmony"), 0.81);
+        assert_eq!(runtime.get_gate_threshold("one_organism_unity"), 0.90);
+    }
+}

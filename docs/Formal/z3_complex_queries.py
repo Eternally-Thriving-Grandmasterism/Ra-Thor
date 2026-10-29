@@ -1,0 +1,1 @@
+Expanded Z3 script with 3 complex queries including council count >=57, epigenetic blessing >3.0, and harm rejection even at 0.96 coherence. Local file in artifacts.

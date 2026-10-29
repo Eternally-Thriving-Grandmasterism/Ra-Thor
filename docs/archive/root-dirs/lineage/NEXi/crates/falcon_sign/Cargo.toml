@@ -1,0 +1,11 @@
+[package]
+name = "falcon_sign"
+version = "1.0.0"
+edition = "2021"
+license = "MIT"
+description = "FalconSign — Full Falcon-1024 Post-Quantum Signature Module for NEXi Lattice"
+
+[dependencies]
+nexi = { path = "../" }
+pqcrypto-falcon = "0.3"
+pqcrypto-traits = "0.3"

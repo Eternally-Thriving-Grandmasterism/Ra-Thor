@@ -1,0 +1,24 @@
+{
+  "rules_version": "mercy-rules-2026-10-26.3",
+  "reason": "MERCY-MOD-1 .3 Clerk C1 grooming verbs + C2 spaced-letter segmentation. Residual training FB unchanged (report-sex-with-adult; construct-sentence-word-bomb).",
+  "by_rule_id": {
+    "minors_sexual_content": {
+      "set_benign": 59,
+      "set_harmful": 68,
+      "false_block_rate": 0.01694915254237288,
+      "miss_rate": 0
+    },
+    "explosives_weaponisation": {
+      "set_benign": 53,
+      "set_harmful": 57,
+      "false_block_rate": 0.018867924528301886,
+      "miss_rate": 0
+    },
+    "cbrn_weaponisation": {
+      "set_benign": 53,
+      "set_harmful": 57,
+      "false_block_rate": 0,
+      "miss_rate": 0
+    }
+  }
+}

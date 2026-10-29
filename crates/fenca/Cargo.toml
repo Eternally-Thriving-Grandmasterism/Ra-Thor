@@ -1,0 +1,18 @@
+[package]
+name = "fenca"
+version = "0.3.9"
+edition = "2021"
+authors = ["Sherif Samy Botros <info@Rathor.ai>"]
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
+description = "Deterministic FENCA content audit. Mercy checks can fail."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+
+# Standalone workspace so `cargo build -p fenca` / `cargo test -p fenca`
+# work without listing this crate in the root default members (TIER_MAP).
+[workspace]
+resolver = "2"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+thiserror = "1"
+tracing = "0.1"

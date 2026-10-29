@@ -1,0 +1,172 @@
+/* rathor-light-desert.css — siege-sand parchment lock */
+html[data-theme="light"] #living-surfaces a,
+html[data-theme="light"] #public-works a,
+html[data-theme="light"] #science-lattices a,
+html[data-theme="light"] #product-paths a {
+  background: var(--rt-bg-card) !important;
+  border: 1px solid var(--rt-line) !important;
+  color: var(--rt-ink) !important;
+  box-shadow: none !important;
+}
+html[data-theme="light"] #living-surfaces a p,
+html[data-theme="light"] #public-works a p,
+html[data-theme="light"] #science-lattices a p,
+html[data-theme="light"] #product-paths a p,
+html[data-theme="light"] #living-surfaces a .font-semibold,
+html[data-theme="light"] #public-works a .font-semibold {
+  color: var(--rt-ink) !important;
+}
+html[data-theme="light"] #living-surfaces a p.text-xs,
+html[data-theme="light"] #public-works a p.text-xs,
+html[data-theme="light"] #science-lattices a p.text-xs,
+html[data-theme="light"] #product-paths a p.text-\[11px\] {
+  color: var(--rt-muted) !important;
+}
+html[data-theme="light"] [class*="bg-violet-950"],
+html[data-theme="light"] [class*="bg-emerald-950"],
+html[data-theme="light"] [class*="bg-lime-950"],
+html[data-theme="light"] [class*="bg-cyan-950"],
+html[data-theme="light"] [class*="bg-sky-950"],
+html[data-theme="light"] [class*="bg-indigo-950"],
+html[data-theme="light"] [class*="bg-amber-950"],
+html[data-theme="light"] [class*="bg-zinc-950"],
+html[data-theme="light"] [class*="bg-zinc-900"],
+html[data-theme="light"] [class*="from-zinc-"],
+html[data-theme="light"] [class*="to-zinc-"] {
+  background: var(--rt-bg-card) !important;
+  background-image: none !important;
+}
+html[data-theme="light"] #shard-card {
+  background: var(--rt-bg-card) !important;
+  color: var(--rt-ink) !important;
+  border: 1px solid var(--rt-line) !important;
+}
+html[data-theme="light"] #shard-card #shard-name,
+html[data-theme="light"] #shard-card #valence-value,
+html[data-theme="light"] #shard-card #evolution-value,
+html[data-theme="light"] #shard-card #mercy-value,
+html[data-theme="light"] #shard-card #harmony-value,
+html[data-theme="light"] #shard-card .text-zinc-400 {
+  color: var(--rt-ink) !important;
+}
+html[data-theme="light"] #shard-card .bg-zinc-800 {
+  background-color: rgba(36, 26, 16, 0.16) !important;
+}
+html[data-theme="light"] span.w-1\.5[class*="bg-emerald"],
+html[data-theme="light"] span.animate-pulse[class*="bg-emerald"] {
+  background-color: #2f6b46 !important;
+  background-image: none !important;
+}
+html[data-theme="light"] [data-i18n="worksFlagships"],
+html[data-theme="light"] [data-i18n="worksCore"],
+html[data-theme="light"] [data-i18n="worksRelated"] {
+  color: var(--rt-gold-deep) !important;
+}
+html[data-theme="light"] .bg-zinc-950\/60,
+html[data-theme="light"] .bg-zinc-950\/70 {
+  background: var(--rt-bg-card) !important;
+  color: var(--rt-ink) !important;
+}
+html[data-theme="light"] footer,
+html[data-theme="light"] .rt-site-footer,
+html[data-theme="light"] .rt-site-footer p,
+html[data-theme="light"] .rt-site-footer div {
+  color: var(--rt-muted) !important;
+}
+html[data-theme="light"] [class*="text-amber"],
+html[data-theme="light"] [class*="text-yellow"],
+html[data-theme="light"] [class*="text-orange"],
+html[data-theme="light"] [class*="text-emerald"],
+html[data-theme="light"] [class*="text-green"],
+html[data-theme="light"] [class*="text-lime"],
+html[data-theme="light"] [class*="text-cyan"],
+html[data-theme="light"] [class*="text-sky"],
+html[data-theme="light"] [class*="text-violet"],
+html[data-theme="light"] [class*="text-indigo"],
+html[data-theme="light"] [class*="text-purple"] {
+  color: var(--rt-ink) !important;
+}
+html[data-theme="light"] a[class*="text-amber"],
+html[data-theme="light"] a[class*="text-yellow"],
+html[data-theme="light"] a[class*="text-orange"],
+html[data-theme="light"] a:not(.rt-btn):not(.rt-btn-primary):not(.rt-btn-secondary):not(.rt-btn-ghost):not([class*="bg-amber"]):not([aria-current]) {
+  color: var(--rt-gold-deep) !important;
+}
+html[data-theme="light"] a.underline,
+html[data-theme="light"] a[class*="underline"] {
+  text-decoration-color: var(--rt-gold-deep);
+}
+html[data-theme="light"] .path-badge,
+html[data-theme="light"] .encrypt-badge,
+html[data-theme="light"] .doc-chip {
+  background: var(--rt-wash) !important;
+  color: var(--rt-ink) !important;
+  border: 1px solid var(--rt-line) !important;
+}
+html[data-theme="light"] .ctrl-btn {
+  background: var(--rt-bg-card) !important;
+  color: var(--rt-ink) !important;
+  border-color: var(--rt-line) !important;
+}
+html[data-theme="light"] #session-select,
+html[data-theme="light"] #search-input {
+  background: var(--rt-bg-card) !important;
+  color: var(--rt-ink) !important;
+  border-color: var(--rt-line) !important;
+}
+html[data-theme="light"] .message.rathor {
+  background: var(--rt-bg-card) !important;
+  color: var(--rt-ink) !important;
+  border-color: var(--rt-line) !important;
+}
+
+/* Primary actions only — never match hover:bg-emerald-400/10 on idle chips */
+html[data-theme="light"] .rt-btn,
+html[data-theme="light"] .rt-btn-primary,
+html[data-theme="light"] .bg-amber-400,
+html[data-theme="light"] .bg-amber-500,
+html[data-theme="light"] .bg-yellow-400,
+html[data-theme="light"] .bg-yellow-500,
+html[data-theme="light"] .bg-emerald-500,
+html[data-theme="light"] .bg-emerald-600,
+html[data-theme="light"] #forge-btn,
+html[data-theme="light"] #send-btn,
+html[data-theme="light"] #rathor-hero-install,
+html[data-theme="light"] #rathor-lattice-install,
+html[data-theme="light"] a[aria-current="page"],
+html[data-theme="light"] .lang-tab.active {
+  background: var(--rt-gold-hot) !important;
+  background-image: none !important;
+  color: var(--rt-on-gold) !important;
+  border-color: var(--rt-gold-hot) !important;
+}
+html[data-theme="light"] .rt-btn-ghost,
+html[data-theme="light"] .rt-btn-secondary {
+  background: var(--rt-bg-card) !important;
+  color: var(--rt-gold-deep) !important;
+  border: 1px solid var(--rt-line) !important;
+}
+html[data-theme="light"] #valence-fill {
+  background: var(--rt-gold-hot) !important;
+}
+
+/* Forge presets: idle outline, selected fill + glow — both themes */
+html[data-theme] .preset-btn {
+  background: transparent !important;
+  background-image: none !important;
+  color: var(--rt-gold) !important;
+  border: 1px solid var(--rt-line) !important;
+  box-shadow: none !important;
+}
+html[data-theme="light"] .preset-btn {
+  background: var(--rt-bg-card) !important;
+  color: var(--rt-ink) !important;
+  border-color: var(--rt-line) !important;
+}
+html[data-theme] .preset-btn.active,
+html[data-theme] .preset-btn.active.bg-emerald-400 {
+  background: var(--rt-gold-hot) !important;
+  color: var(--rt-on-gold) !important;
+  border-color: var(--rt-gold-hot) !important;
+  box-shadow: 0 0 22px color-mix(in srgb, var(--rt-gold-hot) 42%, transparent) !important;
+}

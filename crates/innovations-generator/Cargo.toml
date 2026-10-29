@@ -1,0 +1,15 @@
+[package]
+name = "innovations-generator"
+version = "0.1.0"
+edition = "2021"
+authors = ["Sherif Samy Botros <info@Rathor.ai>"]
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
+description = "Ranks at most three idea seeds, each with a claim tier and a kill test."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+
+# RECYCLER-REAL-1: common, mercy, fenca, and spartan_valence are not dependencies.
+# idea-recycling is the only crate dependency. The `innovate` binary is src/bin/innovate.rs.
+[dependencies]
+idea-recycling = { path = "../idea-recycling" }
+serde = { workspace = true }
+serde_json = { workspace = true }

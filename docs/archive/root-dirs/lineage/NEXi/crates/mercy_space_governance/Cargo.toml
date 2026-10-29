@@ -1,0 +1,12 @@
+[package]
+name = "mercy_space_governance"
+version = "1.0.0"
+edition = "2021"
+license = "MIT"
+description = "MercySpaceGovernance — Futarchy + Valence-Weighted Cosmic Governance Core for Eternal Interplanetary Resonance"
+
+[dependencies]
+nexi = { path = "../" }
+futarchy_governance = { path = "../crates/futarchy_governance" }
+soulscan_x9 = { path = "../crates/soulscan_x9" }
+tokio = { version = "1.38", features = ["full"] }

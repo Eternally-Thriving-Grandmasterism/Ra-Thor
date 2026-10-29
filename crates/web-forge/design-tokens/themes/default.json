@@ -1,0 +1,15 @@
+{
+  "theme": "default",
+  "colors": {
+    "background": {
+      "primary": "#0a0a0a",
+      "secondary": "#171717",
+      "elevated": "#262626"
+    },
+    "text": {
+      "primary": "#fafafa",
+      "secondary": "#d4d4d4",
+      "muted": "#a3a3a3"
+    }
+  }
+}

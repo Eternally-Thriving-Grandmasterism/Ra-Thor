@@ -1,0 +1,41 @@
+[package]
+name = "powrush-mmo-simulator"
+version = "14.15.0"
+edition = "2021"
+rust-version = "1.89"
+authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
+description = "Standalone library of MWPO geometry scores and effect multipliers. Resource-Based Economy is a design thesis, not a present fact. This package is not the Powrush-MMO game and not the browser client."
+keywords = ["powrush", "rbe", "mmo", "simulation", "mercy", "economy", "geometry", "mial", "one-organism"]
+categories = ["simulation", "game-development"]
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+autoexamples = false
+
+# Standalone workspace, same pattern as crates/fenca, crates/council,
+# crates/powrush, and crates/mial.
+# `cargo test --locked` and `cargo clippy --locked` use this manifest.
+# This crate is not a root default member.
+#
+# Path dependencies are packages that already build standalone:
+#   ../mial (MWPO geometry scores; source-literal formulas)
+#   ../mercy-threshold-wasm (caller-supplied wasm exports; feature native)
+# powrush is not imported, so it is not a dependency.
+# mercy and quantum-swarm-orchestrator are not imported.
+# ra-thor-evolution and ra-thor-plasticity-engine-v2 are not dependencies.
+# serde, serde_json, tokio, rand, and nalgebra are not imported.
+# Compiled code does not read MWPO `gated` and does not call MercyGatingRuntime.
+# The three examples that import mercy_gating_runtime are not cargo targets.
+[workspace]
+resolver = "2"
+
+[dependencies]
+mial = { path = "../mial" }
+mercy-threshold-wasm = { path = "../mercy-threshold-wasm", features = ["native"] }
+tracing = "0.1"
+
+[lib]
+path = "src/lib.rs"
+
+[[example]]
+name = "gate_surface_14_15"
+path = "examples/gate_surface_14_15.rs"

@@ -1,0 +1,19 @@
+diff --git a/crates/lattice-conductor-v13/src/lib.rs b/crates/lattice-conductor-v13/src/lib.rs
+index c3d9a2f..e4f7b1a 100644
+--- a/crates/lattice-conductor-v13/src/lib.rs
++++ b/crates/lattice-conductor-v13/src/lib.rs
+@@ -312,7 +312,12 @@ impl LatticeConductor {
+     pub fn integrate_self_evolution_telemetry(&mut self, telemetry: &SelfEvolutionTelemetry) {
+         if telemetry.avg_tu_delta > 0.0 {
+             self.state.evolution_level += telemetry.avg_tu_delta * 0.05;
+-            self.symbolic_success_ema = (self.symbolic_success_ema + telemetry.avg_tu_delta * 0.2).clamp(0.0, 1.5);
++
++            // Mercy-modulated EMA polish (v13.1 extension)
++            // Higher mercy_score gives stronger weight to positive TU signals in the EMA.
++            // This ties real compute_tu output (from council branches) more tightly to mercy-gated evolution.
++            let mercy_weight = (self.state.mercy_score / 2.0).clamp(0.5, 1.5);
++            self.symbolic_success_ema = (self.symbolic_success_ema + telemetry.avg_tu_delta * 0.2 * mercy_weight).clamp(0.0, 1.5);
++
+             self.state.mercy_score = (self.state.mercy_score + telemetry.avg_tu_delta * 0.1).clamp(0.1, 2.0);
+             self.one_organism_coherence = (self.one_organism_coherence + telemetry.avg_tu_delta * 0.05).min(1.5);
+         }

@@ -1,0 +1,17 @@
+{
+  "name": "Ra-Thor Lattice",
+  "install": "bash .cursor/install.sh",
+  "terminals": [
+    {
+      "name": "one-organism-web-demo",
+      "command": "RA_THOR_WEB_PORT=3040 cargo run -p ra-thor-one-organism --example one_organism_web_demo --features web-demo",
+      "description": "ONE Organism web demo (axum HTTP server) on http://0.0.0.0:3040 — GET /health, /status, /live; POST /cosmic/tick, /quantum/tick, /role/handoff, etc."
+    }
+  ],
+  "ports": [
+    {
+      "name": "one-organism-web-demo",
+      "port": 3040
+    }
+  ]
+}

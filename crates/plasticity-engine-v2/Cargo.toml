@@ -1,0 +1,40 @@
+[package]
+name = "plasticity-engine-v2"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+description.workspace = true
+repository.workspace = true
+keywords = ["ra-thor", "plasticity", "epigenetics", "hebbian", "bcm", "stdp", "self-evolution", "mercury-gated", "tolc-proofs", "active-inference"]
+categories = ["science", "simulation", "artificial-intelligence"]
+
+[dependencies]
+ra-thor-mercy = { workspace = true }
+ra-thor-quantum-swarm-orchestrator = { workspace = true }
+ra-thor-kernel = { workspace = true }
+ra-thor-council = { workspace = true }
+ra-thor-mercy-orchestrator-v2 = { workspace = true }
+mercy_tolc_operator_algebra = { path = "../mercy_tolc_operator_algebra" }
+mercy_merlin_engine = { path = "../mercy_merlin_engine" }
+ra-thor-meta-intelligence = { path = "../ra-thor-meta-intelligence" }
+powrush = { workspace = true }
+
+tokio = { workspace = true, features = ["full"] }
+async-trait = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+rand = { workspace = true }
+thiserror = { workspace = true }
+futures = { workspace = true }
+
+[dev-dependencies]
+tracing-subscriber = { workspace = true }
+tokio-test = { workspace = true }
+
+[features]
+default = ["full"]
+full = ["post_quantum_hardening"]
+minimal = []
+post_quantum_hardening = []

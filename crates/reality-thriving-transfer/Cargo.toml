@@ -1,0 +1,19 @@
+[package]
+name = "reality-thriving-transfer"
+version = "14.18.1"
+edition = "2021"
+description = "Ra-Thor RTT + Schema Registry + Bridging ingest + challenge provenance + Lattice Conductor soft hook (ONE Organism 14.18.1)"
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
+authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1", features = ["sync", "macros", "rt", "rt-multi-thread"] }
+
+[lib]
+path = "src/lib.rs"
+
+[[example]]
+name = "powrush_rtt_smoke_harness"
+path = "examples/powrush_rtt_smoke_harness.rs"

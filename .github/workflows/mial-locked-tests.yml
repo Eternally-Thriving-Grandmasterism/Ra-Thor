@@ -1,0 +1,55 @@
+name: mial locked tests
+
+# Standalone workspaces. Not root members.
+# One job runs cargo test --locked and cargo fmt --check for
+# mercy_gating_runtime, mial, mercy-threshold-wasm, and powrush-mmo-simulator.
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  locked-tests:
+    name: mial locked tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        # SHA pin of actions/checkout. Not a tag.
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Install Rust 1.89.0
+        # SHA pin of dtolnay/rust-toolchain. Not a tag.
+        # Toolchain is set explicitly. 1.89.0 is the lowest rustc that builds
+        # these lockfiles: uuid 1.28.0 declares rust-version 1.89.0.
+        uses: dtolnay/rust-toolchain@599c45df1a24c1c63ae1129a7e59f46654b8fb66
+        with:
+          toolchain: 1.89.0
+
+      - name: Install rustfmt
+        run: rustup component add rustfmt --toolchain 1.89.0
+
+      - name: Test mercy_gating_runtime
+        run: cargo test --locked --manifest-path crates/mercy_gating_runtime/Cargo.toml
+
+      - name: Test mial
+        run: cargo test --locked --manifest-path crates/mial/Cargo.toml
+
+      - name: Test mercy-threshold-wasm
+        run: cargo test --locked --manifest-path crates/mercy-threshold-wasm/Cargo.toml
+
+      - name: Test powrush-mmo-simulator
+        run: cargo test --locked --manifest-path crates/powrush-mmo-simulator/Cargo.toml
+
+      - name: Format mercy_gating_runtime
+        run: cargo fmt --check --manifest-path crates/mercy_gating_runtime/Cargo.toml
+
+      - name: Format mial
+        run: cargo fmt --check --manifest-path crates/mial/Cargo.toml
+
+      - name: Format mercy-threshold-wasm
+        run: cargo fmt --check --manifest-path crates/mercy-threshold-wasm/Cargo.toml
+
+      - name: Format powrush-mmo-simulator
+        run: cargo fmt --check --manifest-path crates/powrush-mmo-simulator/Cargo.toml

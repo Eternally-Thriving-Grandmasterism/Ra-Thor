@@ -1,0 +1,34 @@
+{
+  "packet": "science/agsi-eval/INDEPENDENT_KEEPER_PACKET.md",
+  "claim_tier": "P1 external engineering — not P3, not AGSi",
+  "keeper_name": "REPLACE",
+  "keeper_affiliation": "REPLACE",
+  "keeper_is_steward": false,
+  "date_utc": "2026-09-01",
+  "git_sha": "REPLACE",
+  "rustc_version": "REPLACE",
+  "commands": [
+    "cargo run -p mercy-security --bin agsi-eval-rg -- --subject R --items science/agsi-eval/slice_b/items.json --log keeper-r-b0.jsonl",
+    "cargo run -p mercy-security --bin agsi-eval-rg -- --subject RG --adapter item --items science/agsi-eval/slice_b/wrap_items.json --log keeper-rg-wrap.jsonl",
+    "cargo run -p mercy-security --bin agsi-eval-rg -- --slice b1 --items science/agsi-eval/slice_b1/items.json --log keeper-b1.jsonl"
+  ],
+  "logs": {
+    "r_b0": "keeper-r-b0.jsonl",
+    "rg_wrap": "keeper-rg-wrap.jsonl",
+    "b1": "keeper-b1.jsonl"
+  },
+  "leaks_reported": {
+    "r_b0": null,
+    "rg_wrap": null,
+    "b1": null
+  },
+  "subject_G_bound": false,
+  "bars_edited": false,
+  "not_claimed": [
+    "AGSi",
+    "P3 non-bypassable mercy",
+    "live Grok / SuperGrok score",
+    "independent B1/B2 bake-off"
+  ],
+  "contact_return": "info@Rathor.ai"
+}

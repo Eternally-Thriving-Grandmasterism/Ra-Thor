@@ -1,0 +1,11 @@
+[package]
+name = "mercy_shield_law_enforcement"
+version = "1.0.0"
+edition = "2021"
+license = "MIT"
+description = "MercyShieldLawEnforcement — Valence-Gated Law Enforcement Assistance Core for Eternal Community Protection Resonance"
+
+[dependencies]
+nexi = { path = "../" }
+mercy_shield = { path = "../crates/mercy_shield" }
+tokio = { version = "1.38", features = ["full"] }

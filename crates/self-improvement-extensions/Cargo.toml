@@ -1,0 +1,18 @@
+[package]
+name = "self-improvement-extensions"
+version = "0.2.0"
+edition = "2021"
+description = "TOLC + 7 Living Mercy Gates evaluation and self-improvement utilities for Rathor.ai"
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+
+[dependencies]
+github-client = { path = "../github-client" }
+llama-cpp-gguf = { path = "../experiments/llama-cpp-gguf", optional = true }
+regex = "1"
+serde_json = { workspace = true }
+tracing = { workspace = true }
+
+[features]
+default = []
+llama-cpp = ["dep:llama-cpp-gguf"]

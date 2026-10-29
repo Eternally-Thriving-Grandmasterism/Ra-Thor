@@ -1,0 +1,413 @@
+@import url('rathor-theme-rest-a.css');
+@import url('rathor-theme-rest-b.css');
+@import url('rathor-light-desert.css');
+@import url('rathor-home-shell.css');
+
+/* rathor-theme.css — uniform lattice look + standalone RTL clip */
+:root,
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --rt-bg: #050505;
+  --rt-bg-elev: #0d0b08;
+  --rt-bg-card: #10100c;
+  --rt-ink: #f6f1e4;
+  --text-calm: #a9a59d;
+  --rt-muted: var(--text-calm);
+  --rt-faint: var(--text-calm);
+  --rt-gold: #f0d36a;
+  --rt-gold-hot: #f5c84a;
+  --rt-gold-deep: #c9a227;
+  --rt-line: rgba(240, 211, 106, 0.34);
+  --rt-line-soft: rgba(240, 211, 106, 0.18);
+  --rt-wash: rgba(240, 211, 106, 0.08);
+  --rt-shadow: 0 18px 44px -20px rgba(201, 162, 39, 0.38);
+  --rt-on-gold: #111111;
+  --rt-nav-bg: rgba(5, 5, 5, 0.9);
+}
+html[data-theme="light"] {
+  color-scheme: light;
+  --rt-bg: #f0d7a8;
+  --rt-bg-elev: #f6e4bc;
+  --rt-bg-card: #fff4dc;
+  --rt-ink: #241a10;
+  --text-calm: #4a3b28;
+  --rt-muted: var(--text-calm);
+  --rt-faint: var(--text-calm);
+  --rt-gold: #4e350c;
+  --rt-gold-hot: #d47818;
+  --rt-gold-deep: #3d2a08;
+  --rt-line: rgba(36, 26, 16, 0.2);
+  --rt-line-soft: rgba(36, 26, 16, 0.12);
+  --rt-wash: rgba(212, 120, 24, 0.1);
+  --rt-shadow: 0 14px 28px -16px rgba(36, 26, 16, 0.24);
+  --rt-on-gold: #fff8ed;
+  --rt-nav-bg: rgba(246, 228, 188, 0.94);
+}
+html {
+  background: var(--rt-bg);
+  overflow-x: clip;
+  max-width: 100%;
+  width: 100%;
+}
+html, body {
+  overflow-x: clip;
+  overscroll-behavior-x: none;
+  max-width: 100%;
+}
+@media (display-mode: standalone), (display-mode: fullscreen) {
+  html, body {
+    overflow-x: clip !important;
+    overscroll-behavior-x: none;
+    max-width: 100% !important;
+    width: 100%;
+  }
+}
+#rt-skip-family {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  inset-inline-start: 0;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap;
+  border: 0;
+  z-index: 60;
+  color: transparent;
+  background: transparent;
+}
+#rt-skip-family:focus,
+#rt-skip-family:focus-visible {
+  width: auto !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 0.4rem 0.7rem !important;
+  clip: auto !important;
+  clip-path: none !important;
+  overflow: visible !important;
+  top: 0.5rem;
+  inset-inline-start: 0.5rem;
+  left: auto;
+  color: #000;
+  background: #fbbf24;
+  font: 600 12px/1.2 system-ui, sans-serif;
+  border-radius: 0.35rem;
+}
+html[data-theme] body,
+html[data-theme] body.bg-black {
+  background: var(--rt-bg) !important;
+  color: var(--text-calm) !important;
+}
+
+/* Page heroes. Same line, elevation, and shadow as the lattice cards. */
+figure.rt-art-hero {
+  box-sizing: border-box;
+  margin: 0 0 1.5rem;
+  padding: 0;
+  max-width: 100%;
+  border: 1px solid var(--rt-line);
+  background: var(--rt-bg-elev);
+  box-shadow: var(--rt-shadow);
+  overflow: hidden;
+  line-height: 0;
+}
+figure.rt-art-hero img {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  object-fit: cover;
+  background: var(--rt-bg-elev);
+}
+@media (max-width: 700px) {
+  figure.rt-art-hero {
+    margin-bottom: 1.15rem;
+  }
+  figure.rt-art-hero img {
+    max-height: 15.5rem;
+  }
+}
+
+/* RATHOR-TONE-1 — one calm grey for non-clickable body and secondary text.
+   Titles stay gold with the footer label treatment (weight, tracking, small caps).
+   Running-text links stay gold and carry a thin underline. Pills and buttons do not. */
+html[data-theme] body,
+html[data-theme] body.bg-black,
+html[data-theme="light"] body.text-white,
+html[data-theme] footer.rt-site-footer,
+html[data-theme] .rt-site-footer {
+  color: var(--text-calm) !important;
+}
+html[data-theme] :is(
+  p, li, dd, blockquote, figcaption, small, caption,
+  .faq-content, .pilot-lead, .rt-legal, .rt-demo-lead,
+  .rt-week-window, .rt-week-note, .rt-week-research,
+  .rt-gtranslate-note, .rt-hf-body, .kicker, .note
+) {
+  color: var(--text-calm) !important;
+}
+html[data-theme] :is(.rt-card, .pilot-card, .record-card, .rt-week-page, .rt-demo-page, .rt-week-list, .rt-week-card) :is(p, li) {
+  color: var(--text-calm) !important;
+}
+html[data-theme] :is(p, li, dd, figcaption, small, caption, blockquote)[class*="text-amber"],
+html[data-theme] :is(p, li, dd, figcaption, small, caption, blockquote)[class*="text-white"],
+html[data-theme] :is(p, li, dd, figcaption, small, caption, blockquote)[class*="text-zinc"],
+html[data-theme] :is(p, li, dd, figcaption, small)[class*="text-violet"],
+html[data-theme] :is(p, li, dd, figcaption, small)[class*="text-sky"],
+html[data-theme] :is(p, li, dd, figcaption, small)[class*="text-cyan"] {
+  color: var(--text-calm) !important;
+}
+html[data-theme] a.rt-card-uniform :is(p, li),
+html[data-theme] a.card-hover :is(p, li) {
+  color: var(--text-calm) !important;
+}
+
+html[data-theme="dark"] :is(
+  h1, h2, h3, h4, h5, h6,
+  .title-font,
+  .pilot-kicker, .rt-kicker, .rt-follow-label, .faq-q, summary,
+  .rt-x-reel-heading, .lattice-status, .chip, .webllm-row-name, .webllm-tier,
+  p.pilot-kicker, p.rt-kicker, p.rt-follow-label
+) {
+  color: var(--rt-gold) !important;
+}
+html[data-theme="light"] :is(
+  h1, h2, h3, h4, h5, h6,
+  .title-font,
+  .pilot-kicker, .rt-kicker, .rt-follow-label, .faq-q, summary,
+  .rt-x-reel-heading, .lattice-status, .chip, .webllm-row-name, .webllm-tier,
+  p.pilot-kicker, p.rt-kicker, p.rt-follow-label
+) {
+  color: var(--rt-gold-deep) !important;
+  text-shadow: none !important;
+}
+/* Emphasised paragraphs are body text. Weight is not a heading. */
+html[data-theme] :is(p.font-semibold, p.font-medium, p.uppercase),
+html[data-theme] #product-paths a :is(p.font-semibold, p.font-medium, p.uppercase) {
+  color: var(--text-calm) !important;
+}
+html[data-theme="dark"] :is(span, strong, code, em)[class*="text-amber"] {
+  color: var(--rt-gold) !important;
+}
+html[data-theme="light"] :is(span, strong, code, em)[class*="text-amber"] {
+  color: var(--rt-gold-deep) !important;
+}
+html[data-theme] :is(h1, h2, h3, h4, h5, h6, .rt-follow-label, .rt-kicker, .pilot-kicker, summary, .faq-q) {
+  font-weight: 650;
+  text-decoration-line: none !important;
+}
+html[data-theme] :is(h1, h2, h3, h4, h5, h6, .rt-follow-label, .rt-kicker, .pilot-kicker, summary, .faq-q):not(#hero-headline) {
+  letter-spacing: 0.04em !important;
+}
+html[data-theme] :is(h2, h3, h4, h5, h6) {
+  text-transform: uppercase !important;
+}
+html[data-theme] .faq-accordion summary,
+html[data-theme] .faq-accordion summary .faq-q {
+  font-weight: 650 !important;
+  letter-spacing: 0.04em !important;
+  text-decoration-line: none !important;
+  text-transform: none !important;
+}
+
+/* Running text: thin gold underline. Thicker and solid on hover and keyboard focus. */
+html[data-theme] :is(
+  p, li, dd, figcaption, blockquote, caption,
+  main, article, section, footer,
+  .rt-site-footer, .rt-prose, .rt-card, .pilot-card, .faq-content, .rt-legal
+) a:where(:not(.rt-btn):not(.rt-btn-primary):not(.rt-btn-secondary):not(.rt-btn-ghost):not(.ctrl-btn):not(.preset-btn):not(.rt-gtranslate-btn):not(.btn):not(.card-hover):not(.rt-card-uniform):not(.lang-tab):not(.reply-continue):not(.doc-chip):not(.path-badge):not(.encrypt-badge):not(.webllm-badge):not([class*="rounded-xl"]):not([class*="rounded-2xl"]):not([class*="rounded-3xl"]):not([class*="rounded-full"])) {
+  color: var(--rt-gold) !important;
+  text-decoration-line: underline !important;
+  text-decoration-thickness: 1px !important;
+  text-underline-offset: 0.2em !important;
+  text-decoration-color: color-mix(in srgb, currentColor 72%, transparent) !important;
+  text-decoration-skip-ink: auto;
+}
+html[data-theme="light"] :is(
+  p, li, dd, figcaption, blockquote, caption,
+  main, article, section, footer,
+  .rt-site-footer, .rt-prose, .rt-card, .pilot-card, .faq-content, .rt-legal
+) a:where(:not(.rt-btn):not(.rt-btn-primary):not(.rt-btn-secondary):not(.rt-btn-ghost):not(.ctrl-btn):not(.preset-btn):not(.rt-gtranslate-btn):not(.btn):not(.card-hover):not(.rt-card-uniform):not(.lang-tab):not(.reply-continue):not(.doc-chip):not(.path-badge):not(.encrypt-badge):not(.webllm-badge):not([class*="rounded-xl"]):not([class*="rounded-2xl"]):not([class*="rounded-3xl"]):not([class*="rounded-full"])) {
+  color: var(--rt-gold-deep) !important;
+}
+html[data-theme] :is(
+  p, li, dd, figcaption, blockquote, caption,
+  main, article, section, footer,
+  .rt-site-footer, .rt-prose, .rt-card, .pilot-card, .faq-content, .rt-legal
+) a:where(:not(.rt-btn):not(.rt-btn-primary):not(.rt-btn-secondary):not(.rt-btn-ghost):not(.ctrl-btn):not(.preset-btn):not(.rt-gtranslate-btn):not(.btn):not(.card-hover):not(.rt-card-uniform):not(.lang-tab):not(.reply-continue):not(.doc-chip):not(.path-badge):not(.encrypt-badge):not(.webllm-badge):not([class*="rounded-xl"]):not([class*="rounded-2xl"]):not([class*="rounded-3xl"]):not([class*="rounded-full"])):is(:hover, :focus-visible) {
+  text-decoration-thickness: 2px !important;
+  text-decoration-color: currentColor !important;
+}
+/* Pills, buttons, chips, whole-card links, and the follow row (it already has a bottom border). */
+html[data-theme] :is(
+  #rt-family-nav a,
+  #product-paths a,
+  .rt-follow-list a,
+  a.rt-btn,
+  a.rt-btn-primary,
+  a.rt-btn-secondary,
+  a.rt-btn-ghost,
+  a.rt-card-uniform,
+  a.card-hover,
+  a.rt-gtranslate-btn,
+  a.btn,
+  a.ctrl-btn,
+  a.preset-btn,
+  a.lang-tab,
+  a.reply-continue,
+  a.doc-chip,
+  a.path-badge,
+  a.encrypt-badge,
+  a.webllm-badge,
+  a[class*="rounded-xl"],
+  a[class*="rounded-2xl"],
+  a[class*="rounded-3xl"],
+  a[class*="rounded-full"]
+) {
+  text-decoration-line: none !important;
+}
+html[data-theme] :is(a, button, .lang-tab, .preset-btn, .ctrl-btn, summary):focus-visible {
+  outline: 2px solid var(--rt-gold-hot);
+  outline-offset: 2px;
+}
+html[data-theme] .rt-follow-list a:focus-visible,
+html[data-theme] #rt-family-nav a:focus-visible,
+html[data-theme] #product-paths a:focus-visible {
+  outline: 2px solid var(--rt-gold-hot);
+  outline-offset: 2px;
+}
+/* Light gold-hot fails 3:1 on sand and card. Focus rings use gold-deep there.
+   !important beats the family-nav script's inline gold-hot outline. The script is unchanged. */
+html[data-theme="light"] :is(a, button, .lang-tab, .preset-btn, .ctrl-btn, summary):focus-visible,
+html[data-theme="light"] .rt-follow-list a:focus-visible,
+html[data-theme="light"] #rt-family-nav a:focus-visible,
+html[data-theme="light"] #product-paths a:focus-visible {
+  outline: 2px solid var(--rt-gold-deep) !important;
+  outline-offset: 2px !important;
+}
+html[data-theme] .message.rathor {
+  color: var(--text-calm) !important;
+}
+html[data-theme] .message.user,
+html[data-theme] .message.user :is(h1, h2, h3, h4, h5, h6, p, li, span, .message-text) {
+  color: var(--rt-on-gold) !important;
+}
+html[data-theme] .message.user a {
+  color: var(--rt-on-gold) !important;
+  text-decoration-line: underline !important;
+  text-decoration-thickness: 1px !important;
+  text-underline-offset: 0.2em !important;
+  text-decoration-color: currentColor !important;
+}
+html[data-theme] .message.user a:is(:hover, :focus-visible) {
+  text-decoration-thickness: 2px !important;
+  outline: 2px solid var(--rt-on-gold);
+  outline-offset: 2px;
+}
+
+/* SITES-CROSSLINK-1 — "Our worlds" art card on the home hero, and the company line in the footer.
+   The scrim is always dark, so card text keeps light ink in both themes. */
+.rt-worlds {
+  margin: 0 auto 1.75rem;
+  max-width: 28rem;
+}
+html[data-theme] .rt-worlds .rt-worlds-heading {
+  margin: 0 0 0.6rem;
+  font: 650 0.8rem/1.3 Inter, system-ui, sans-serif;
+  letter-spacing: 0.08em !important;
+  text-align: center;
+}
+html[data-theme] .rt-worlds a.rt-world-card {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 9;
+  border-radius: 1.15rem;
+  border: 1px solid var(--rt-line);
+  background: #07060a;
+  box-shadow:
+    0 0 0 1px rgba(240, 211, 106, 0.38),
+    0 0 26px rgba(212, 168, 60, 0.26),
+    0 18px 40px -18px rgba(0, 0, 0, 0.62);
+  overflow: hidden;
+  color: #f6f1e4 !important;
+  text-decoration-line: none !important;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+}
+html[data-theme="light"] .rt-worlds a.rt-world-card {
+  background: #140f0c;
+  box-shadow:
+    0 0 0 1px rgba(78, 53, 12, 0.45),
+    0 0 22px rgba(168, 112, 28, 0.24),
+    0 16px 32px -16px rgba(36, 26, 16, 0.38);
+}
+html[data-theme] .rt-worlds a.rt-world-card:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 0 0 1px rgba(240, 211, 106, 0.6),
+    0 0 34px rgba(212, 168, 60, 0.4),
+    0 22px 44px -18px rgba(0, 0, 0, 0.7);
+}
+html[data-theme="light"] .rt-worlds a.rt-world-card:hover {
+  box-shadow:
+    0 0 0 1px rgba(78, 53, 12, 0.7),
+    0 0 28px rgba(168, 112, 28, 0.34),
+    0 20px 36px -16px rgba(36, 26, 16, 0.45);
+}
+html[data-theme] .rt-worlds a.rt-world-card:focus-visible {
+  outline: 3px solid var(--rt-gold-hot) !important;
+  outline-offset: 3px !important;
+}
+html[data-theme="light"] .rt-worlds a.rt-world-card:focus-visible {
+  outline: 3px solid var(--rt-gold-deep) !important;
+  outline-offset: 3px !important;
+}
+.rt-world-card img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 40%;
+}
+.rt-world-card .rt-world-text {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 2.6rem 1rem 0.85rem;
+  text-align: start;
+  background: linear-gradient(to top, rgba(5, 5, 5, 0.92) 0%, rgba(5, 5, 5, 0.86) 58%, rgba(5, 5, 5, 0) 100%);
+}
+html[data-theme] .rt-world-card .rt-world-title {
+  font: 700 1.05rem/1.25 'Cinzel', Georgia, serif;
+  letter-spacing: 0.04em;
+  color: #f0d36a !important;
+}
+html[data-theme] .rt-world-card .rt-world-hook {
+  font: 500 0.8125rem/1.4 Inter, system-ui, sans-serif;
+  color: #f6f1e4 !important;
+}
+.rt-acity-line {
+  margin: 0.35rem 0 0.5rem;
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme] .rt-worlds a.rt-world-card,
+  html[data-theme] .rt-worlds a.rt-world-card:hover {
+    transition: none !important;
+    transform: none !important;
+  }
+}
+
+/* TEXT-OVERFLOW-FIX-1 — keep the big contact-card address inside its card on narrow phones.
+   Scales down only below ~470px viewport; desktop stays 1.875rem. Colors untouched. */
+#main-email {
+  font-size: clamp(1.25rem, 6.4vw, 1.875rem);
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}

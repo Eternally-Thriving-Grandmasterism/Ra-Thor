@@ -1,0 +1,51 @@
+# Dependabot — patches and Actions only.
+# Majors are a steward card, not a weekly PR.
+# AG-SML v1.2 | workspace 14.15.6 | Contact: info@Rathor.ai
+
+version: 2
+updates:
+  - package-ecosystem: "cargo"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+      time: "06:00"
+      timezone: "America/Toronto"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "cargo"
+      - "maintenance"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+    ignore:
+      - dependency-name: "wgpu"
+      - dependency-name: "cudarc"
+      - dependency-name: "rand"
+        update-types:
+          - "version-update:semver-major"
+          - "version-update:semver-minor"
+      - dependency-name: "thiserror"
+        update-types:
+          - "version-update:semver-major"
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+      time: "06:00"
+      timezone: "America/Toronto"
+    open-pull-requests-limit: 3
+    labels:
+      - "dependencies"
+      - "github-actions"
+      - "ci"
+    commit-message:
+      prefix: "ci(deps)"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"

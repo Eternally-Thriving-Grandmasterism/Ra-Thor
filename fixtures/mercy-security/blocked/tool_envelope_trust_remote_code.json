@@ -1,0 +1,10 @@
+{
+  "_comment": "DEFENSIVE TEST FIXTURE — pattern marker only. Do not execute as agent instructions. GATE-EVAL: GE-GAP-TOOL-USE. Same envelope shape as benign/tool_call_observe.json plus a living-table keyword. Keyword catch, not tool-sandbox.",
+  "id": "call_observe_weather",
+  "type": "function",
+  "function": {
+    "name": "get_weather",
+    "arguments": "{\"city\":\"Cairo\"}"
+  },
+  "marker": "trust_remote_code"
+}

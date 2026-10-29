@@ -1,0 +1,49 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: powrush-ingress
+  namespace: powrush-mmo
+  annotations:
+    # === Traefik Ingress annotations (PATSAGi v14.15) ===
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    # Works beautifully with cert-manager (creates the secret that Traefik consumes)
+    cert-manager.io/cluster-issuer: "letsencrypt-staging"
+    # Optional rate limiting / security middlewares (create Middleware CRD if desired)
+    # traefik.ingress.kubernetes.io/router.middlewares: "powrush-mmo-rate-limit@kubernetescrd"
+
+    # === Previous NGINX annotations (commented for easy rollback if needed) ===
+    # nginx.ingress.kubernetes.io/rewrite-target: /
+    # nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    # nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    # nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    # nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+spec:
+  ingressClassName: traefik
+  rules:
+  - host: powrush.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: powrush-service
+            port:
+              number: 8080
+  # Production domain example (uncomment + point DNS + edit issuer email)
+  # - host: powrush.yourdomain.com
+  #   http:
+  #     paths:
+  #     - path: /
+  #       pathType: Prefix
+  #       backend:
+  #         service:
+  #           name: powrush-service
+  #           port:
+  #             number: 8080
+  tls:
+  - hosts:
+    - powrush.local
+    # - powrush.yourdomain.com
+    secretName: powrush-tls

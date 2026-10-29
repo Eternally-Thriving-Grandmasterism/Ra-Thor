@@ -1,0 +1,19 @@
+# Semgrep configuration for Ra-Thor
+# Aligned with Eternal Iteration Protocol and automated code review strategy
+
+rules:
+  - id: rust-no-panic-in-lib
+    patterns:
+      - pattern: panic!(...)
+    message: "Avoid panic! in library code. Use Result or proper error handling."
+    languages: [rust]
+    severity: WARNING
+
+  - id: protocol-missing-thunder-locked
+    patterns:
+      - pattern-regex: "Thunder locked in"
+    message: "Consider including 'Thunder locked in' in commit messages or PR bodies for protocol consistency."
+    languages: [generic]
+    severity: INFO
+
+  # Add more protocol, security, and style rules here over time

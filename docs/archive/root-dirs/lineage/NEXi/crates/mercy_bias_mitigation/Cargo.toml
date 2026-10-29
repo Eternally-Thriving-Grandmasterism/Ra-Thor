@@ -1,0 +1,11 @@
+[package]
+name = "mercy_bias_mitigation"
+version = "1.0.0"
+edition = "2021"
+license = "MIT"
+description = "MercyBiasMitigation — Pre/In/Post-Processing + Valence-Weighted Fairness Core for Eternal Algorithmic Justice Resonance"
+
+[dependencies]
+nexi = { path = "../" }
+soulscan_x9 = { path = "../crates/soulscan_x9" }
+tokio = { version = "1.38", features = ["full"] }

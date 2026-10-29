@@ -1,0 +1,59 @@
+# k8s/traefik-dashboard.yaml
+# v14.16 Production Traefik Dashboard with TLS + Basic Auth (PATSAGi Council blessed)
+# This exposes the beautiful Traefik Dashboard securely via HTTPS
+# Apply AFTER setup-traefik.sh and cert-manager (if using TLS)
+# 
+# 1. Edit the password in the Secret below to something strong
+# 2. (Optional) Change host to your real domain
+# 3. kubectl apply -f k8s/traefik-dashboard.yaml
+# 4. Add to /etc/hosts: 127.0.0.1 traefik-dashboard.local
+# 5. Visit https://traefik-dashboard.local  (login with your admin password)
+#
+# All for monitoring the eternal thriving of Powrush-MMO humanity + AI + AGI systems.
+# Thunder locked. yoi ⚡❤️🔥
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: traefik-dashboard-auth-secret
+  namespace: traefik-system
+type: kubernetes.io/basic-auth
+stringData:
+  username: admin
+  password: "P@ssw0rd123!ChangeMeToStrongOne"
+
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: traefik-dashboard-auth
+  namespace: traefik-system
+spec:
+  basicAuth:
+    secret: traefik-dashboard-auth-secret
+    realm: "Traefik Dashboard - PATSAGi Eternal Mercy Gate"
+
+---
+# IngressRoute for beautiful secure dashboard access (native Traefik, works with cert-manager)
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: traefik-dashboard
+  namespace: traefik-system
+  annotations:
+    # Works with cert-manager (creates TLS secret automatically)
+    cert-manager.io/cluster-issuer: "letsencrypt-staging"
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`traefik-dashboard.local`)
+      kind: Rule
+      services:
+        - name: traefik
+          port: 9000  # Traefik dashboard/API port
+      middlewares:
+        - name: traefik-dashboard-auth
+          namespace: traefik-system
+  tls:
+    secretName: traefik-dashboard-tls

@@ -1,0 +1,29 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: fastapi-proxy-scaledobject
+  namespace: rathor-inference
+spec:
+  scaleTargetRef:
+    name: fastapi-proxy
+  minReplicaCount: 2
+  maxReplicaCount: 12
+  cooldownPeriod: 180
+  pollingInterval: 20
+  triggers:
+  - type: cpu
+    metadata:
+      type: Utilization
+      value: "65"
+  - type: prometheus
+    metadata:
+      serverAddress: http://prometheus-server.monitoring.svc.cluster.local
+      metricName: http_requests_per_second
+      threshold: "60"
+      query: sum(rate(http_requests_total[5m])) by (pod)
+  - type: prometheus
+    metadata:
+      serverAddress: http://prometheus-server.monitoring.svc.cluster.local
+      metricName: rathor_valence_spikes_per_minute
+      threshold: "100"
+      query: sum(rate(rathor_valence_spikes_total[5m])) * 60

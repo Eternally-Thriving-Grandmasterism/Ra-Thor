@@ -1,0 +1,490 @@
+/* family-nav-2026-08-22.js
+   Shared public-surface network for rathor.ai
+   Workspace 14.15.6
+   Contact: info@Rathor.ai
+   2026-08-23: Install chip + coherent family labels
+   2026-08-23b: Professional site footer contract · no pill-bar footer
+   2026-08-23c: Celestial sun/moon orb + compact install glyph
+   2026-08-23d: Skip link is fixed+clip — never left:-999px (standalone RTL)
+   2026-08-23e: Uniform gold bar — incomplete local navs no longer suppress;
+                retire competing family navs; Chat + Forge + Shard share one chrome
+   2026-08-31: Public speech lock — no APTD badge in fallback footer
+   2026-09-09: Employ destination in the bar and the fallback directory
+   2026-09-15: Compact Follow row — X / LinkedIn / Facebook (visible labels)
+   2026-09-30: FOOTER-I18N-1 — fallback footer follows the chosen language with
+               existing pack keys only; English keeps its original text; /pilot.html
+               keeps its footer exactly as before (no hooks, no listener)
+*/
+(function () {
+  /* LANG-HIDE-1: master flag — the ONE line to change on all 21 pages.
+   * family-nav runs on every page; setting this false restores the built-in picker
+   * (#lang-selector) and offer banner (#rathor-lang-offer) everywhere.
+   * GT-RESTORE-1: #rt-gtranslate is no longer gated on this flag — it always shows.
+   * i18n-chrome reads window.RT_LANG_HIDE and re-syncs the class in bootChrome
+   * (called on rathor-nav-ready, which fires after this line executes). */
+  window.RT_LANG_HIDE = true;
+  if (window.__rtFamilyNav) return;
+  window.__rtFamilyNav = true;
+
+  var LINKS = [
+    { href: '/', label: 'Home' },
+    { href: '/chat.html', label: 'Chat' },
+    { href: '/employ.html', label: 'Employ' },
+    { href: '/pilot.html', label: 'Pilot' },
+    { href: '/Launch-Ra-Thor.html', label: 'Launch' },
+    { href: '/micro-moment.html', label: 'Moments' },
+    { href: '/sovereign-shard.html', label: 'Shard' },
+    { href: '/web-forge.html', label: 'Forge' },
+    { href: '/contact.html', label: 'Contact' },
+    { href: '/privacy.html', label: 'Privacy' }
+  ];
+
+  function norm(p) {
+    if (!p || p === '') return '/';
+    p = p.split('?')[0].split('#')[0];
+    if (p.charAt(p.length - 1) === '/' && p.length > 1) p = p.slice(0, -1);
+    if (p === '/index.html') return '/';
+    return p;
+  }
+
+  var here = norm(location.pathname || '/');
+
+  function isHere(href) {
+    return norm(href) === here;
+  }
+
+  function reduceMotion() {
+    try {
+      return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function isStandalone() {
+    return (
+      (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
+      window.navigator.standalone === true
+    );
+  }
+
+  function alreadyHasFamilyHeader() {
+    if (document.querySelector('[data-rt-family-header]')) return true;
+    if (document.getElementById('rt-family-nav')) return true;
+    var scope = document.querySelector('header');
+    if (!scope) return false;
+    var found = {};
+    var anchors = scope.querySelectorAll('a');
+    for (var i = 0; i < anchors.length; i++) {
+      var t = (anchors[i].textContent || '').replace(/\s+/g, ' ').trim();
+      if (t) found[t] = true;
+    }
+    return !!(found.Home && found.Chat && found.Employ && found.Pilot && found.Launch && found.Moments && found.Shard && found.Forge && found.Contact && found.Privacy);
+  }
+
+  function retireLocalFamilyNavs() {
+    var nodes = document.querySelectorAll('nav');
+    for (var i = 0; i < nodes.length; i++) {
+      var n = nodes[i];
+      if (n.id === 'rt-family-nav' || n.id === 'rt-family-footer') continue;
+      var label = (n.getAttribute('aria-label') || '').toLowerCase();
+      if (label === 'ra-thor family' || label.indexOf('ra-thor family') !== -1) {
+        if (n.parentNode) n.parentNode.removeChild(n);
+      }
+    }
+  }
+
+  function compactOffTop() {
+    var flag = document.body && document.body.getAttribute('data-rt-family');
+    if (flag === 'off-top' || flag === 'off') return true;
+    return alreadyHasFamilyHeader();
+  }
+
+  function styleLink(el, current) {
+    el.style.cssText = 'font:600 11px/1.2 system-ui,sans-serif;padding:0.35rem 0.65rem;border-radius:999px;text-decoration:none;border:1px solid var(--rt-line, rgba(240,211,106,0.34));color:var(--rt-gold,#f0d36a);background:transparent;cursor:pointer;';
+    el.addEventListener('focus', function () {
+      el.style.outline = '2px solid var(--rt-gold-hot,#f5c84a)';
+      el.style.outlineOffset = '2px';
+    });
+    el.addEventListener('blur', function () {
+      el.style.outline = 'none';
+    });
+    if (current) {
+      el.setAttribute('aria-current', 'page');
+      el.style.background = 'var(--rt-gold-hot,#f5c84a)';
+      el.style.color = 'var(--rt-on-gold,#111)';
+      el.style.borderColor = 'var(--rt-gold-hot,#f5c84a)';
+    }
+  }
+
+  function bar(kind) {
+    var nav = document.createElement('nav');
+    nav.id = kind === 'top' ? 'rt-family-nav' : 'rt-family-footer';
+    nav.setAttribute('dir', 'ltr');
+    nav.setAttribute('aria-label', kind === 'top' ? 'Ra-Thor family' : 'Ra-Thor family footer');
+    var blur = reduceMotion() ? 'none' : 'blur(8px)';
+    nav.style.cssText = kind === 'top'
+      ? 'position:sticky;top:0;z-index:40;display:flex;flex-wrap:wrap;gap:0.4rem;justify-content:center;align-items:center;padding:0.45rem 0.7rem;background:var(--rt-nav-bg,rgba(5,5,5,0.9));border-bottom:1px solid var(--rt-line,rgba(240,211,106,0.34));backdrop-filter:' + blur + ';'
+      : 'display:none;';
+    if (kind !== 'top') nav.className = 'rt-family-pills';
+
+    LINKS.forEach(function (item) {
+      var a = document.createElement('a');
+      a.href = item.href;
+      a.textContent = item.label;
+      styleLink(a, isHere(item.href));
+      nav.appendChild(a);
+    });
+
+    var tools = document.createElement('span');
+    tools.className = 'rt-nav-tools';
+    tools.setAttribute('aria-label', 'Site tools');
+
+    if (!isStandalone()) {
+      var install = document.createElement('button');
+      install.type = 'button';
+      install.className = 'rt-install-orb';
+      install.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 3v12m0 0-4-4m4 4 4-4M5 19h14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      install.setAttribute('aria-label', 'Install Ra-Thor on this device');
+      install.setAttribute('data-rt-say-skip', '1');
+      install.title = 'Install on this device';
+      install.addEventListener('click', function () {
+        if (typeof window.rathorTriggerPWAInstall === 'function') {
+          window.rathorTriggerPWAInstall();
+        } else if (typeof window.rathorSay === 'function') {
+          window.rathorSay({
+            title: 'Install module loading',
+            body: 'Give it a second, then tap Install again.',
+            tone: 'hold',
+            ms: 3000
+          });
+        }
+      });
+      tools.appendChild(install);
+    }
+
+    var theme = document.createElement('button');
+    theme.type = 'button';
+    theme.id = kind === 'top' ? 'rt-theme-toggle' : 'rt-theme-toggle-foot';
+    theme.className = 'rt-theme-orb';
+    theme.setAttribute('data-rt-theme-toggle', '1');
+    theme.setAttribute('data-rt-say-skip', '1');
+    theme.setAttribute('aria-label', 'Switch to light mode');
+    theme.title = 'Day — switch to light';
+    theme.innerHTML = '<span class="rt-celestial-stack" aria-hidden="true"></span>';
+    theme.addEventListener('click', function () {
+      if (typeof window.rathorToggleTheme === 'function') window.rathorToggleTheme();
+    });
+    tools.appendChild(theme);
+    nav.appendChild(tools);
+    return nav;
+  }
+
+  function followNavHtml() {
+    return (
+      '<nav class="rt-follow" aria-label="Follow" data-rt-follow="1">' +
+        '<p class="rt-follow-label">Follow</p>' +
+        '<ul class="rt-follow-list">' +
+          '<li><a href="https://x.com/AlphaProMega" rel="me noopener" target="_blank">X / Twitter</a></li>' +
+          '<li><a href="https://www.linkedin.com/in/sherif-botros" rel="me noopener" target="_blank">LinkedIn</a></li>' +
+          '<!-- official follow named by the steward: https://www.facebook.com/share/1ErtLqvfnA/ -->' +
+          '<li><a href="https://www.facebook.com/share/1ErtLqvfnA/" rel="me noopener" target="_blank">Facebook</a></li>' +
+        '</ul>' +
+      '</nav>'
+    );
+  }
+
+  function ensureFollowStrip() {
+    var roots = document.querySelectorAll('.rt-site-footer, [data-rt-family-footer], footer');
+    for (var i = 0; i < roots.length; i++) {
+      var root = roots[i];
+      if (!root || root.querySelector('[data-rt-follow]')) continue;
+      var inner = root.querySelector('.max-w-5xl') || root;
+      inner.insertAdjacentHTML('afterbegin', followNavHtml());
+    }
+  }
+
+  /* FOOTER-I18N-1: hooks for the fallback footer. Existing pack keys only.
+     Not data-i18n, so the chrome/essay/site-lock appliers never rewrite the
+     English footer with pack English. Pilot gets no hooks at all. */
+  var FOOTER_I18N = here !== '/pilot.html';
+  var FOOTER_HTML_KEYS = { footerTrademarksText: 1 };
+
+  function fk(key) {
+    return FOOTER_I18N ? ' data-rt-footer-i18n="' + key + '"' : '';
+  }
+
+  function footerLang() {
+    try { return localStorage.getItem('rathor-lang') || 'en'; } catch (e) { return 'en'; }
+  }
+
+  function applyFooterI18n(lang) {
+    if (!FOOTER_I18N) return;
+    var foot = document.getElementById('rt-family-footer');
+    if (!foot || !foot.querySelectorAll) return;
+    lang = lang || 'en';
+    var packs = window.translations || {};
+    var pack = lang === 'en' ? null : packs[lang];
+    var en = packs.en || {};
+    if (!window.__rtI18nChrome) {
+      var label = foot.querySelector('.rt-follow-label');
+      if (label && !label.hasAttribute('data-i18n')) label.setAttribute('data-rt-footer-i18n', 'followTitle');
+    }
+    if (typeof window.rtApplyEssayI18n !== 'function') {
+      /* watch-footer-lock.js adds this link with an essay key; pages without i18n-essay.js never apply it. */
+      var watch = foot.querySelector('a[href="/science-watches.html"][data-i18n="swatchTitle"]');
+      if (watch) watch.setAttribute('data-rt-footer-i18n', 'swatchTitle');
+    }
+    var nodes = foot.querySelectorAll('[data-rt-footer-i18n]');
+    for (var i = 0; i < nodes.length; i++) {
+      var el = nodes[i];
+      if (el.__rtFooterEn == null) el.__rtFooterEn = el.innerHTML;
+      var key = el.getAttribute('data-rt-footer-i18n');
+      var val = pack ? pack[key] : null;
+      if (val == null || String(val) === '') {
+        if (el.innerHTML !== el.__rtFooterEn) el.innerHTML = el.__rtFooterEn;
+        el.removeAttribute('dir');
+        el.removeAttribute('lang');
+        continue;
+      }
+      val = String(val);
+      if (FOOTER_HTML_KEYS[key]) el.innerHTML = val;
+      else el.textContent = val;
+      var real = !(en[key] != null && String(en[key]) === val);
+      el.setAttribute('lang', real ? lang : 'en');
+      el.setAttribute('dir', real && /[\u0590-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFF]/.test(val) ? 'rtl' : 'ltr');
+    }
+  }
+
+  function bootFooterI18n() {
+    if (!FOOTER_I18N || window.__rtFooterI18n) return;
+    window.__rtFooterI18n = true;
+    window.rtApplyFooterI18n = applyFooterI18n;
+    document.addEventListener('rt-chrome-i18n', function (e) {
+      applyFooterI18n((e && e.detail && e.detail.lang) || 'en');
+    });
+    var lang = footerLang();
+    if (lang === 'en' || !/^[a-z]{2}$/.test(lang)) return;
+    if (window.translations && window.translations[lang]) {
+      applyFooterI18n(lang);
+      return;
+    }
+    /* Pages with i18n-chrome load the pack and fire rt-chrome-i18n themselves. */
+    if (window.__rtI18nChrome) return;
+    var s = document.createElement('script');
+    s.src = '/i18n/' + lang + '.js?v=20260924a';
+    s.onload = function () { applyFooterI18n(footerLang()); };
+    (document.head || document.documentElement).appendChild(s);
+  }
+
+  function siteFooter() {
+    var wrap = document.createElement('footer');
+    wrap.className = 'rt-site-footer';
+    wrap.id = 'rt-family-footer';
+    wrap.setAttribute('data-rt-family-footer', '1');
+    wrap.setAttribute('aria-label', 'Ra-Thor site footer');
+    wrap.innerHTML =
+      '<div class="max-w-5xl mx-auto px-4 sm:px-6">' +
+        followNavHtml() +
+        '<div class="grid grid-cols-1 md:grid-cols-12 gap-8">' +
+          '<div class="md:col-span-3">' +
+            '<h4' + fk('footerTrademarksTitle') + '>Trademarks</h4>' +
+            '<p class="rt-legal"' + fk('footerTrademarksText') + '>AlphaProMega is a trademark of AlphaProMega Media Inc. Powrush, Autonomicity Games and the Autonomicity Games logo are trademarks of Autonomicity Games Inc. The Ra-Thor trademark is pending.<br>Grok is a trademark of xAI. X is a trademark of X Corp.</p>' +
+          '</div>' +
+          '<div class="md:col-span-3">' +
+            '<h4' + fk('footerPrivacyTitle') + '>Privacy</h4>' +
+            '<p class="rt-legal"' + fk('homeFooterPrivacy') + '>This website collects no personal data. Computations stay in your browser. No cookies, tracking, or analytics we control.</p>' +
+          '</div>' +
+          '<div class="md:col-span-3">' +
+            '<h4' + fk('footerWorkspaceTitle') + '>Workspace</h4>' +
+            '<p class="rt-legal"' + fk('homeFooterWorkspace') + '>v14.15.6 · AG-SML v1.2 · TOLC 8 · Capable · Bounded · Corrigible</p>' +
+          '</div>' +
+          '<div class="md:col-span-3">' +
+            '<h4' + fk('footerFamilyTitle') + '>Directory</h4>' +
+            '<div class="flex flex-col gap-2 text-xs">' +
+              '<a href="/"' + fk('navHome') + '>Home</a>' +
+              '<a href="/chat.html">Lattice Chat</a>' +
+              '<a href="/employ.html"' + fk('employTitle') + '>How to employ</a>' +
+              '<a href="/pilot.html"' + fk('navPilot') + '>Pilot</a>' +
+              '<a href="/Launch-Ra-Thor.html"' + fk('homeLaunchMap') + '>Launch map</a>' +
+              '<a href="/micro-moment.html"' + fk('homeMoments') + '>Micro-moments</a>' +
+              '<a href="/sovereign-shard.html"' + fk('surfaceShard') + '>Sovereign Shard</a>' +
+              '<a href="/web-forge.html">Web-Forge</a>' +
+              '<a href="/contact.html"' + fk('navContact') + '>Contact</a>' +
+              '<a href="/privacy.html"' + fk('navPrivacy') + '>Privacy</a>' +
+              '<a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor" target="_blank" rel="noopener"' + fk('homeMonorepo') + '>Monorepo</a>' +
+              '<a href="mailto:info@Rathor.ai">info@Rathor.ai</a>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="pt-8 mt-8 border-t border-amber-300/20 text-xs flex flex-col md:flex-row justify-between items-center gap-4">' +
+          '<div>© 2026 Sherif Samy Botros — sole steward of Autonomicity Games Inc. & AlphaProMega Air Foundation. TOLC 8.' +
+            '<p class="rt-acity-line"><a href="https://acitygames.com">Company website · acitygames.com</a> · <a href="https://powrush.com">Game website · powrush.com</a></p>' +
+            '<p class="rt-companies-line text-xs text-white/40 mt-2">rathor.ai is the website of AlphaProMega Media Inc., which sells the Ra-Thor comic books and animated web series. Autonomicity Games Inc. (<a href="https://acitygames.com" class="hover:text-amber-200">acitygames.com</a>) sells everything else Ra-Thor — commercial licences and games — and partners with AlphaProMega Media Inc. on the comic and the series. AlphaProMega Air Foundation is a not-for-profit. All three are wholly owned by Sherif Samy Botros.</p>' +
+          '</div>' +
+          '<a href="mailto:info@Rathor.ai">info@Rathor.ai</a>' +
+        '</div>' +
+      '</div>';
+    return wrap;
+  }
+
+  var SKIP_HIDE =
+    'position:fixed;top:0;left:0;inset-inline-start:0;inset-inline-end:auto;' +
+    'width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;' +
+    'clip:rect(0,0,0,0);clip-path:inset(50%);white-space:nowrap;border:0;' +
+    'z-index:60;background:transparent;color:transparent;';
+  var SKIP_SHOW =
+    'position:fixed;top:0.5rem;inset-inline-start:0.5rem;left:auto;right:auto;' +
+    'width:auto;height:auto;padding:0.4rem 0.7rem;margin:0;overflow:visible;' +
+    'clip:auto;clip-path:none;white-space:nowrap;z-index:80;' +
+    'background:#fbbf24;color:#000;border-radius:0.35rem;' +
+    'font:600 12px/1.2 system-ui,sans-serif;';
+
+  function hideSkip(a) {
+    if (!a) return;
+    a.style.cssText = SKIP_HIDE;
+  }
+
+  function clipViewport() {
+    var root = document.documentElement;
+    if (root) {
+      root.style.overflowX = 'clip';
+      root.style.maxWidth = '100%';
+    }
+    if (document.body) {
+      document.body.style.overflowX = 'clip';
+      document.body.style.maxWidth = '100%';
+    }
+  }
+
+  function skipLink() {
+    var existing = document.getElementById('rt-skip-family');
+    if (existing) {
+      hideSkip(existing);
+      return;
+    }
+    var a = document.createElement('a');
+    a.id = 'rt-skip-family';
+    a.href = '#rt-family-main';
+    a.textContent = 'Skip family navigation';
+    hideSkip(a);
+    a.addEventListener('focus', function () { a.style.cssText = SKIP_SHOW; });
+    a.addEventListener('blur', function () { hideSkip(a); });
+    document.body.insertBefore(a, document.body.firstChild);
+    if (!document.getElementById('rt-family-main')) {
+      var main = document.querySelector('main') || document.body.children[1] || document.body;
+      if (main && main !== a) main.id = main.id || 'rt-family-main';
+    }
+  }
+
+  function mount() {
+    if (document.body && document.body.getAttribute('data-rt-family') === 'off') return;
+    clipViewport();
+    skipLink();
+    retireLocalFamilyNavs();
+    if (!document.getElementById('rt-family-nav') && !compactOffTop()) {
+      document.body.insertBefore(bar('top'), document.body.firstChild);
+    }
+    if (!document.querySelector('.rt-site-footer') && !document.querySelector('[data-rt-family-footer]')) {
+      document.body.appendChild(siteFooter());
+    }
+    ensureFollowStrip();
+    bootFooterI18n();
+    try { window.dispatchEvent(new Event('rathor-nav-ready')); } catch (e) {}
+  }
+
+  function lockForgeCopy() {
+    if (here !== '/web-forge.html') return;
+    try {
+      document.title = 'Ra-Thor Web-Forge • workspace 14.15.6';
+      var nodes = document.querySelectorAll('h1, p, div, title');
+      for (var i = 0; i < nodes.length; i++) {
+        var el = nodes[i];
+        if (!el.childNodes || el.childNodes.length !== 1 || el.childNodes[0].nodeType !== 3) continue;
+        var s = el.textContent || '';
+        if (s.indexOf('v14.0.0') !== -1 || s.indexOf('ONE Organism') !== -1 || s.indexOf('64+') !== -1) {
+          el.textContent = s
+            .replace(/v14\.0\.0/g, 'workspace 14.15.6')
+            .replace(/ONE Organism • Live/g, 'Local demo · not a product')
+            .replace(/64\+ PATSAGi Councils/g, 'workspace 14.15.6');
+        }
+      }
+    } catch (e) {}
+  }
+
+  function bootScienceMap() {
+    if (document.querySelector('script[src*="science-map-lock"]')) return;
+    var s = document.createElement('script');
+    s.src = '/js/science-map-lock.js';
+    s.defer = true;
+    (document.head || document.documentElement).appendChild(s);
+  }
+
+  function bootTheme() {
+    if (!window.rathorSay && !document.querySelector('script[src*="rathor-feedback"]')) {
+      var f = document.createElement('script');
+      f.src = '/js/rathor-feedback.js';
+      (document.head || document.documentElement).appendChild(f);
+    }
+    if (!document.querySelector('link[href*="rathor-theme.css"]')) {
+      var l = document.createElement('link');
+      l.rel = 'stylesheet';
+      l.href = '/css/rathor-theme.css';
+      (document.head || document.documentElement).appendChild(l);
+    }
+    /* GT-RESTORE-1: load Google Translate on every page; CSS hides only the built-in
+       picker (#lang-selector) and offer banner (#rathor-lang-offer) when flag is true.
+       The GT strip (#rt-gtranslate) is no longer in the rt-lang-hide CSS rule. */
+    if (!document.querySelector('script[src*="google-translate-optin"]')) {
+      var g = document.createElement('script');
+      g.src = '/js/google-translate-optin.js?v=20260930a';
+      g.defer = true;
+      (document.head || document.documentElement).appendChild(g);
+    }
+    if (typeof window.rathorToggleTheme !== 'function' && !document.querySelector('script[src*="rathor-theme.js"]')) {
+      var s = document.createElement('script');
+      s.src = '/js/rathor-theme.js';
+      s.onload = function () {
+        try { window.dispatchEvent(new Event('rathor-nav-ready')); } catch (e) {}
+      };
+      (document.head || document.documentElement).appendChild(s);
+    }
+    if (!document.querySelector('script[src*="rathor-unify.js"]')) {
+      var u = document.createElement('script');
+      u.src = '/js/rathor-unify.js';
+      (document.head || document.documentElement).appendChild(u);
+    }
+  }
+
+  /* LANG-HIDE-1: applies to pages that load family-nav but not i18n-chrome.js.
+     Class: undefined (i18n-chrome absent) and true both add rt-lang-hide (hides the built-in
+     picker and offer banner only; GT-RESTORE-1 removed #rt-gtranslate from that rule).
+     localStorage: only cleared when flag is explicitly true; undefined keeps the stored choice. */
+  function bootLangHide() {
+    if (window.RT_LANG_HIDE !== false) {
+      if (document.documentElement) document.documentElement.classList.add('rt-lang-hide');
+      if (window.RT_LANG_HIDE === true) {
+        try {
+          var saved = localStorage.getItem('rathor-lang');
+          if (saved && saved !== 'en') localStorage.removeItem('rathor-lang');
+        } catch (e) {}
+      }
+    }
+  }
+
+  if (document.body) {
+    bootLangHide();
+    bootTheme();
+    mount();
+    lockForgeCopy();
+    bootScienceMap();
+  } else {
+    document.addEventListener('DOMContentLoaded', function () {
+      bootLangHide();
+      bootTheme();
+      mount();
+      lockForgeCopy();
+      bootScienceMap();
+    });
+  }
+})();

@@ -1,0 +1,10 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: fastapi-proxy-pdb
+  namespace: rathor-inference
+spec:
+  minAvailable: 1                # At least 1 proxy pod always available
+  selector:
+    matchLabels:
+      app: fastapi-proxy

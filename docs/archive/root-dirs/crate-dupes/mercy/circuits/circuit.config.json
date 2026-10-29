@@ -1,0 +1,10 @@
+{
+  "circuit": "SovereignSparkMercyAlignment",
+  "version": "1.0",
+  "protocol": "groth16",
+  "curve": "bn128",
+  "input": ["proposalHash", "sovereigntyFlags", "mercyScore", "timestamp"],
+  "output": ["lowercaseI", "mercyAlignment", "outTimestamp"],
+  "trustedSetup": "powersOfTau28_hez_final_27.ptau",
+  "verificationKey": "verification_key.json"
+}

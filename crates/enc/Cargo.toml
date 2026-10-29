@@ -1,0 +1,8 @@
+[package]
+name = "enc"
+version = "0.3.9"
+edition = "2021"
+authors = ["Sherif Samy Botros <info@Rathor.ai>"]
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
+description = "Enc — General Encryption Primitives for the mercy-gated Ra-Thor lattice. Post-quantum ready with TOLC-aligned integration."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"

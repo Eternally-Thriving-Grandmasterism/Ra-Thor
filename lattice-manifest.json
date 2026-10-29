@@ -1,0 +1,23 @@
+{
+  "version": "v1.0.0",
+  "timestamp": "2026-02-05T23:59:00Z",
+  "totalSize": 3145728,
+  "parts": [
+    {
+      "name": "mercy-gate-v1-part1.bin",
+      "size": 1048576,
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "name": "mercy-gate-v1-part2.bin",
+      "size": 1048576,
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "name": "mercy-gate-v1-part3.bin",
+      "size": 1048576,
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  ],
+  "description": "Synthetic Mercy-Gate v1 lattice – realistic binary header + MeTTa rules + valence matrix + Hyperon atoms"
+}

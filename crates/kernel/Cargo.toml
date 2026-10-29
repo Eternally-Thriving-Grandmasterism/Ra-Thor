@@ -1,0 +1,29 @@
+[package]
+name = "kernel"
+version = "14.15.0"
+edition = "2021"
+authors = ["Sherif Samy Botros <info@Rathor.ai>", "Eternally-Thriving-Grandmasterism"]
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
+description = "Standalone kernel package. Package version 14.15.0 is a source string. The v14 boot file is not compiled."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["ra-thor", "kernel", "orchestrator", "patsagi", "library", "standalone", "research", "one-organism"]
+categories = ["simulation", "science"]
+publish = false
+
+# Standalone workspace, same pattern as crates/fenca, crates/council,
+# and crates/powrush.
+# `cargo test --locked` and `cargo clippy --locked` use this manifest.
+# This crate is not a root default member.
+#
+# Council note (STUB-AUDIT-1 KERNEL-MANIFEST-1): workspace inheritance is
+# replaced by this table. The compiled source has no crate dependencies.
+# `lattice-conductor-v14` is a root member. It does not build as its own
+# workspace. This card does not edit v14 and does not path-depend on it.
+# `patsagi-councils` is not imported by the compiled source.
+# Do not add a root key `ra-thor-kernel` for the manifests that name that key.
+# `src/lattice_v14_boot.rs` and the other files named in `src/lib.rs` are not modules.
+[workspace]
+resolver = "2"
+
+[lib]
+path = "src/lib.rs"

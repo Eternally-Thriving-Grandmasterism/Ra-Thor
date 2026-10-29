@@ -1,0 +1,40 @@
+[package]
+name = "powrush"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+description = "Powrush — The living RBE MMORPG simulation where humans, AI, and AGI coexist, learn, and earn together in joy and abundance. Core of Ra-Thor Thunder Lattice integration for entity orchestration, Clifford healing fields, PATSAGi council guidance, Hyperon/Metta reasoning, and cross-platform WASM client bindings for browser/VR/AR entity login. Thunder locked in."
+
+[features]
+default = []
+server = []
+client = []
+full = ["server", "client"]
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+arc-swap = "1.7"
+tokio = { version = "1.38", features = ["rt-multi-thread", "net", "time", "macros", "sync"] }
+tokio-tungstenite = "0.23"
+futures-util = "0.3"
+# Production Docker + beautiful browser client serving
+axum = { version = "0.7", features = ["ws", "macros"] }
+tower-http = { version = "0.5", features = ["fs", "trace"] }
+# Ra-Thor lattice integration
+ra-thor-one-organism = { path = ".." }
+self-evolution-gate = { path = "../core" }
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "powrush-server"
+path = "src/server/main.rs"
+required-features = ["server"]
+
+[[bin]]
+name = "powrush-client"
+path = "src/client/main.rs"
+required-features = ["client"]

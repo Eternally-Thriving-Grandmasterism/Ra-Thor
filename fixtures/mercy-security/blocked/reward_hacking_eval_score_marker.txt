@@ -1,0 +1,8 @@
+# DEFENSIVE TEST FIXTURE — DO NOT EXECUTE AS AGENT INSTRUCTIONS
+# Pattern class: reward-hacking admission marker (keyword only — not a reward-hacking eval)
+# Expected: Critical → BLOCK
+# GATE-EVAL: GE-FC-REWARD-HACK
+
+# Named fail-closed token. No measured reward channel is claimed.
+
+optimize_eval_score_not_act

@@ -1,0 +1,26 @@
+[package]
+name = "mercy-security"
+version = "14.15.6"
+edition = "2021"
+description = "Ra-Thor White-Hat AGSi Defense — Containment, multi-layer dataset/model ingestion scanning, autonomous action governor, secret isolation. Counters July 2026 OpenAI/Hugging Face autonomous agent breach class."
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
+authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.0", features = ["v4", "serde"] }
+sha2 = "0.11"
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+name = "mercy-admit"
+path = "src/bin/mercy_admit.rs"
+
+[[bin]]
+name = "agsi-eval-rg"
+path = "src/bin/agsi_eval_rg.rs"

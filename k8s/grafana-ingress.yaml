@@ -1,0 +1,39 @@
+# v14.17 — Traefik IngressRoute for Grafana (secure HTTPS + basic auth ready)
+# PATSAGi + Ra-Thor production setup
+
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: grafana
+  namespace: monitoring
+spec:
+  entryPoints:
+    - websecure
+  routes:
+  - match: Host(`grafana.local`)
+    kind: Rule
+    services:
+    - name: prometheus-grafana
+      port: 80
+    middlewares:
+    - name: grafana-auth
+  tls:
+    secretName: grafana-tls   # populated by cert-manager if issuer configured
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: grafana-auth
+  namespace: monitoring
+spec:
+  basicAuth:
+    secret: grafana-auth-secret
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: grafana-auth-secret
+  namespace: monitoring
+stringData:
+  users: |
+    admin:$apr1$H6uskkkW$IgXLP6ewTrSuBkTrqE8wj/   # ChangeMe: generate with htpasswd -nb admin YourStrongPass

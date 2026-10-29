@@ -1,0 +1,80 @@
+# Ra-Thor API Worker (api.rathor.ai) — SANDBOX / DRAFT. NOT DEPLOYED.
+# Do not run `wrangler deploy`/`publish` without Sherif's explicit approval.
+# Secrets (set via `wrangler secret put`, never committed):
+#   XAI_API_KEY, STRIPE_WEBHOOK_SECRET, STRIPE_SECRET_KEY (webhook reads checkout line items), RESEND_API_KEY
+# Top-level is the sandbox Worker. Production is [env.production] below — its own
+# D1, vars, and secrets. Never copy sandbox secrets into production.
+name = "rathor-api-sandbox"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+workers_dev = false
+
+[vars]
+ALLOWED_ORIGIN = "https://rathor.ai"
+STRIPE_MODE = "test"   # documentary; the live/sandbox gate is LIVE_MODE
+# Fail-closed: only the exact string "true" is live. Unset or misspelled = sandbox.
+LIVE_MODE = "false"
+# TODO(Sherif): re-check xAI rates on docs.x.ai (src/credits.js) right before setting to "true". Until then /v1/chat returns 503.
+RATES_VERIFIED = "false"
+# MERCY-LAUNCH-1: "baseline" or "launch" (both run the same rules). Sandbox: unset means baseline.
+MERCY_CHECKS_LEVEL = "baseline"
+# MERCY-MINORS-SVC-1: external minors moderation skeleton. OFF; only exact "true" enables. Not wired.
+MINORS_SVC_ENABLED = "false"
+# PRICING-2: Stripe TEST-mode Price ids (not secrets). The webhook grants credits only from this
+# server-side mapping (src/prices.js), by the line item price id (quantity 1, unit amount + USD).
+# Empty until Sherif creates the test-mode Prices; until then every checkout is refused (no amount fallback).
+STRIPE_PRICE_PACK_10 = ""       # $10 one-time -> 10,000 credits
+STRIPE_PRICE_PACK_25 = ""       # $25 one-time -> 25,000 credits
+STRIPE_PRICE_PACK_50 = ""       # $50 one-time -> 50,000 credits
+STRIPE_PRICE_PLAN_MONTHLY = ""  # $10/month    -> 10,000 credits per paid cycle
+STRIPE_PRICE_TRIAL = ""         # $1 one-time  -> 1,000 credits
+# Transient line-items fetch exhaust (seconds). Sandbox is ~6h so SANDBOX-PROOF-1 can exercise it.
+STRIPE_RETRY_EXHAUST_SECONDS = "21600"
+
+# D1 database for accounts, ledger, holds, Stripe events, API key hashes,
+# auth tokens, sessions and rate counters. Placeholder id — no database has
+# been created. Schema: migrations/0001_init.sql through 0004_auth.sql.
+[[d1_databases]]
+binding = "DB"
+database_name = "rathor-api-sandbox"
+database_id = "PLACEHOLDER_NOT_CREATED"
+migrations_dir = "migrations"
+
+# LIVE-GATE-1: production env. NOT DEPLOYED by this PR. Do not run
+# `wrangler deploy --env production` here.
+# Production has its own STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET and XAI_API_KEY.
+# Set them only with `wrangler secret put --env production`. Never copy from sandbox.
+[env.production]
+name = "rathor-api-production"
+workers_dev = false
+
+[env.production.vars]
+ALLOWED_ORIGIN = "https://rathor.ai"
+STRIPE_MODE = "test"
+# LIVE_MODE stays "false" in this PR. Flipping it to "true" is the owner's
+# decision after live keys and prices exist. Anything other than the exact
+# string "true" means sandbox (fail-closed).
+LIVE_MODE = "false"
+RATES_VERIFIED = "false"
+# MERCY-LAUNCH-1: marks this env as production for the Mercy-Checks level gate.
+ENVIRONMENT = "production"
+# MERCY-LAUNCH-1: production /v1/chat returns 503 unless this is exactly "launch".
+# Set to "launch" only after migration 0007 is applied (go-live checklist). Not in this PR.
+MERCY_CHECKS_LEVEL = "baseline"
+# MERCY-MINORS-SVC-1: external minors moderation skeleton. OFF; only exact "true" enables. Not wired.
+MINORS_SVC_ENABLED = "false"
+STRIPE_PRICE_PACK_10 = ""
+STRIPE_PRICE_PACK_25 = ""
+STRIPE_PRICE_PACK_50 = ""
+STRIPE_PRICE_PLAN_MONTHLY = ""
+STRIPE_PRICE_TRIAL = ""
+# Production exhaust window (~73h): Stripe's 72h retry window (259200) + 1h margin.
+# Unset/invalid in code also defaults to 262800.
+STRIPE_RETRY_EXHAUST_SECONDS = "262800"
+
+# Separate production D1. Placeholder id — no database has been created.
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "rathor-api-production"
+database_id = "PLACEHOLDER_NOT_CREATED"
+migrations_dir = "migrations"

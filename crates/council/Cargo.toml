@@ -1,0 +1,25 @@
+[package]
+name = "council"
+version = "14.15.0"
+edition = "2021"
+authors = ["Sherif Samy Botros <info@Rathor.ai>", "Eternally-Thriving-Grandmasterism"]
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
+description = "Deterministic council vote. A proposal can pass or fail. An admission block cannot be voted into an apply."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["ra-thor", "patsagi", "council", "governance"]
+categories = ["simulation"]
+
+# Standalone workspace, same pattern as crates/fenca.
+# `cargo build` and `cargo test --locked` run in this directory.
+# This crate is not a root default member (see the PR note).
+#
+# The old dependency key `ra-thor-kernel` pointed at path `../kernel`.
+# The package in that directory is named `kernel`, so the key did not match.
+# Council does not depend on it. `crates/kernel` uses workspace inheritance,
+# is not a root member, and depends back on this crate.
+[workspace]
+resolver = "2"
+
+[[bin]]
+name = "council_simulator"
+path = "src/bin/council_simulator.rs"

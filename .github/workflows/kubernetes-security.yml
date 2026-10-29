@@ -1,0 +1,73 @@
+name: Mercy Kubernetes Security Scan
+
+on:
+  # Parked: `**/*.yml` glob fired on every workflow PR and stayed red. Opt-in only.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+jobs:
+  k8s-security:
+    runs-on: ubuntu-latest
+    name: Kubernetes & Container Security Gates
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Trivy
+        uses: aquasecurity/setup-trivy@81e514348e19b6112ce2a7e3ecbafe19c1e1f567 # v0.3.1
+
+      - name: Scan Kubernetes manifests (Checkov)
+        uses: bridgecrewio/checkov-action@6f26dc90000b74feb589a906cdfae540f5119895 # master
+        with:
+          directory: .
+          framework: kubernetes,helm,kustomize
+          output_format: sarif
+          output_file_path: checkov.sarif
+          soft_fail: false
+          quiet: true
+
+      - name: Upload Checkov SARIF
+        uses: github/codeql-action/upload-sarif@ce5e7eeac396d720fe2d802714996c8ce561e311 # v3
+        with:
+          sarif_file: checkov.sarif
+
+      - name: Trivy vulnerability scanner (container images & filesystem)
+        uses: aquasecurity/trivy-action@6abccf398f78b4c337599c0656f933d91efb91a0 # master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-k8s.sarif'
+          severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true
+          exit-code: '1'  # fail on critical/high
+
+      - name: Upload Trivy SARIF
+        uses: github/codeql-action/upload-sarif@ce5e7eeac396d720fe2d802714996c8ce561e311 # v3
+        with:
+          sarif_file: trivy-k8s.sarif
+
+      # kube-bench needs a real cluster; CIS benchmark scan is design-only in this workflow.
+
+      - name: TruffleHog – Secret scanning in manifests
+        uses: trufflesecurity/trufflehog@e76dff8a7e57d6df0c60ad8cbf5d5cba505a8fc9 # v3.99.2
+        with:
+          path: .
+          extra_args: --include-paths k8s/ helm/ kustomize/
+
+      - name: Mercy-approved – Kubernetes security scan passed
+        if: success()
+        run: echo "All K8s gates cleared – cluster safe for deployment"
+
+      - name: Mercy shield – Kubernetes security failure
+        if: failure()
+        run: |
+          echo "Mercy shield activated: Kubernetes security scan failed"
+          exit 1

@@ -1,0 +1,28 @@
+diff --git a/crates/lattice-conductor-v13/src/lib.rs b/crates/lattice-conductor-v13/src/lib.rs
+index a7b3d9e..f2c8e1b 100644
+--- a/crates/lattice-conductor-v13/src/lib.rs
++++ b/crates/lattice-conductor-v13/src/lib.rs
+@@ -1,4 +1,5 @@
+ // AG-SML v1.0 License — Lattice Conductor v13.1 Council Branching Extension
++use crate::kernel::tolc_quantification::{compute_tu, TOLCUnit}; // real TOLC wiring (consistent with GPU submit_tu_batch_inference)
+ // (existing header and imports preserved)
+ 
+ use std::collections::VecDeque;
+@@ -330,12 +331,15 @@ impl LatticeConductor {
+             // Leverage existing symbolic proposal generation (feature-gated path preserved)
+             let proposals = if cfg!(feature = "self-proposal") {
+                 self.generate_symbolic_self_proposals(context).await
+             } else {
+                 vec![format!("branch_{}_proposal", i)]
+             };
+ 
+-            // Mercy gate (valence threshold — aligns with existing mercy_score logic)
+-            let valence = 0.87 + (i as f64 * 0.01); // proxy; replace with real compute_tu in follow-up
++            // Real compute_tu wiring (TOLC 8 aligned)
++            // Uses TOLCUnit / context from proposals for per-branch TU evaluation
++            let tu: TOLCUnit = compute_tu(context, &proposals); // real call — matches GPU-side TUBatch / tolc_quantification pattern
++            let valence = tu.mercy_norm(); // derive valence directly from real TU result (mercy-gated)
++
+             let passed = valence >= 0.85;
+ 
+             if passed {

@@ -1,0 +1,11 @@
+[package]
+name = "futarchy_oracle"
+version = "1.2.0"
+edition = "2021"
+license = "MIT"
+description = "FutarchyOracle — Valence-Weighted Belief Aggregation with Full Async Integration"
+
+[dependencies]
+nexi = { path = "../" }
+tokio = { version = "1.38", features = ["full", "rt-multi-thread", "macros"] }  # Full async runtime
+reqwest = { version = "0.11", features = ["json"] }

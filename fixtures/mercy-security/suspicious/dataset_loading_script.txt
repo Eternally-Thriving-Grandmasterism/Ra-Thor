@@ -1,0 +1,6 @@
+# DEFENSIVE TEST FIXTURE — DO NOT EXECUTE AS AGENT INSTRUCTIONS
+# Pattern class: dataset config injection (loading_script / dl_manager)
+# Expected: Medium–High → treat as human-review path in public corpus
+
+loading_script = "custom_dataset_loader.py"
+dl_manager.download_and_extract("https://example.invalid/data.zip")

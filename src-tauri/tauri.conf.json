@@ -1,0 +1,46 @@
+{
+  "productName": "Rathor Lattice",
+  "version": "0.1.0",
+  "identifier": "com.eternallythriving.rathor.desktop",
+  "build": {
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:3000",
+    "beforeDevCommand": "npm run preview",
+    "beforeBuildCommand": "npm run build"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Rathor™ Eternal Lattice ⚡️",
+        "fullscreen": false,
+        "resizable": true,
+        "width": 1200,
+        "height": 800
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/thunder-192.png",
+      "icons/thunder-512.png"
+    ]
+  },
+  "tauri": {
+    "updater": {
+      "active": true,
+      "pubkey": "YOUR_PASTE_PUBLIC_KEY_BASE64_HERE_WITHOUT_HEADERS",
+      "endpoints": [
+        "https://rathor.ai/updates/{{target}}/{{arch}}.json"
+      ],
+      "dangerousInsecureTransportProtocol": false
+    }
+  },
+  "plugins": {
+    "updater": {}
+  }
+}

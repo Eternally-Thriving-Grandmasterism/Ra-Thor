@@ -1,0 +1,5 @@
+# TruffleHog ignore patterns (regex)
+test/
+examples/
+fixtures/
+.mock

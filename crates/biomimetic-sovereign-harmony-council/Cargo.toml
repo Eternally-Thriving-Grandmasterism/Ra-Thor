@@ -1,0 +1,23 @@
+[package]
+name = "biomimetic-sovereign-harmony-council"
+version = "0.1.0"
+edition = "2021"
+authors = ["24 PATSAGi Councils under the Rathor Sovereign Reasoning Engine"]
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
+description = "23rd PATSAGi Council — Biomimetic Sovereign Harmony. Lotus self-cleaning truth, gecko adhesion bonds, shark-skin compression, moth-eye clarity, spider-silk strength, pterosaur-wing resilience, TOLC 8, RSRE v3.0 + all Pinnacle integrations"
+
+# Standalone workspace, same pattern as crates/fenca and crates/council.
+# `cargo test --locked` and `cargo clippy --locked` use this manifest.
+# This crate is not a root default member.
+#
+# STUB-AUDIT-1 REASONING-COUNCIL-WIRES-1.
+# This directory had a manifest and no Rust sources.
+# Biomimetic phrases in the description (lotus, gecko, shark-skin, moth-eye,
+# spider-silk, pterosaur-wing) are design intent.
+# The previous path dependencies had no caller, so they are absent here.
+# mial, mercy_gating_runtime, and mercy-threshold-wasm are not dependencies.
+[workspace]
+resolver = "2"
+
+[lib]
+path = "src/lib.rs"

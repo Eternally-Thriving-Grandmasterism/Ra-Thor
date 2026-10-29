@@ -1,0 +1,20 @@
+[package]
+name = "swarm_intelligence"
+version = "0.1.0"
+edition = "2021"
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
+description = "In-memory pheromone and success maps. SwarmAgent::replicate returns None (replication is not implemented). best_trail picks the highest pheromone plus success."
+
+# Standalone workspace, same pattern as crates/fenca, crates/council,
+# crates/powrush, and crates/sovereign-shard-genesis.
+# `cargo build --locked` and `cargo test --locked` use this manifest.
+# This crate is not a root default member.
+# rand stays at the version already written in this file. It is not read by src/lib.rs.
+[workspace]
+resolver = "2"
+
+[dependencies]
+rand = "0.8"
+
+[lib]
+path = "src/lib.rs"

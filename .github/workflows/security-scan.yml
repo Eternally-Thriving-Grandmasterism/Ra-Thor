@@ -1,0 +1,60 @@
+name: Mercy Security Scan
+
+on:
+  # Parked: Mercy Security Scan always-red on every PR. Opt-in only.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write  # required for SARIF uploads
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    name: Security & Quality Gates
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+
+      - name: Cargo audit (dependency vulnerabilities)
+        uses: rustsec/audit-check@69366f33c96575abad1ee0dba8212993eecbe998 # v2.0.0
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Cargo clippy (lint & potential vulns)
+        run: cargo clippy --all-targets -- -D warnings
+
+      - name: TruffleHog secret scanning
+        uses: trufflesecurity/trufflehog@e76dff8a7e57d6df0c60ad8cbf5d5cba505a8fc9 # v3.99.2
+        with:
+          path: ./
+          extra_args: --exclude-paths .trufflehog-ignore.txt
+
+      - name: Run Semgrep (code security & quality)
+        uses: returntocorp/semgrep-action@713efdd345f3035192eaa63f56867b88e63e4e5d # v1
+        with:
+          publishToken: ${{ secrets.SEMGREP_APP_TOKEN }}  # optional – skip if not using Semgrep cloud
+          generateSarif: true
+          sarifFile: semgrep.sarif
+
+      - name: Upload Semgrep SARIF
+        uses: github/codeql-action/upload-sarif@ce5e7eeac396d720fe2d802714996c8ce561e311 # v3
+        with:
+          sarif_file: semgrep.sarif
+
+      - name: Mercy-approved – Security scan passed
+        if: success()
+        run: echo "All security gates cleared – proceeding to merge"
+
+      - name: Mercy shield – Security failure
+        if: failure()
+        run: |
+          echo "Mercy shield activated: Security scan failed"
+          exit 1

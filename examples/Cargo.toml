@@ -1,0 +1,8 @@
+[package]
+name = "ra-thor-examples"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+lattice-conductor-v14 = { path = "../crates/lattice-conductor-v14" }
+rusqlite = { version = "0.31", features = ["bundled"] }

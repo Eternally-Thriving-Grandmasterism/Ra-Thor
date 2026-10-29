@@ -1,0 +1,14 @@
+diff --git a/crates/lattice-conductor-v13/src/lib.rs b/crates/lattice-conductor-v13/src/lib.rs
+index f2c8e1b..c3d9a2f 100644
+--- a/crates/lattice-conductor-v13/src/lib.rs
++++ b/crates/lattice-conductor-v13/src/lib.rs
+@@ -335,6 +335,9 @@ impl LatticeConductor {
+             // Real compute_tu wiring (TOLC 8 aligned)
+             // Uses TOLCUnit / context from proposals for per-branch TU evaluation
+             let tu: TOLCUnit = compute_tu(context, &proposals); // real call — matches GPU-side TUBatch / tolc_quantification pattern
++            // compute_tu now drives real mercy-norm in council branches
++            // (replaces previous proxy valence; TOLC 8 aligned, consistent with GPU integration)
++            // Doc note: mercy_norm() provides the gated valence used for branch approval
+             let valence = tu.mercy_norm(); // derive valence directly from real TU result (mercy-gated)
+ 
+             let passed = valence >= 0.85;

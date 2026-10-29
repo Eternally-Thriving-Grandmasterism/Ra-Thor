@@ -1,0 +1,34 @@
+name: api-worker-tests
+on:
+  pull_request:
+    paths:
+      - 'workers/api/**'
+      - '.github/workflows/api-worker-tests.yml'
+      - '*.html'
+      - '*.js'
+      - 'js/**'
+  push:
+    branches: [main]
+    paths:
+      - 'workers/api/**'
+      - '*.html'
+      - '*.js'
+      - 'js/**'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: workers/api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Fail if client-facing files contain secret key patterns
+        working-directory: .
+        run: node workers/api/scripts/scan-client-keys.mjs
+      - run: npm ci --no-audit --no-fund
+      - run: npm test

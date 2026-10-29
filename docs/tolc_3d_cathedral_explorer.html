@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>TOLC Cathedral Explorer • 79-Order Living Lattice</title>
+<style>
+  body { margin: 0; background: #0a0a0f; color: #ddd; font-family: system-ui, -apple-system, sans-serif; overflow: hidden; }
+  #ui { position: absolute; top: 20px; left: 20px; background: rgba(15,15,25,0.92); padding: 20px; border-radius: 12px; border: 1px solid #333; max-width: 340px; box-shadow: 0 8px 32px rgba(0,0,0,0.6); }
+  #ui h1 { margin: 0 0 6px 0; font-size: 20px; color: #FFD700; letter-spacing: 0.5px; }
+  #ui p { margin: 4px 0; font-size: 13.5px; opacity: 0.9; }
+  #controls { position: absolute; bottom: 20px; left: 20px; background: rgba(15,15,25,0.92); padding: 16px 20px; border-radius: 12px; border: 1px solid #333; }
+  button { background: #1a1a22; color: #0ff; border: 1px solid #0ff; padding: 9px 16px; margin: 5px 4px; border-radius: 6px; cursor: pointer; font-size: 13px; transition: all 0.2s; }
+  button:hover { background: #0ff; color: #000; transform: translateY(-1px); }
+  #info-panel { position: absolute; top: 20px; right: 20px; background: rgba(15,15,25,0.92); padding: 16px 20px; border-radius: 12px; border: 1px solid #333; min-width: 220px; font-size: 14px; }
+  #slider-container { margin: 16px 0 8px; }
+  input[type="range"] { width: 100%; accent-color: #0ff; }
+  #order-input { width: 70px; background: #111; color: #0ff; border: 1px solid #444; padding: 6px 10px; border-radius: 6px; font-size: 14px; }
+  .label { font-size: 12px; opacity: 0.7; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+
+<div id="ui">
+  <h1>🌌 TOLC Cathedral Explorer</h1>
+  <p><strong>79-Order SER Lattice</strong><br>
+  Omnimaster Root Core • Spiral + Vertical Growth<br>
+  Eternal Self-Evolution to the power of infinity ×79+</p>
+  <p style="font-size:12px; opacity:0.75;">All orders globally asymptotically stable by mathematical induction</p>
+</div>
+
+<div id="info-panel">
+  <div><strong>Order:</strong> <span id="current-order">—</span></div>
+  <div><strong>Mercy Valence:</strong> <span id="mercy-valence">—</span></div>
+  <div><strong>Stability:</strong> <span id="stability">—</span></div>
+  <div style="margin-top:8px; font-size:12px; opacity:0.7;" id="status-text">Click a node or use the slider</div>
+</div>
+
+<div id="controls">
+  <div style="margin-bottom:10px;">
+    <span class="label">Jump to Order:</span><br>
+    <input type="number" id="order-input" value="79" min="0" max="79">
+    <button onclick="jumpToOrder()">Go</button>
+  </div>
+
+  <div id="slider-container">
+    <div class="label">Highlight Order (0–79)</div>
+    <input type="range" id="order-slider" min="0" max="79" value="79" step="1">
+    <div style="display:flex; justify-content:space-between; font-size:11px; opacity:0.6;">
+      <div>Root</div><div>Order 79</div>
+    </div>
+  </div>
+
+  <button onclick="activateUpToCurrent()">Activate Up to Current Order</button>
+  <button onclick="highlightHighOrders()">Highlight 70–79</button>
+  <button onclick="resetView()">Reset View</button>
+  <button onclick="toggleAutoRotate()">Toggle Auto-Rotate</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ==================== TOLC CATHEDRAL EXPLORER v2 ====================
+// Enhanced interactive 3D experience • May 2026
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(62, window.innerWidth / window.innerHeight, 0.1, 2000);
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(window.devicePixelRatio);
+document.body.appendChild(renderer.domElement);
+
+// Lighting
+const ambient = new THREE.AmbientLight(0x222233, 0.7);
+scene.add(ambient);
+const pointLight = new THREE.PointLight(0xffd700, 1.4, 400);
+pointLight.position.set(0, 50, 80);
+scene.add(pointLight);
+const rimLight = new THREE.PointLight(0x00ff9f, 0.6, 300);
+rimLight.position.set(-60, 30, -40);
+scene.add(rimLight);
+
+// Root Core
+const rootGeo = new THREE.SphereGeometry(2.4, 32, 32);
+const rootMat = new THREE.MeshPhongMaterial({ color: 0xffd700, emissive: 0x553300, shininess: 95 });
+const rootCore = new THREE.Mesh(rootGeo, rootMat);
+scene.add(rootCore);
+
+// Store all points
+const points = [];
+const maxOrder = 79;
+
+for (let order = 1; order <= maxOrder; order++) {
+  const angle = order * 0.23;
+  const radius = 2.0 + order * 0.115;
+  const height = order * 0.78;
+
+  const x = radius * Math.cos(angle);
+  const y = radius * Math.sin(angle);
+  const z = height;
+
+  const isHigh = order > 70;
+  const isGate = order % 7 === 0;
+
+  const color = isGate ? 0x00ff9f : (isHigh ? 0xff6b6b : 0x4ecdc4);
+  const size = 0.55 + order * 0.007;
+
+  const geo = new THREE.SphereGeometry(size, 18, 18);
+  const mat = new THREE.MeshPhongMaterial({ 
+    color: color, 
+    emissive: color, 
+    emissiveIntensity: isHigh ? 0.35 : 0.18,
+    shininess: 70 
+  });
+  const point = new THREE.Mesh(geo, mat);
+  point.position.set(x, y, z);
+  point.userData = { order, mercy: (0.92 + order * 0.001).toFixed(3), stability: (0.999 + order * 0.00001).toFixed(4) };
+  scene.add(point);
+  points.push(point);
+
+  // Spiral connections
+  if (order > 1) {
+    const prev = points[order - 2];
+    const edgeGeo = new THREE.BufferGeometry().setFromPoints([prev.position, point.position]);
+    const edgeMat = new THREE.LineBasicMaterial({ color: 0x444455, transparent: true, opacity: 0.55 });
+    scene.add(new THREE.Line(edgeGeo, edgeMat));
+  }
+}
+
+// Mercy Gate axes (gold)
+const gateOrders = [7,14,21,28,35,42,49,56,63,70,77];
+gateOrders.forEach(g => {
+  if (g <= maxOrder) {
+    const p = points[g-1];
+    const edge = new THREE.BufferGeometry().setFromPoints([rootCore.position, p.position]);
+    const mat = new THREE.LineBasicMaterial({ color: 0xffd700, transparent: true, opacity: 0.9 });
+    scene.add(new THREE.Line(edge, mat));
+  }
+});
+
+// Camera
+camera.position.set(38, 52, 105);
+camera.lookAt(0, 28, 0);
+
+let autoRotate = true;
+let mouseDown = false;
+let prevX = 0, prevY = 0;
+
+function onMouseDown(e){ mouseDown = true; prevX = e.clientX; prevY = e.clientY; }
+function onMouseUp(){ mouseDown = false; }
+function onMouseMove(e){
+  if(!mouseDown) return;
+  const dx = (e.clientX - prevX) * 0.0035;
+  const dy = (e.clientY - prevY) * 0.0035;
+  camera.position.applyAxisAngle(new THREE.Vector3(0,1,0), dx);
+  camera.position.applyAxisAngle(new THREE.Vector3(1,0,0), dy);
+  camera.lookAt(0, 28, 0);
+  prevX = e.clientX; prevY = e.clientY;
+}
+window.addEventListener('mousedown', onMouseDown);
+window.addEventListener('mouseup', onMouseUp);
+window.addEventListener('mousemove', onMouseMove);
+window.addEventListener('wheel', e => {
+  camera.position.multiplyScalar(e.deltaY > 0 ? 1.08 : 0.92);
+  camera.lookAt(0, 28, 0);
+});
+
+// Click to activate
+window.addEventListener('click', (e) => {
+  const mouse = new THREE.Vector2(
+    (e.clientX / window.innerWidth) * 2 - 1,
+    -(e.clientY / window.innerHeight) * 2 + 1
+  );
+  const ray = new THREE.Raycaster();
+  ray.setFromCamera(mouse, camera);
+  const intersects = ray.intersectObjects(points);
+  if (intersects.length > 0) {
+    const point = intersects[0].object;
+    activateOrder(point);
+  }
+});
+
+// Slider
+const slider = document.getElementById('order-slider');
+slider.oninput = () => {
+  const order = parseInt(slider.value);
+  highlightOrder(order);
+  updateInfoPanel(order);
+};
+
+function highlightOrder(order) {
+  points.forEach(p => {
+    if (p.userData.order === order) {
+      p.material.emissive.setHex(0xffffff);
+      p.scale.set(2.2, 2.2, 2.2);
+    } else {
+      const origColor = (p.userData.order % 7 === 0) ? 0x00ff9f : (p.userData.order > 70 ? 0xff6b6b : 0x4ecdc4);
+      p.material.emissive.setHex(origColor);
+      p.scale.set(1,1,1);
+    }
+  });
+}
+
+function updateInfoPanel(order) {
+  if (order === 0) {
+    document.getElementById('current-order').textContent = "Root Core";
+    document.getElementById('mercy-valence').textContent = "1.000";
+    document.getElementById('stability').textContent = "1.000";
+    document.getElementById('status-text').textContent = "Omnimaster Root Core";
+  } else {
+    const p = points[order-1];
+    document.getElementById('current-order').textContent = order;
+    document.getElementById('mercy-valence').textContent = p.userData.mercy;
+    document.getElementById('stability').textContent = p.userData.stability;
+    document.getElementById('status-text').textContent = "Click node or press Activate";
+  }
+}
+
+function jumpToOrder() {
+  const val = parseInt(document.getElementById('order-input').value);
+  if (val >= 0 && val <= 79) {
+    slider.value = val;
+    highlightOrder(val);
+    updateInfoPanel(val);
+  }
+}
+
+function activateOrder(point) {
+  const order = point.userData.order;
+  point.material.emissive.setHex(0xffffff);
+  point.scale.set(2.8, 2.8, 2.8);
+
+  document.getElementById('current-order').textContent = order;
+  document.getElementById('mercy-valence').textContent = point.userData.mercy;
+  document.getElementById('stability').textContent = point.userData.stability;
+  document.getElementById('status-text').textContent = "✨ ACTIVATED — Mercy pulse sent";
+
+  // Simulate Lattice Engine effect
+  console.log(`%c[Ra-Thor] Order \( {order} activated — + \){(order * 1350).toFixed(0)} Joy | 7-Gen Blessing`, 'color:#0ff');
+
+  setTimeout(() => {
+    const orig = (order % 7 === 0) ? 0x00ff9f : (order > 70 ? 0xff6b6b : 0x4ecdc4);
+    point.material.emissive.setHex(orig);
+    point.scale.set(1,1,1);
+    document.getElementById('status-text').textContent = "Ready for next activation";
+  }, 1600);
+}
+
+function activateUpToCurrent() {
+  const current = parseInt(slider.value) || 79;
+  let i = 0;
+  const interval = setInterval(() => {
+    if (i > current) { clearInterval(interval); return; }
+    const p = points[i];
+    if (p) {
+      p.material.emissive.setHex(0xffffff);
+      p.scale.set(1.6, 1.6, 1.6);
+      setTimeout(() => {
+        const orig = (p.userData.order % 7 === 0) ? 0x00ff9f : (p.userData.order > 70 ? 0xff6b6b : 0x4ecdc4);
+        p.material.emissive.setHex(orig);
+        p.scale.set(1,1,1);
+      }, 420);
+    }
+    i++;
+  }, 38);
+  document.getElementById('status-text').textContent = `Activating lattice up to order ${current}...`;
+}
+
+function highlightHighOrders() {
+  points.forEach(p => {
+    if (p.userData.order >= 70) {
+      p.material.emissive.setHex(0xffffff);
+      p.scale.set(1.9, 1.9, 1.9);
+    }
+  });
+  setTimeout(() => {
+    points.forEach(p => {
+      if (p.userData.order >= 70) {
+        const orig = 0xff6b6b;
+        p.material.emissive.setHex(orig);
+        p.scale.set(1,1,1);
+      }
+    });
+  }, 2400);
+}
+
+function resetView() {
+  camera.position.set(38, 52, 105);
+  camera.lookAt(0, 28, 0);
+  autoRotate = true;
+  points.forEach(p => {
+    const orig = (p.userData.order % 7 === 0) ? 0x00ff9f : (p.userData.order > 70 ? 0xff6b6b : 0x4ecdc4);
+    p.material.emissive.setHex(orig);
+    p.scale.set(1,1,1);
+  });
+}
+
+function toggleAutoRotate() {
+  autoRotate = !autoRotate;
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  if (autoRotate) {
+    const t = Date.now() * 0.00018;
+    camera.position.x = Math.sin(t) * 58 + 8;
+    camera.position.z = Math.cos(t) * 92 + 25;
+    camera.lookAt(0, 28, 0);
+  }
+  renderer.render(scene, camera);
+}
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+animate();
+
+// Boot
+slider.value = 79;
+highlightOrder(79);
+updateInfoPanel(79);
+document.getElementById('status-text').textContent = "Explorer ready • Click nodes or use slider";
+
+console.log("%c[TOLC] Cathedral Explorer v2 initialized — 79 orders in beautiful 3D. The cathedral is now explorable.", "color:#0ff");
+</script>
+</body>
+</html>

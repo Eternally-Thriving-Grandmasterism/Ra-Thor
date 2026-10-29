@@ -1,0 +1,1 @@
+See /home/workdir/artifacts/spacetime-algebra-applications-tolc-codex.md for full content

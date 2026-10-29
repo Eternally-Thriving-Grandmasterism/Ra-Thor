@@ -1,0 +1,184 @@
+//! # Powrush Enemy Perception Systems
+//!
+//! Mercy-aware enemy senses with Visual + Audio Detection and Sound Occlusion.
+//!
+//! Audio now respects walls and obstacles (sound occlusion).
+
+use serde::{Serialize, Deserialize};
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum PerceptionType {
+    Visual,
+    Auditory,
+    MercySense,
+    Spiritual,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum SoundType {
+    Footstep,
+    Movement,
+    Shout,
+    Explosion,
+    Ability,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PerceptionProfile {
+    pub visual_range: f32,
+    pub auditory_range: f32,
+    pub mercy_sense_range: f32,
+    pub spiritual_range: f32,
+    pub field_of_view: f32,
+}
+
+impl Default for PerceptionProfile {
+    fn default() -> Self {
+        Self {
+            visual_range: 12.0,
+            auditory_range: 8.0,
+            mercy_sense_range: 6.0,
+            spiritual_range: 4.0,
+            field_of_view: 90.0,
+        }
+    }
+}
+
+pub struct PerceptionSystem;
+
+impl PerceptionSystem {
+    /// Line of sight check (placeholder)
+    pub fn has_line_of_sight(
+        from_x: f32,
+        from_y: f32,
+        to_x: f32,
+        to_y: f32,
+        _map_data: Option<&[u8]>,
+    ) -> bool {
+        let dx = to_x - from_x;
+        let dy = to_y - from_y;
+        let dist_sq = dx * dx + dy * dy;
+        dist_sq < 400.0
+    }
+
+    /// Field of view check
+    pub fn is_in_field_of_view(
+        enemy_x: f32,
+        enemy_y: f32,
+        enemy_facing_x: f32,
+        enemy_facing_y: f32,
+        target_x: f32,
+        target_y: f32,
+        fov_degrees: f32,
+    ) -> bool {
+        let dx = target_x - enemy_x;
+        let dy = target_y - enemy_y;
+        let dist = (dx * dx + dy * dy).sqrt();
+        if dist < 0.1 {
+            return true;
+        }
+        let dot = dx * enemy_facing_x + dy * enemy_facing_y;
+        let cos_half_fov = (fov_degrees.to_radians() / 2.0).cos();
+        (dot / dist) > cos_half_fov
+    }
+
+    /// Estimate sound occlusion (number of walls/obstacles between source and listener).
+    /// Returns a dampening factor (0.0–1.0). Lower = more occluded.
+    /// In a full implementation, this would use raycasting or pathfinding through map tiles.
+    pub fn sound_occlusion_factor(
+        from_x: f32,
+        from_y: f32,
+        to_x: f32,
+        to_y: f32,
+        _map_data: Option<&[u8]>,
+    ) -> f32 {
+        // Placeholder: simple distance-based occlusion approximation
+        // Future: replace with real raycasting or A* path cost through walls
+        let dx = to_x - from_x;
+        let dy = to_y - from_y;
+        let distance = (dx * dx + dy * dy).sqrt();
+
+        // Assume ~1 wall every 8 units on average in indoor/complex maps
+        let estimated_walls = (distance / 8.0).min(5.0);
+        let occlusion = 0.75_f32.powf(estimated_walls); // Each wall reduces sound by ~25%
+
+        occlusion.clamp(0.15, 1.0)
+    }
+
+    /// Audio detection strength with sound type + occlusion
+    pub fn audio_detection_strength(
+        sound_type: SoundType,
+        distance: f32,
+        base_noise_level: f32,
+        from_x: f32,
+        from_y: f32,
+        to_x: f32,
+        to_y: f32,
+        map_data: Option<&[u8]>,
+    ) -> f32 {
+        let intensity = match sound_type {
+            SoundType::Footstep => 0.4,
+            SoundType::Movement => 0.6,
+            SoundType::Shout => 1.2,
+            SoundType::Explosion => 2.0,
+            SoundType::Ability => 1.0,
+        };
+
+        let distance_factor = (1.0 - (distance / 35.0)).max(0.0);
+        let occlusion = Self::sound_occlusion_factor(from_x, from_y, to_x, to_y, map_data);
+
+        (intensity * base_noise_level * distance_factor * occlusion).clamp(0.0, 2.5)
+    }
+
+    /// Main detection check
+    pub fn can_detect_player(
+        profile: &PerceptionProfile,
+        distance: f32,
+        from_x: f32,
+        from_y: f32,
+        facing_x: f32,
+        facing_y: f32,
+        to_x: f32,
+        to_y: f32,
+        player_mercy: f32,
+        enemy_behavior: crate::enemy_behavior::EnemyBehavior,
+        noise_level: f32,
+        sound_type: SoundType,
+        map_data: Option<&[u8]>,
+    ) -> bool {
+        // Visual
+        if distance <= profile.visual_range {
+            let in_fov = Self::is_in_field_of_view(
+                from_x, from_y, facing_x, facing_y, to_x, to_y, profile.field_of_view,
+            );
+            if in_fov && Self::has_line_of_sight(from_x, from_y, to_x, to_y, map_data) {
+                return true;
+            }
+        }
+
+        // Audio (now with occlusion)
+        let audio_strength = Self::audio_detection_strength(
+            sound_type, distance, noise_level, from_x, from_y, to_x, to_y, map_data,
+        );
+        if audio_strength > 0.3 && distance <= profile.auditory_range {
+            return true;
+        }
+
+        // MercySense
+        let mercy_factor = if enemy_behavior == crate::enemy_behavior::EnemyBehavior::Awakened {
+            2.0
+        } else {
+            1.0
+        };
+        if distance <= profile.mercy_sense_range * mercy_factor {
+            return true;
+        }
+
+        // Spiritual
+        if player_mercy > 0.85 && distance <= profile.spiritual_range {
+            return true;
+        }
+
+        false
+    }
+}

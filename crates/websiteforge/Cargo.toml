@@ -1,0 +1,34 @@
+# crates/websiteforge/Cargo.toml
+# Ra-Thor WebsiteForge — mercy-gated local generator crate
+# Workspace identity: 14.15.6 (do not advertise v14.0.0 as current product)
+# Local demo emitter only — not a live Conductor node, not a product warranty.
+# Contact: info@Rathor.ai | AG-SML v1.0 | Independent of xAI
+
+[package]
+name = "ra-thor-websiteforge"
+version = "14.15.6"
+edition = "2021"
+authors = ["Sherif Samy Botros <info@Rathor.ai>"]
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
+description = "Mercy-gated website + translation emitter. Local generator demo aligned to workspace 14.15.6. Not a product warranty."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+
+[[bin]]
+name = "websiteforge"
+path = "src/bin/main.rs"
+
+[dependencies]
+ra-thor-kernel = { path = "../kernel" }
+ra-thor-mercy = { path = "../mercy" }
+ra-thor-quantum = { path = "../quantum" }
+ra-thor-biomimetic = { path = "../biomimetic" }
+ra-thor-common = { path = "../common" }
+mercy_orchestrator_v2 = { path = "../mercy_orchestrator_v2" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1", features = ["full"] }
+thiserror = "1.0"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+futures = "0.3"
+clap = { version = "4.5", features = ["derive"] }

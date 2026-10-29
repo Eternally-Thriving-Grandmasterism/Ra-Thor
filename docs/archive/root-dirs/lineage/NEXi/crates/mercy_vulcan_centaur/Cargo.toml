@@ -1,0 +1,11 @@
+[package]
+name = "mercy_vulcan_centaur"
+version = "1.0.0"
+edition = "2021"
+license = "MIT"
+description = "MercyVulcanCentaur — Heavy-Lift Launch Vehicle Core for Eternal Orbital Access Resonance"
+
+[dependencies]
+nexi = { path = "../" }
+mercy_space_governance = { path = "../crates/mercy_space_governance" }
+tokio = { version = "1.38", features = ["full"] }

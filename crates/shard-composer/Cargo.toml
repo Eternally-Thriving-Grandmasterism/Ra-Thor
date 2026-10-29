@@ -1,0 +1,41 @@
+[package]
+name = "shard-composer"
+version = "14.15.6"
+edition = "2021"
+# uuid 1.28.0, via patsagi-councils, declares rust-version 1.89.0.
+rust-version = "1.89.0"
+authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
+description = "Standalone shard composer. ShardComposerAdapter stores blessing arithmetic from caller inputs. patsagi-councils is re-exported as patsagi."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+publish = false
+
+# Standalone workspace, same pattern as crates/fenca, crates/council,
+# crates/powrush, and crates/quantum-swarm-orchestrator.
+# `cargo test --locked` and `cargo clippy --locked` use this manifest.
+# This crate is not a root default member.
+#
+# Path dependencies are packages that already build standalone:
+#   ../quantum-swarm-orchestrator (package ra-thor-quantum-swarm-orchestrator)
+#   ../patsagi-councils
+# geometric-intelligence has no library. It is not a dependency.
+# real-estate-lattice is not a standalone build. It is not a dependency.
+# crates/mercy is a root member. It is not a path dependency.
+# serde, serde_json, sha2, hmac, and hkdf are pinned here.
+# No `full` feature. quantum-swarm-orchestrator has no `full` feature.
+# patsagi-councils has no `full` feature. Cargo still loads an optional
+# path, so crates that do not build standalone are not optional dependencies.
+[workspace]
+resolver = "2"
+
+[dependencies]
+ra-thor-quantum-swarm-orchestrator = { path = "../quantum-swarm-orchestrator" }
+patsagi-councils = { path = "../patsagi-councils" }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+sha2 = "0.10"
+hmac = "0.12"
+hkdf = "0.12"
+
+[lib]
+path = "src/lib.rs"

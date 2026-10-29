@@ -1,0 +1,5 @@
+fn main() {
+    let y0 = SE3::identity();
+    let result = rkmk4(rigid_body_dynamics, 0.0, y0, 10.0, 0.01);
+    // Analyze attitude drift (should be zero)
+}

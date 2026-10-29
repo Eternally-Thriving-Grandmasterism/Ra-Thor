@@ -1,0 +1,13 @@
+[package]
+name = "sentinel_mirror"
+version = "1.1.0"
+edition = "2021"
+license = "MIT"
+description = "SentinelMirror — Infinite Recursion Watch for NEXi Lattice Eternal Resonance"
+
+[dependencies]
+nexi = { path = "../" }
+tokio = { version = "1.38", features = ["full", "rt-multi-thread", "macros"] }
+
+[features]
+recursive_depth = []  # Future infinite mirror scaling

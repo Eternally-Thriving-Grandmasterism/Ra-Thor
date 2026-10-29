@@ -1,0 +1,15 @@
+{
+  "schema": "powrush_telemetry_v1",
+  "source": "powrush-mmo-fixture",
+  "label": "marginal_ethics_session",
+  "telemetry": {
+    "gameplay_hours": 14.0,
+    "rbe_decision_quality_avg": 0.48,
+    "peaceful_resolution_rate": 0.51,
+    "collaboration_events": 42,
+    "ethical_choice_score": 0.44,
+    "adaptation_events": 18,
+    "abundance_velocity_signals": 0.72,
+    "innovation_contribution": 0.35
+  }
+}

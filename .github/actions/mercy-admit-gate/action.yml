@@ -1,0 +1,93 @@
+name: "Mercy Admit Gate (Tier A)"
+description: >
+  Scan files with Ra-Thor mercy-security IngestionScanner::admit_or_block.
+  Blocks Medium+ for unattended paths. White-hat only. No live exploits.
+  Contact: info@Rathor.ai
+
+inputs:
+  paths:
+    description: "Space-separated paths or globs to scan (default: fixture should_block + benign smoke)"
+    required: false
+    default: ""
+  fail-on-block:
+    description: "Fail the step when any file is blocked (true/false)"
+    required: false
+    default: "true"
+  json:
+    description: "Emit JSON lines (true/false)"
+    required: false
+    default: "false"
+  working-directory:
+    description: "Monorepo root (usually .)"
+    required: false
+    default: "."
+
+runs:
+  using: "composite"
+  steps:
+    - name: Ensure Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+
+    - name: Cache cargo
+      uses: Swatinem/rust-cache@v2
+      with:
+        workspaces: ${{ inputs.working-directory }}
+
+    - name: Build mercy-admit
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        set -euo pipefail
+        cargo build -q -p mercy-security --bin mercy-admit
+
+    - name: Run admit_or_block gate
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        FAIL_ON_BLOCK: ${{ inputs.fail-on-block }}
+        JSON: ${{ inputs.json }}
+        PATHS_INPUT: ${{ inputs.paths }}
+      run: |
+        set -euo pipefail
+        BIN="target/debug/mercy-admit"
+        if [[ ! -x "$BIN" ]]; then
+          BIN="target/release/mercy-admit"
+        fi
+        ARGS=()
+        if [[ "${JSON}" == "true" ]]; then
+          ARGS+=(--json)
+        fi
+        ARGS+=(--verbose)
+
+        if [[ -n "${PATHS_INPUT}" ]]; then
+          # shellcheck disable=SC2206
+          FILES=(${PATHS_INPUT})
+        else
+          # Default smoke: one benign + one should_block (proves gate trips)
+          FILES=(
+            crates/mercy-security/fixtures/benign/model_card_clean.md
+            crates/mercy-security/fixtures/should_block/trust_remote_code_loader.txt
+          )
+        fi
+
+        echo "[mercy-admit-gate] scanning ${#FILES[@]} path(s)..."
+        set +e
+        "$BIN" "${ARGS[@]}" "${FILES[@]}"
+        status=$?
+        set -e
+
+        if [[ "$status" -eq 0 ]]; then
+          echo "[mercy-admit-gate] all admitted"
+          exit 0
+        fi
+        if [[ "$status" -eq 1 ]]; then
+          if [[ "${FAIL_ON_BLOCK}" == "true" ]]; then
+            echo "[mercy-admit-gate] blocked content detected — failing (Tier A policy)"
+            exit 1
+          else
+            echo "[mercy-admit-gate] blocked content reported but fail-on-block=false"
+            exit 0
+          fi
+        fi
+        echo "[mercy-admit-gate] hard error (status=$status)"
+        exit "$status"

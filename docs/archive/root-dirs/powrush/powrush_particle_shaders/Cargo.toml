@@ -1,0 +1,22 @@
+[package]
+name = "powrush_particle_shaders"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+description = "Powrush Resonance Gear Particle Shader Logic — Dynamic WGSL-ready parameters, burst effects, and faction/reputation-modulated visuals"
+repository.workspace = true
+keywords = ["powrush", "particle", "shader", "wgsl", "resonance-gear", "visuals", "ra-thor"]
+categories = ["rendering", "simulation"]
+
+[dependencies]
+powrush_faction_dynamics = { path = "../powrush_faction_dynamics" }
+serde = { workspace = true, features = ["derive"] }
+
+[features]
+default = []
+full = []
+
+[lib]
+name = "powrush_particle_shaders"
+path = "src/lib.rs"

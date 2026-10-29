@@ -1,0 +1,25 @@
+[package]
+name = "powrush"
+version = "14.15.0"
+edition = "2021"
+authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
+description = "Policy hint emission (ra_thor_policy_hint_v1). A hint can be rejected. Design-only game modules are not in this build."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+autobins = false
+autotests = false
+
+# Standalone workspace, same pattern as crates/fenca and crates/council.
+# `cargo build --locked` and `cargo test --locked` use this manifest.
+# This crate is not a root default member.
+#
+# Bevy and nalgebra are not dependencies. Modules that need them, and the
+# stub game sources, stay on disk and are not compiled. autobins and
+# autotests are off so src/bin and tests/ are not cargo targets.
+[workspace]
+resolver = "2"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "1"

@@ -1,0 +1,29 @@
+# DEMO-HARNESS-1 (2026-10-27): offline demo harness. Runs only this crate's tests.
+name: mercy-demo-harness
+on:
+  pull_request:
+    paths:
+      - "crates/mercy-demo-harness/**"
+      - "crates/mercy-security/**"
+      - "crates/lattice-conductor-v14/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - ".github/workflows/mercy-demo-harness.yml"
+  push:
+    branches: [main]
+    paths:
+      - "crates/mercy-demo-harness/**"
+      - ".github/workflows/mercy-demo-harness.yml"
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec
+        with:
+          toolchain: stable
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6
+      - run: cargo test -p mercy-demo-harness

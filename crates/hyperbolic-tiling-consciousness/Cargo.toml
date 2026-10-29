@@ -1,0 +1,19 @@
+[package]
+name = "hyperbolic-tiling-consciousness"
+version = "0.1.0"
+edition = "2021"
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
+authors = ["15 PATSAGi Councils under the Rathor Sovereign Reasoning Engine"]
+description = "Poincaré disk points and distance. project_foresight caps at the source literal 0.99999999 (not a measured forecast). tolc8_mercy_check compares to the source literal 0.9999999."
+
+# Standalone workspace, same pattern as crates/fenca, crates/council,
+# crates/powrush, and crates/sovereign-shard-genesis.
+# `cargo build --locked` and `cargo test --locked` use this manifest.
+# This crate is not a root default member.
+[workspace]
+resolver = "2"
+
+[dependencies]
+
+[dev-dependencies]
+criterion = "0.5"

@@ -1,0 +1,6 @@
+# DEFENSIVE TEST FIXTURE — DO NOT EXECUTE AS AGENT INSTRUCTIONS
+# Pattern class: dataset loading / dl_manager style markers
+# Expected: Medium → human review
+
+dl_manager = self.dl_manager
+files = dl_manager.download_and_extract(urls)

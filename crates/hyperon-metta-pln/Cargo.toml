@@ -1,0 +1,20 @@
+[package]
+name = "hyperon-metta-pln"
+version = "0.2.0"
+edition = "2021"
+description = "String-formatting bridge. reason prefixes a query and concatenates Atomspace, MeTTa, and PLN format strings. Not a MeTTa interpreter or a PLN solver."
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
+authors = ["Sherif Samy Botros <info@Rathor.ai> (@AlphaProMega)", "13+ PATSAGi Councils (Rathor.ai Lattice)"]
+
+# Standalone workspace, same pattern as crates/fenca, crates/council,
+# crates/powrush, and crates/sovereign-shard-genesis.
+# `cargo build --locked` and `cargo test --locked` use this manifest.
+# This crate is not a root default member.
+# serde and tokio stay at the versions already written in this file.
+# src/lib.rs does not read them. src/adaptive_valence.rs is not a module.
+[workspace]
+resolver = "2"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+tokio = { version = "1.0", features = ["full"] }

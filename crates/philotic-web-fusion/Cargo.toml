@@ -1,0 +1,17 @@
+[package]
+name = "philotic-web-fusion"
+version = "0.3.0"
+edition = "2021"
+authors = ["18 PATSAGi Councils under the Rathor Sovereign Reasoning Engine"]
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
+description = "HashMap of bonds. fuse_bond returns Err when valence is below the threshold constant 0.9999999 (a source literal, not a measured value). An empty web_valence returns that same literal."
+
+# Standalone workspace, same pattern as crates/fenca, crates/council,
+# crates/powrush, and crates/sovereign-shard-genesis.
+# `cargo build --locked` and `cargo test --locked` use this manifest.
+# This crate is not a root default member.
+[workspace]
+resolver = "2"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }

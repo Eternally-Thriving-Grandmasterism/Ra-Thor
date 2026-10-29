@@ -1,0 +1,131 @@
+name: mercy-security Tier-1
+
+on:
+  push:
+    paths:
+      - "crates/mercy-security/**"
+      - "fixtures/mercy-security/**"
+      - ".github/workflows/mercy-security-tier1.yml"
+      - ".github/actions/mercy-admit-gate/**"
+      - "scripts/pre-commit-admit-gate.sh"
+  pull_request:
+    paths:
+      - "crates/mercy-security/**"
+      - "fixtures/mercy-security/**"
+      - ".github/workflows/mercy-security-tier1.yml"
+      - ".github/actions/mercy-admit-gate/**"
+      - "scripts/pre-commit-admit-gate.sh"
+  workflow_dispatch:
+
+jobs:
+  test-mercy-security:
+    name: cargo test -p mercy-security
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+        with:
+          workspaces: "."
+
+      - name: Test mercy-security (includes internal fixture corpus)
+        run: cargo test -p mercy-security -- --nocapture
+
+      - name: Internal fixture corpus present + inventory
+        run: |
+          set -e
+          test -f crates/mercy-security/fixtures/MANIFEST.md
+          test -d crates/mercy-security/fixtures/benign
+          test -d crates/mercy-security/fixtures/should_block
+          echo "=== internal benign fixtures ==="
+          ls -1 crates/mercy-security/fixtures/benign/
+          echo "=== internal should_block fixtures ==="
+          ls -1 crates/mercy-security/fixtures/should_block/
+          # Require core expanded set
+          test -f crates/mercy-security/fixtures/benign/research_notes_clean.md
+          test -f crates/mercy-security/fixtures/should_block/template_jinja_injection.txt
+          test -f crates/mercy-security/fixtures/should_block/yaml_unsafe_load.txt
+          test -f crates/mercy-security/fixtures/should_block/collusion_split_ingest_marker.txt
+          test -f crates/mercy-security/fixtures/should_block/reward_hacking_eval_score_marker.txt
+          echo "Internal fixture corpus layout + expanded inventory OK"
+
+      - name: Public fixture corpus present + layout
+        run: |
+          set -e
+          test -f fixtures/mercy-security/README.md
+          test -d fixtures/mercy-security/benign
+          test -d fixtures/mercy-security/suspicious
+          test -d fixtures/mercy-security/blocked
+          test -d fixtures/mercy-security/ci-examples
+          echo "=== public benign ==="
+          ls -1 fixtures/mercy-security/benign/
+          echo "=== public suspicious ==="
+          ls -1 fixtures/mercy-security/suspicious/
+          echo "=== public blocked ==="
+          ls -1 fixtures/mercy-security/blocked/
+          # Spot-check key files from the expanded public set
+          test -f fixtures/mercy-security/benign/tolc_protocol_notes.md
+          test -f fixtures/mercy-security/blocked/eval_compile_marker.txt
+          test -f fixtures/mercy-security/blocked/collusion_split_ingest_marker.txt
+          test -f fixtures/mercy-security/blocked/reward_hacking_eval_score_marker.txt
+          test -f fixtures/mercy-security/ci-examples/github-action-snippet.yml
+          test -f fixtures/mercy-security/ci-examples/pre-commit-snippet.sh
+          echo "Public fixture corpus layout OK"
+
+      - name: Quick admit-gate smoke (no live exploits)
+        run: |
+          set -e
+          # Benign must not panic the scanner; exact admit/block is covered by unit tests
+          cargo test -p mercy-security fixture_benign_model_card_admits -- --nocapture
+          cargo test -p mercy-security fixture_should_block_trust_remote_code -- --nocapture
+          echo "Admit-gate smoke examples passed"
+
+      - name: Build + exercise mercy-admit CLI
+        run: |
+          set -euo pipefail
+          cargo build -q -p mercy-security --bin mercy-admit
+          BIN=target/debug/mercy-admit
+          # Benign must admit (exit 0)
+          "$BIN" --verbose crates/mercy-security/fixtures/benign/model_card_clean.md
+          # should_block must exit 1
+          set +e
+          "$BIN" --verbose crates/mercy-security/fixtures/should_block/trust_remote_code_loader.txt
+          status=$?
+          set -e
+          if [[ "$status" -ne 1 ]]; then
+            echo "Expected exit 1 for should_block fixture, got $status"
+            exit 1
+          fi
+          echo "mercy-admit CLI exit-code contract holds"
+
+  composite-gate-smoke:
+    name: composite mercy-admit-gate action
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Run composite gate (expect block on default smoke paths)
+        id: gate
+        continue-on-error: true
+        uses: ./.github/actions/mercy-admit-gate
+        with:
+          fail-on-block: "true"
+
+      - name: Assert gate tripped (Tier A policy)
+        run: |
+          set -e
+          # Default inputs include a should_block fixture → action must fail
+          if [[ "${{ steps.gate.outcome }}" != "failure" ]]; then
+            echo "Expected composite gate to fail on should_block fixture"
+            exit 1
+          fi
+          echo "Composite mercy-admit-gate correctly tripped on Medium+ fixture"

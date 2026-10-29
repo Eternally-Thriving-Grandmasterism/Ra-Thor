@@ -1,0 +1,32 @@
+[package]
+name = "mercy-organism"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Top-level integrator + CLI activator for unified Ra-Thor organism coherence (ra-thor-activate)"
+
+[dependencies]
+ra-thor-mercy = { workspace = true }
+ra-thor-quantum-swarm-orchestrator = { workspace = true }
+ra-thor-orchestration = { workspace = true }
+ra-thor-evolution = { workspace = true }
+ra-thor-plasticity-engine-v2 = { workspace = true }
+ra-thor-patsagi-councils = { workspace = true }
+ra-thor-interstellar-operations = { workspace = true }
+ra-thor-legal-lattice = { workspace = true }
+ra-thor-real-estate-lattice = { workspace = true }
+ra-thor-powrush = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+chrono = { workspace = true }
+toml = "0.8"
+
+[features]
+default = []
+full-activation = []
+
+[[bin]]
+name = "ra-thor-activate"
+path = "src/main.rs"

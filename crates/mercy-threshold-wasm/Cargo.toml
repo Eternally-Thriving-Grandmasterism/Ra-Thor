@@ -1,0 +1,37 @@
+[package]
+name = "mercy-threshold-wasm"
+version = "14.15.0"
+edition = "2021"
+authors = ["Sherif Samy Botros <info@Rathor.ai>", "Eternally-Thriving-Grandmasterism"]
+description = "With feature native, loads caller-supplied wasm bytes and looks up export names. It does not embed a proof. Missing score exports return the source literal 0.0. The native helper calls mial MWPO."
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["mercy", "threshold", "wasm", "ra-thor", "one-organism"]
+categories = ["wasm", "simulation"]
+rust-version = "1.89"
+
+# Standalone workspace, same pattern as crates/fenca, crates/council,
+# crates/powrush, and crates/sovereign-shard-genesis.
+# `cargo build --locked` and `cargo test --locked` use this manifest.
+# This crate is not a root default member.
+# mial stays a relative path dependency. Default features include native.
+[workspace]
+resolver = "2"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+wasmtime = { version = "25.0", features = ["cranelift"], optional = true }
+anyhow = { version = "1.0", optional = true }
+serde = { version = "1.0", features = ["derive"] }
+mial = { path = "../mial", optional = true }
+
+[features]
+default = ["native"]
+native = ["dep:wasmtime", "dep:anyhow", "dep:mial"]
+wasm = []
+
+[dev-dependencies]
+wasmtime = { version = "25.0", features = ["cranelift"] }
+anyhow = "1.0"

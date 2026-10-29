@@ -1,0 +1,78 @@
+name: Mercy Helm Chart Security Scan
+
+on:
+  # Parked: Helm/K8s scan leftover always-red. Opt-in only.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  helm-security:
+    runs-on: ubuntu-latest
+    name: Helm Chart & Manifest Security Gates
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Helm
+        uses: azure/setup-helm@1a275c3b69536ee54be43f2070a358922e12c8d4 # v4
+        with:
+          version: v3.15.4
+
+      - name: Helm lint (basic chart validation)
+        run: |
+          find . -name Chart.yaml -exec dirname {} \; | sort -u | while read chart_dir; do
+            helm lint "$chart_dir" --strict
+          done
+
+      - name: Checkov – Helm + Kubernetes security scan
+        uses: bridgecrewio/checkov-action@6f26dc90000b74feb589a906cdfae540f5119895 # master
+        with:
+          directory: .
+          framework: helm,kubernetes
+          output_format: sarif
+          output_file_path: checkov-helm.sarif
+          soft_fail: false
+          quiet: true
+
+      - name: Upload Checkov SARIF
+        uses: github/codeql-action/upload-sarif@ce5e7eeac396d720fe2d802714996c8ce561e311 # v3
+        with:
+          sarif_file: checkov-helm.sarif
+
+      - name: Trivy vulnerability scanner (Helm charts & filesystem)
+        uses: aquasecurity/trivy-action@6abccf398f78b4c337599c0656f933d91efb91a0 # master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-helm.sarif'
+          severity: 'CRITICAL,HIGH'
+          ignore-unfixed: true
+          exit-code: '1'  # fail on critical/high
+
+      - name: Upload Trivy SARIF
+        uses: github/codeql-action/upload-sarif@ce5e7eeac396d720fe2d802714996c8ce561e311 # v3
+        with:
+          sarif_file: trivy-helm.sarif
+
+      - name: TruffleHog – Secret scanning in Helm files
+        uses: trufflesecurity/trufflehog@e76dff8a7e57d6df0c60ad8cbf5d5cba505a8fc9 # v3.99.2
+        with:
+          path: .
+          extra_args: --include-paths helm/ charts/ templates/ values.yaml Chart.yaml
+
+      - name: Mercy-approved – Helm security scan passed
+        if: success()
+        run: echo "All Helm gates cleared – chart safe for deployment"
+
+      - name: Mercy shield – Helm security failure
+        if: failure()
+        run: |
+          echo "Mercy shield activated: Helm security scan failed"
+          exit 1

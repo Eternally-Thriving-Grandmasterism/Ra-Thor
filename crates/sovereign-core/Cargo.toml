@@ -1,0 +1,19 @@
+[package]
+name = "sovereign-core"
+version = "14.15.0"
+edition = "2021"
+authors = ["Sherif Samy Botros <info@Rathor.ai>", "Eternally-Thriving-Grandmasterism"]
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
+description = "Ra-Thor Sovereign Core Lattice v14.15.0 — Full Autonomous Cosmic Looping + 528 Hz Soliton Harmonics + Explicit Zero-Hallucination Safeguards. Living Cosmic Tick + ONE Organism readiness."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["ra-thor", "sovereign", "cosmic-loop", "one-organism"]
+categories = ["science", "simulation"]
+
+[dependencies]
+autonomous-evolution-engine = { path = "../autonomous-evolution-engine" }
+cosmic-harmony-protocol = { path = "../cosmic-harmony-protocol" }
+heaven-co-creation-simulator-v4 = { path = "../heaven-co-creation-simulator-v4" }
+orch-or-biophoton-layer = { path = "../orch-or-biophoton-layer" }
+mercy_gating_runtime = { path = "../mercy_gating_runtime" }
+tokio = { version = "1", features = ["full"] }
+chrono = "0.4"

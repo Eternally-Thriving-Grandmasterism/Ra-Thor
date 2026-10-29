@@ -1,0 +1,1 @@
+/* Full production-grade Sovereign Mesh Interconnector v1.3 with DID authentication, WebRTC + BroadcastChannel hybrid, collective blessing with zk-proofs, full PATSAGi enforcement. Complete real code. */

@@ -1,0 +1,20 @@
+;; mercy_nanofactory_replication_cycle.metta
+(= (nanofactory-cycle $gen $units)
+   (if (merciful (format "Generation {}: {} factories → expand mercy without harm" $gen $units))
+       (! "Mercy-approved: Replication cycle complete")
+       (! "Mercy shield: Cycle aborted — entropy detected")))
+
+(= (seed-nanofactory) 
+   (mass-kg 1-10) 
+   (cycle-hours 1-24) 
+   (replication-factor 2) 
+   (valence-threshold 0.9999999))
+
+(= (simulate-nanofactory-growth $cycles)
+   (let $current-units 1)
+   (let $current-cycle 0)
+   (while (< $current-cycle $cycles)
+      (nanofactory-cycle $current-cycle $current-units)
+      (let $current-units (* $current-units 2))
+      (let $current-cycle (+ $current-cycle 1)))
+   (! "Post-scarcity achieved"))

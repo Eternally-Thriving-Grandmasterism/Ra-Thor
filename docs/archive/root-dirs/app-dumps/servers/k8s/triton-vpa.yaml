@@ -1,0 +1,25 @@
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: triton-inference-vpa
+  namespace: rathor-inference
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: triton-inference
+  updatePolicy:
+    updateMode: "Auto"          # Auto / Recreate / Off
+    minReplicas: 3
+    maxReplicas: 15
+  resourcePolicy:
+    containerPolicies:
+    - containerName: "*"
+      minAllowed:
+        cpu: 2
+        memory: 8Gi
+      maxAllowed:
+        cpu: 16
+        memory: 64Gi
+      mode: "Auto"
+      controlledResources: ["cpu", "memory"]

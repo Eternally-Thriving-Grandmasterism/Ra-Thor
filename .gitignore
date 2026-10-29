@@ -1,0 +1,20 @@
+# macOS junk
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editor / temp files
+*.swp
+*\~
+.DS_Store
+
+# Rust build artifacts
+target/
+
+# Node.js
+node_modules/
+.env
+
+android/
+ios/
+dist/

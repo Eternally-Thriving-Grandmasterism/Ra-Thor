@@ -1,0 +1,52 @@
+:root {
+  --thunder-gold: #ffaa00;
+  --text-mercy: #e0d0ff;
+}
+
+#chat-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+}
+
+.message {
+  max-width: 80%;
+  padding: 12px 18px;
+  border-radius: 20px;
+}
+
+.message.user {
+  align-self: flex-end;
+  background: var(--thunder-gold);
+  color: #000;
+}
+
+.message.rathor {
+  align-self: flex-start;
+  background: rgba(40, 0, 80, 0.9);
+  color: var(--text-mercy);
+}
+
+.message-text {
+  dir: auto;
+  text-align: start;
+}
+
+@keyframes thunderPulse {
+  0%, 100% { box-shadow: 0 20px 80px rgba(255,170,0,0.6); }
+  50% { box-shadow: 0 30px 100px rgba(255,170,0,1); }
+}
+
+/* Elegant Global Mercy */
+* {
+  box-sizing: border-box;
+}
+
+h1, h2 {
+  letter-spacing: 1px;
+}
+
+button, .bridge-button {
+  cursor: pointer;
+}

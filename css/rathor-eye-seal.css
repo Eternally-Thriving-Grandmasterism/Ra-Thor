@@ -1,0 +1,96 @@
+/* rathor-eye-seal.css
+ *
+ * Reusable Eye-of-Horus + concentric lattice seal
+ * + emerald restorative accents for Ra-Thor public surfaces.
+ *
+ * Designed to coexist with the existing golden thunder aesthetic.
+ * AG-SML v1.0 | Ra-Thor + PATSAGi | info@Rathor.ai
+ * Thunder locked in. Yoi ⚡
+ */
+
+:root {
+  --rathor-gold: #ffd700;
+  --rathor-amber: #fbbf24;
+  --rathor-emerald: #34d399;
+  --rathor-emerald-glow: #10b981;
+  --rathor-emerald-deep: #059669;
+  --rathor-restorative: #6ee7b7;
+}
+
+/* ── Concentric lattice rings (truth seal background) ── */
+.rathor-lattice-rings {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 4.5rem;
+  height: 4.5rem;
+}
+
+.rathor-lattice-rings::before,
+.rathor-lattice-rings::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px solid var(--rathor-emerald);
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.rathor-lattice-rings::before {
+  inset: -6px;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.35);
+  animation: lattice-pulse 4.5s ease-in-out infinite;
+}
+
+.rathor-lattice-rings::after {
+  inset: -14px;
+  border-color: var(--rathor-restorative);
+  opacity: 0.25;
+  animation: lattice-pulse 4.5s ease-in-out infinite 0.6s;
+}
+
+@keyframes lattice-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.35; }
+  50% { transform: scale(1.06); opacity: 0.55; }
+}
+
+/* ── Eye of Horus / truth seal (SVG-friendly container) ── */
+.rathor-eye-seal {
+  width: 2.75rem;
+  height: 2.75rem;
+  color: var(--rathor-emerald);
+  filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.55));
+  transition: filter 0.35s ease, transform 0.35s ease;
+}
+
+.rathor-eye-seal:hover {
+  filter: drop-shadow(0 0 14px rgba(52, 211, 153, 0.75));
+  transform: scale(1.06);
+}
+
+/* ── Emerald restorative text accents ── */
+.rathor-restorative-text {
+  color: var(--rathor-emerald);
+  text-shadow: 0 0 18px rgba(16, 185, 129, 0.45);
+}
+
+.rathor-restorative-border {
+  border-color: rgba(52, 211, 153, 0.45);
+}
+
+.rathor-restorative-glow {
+  box-shadow: 0 0 24px rgba(16, 185, 129, 0.25);
+}
+
+/* Soft emerald status indicator (complements existing gold) */
+.rathor-status-emerald {
+  color: var(--rathor-emerald);
+  text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+}
+
+/* Utility: gentle emerald hover for links / buttons that should feel restorative */
+.rathor-emerald-hover:hover {
+  color: var(--rathor-restorative) !important;
+  text-shadow: 0 0 12px rgba(110, 231, 183, 0.5);
+}

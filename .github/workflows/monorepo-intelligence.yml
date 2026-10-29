@@ -1,0 +1,70 @@
+name: Ra-Thor Monorepo Intelligence
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "crates/monorepo-intelligence/**"
+      - "crates/github-connector/**"
+      - "TIER_MAP.md"
+      - ".github/workflows/monorepo-intelligence.yml"
+      - ".github/workflows/core-tier1-ci.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "crates/monorepo-intelligence/**"
+      - "crates/github-connector/**"
+      - "TIER_MAP.md"
+      - ".github/workflows/monorepo-intelligence.yml"
+      - ".github/workflows/core-tier1-ci.yml"
+  workflow_dispatch:
+
+jobs:
+  intelligence-crate:
+    name: monorepo-intelligence -p tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+      - name: Test ra-thor-monorepo-intelligence
+        run: cargo test -p ra-thor-monorepo-intelligence -- --nocapture
+      - name: Test github-connector safe-read protocol
+        run: cargo test -p github-connector -- --nocapture
+
+  tier-map-drift:
+    name: TIER_MAP vs workspace members
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Fail if TIER_MAP crates are missing from workspace members
+        run: |
+          set -euo pipefail
+          missing=0
+          for crate in \
+            ra-thor-one-organism \
+            lattice-conductor-v14 \
+            reality-thriving-transfer \
+            kardashev-orchestration \
+            github-connector \
+            gpu-compute-pipeline \
+            quantum-swarm \
+            sovereign-recovery \
+            monorepo-intelligence \
+            mercy_tolc_operator_algebra \
+            fractal-mercy-ledger-adapter \
+            mercy-security
+          do
+            if grep -q "crates/${crate}" Cargo.toml; then
+              echo "ok: crates/${crate}"
+            else
+              echo "MISSING workspace member: crates/${crate}"
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            echo "TIER_MAP crate missing from Cargo.toml workspace members"
+            exit 1
+          fi

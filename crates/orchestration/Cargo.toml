@@ -1,0 +1,15 @@
+[package]
+name = "orchestration"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+description.workspace = true
+repository.workspace = true
+
+[dependencies]
+# Central orchestration layer for Ra-Thor lattice
+# Coordinates Lattice Conductor, PATSAGi Councils, Quantum Swarm, and Mercy systems
+
+[features]
+default = []

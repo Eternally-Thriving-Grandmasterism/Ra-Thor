@@ -1,0 +1,23 @@
+[package]
+name = "ra-thor-monorepo-auditor"
+version = "0.3.9"
+edition = "2021"
+authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
+description = "RaThorMonorepoAuditor — Structured Audit Reporting, Mercy Metrics, Drift Detection & Self-Improvement Observability for the Ra-Thor lattice. High-signal, mercy-aligned auditing core feeding the self-evolution loop."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["ra-thor", "monorepo-auditor", "audit-reports", "mercy-metrics", "drift-detection", "self-evolution", "observability"]
+categories = ["development-tools", "science", "simulation", "artificial-intelligence"]
+
+[dependencies]
+ra-thor-mercy = { workspace = true }
+ra-thor-kernel = { workspace = true }
+mercy_tolc_operator_algebra = { path = "../mercy_tolc_operator_algebra" }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+thiserror = { workspace = true }
+chrono = { version = "0.4", features = ["serde"] }
+
+[dev-dependencies]
+tracing-subscriber = { workspace = true }

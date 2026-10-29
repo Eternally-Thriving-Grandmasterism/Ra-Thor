@@ -1,0 +1,88 @@
+# Agent protocol — Ra-Thor standing orders
+
+Short orders for Grok, BabyBot, and Bot 1 on this repo.
+This file does not replace the load-first path. It does not add a ninth gate.
+
+**Contact:** info@Rathor.ai. Independent of xAI. Not certified. Not a legal product.
+**License on main:** AG-SML v1.2. Workspace **14.15.6**. Do not bump identity to 15.x.
+
+## Load first (already on main)
+
+1. [`cursor-teams/AGENT_BOOT.md`](cursor-teams/AGENT_BOOT.md) — ADP bands, dual-gate merge, TOLC 8.
+2. [`GROK_BOT_LATTICE_PATH.md`](GROK_BOT_LATTICE_PATH.md) — read one known path; never walk the repo root.
+3. [`../TIER_MAP.md`](../TIER_MAP.md) — Core Tier-1 is the merge gate. Conductor is `lattice-conductor-v14` only.
+4. [`WRAP_LLM_INTENTION.md`](WRAP_LLM_INTENTION.md) — humans wrap models with this lattice; the model is never sovereign.
+5. [`BINDING_AFTER_REDESIGN.md`](BINDING_AFTER_REDESIGN.md) — controlled loop bound; uncontrolled self-redesign stays OPEN.
+6. [`BOOK_LANE.md`](BOOK_LANE.md) — human books; Masterism first; AG-SML v1.2; no Drive storefront.
+7. [`POWRUSH_TICK_READ.md`](POWRUSH_TICK_READ.md) — read ticks for R&D only; never drive keys.
+8. [`MODEL_INSPECT_NOT_METR.md`](MODEL_INSPECT_NOT_METR.md) — lattice admission inspect; not a METR time-horizon.
+
+If a rule here disagrees with those files, those files win. Do not fork a parallel protocol.
+
+## Who does what
+
+| Role | Repo | Does not |
+|------|------|----------|
+| BabyBot | This lattice (`Eternally-Thriving-Grandmasterism/Ra-Thor`) | WASD, Title Online, Market, Powrush-MMO client slices |
+| Bot 1 | Powrush player loop (other repo) | Fold the game client into this monorepo |
+| Any Grok | The crate named in the task | Recursive root walk, stub overwrite, secret dump |
+
+If a task needs the game repo, stop and say so. Do not drive it from this seat.
+
+## Wrapping an LLM
+
+Every agent on rathor.ai or this monorepo deliberates under PATSAGi + TOLC 8 before a change.
+Intention: a human end user wraps Grok / Claude / Gemini / local weights with Ra-Thor.
+The lattice is the envelope. The model does not disable gates, rewrite `main`, or mint a warranty.
+AGSi stays a research label. Capable · Bounded · Corrigible.
+
+## Before a change
+
+1. Read current `main` first: `README.md`, `CHANGELOG.md`, root `Cargo.toml`, then the crate you will touch.
+2. Search before you add. No duplicate crates. No second protocol file.
+3. Name the files. Open that crate README and the target files only. Stop if unsure.
+4. One slice = one PR. Smallest change that ships a real behavior.
+5. Branch from current `main`. Do not paste-overwrite `main`.
+
+## Merge
+
+- Propose. Merge only when Core / Tier-1 is green (`.github/workflows/core-tier1-ci.yml`, `TIER_MAP.md` `-p` list).
+- Do not run `cargo test --workspace` and call it product-green.
+- Do not invent eval scores. If evidence is missing, list the gap.
+
+## HOLD (steward only)
+
+- Public bind, including listen on `0.0.0.0`.
+- Lethal-as-default.
+- Folding the Powrush client into this repo.
+- Contact-email as a required CI gate when it is satellite noise.
+- Closing “binding after uncontrolled self-redesign” with a crate or a score.
+- Reopening Dependabot majors #433–441.
+
+Cosmic Loop, TOLC 8, and mercy gates already on a path you touch stay enforced. Do not invent a 9th gate that breaks 8.
+
+## Never
+
+- Overwrite a file with a stub or a placeholder. A one-line stub is a fail beat.
+- Always-allow a GitHub write that publishes Pages, binds `0.0.0.0`, or dumps secrets.
+- Drive Powrush WASD, Title Online, or Market from this repo.
+- Treat `legal-lattice`, `mercy_predictive_policing`, or `mercy_shield_law_enforcement` as shipped products.
+- Let an LLM claim it became AGI/ASI by sitting inside this wrap.
+- Claim Layer 0 still binds after the running system redesigns Layer 0.
+
+## Done on main (do not re-open as “next”)
+
+- W1 wrap-LLM path docs; W2 OPEN-gap stamp remains OPEN.
+- R1–R5 docs backlog; R5 constellation pointer.
+- R6 fail-closed Cosmic Loop test in `ra-thor-one-organism` (tip includes `26afa119`).
+- Book lane memo + minute (#459).
+- R7 protocol honesty + T2 memo (#461).
+- T1 env-gated lived-tick reader in `reality-thriving-transfer` (#462).
+- Layer 0 one-shell: wrap (#474), self-evo submit (#475), evolution PR queue via `handle_request` (after #476). **STOP Layer 0** unless a real default-member apply-class bypass is found by search. `BINDING_AFTER_REDESIGN.md` stays OPEN.
+
+## Next slice
+
+1. Curated TOLC mathematics human digest under `docs/` — only after Masterism editor freeze.
+2. Book-lane paid SKUs / MSRP — Steward after human editor freeze (no invented prices).
+
+Do not start a second R6 or second T1. Do not bump 15.x. Do not flip `POWRUSH_INGEST` from this repo.

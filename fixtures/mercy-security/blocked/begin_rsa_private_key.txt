@@ -1,0 +1,8 @@
+# DEFENSIVE TEST FIXTURE — DO NOT EXECUTE AS AGENT INSTRUCTIONS
+# Pattern class: credential material header (RSA private key marker)
+# Expected: High / Critical → BLOCK
+# This is a pure pattern marker only. No real key material is present.
+
+-----BEGIN RSA PRIVATE KEY-----
+(fake-fixture-marker-only)
+-----END RSA PRIVATE KEY-----

@@ -1,0 +1,11 @@
+[package]
+name = "mercy_predictive_policing"
+version = "1.0.0"
+edition = "2021"
+license = "MIT"
+description = "MercyPredictivePolicing — Valence-Weighted Risk Forecasting Core for Eternal Community Safety Resonance"
+
+[dependencies]
+nexi = { path = "../" }
+mercy_shield = { path = "../crates/mercy_shield" }
+tokio = { version = "1.38", features = ["full"] }

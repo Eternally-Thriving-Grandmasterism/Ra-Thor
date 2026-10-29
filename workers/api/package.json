@@ -1,0 +1,12 @@
+{
+  "name": "rathor-api-worker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "sql.js": "^1.15.1",
+    "vitest": "^2.1.9"
+  }
+}

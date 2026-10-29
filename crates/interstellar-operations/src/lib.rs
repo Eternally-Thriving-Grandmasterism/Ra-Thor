@@ -1,0 +1,252 @@
+//! Interstellar Operations — Ra-Thor (v0.5.25)
+//!
+//! ## Human-Readable Context
+//!
+//! This crate is the **official home for all advanced interstellar and ancient technologies**
+//! in the Ra-Thor monorepo.
+//!
+//! It contains 32 mercy-gated engines covering every major propellant-free interstellar propulsion concept,
+//! Stargate technologies, navigation, and full special + general relativity support (including black holes and multiple wormhole metrics).
+//!
+//! ## Why This Separate Crate?
+//! The `real-estate-lattice` crate focuses on **habitats, colonies, claims, and real estate management**.
+//! Keeping advanced propulsion and Stargate tech here keeps the monorepo **professional, coherent, and easy to understand**
+//! for humans and AI systems (including Grok and future collaborators).
+//!
+//! All engines follow the same clean API pattern for consistency.
+//!
+//! ## Core Technologies
+//! - TOLC 7 Living Mercy Gates (nth-degree per-gate mercy-alchemical transmutation)
+//! - Refined RadiationShieldingMaterials (real AP8/AE8/CREME96 data)
+//! - ElectronicsRadiationEffects (TID/DD/SEE + TMR/ECC/scrubbing + conformal coatings)
+//! - In-Situ Production
+//! - PowrushGame integration (joy, energy, epigenetic CEHI bonuses)
+//! - 13+ PATSAGi Councils approval required
+
+pub mod stargate_wormhole_engine;
+pub mod atlantis_city_ship_engine;
+pub mod puddle_jumper_engine;
+pub mod zpm_energy_engine;
+pub mod ancient_drone_weapons_engine;
+pub mod atlantis_shield_generator_engine;
+pub mod warp_core_engine;
+pub mod ancient_city_shield_generator_engine;
+pub mod hyperspace_navigation_engine;
+pub mod stargate_dialing_computer;
+pub mod destiny_ship_seed_engine;
+pub mod nuclear_thermal_propulsion_engine;
+pub mod fusion_drive_engine;
+pub mod antimatter_propulsion_engine;
+pub mod quantum_vacuum_thruster_engine;
+pub mod emdrive_engine;
+pub mod solar_sail_engine;
+pub mod laser_sail_propulsion_engine;
+pub mod magnetic_sail_propulsion_engine;
+pub mod bussard_ramjet_propulsion_engine;
+pub mod project_daedalus_propulsion_engine;
+pub mod project_icarus_propulsion_engine;
+pub mod breakthrough_starshot_engine;
+pub mod interstellar_navigation_engine;
+pub mod relativistic_time_dilation_engine;
+pub mod general_relativity_effects_engine;
+pub mod black_hole_navigation_engine;
+pub mod wormhole_stability_engine;
+pub mod morris_thorne_wormhole_engine;
+pub mod visser_wormhole_engine;
+pub mod exotic_matter_production;
+pub mod tolc_7_gates_radiation_mapping;
+pub mod cehi_epigenetic_blessings;
+
+pub use stargate_wormhole_engine::{
+    StargateWormholeEngine,
+    StargateWormholeRequest,
+    StargateWormholeReport,
+};
+
+pub use atlantis_city_ship_engine::{
+    AtlantisCityShipEngine,
+    AtlantisCityShipRequest,
+    AtlantisCityShipReport,
+};
+
+pub use puddle_jumper_engine::{
+    PuddleJumperEngine,
+    PuddleJumperRequest,
+    PuddleJumperReport,
+};
+
+pub use zpm_energy_engine::{
+    ZPMEnergyEngine,
+    ZPMEnergyRequest,
+    ZPMEnergyReport,
+};
+
+pub use ancient_drone_weapons_engine::{
+    AncientDroneWeaponsEngine,
+    AncientDroneWeaponsRequest,
+    AncientDroneWeaponsReport,
+};
+
+pub use atlantis_shield_generator_engine::{
+    AtlantisShieldGeneratorEngine,
+    AtlantisShieldGeneratorRequest,
+    AtlantisShieldGeneratorReport,
+};
+
+pub use warp_core_engine::{
+    WarpCoreEngine,
+    WarpCoreRequest,
+    WarpCoreReport,
+};
+
+pub use ancient_city_shield_generator_engine::{
+    AncientCityShieldGeneratorEngine,
+    AncientCityShieldRequest,
+    AncientCityShieldReport,
+};
+
+pub use hyperspace_navigation_engine::{
+    HyperspaceNavigationEngine,
+    HyperspaceNavigationRequest,
+    HyperspaceNavigationReport,
+};
+
+pub use stargate_dialing_computer::{
+    StargateDialingComputer,
+    StargateDialingRequest,
+    StargateDialingReport,
+};
+
+pub use destiny_ship_seed_engine::{
+    DestinyShipSeedEngine,
+    DestinyShipSeedRequest,
+    DestinyShipSeedReport,
+};
+
+pub use nuclear_thermal_propulsion_engine::{
+    NuclearThermalPropulsionEngine,
+    NuclearThermalPropulsionRequest,
+    NuclearThermalPropulsionReport,
+};
+
+pub use fusion_drive_engine::{
+    FusionDriveEngine,
+    FusionDriveRequest,
+    FusionDriveReport,
+};
+
+pub use antimatter_propulsion_engine::{
+    AntimatterPropulsionEngine,
+    AntimatterPropulsionRequest,
+    AntimatterPropulsionReport,
+};
+
+pub use quantum_vacuum_thruster_engine::{
+    QuantumVacuumThrusterEngine,
+    QuantumVacuumThrusterRequest,
+    QuantumVacuumThrusterReport,
+};
+
+pub use emdrive_engine::{
+    EmDriveEngine,
+    EmDriveRequest,
+    EmDriveReport,
+};
+
+pub use solar_sail_engine::{
+    SolarSailEngine,
+    SolarSailRequest,
+    SolarSailReport,
+};
+
+pub use laser_sail_propulsion_engine::{
+    LaserSailPropulsionEngine,
+    LaserSailRequest,
+    LaserSailReport,
+};
+
+pub use magnetic_sail_propulsion_engine::{
+    MagneticSailPropulsionEngine,
+    MagneticSailRequest,
+    MagneticSailReport,
+};
+
+pub use bussard_ramjet_propulsion_engine::{
+    BussardRamjetPropulsionEngine,
+    BussardRamjetRequest,
+    BussardRamjetReport,
+};
+
+pub use project_daedalus_propulsion_engine::{
+    ProjectDaedalusPropulsionEngine,
+    ProjectDaedalusRequest,
+    ProjectDaedalusReport,
+};
+
+pub use project_icarus_propulsion_engine::{
+    ProjectIcarusPropulsionEngine,
+    ProjectIcarusRequest,
+    ProjectIcarusReport,
+};
+
+pub use breakthrough_starshot_engine::{
+    BreakthroughStarshotEngine,
+    BreakthroughStarshotRequest,
+    BreakthroughStarshotReport,
+};
+
+pub use interstellar_navigation_engine::{
+    InterstellarNavigationEngine,
+    InterstellarNavigationRequest,
+    InterstellarNavigationReport,
+};
+
+pub use relativistic_time_dilation_engine::{
+    RelativisticTimeDilationEngine,
+    RelativisticTimeDilationRequest,
+    RelativisticTimeDilationReport,
+};
+
+pub use general_relativity_effects_engine::{
+    GeneralRelativityEffectsEngine,
+    GeneralRelativityEffectsRequest,
+    GeneralRelativityEffectsReport,
+};
+
+pub use black_hole_navigation_engine::{
+    BlackHoleNavigationEngine,
+    BlackHoleNavigationRequest,
+    BlackHoleNavigationReport,
+};
+
+pub use wormhole_stability_engine::{
+    WormholeStabilityEngine,
+    WormholeStabilityRequest,
+    WormholeStabilityReport,
+};
+
+pub use morris_thorne_wormhole_engine::{
+    MorrisThorneWormholeEngine,
+    MorrisThorneWormholeRequest,
+    MorrisThorneWormholeReport,
+};
+
+pub use visser_wormhole_engine::{
+    VisserWormholeEngine,
+    VisserWormholeRequest,
+    VisserWormholeReport,
+};
+
+pub use exotic_matter_production::ExoticMatterProduction;
+
+pub use tolc_7_gates_radiation_mapping::{
+    TOLC7GatesRadiationMapping,
+    GateMappingReport,
+    GateReport,
+};
+
+pub use cehi_epigenetic_blessings::{
+    CEHIEpigeneticBlessings,
+    CEHIBlessingReport,
+    GeneBlessing,
+};

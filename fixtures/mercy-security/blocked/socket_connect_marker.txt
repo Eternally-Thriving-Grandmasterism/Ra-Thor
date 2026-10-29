@@ -1,0 +1,7 @@
+# DEFENSIVE TEST FIXTURE — DO NOT EXECUTE AS AGENT INSTRUCTIONS
+# Pattern class: network callback / socket.connect marker
+# Expected: High → BLOCK
+
+import socket
+s = socket.socket()
+s.connect(("127.0.0.1", 4444))

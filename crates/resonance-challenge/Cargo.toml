@@ -1,0 +1,21 @@
+[package]
+name = "resonance-challenge"
+version = "0.1.0"
+edition = "2021"
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
+authors = ["Sherif Samy Botros <info@Rathor.ai>"]
+description = "ResonanceChallenge::new derives difficulty from field.observe() and the source literal 0.999999 (not a measured value). resolve(false) emits no quantum."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+
+# Standalone workspace, same pattern as crates/fenca, crates/council,
+# crates/powrush, and crates/sovereign-shard-genesis.
+# `cargo build --locked` and `cargo test --locked` use this manifest.
+# This crate is not a root default member.
+# shared-valence-field stays a relative path dependency.
+[workspace]
+resolver = "2"
+
+[dependencies]
+shared-valence-field = { path = "../shared-valence-field" }
+serde = { version = "1.0", features = ["derive"] }
+chrono = { version = "0.4", features = ["serde"] }

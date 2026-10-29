@@ -1,0 +1,37 @@
+[package]
+name = "mial"
+version = "14.15.0"
+edition = "2021"
+rust-version = "1.89"
+authors = ["Sherif Samy Botros <info@Rathor.ai>", "Eternally-Thriving-Grandmasterism"]
+description = "MWPO geometry scores are formulas of source literals. optimize_preferences stores gated as false; no compiled check sets it true. The valence check uses the source literal 0.999999 (not a measured value). src/mial.rs, src/safety_harness.rs, src/lattice_introspection.rs, src/integration.rs, and src/mod.rs are not modules."
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["safety", "mercy", "alignment", "patsagi", "geometry", "one-organism"]
+categories = ["science", "simulation"]
+autoexamples = false
+autotests = false
+
+# Standalone workspace, same pattern as crates/fenca, crates/council,
+# crates/powrush, and crates/sovereign-shard-genesis.
+# `cargo build --locked` and `cargo test --locked` use this manifest.
+# This crate is not a root default member.
+# mercy_gating_runtime stays a relative path dependency.
+# examples/ and tests/ are not cargo targets. They call methods this crate does not define.
+[workspace]
+resolver = "2"
+
+[dependencies]
+mercy_gating_runtime = { path = "../mercy_gating_runtime" }
+nalgebra = { version = "0.33", features = ["serde-serialize"] }
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"], optional = true }
+serde_json = { version = "1.0", optional = true }
+
+[features]
+default = []
+serde = ["dep:serde"]
+json = ["dep:serde", "dep:serde_json"]
+
+[lib]
+path = "src/lib.rs"

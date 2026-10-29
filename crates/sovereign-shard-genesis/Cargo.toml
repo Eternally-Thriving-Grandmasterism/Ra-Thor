@@ -1,0 +1,30 @@
+[package]
+name = "sovereign-shard-genesis"
+version = "14.15.0"
+edition = "2021"
+authors = ["Sherif Samy Botros <info@Rathor.ai>", "Eternally-Thriving-Grandmasterism"]
+description = "Deterministic shard genesis. Explicit inputs are SHA-256 hashed. Empty ids, duplicate ids, a bad parent, and a bad config are rejected. The v13 conductor draft is not compiled."
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["ra-thor", "shard", "genesis"]
+categories = ["science", "simulation"]
+
+# Standalone workspace, same pattern as crates/fenca, crates/council, and crates/powrush.
+# `cargo build --locked` and `cargo test --locked` use this manifest.
+# This crate is not a root default member.
+#
+# The previous sources imported lattice-conductor-v13. That crate is not the
+# v14 conductor, and its manifest uses `workspace = true` against the root.
+# Depending on it from this nested workspace does not resolve. The old file
+# is src/v13_design.rs. It is not a module.
+[workspace]
+resolver = "2"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+thiserror = "1"
+
+[dev-dependencies]
+sha2 = "0.10"

@@ -1,0 +1,31 @@
+<svg width="1200" height="400" viewBox="0 0 1200 400" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="400" fill="#f8f9fa"/>
+
+  <text x="600" y="40" font-family="Arial" font-size="24" font-weight="bold" text-anchor="middle" fill="#1a3c34">
+    mercy_swarm_biomimetic_skin — 5-Layer Cross-Section
+  </text>
+
+  <!-- Layer 5: Self-Healing (top) -->
+  <rect x="100" y="80" width="1000" height="40" fill="#d4f4e2" stroke="#1a3c34" stroke-width="2"/>
+  <text x="600" y="105" font-family="Arial" font-size="16" text-anchor="middle">5. Self-Healing Finish — Spider silk droplets (microfluidic printing)</text>
+
+  <!-- Layer 4: AR/Thermal -->
+  <rect x="100" y="120" width="1000" height="50" fill="#cce5ff" stroke="#1a3c34" stroke-width="2"/>
+  <text x="600" y="150" font-family="Arial" font-size="16" text-anchor="middle">4. AR/Thermal Layer — Moth-eye nanopillars + vascular micro-channels (NIL + ALD)</text>
+
+  <!-- Layer 3: Anti-Dust -->
+  <rect x="100" y="170" width="1000" height="60" fill="#e6f3e6" stroke="#1a3c34" stroke-width="2"/>
+  <text x="600" y="205" font-family="Arial" font-size="16" text-anchor="middle">3. Anti-Dust Interface — Shark riblets + lotus papillae/wax (R2R NIL)</text>
+
+  <!-- Layer 2: Abrasion Cortex -->
+  <rect x="100" y="230" width="1000" height="70" fill="#fff0e6" stroke="#1a3c34" stroke-width="2"/>
+  <text x="600" y="270" font-family="Arial" font-size="16" text-anchor="middle">2. Abrasion Cortex — β-Keratin macrofibrils (wet-spun, genipin cross-linked)</text>
+
+  <!-- Layer 1: Base Substrate -->
+  <rect x="100" y="300" width="1000" height="80" fill="#e6e6ff" stroke="#1a3c34" stroke-width="2"/>
+  <text x="600" y="345" font-family="Arial" font-size="16" text-anchor="middle">1. Base Substrate — TPU/silicone + aligned β-keratin nanofibers (electrospun)</text>
+
+  <!-- Labels -->
+  <text x="50" y="200" font-family="Arial" font-size="14" text-anchor="end" fill="#1a3c34">Outer Surface</text>
+  <text x="50" y="340" font-family="Arial" font-size="14" text-anchor="end" fill="#1a3c34">Inner Attachment</text>
+</svg>

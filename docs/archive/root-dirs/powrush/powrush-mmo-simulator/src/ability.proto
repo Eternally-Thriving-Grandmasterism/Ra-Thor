@@ -1,0 +1,90 @@
+syntax = "proto3";
+
+package powrush.ability;
+
+// Ability Effect types for Powrush MMOARPG
+message AbilityEffect {
+    oneof effect {
+        MovementBoost movement_boost = 1;
+        HarmonyPulse harmony_pulse = 2;
+        EpigeneticStabilize epigenetic_stabilize = 3;
+        ContributionMultiplier contribution_multiplier = 4;
+        ExplorationScan exploration_scan = 5;
+        VoidSkip void_skip = 6;
+    }
+
+    message MovementBoost {
+        uint32 duration_ticks = 1;
+        float speed_multiplier = 2;
+    }
+
+    message HarmonyPulse {
+        float harmony_gain = 1;
+    }
+
+    message EpigeneticStabilize {
+        float volatility_reduction = 1;
+    }
+
+    message ContributionMultiplier {
+        double multiplier = 1;
+        uint32 duration_ticks = 2;
+    }
+
+    message ExplorationScan {
+        float range = 1;
+    }
+
+    message VoidSkip {
+        float extra_distance = 1;
+        float risk = 2;
+    }
+}
+
+// Core Ability definition
+message Ability {
+    string id = 1;
+    string name = 2;
+    string description = 3;
+    Race race = 4;
+    uint32 tier = 5;
+    double unlock_cooperation_score = 6;
+    double unlock_innovation_score = 7;
+    double unlock_contribution_total = 8;
+    AbilityEffect effect_type = 9;
+    uint32 cooldown_ticks = 10;
+}
+
+// Race enum
+enum Race {
+    TERRAN = 0;
+    SYNTHETIC = 1;
+    HARMONIC = 2;
+    VERDANT = 3;
+    VOIDFARER = 4;
+}
+
+// UI-ready Ability State
+message AbilityState {
+    string id = 1;
+    string name = 2;
+    string description = 3;
+    bool unlocked = 4;
+    bool on_cooldown = 5;
+    uint32 remaining_cooldown_ticks = 6;
+    float cooldown_progress = 7;
+}
+
+// Full Ability Tree for a player
+message AbilityTree {
+    Race race = 1;
+    repeated Ability unlocked_abilities = 2;
+    map<string, uint64> cooldowns = 3;  // ability_id -> last_used_tick
+}
+
+// This proto is designed for use with prost in Rust.
+// Example integration:
+//   use prost::Message;
+//   let tree = AbilityTree { ... };
+//   let bytes = tree.encode_to_vec();
+//   let decoded = AbilityTree::decode(bytes.as_slice()).unwrap();

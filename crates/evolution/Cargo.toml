@@ -1,0 +1,21 @@
+[package]
+name = "evolution"
+version = "14.15.0"
+edition = "2021"
+authors = ["Sherif Samy Botros <info@Rathor.ai>", "Eternally-Thriving-Grandmasterism"]
+description = "Ra-Thor self-evolution and proposal management crate. Living Cosmic Tick + ONE Organism 14.15.0 readiness."
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["ra-thor", "evolution", "self-evolution", "one-organism"]
+categories = ["science", "simulation"]
+
+[dependencies]
+github-client = { path = "../github-client" }
+self-improvement-extensions = { path = "../self-improvement-extensions" }
+tracing = { workspace = true }
+qdrant-client = "1.7"
+lancedb = "0.4"
+
+[features]
+default = []
+llama-cpp = ["self-improvement-extensions/llama-cpp"]

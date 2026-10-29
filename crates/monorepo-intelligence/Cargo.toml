@@ -1,0 +1,55 @@
+[package]
+name = "ra-thor-monorepo-intelligence"
+version = "0.3.11"
+edition = "2021"
+authors = ["Sherif Samy Botros <info@Rathor.ai>"]
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
+description = "RaThorMonorepoIntelligence — Central nervous system for the living lattice. Semantic search, health scoring, plugin architecture, hierarchical predictive coding / active inference, and reporting. Enforces path_filter + pagination discipline (never recursive root walks; prefer single-path get_file_contents_safe; per_page ≤ 100) for safe Grok + github-connector symbiosis under TOLC 8."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["ra-thor", "monorepo-intelligence", "semantic-search", "health-scoring", "plugin-architecture", "tolc", "active-inference", "predictive-coding", "mercy-gated", "pagination", "path-filter", "grok-symbiosis"]
+categories = ["science", "simulation", "artificial-intelligence", "development-tools"]
+
+[dependencies]
+# Local lattice surface (path for reliability)
+mercy_tolc_operator_algebra = { path = "../mercy_tolc_operator_algebra" }
+
+# Core async / serde / error / time
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+toml = "1.1"
+thiserror = "1.0"
+tracing = "0.1"
+anyhow = "1.0"
+chrono = { version = "0.4", features = ["serde"] }
+
+# Filesystem & search
+walkdir = "2"
+regex = "1"
+
+# HTTP (for optional GitHub list/search helpers; production tree/file reads go through github-connector safe surface)
+reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-features = false }
+urlencoding = "2"
+
+# Optional reporting helpers
+handlebars = "5"
+rayon = "1.10"
+indicatif = "0.17"
+async-trait = "0.1"
+clap = { version = "4", features = ["derive"], optional = true }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+
+[features]
+default = []
+cli = ["dep:clap"]
+
+[[bin]]
+name = "ra-thor-monorepo-intelligence"
+path = "src/main.rs"
+required-features = ["cli"]
+
+[[example]]
+name = "powrush_report"
+required-features = ["cli"]

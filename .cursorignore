@@ -1,0 +1,31 @@
+# .cursorignore
+# Cursor already respects .gitignore (target/, node_modules/, dist/, Cargo.lock, .env).
+# This file only hides extra high-token / low-signal paths from the agent.
+
+# Cursor / editor caches
+.cursor/
+.cursorignore.bak
+
+# Coverage, reports, local tooling
+coverage/
+lcov.info
+*.lcov
+.nyc_output/
+playwright-report/
+test-results/
+
+# Large / generated media (keep source code visible)
+*.mp4
+*.webm
+*.zip
+*.tar
+*.tar.gz
+*.wasm
+
+# Local secrets that might not be in gitignore yet
+**/.env.*
+!**/.env.example
+**/*secret*
+**/*.pem
+**/*.p12
+**/*.keystore

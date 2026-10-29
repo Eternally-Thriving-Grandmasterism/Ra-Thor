@@ -1,0 +1,120 @@
+//! Per-gate f64 map.
+//! `new` inserts the source literals in that function. They are not measured results.
+//! `set_threshold` returns Err when `new_value` is non-finite or below the stored value.
+
+use std::collections::HashMap;
+
+#[derive(Debug, Clone)]
+pub struct GateThresholdMap {
+    thresholds: HashMap<String, f64>,
+}
+
+impl Default for GateThresholdMap {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl GateThresholdMap {
+    /// Inserts the source literals below. They are not measured results.
+    pub fn new() -> Self {
+        let mut map = HashMap::new();
+        // Default thresholds for gates 17-24
+        map.insert("ma_at_resonance".to_string(), 0.78);
+        map.insert("council_harmony".to_string(), 0.80);
+        map.insert("sovereign_legacy".to_string(), 0.80);
+        map.insert("infinite_compassion".to_string(), 0.85);
+        map.insert("quantum_reverence".to_string(), 0.80);
+        map.insert("eternal_recursion".to_string(), 0.82);
+        map.insert("cosmic_coherence".to_string(), 0.85);
+        map.insert("one_organism_unity".to_string(), 0.90);
+        Self { thresholds: map }
+    }
+
+    /// Returns Err when `new_value` is non-finite or below the stored value.
+    /// The stored value stays. An equal or higher finite value is stored.
+    pub fn set_threshold(&mut self, gate: &str, new_value: f64) -> Result<f64, String> {
+        let current = self.thresholds.get(gate).copied().unwrap_or(0.75);
+        if !new_value.is_finite() || new_value < current {
+            return Err(format!(
+                "Threshold for '{gate}' must be finite and can only increase or stay (current: {current:.2})"
+            ));
+        }
+        self.thresholds.insert(gate.to_string(), new_value);
+        Ok(new_value)
+    }
+
+    pub fn get_threshold(&self, gate: &str) -> f64 {
+        self.thresholds.get(gate).copied().unwrap_or(0.75)
+    }
+
+    /// Compares `amplified_score` with `get_threshold(gate)`.
+    /// `base_score` is not read.
+    pub fn would_pass(&self, gate: &str, _base_score: f64, amplified_score: f64) -> bool {
+        amplified_score >= self.get_threshold(gate)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_monotonic_increase_only() {
+        let mut map = GateThresholdMap::new();
+        assert!(map.set_threshold("one_organism_unity", 0.91).is_ok());
+        assert!(map.set_threshold("one_organism_unity", 0.89).is_err()); // cannot decrease
+    }
+
+    #[test]
+    fn test_local_update_does_not_affect_other_gates() {
+        let mut map = GateThresholdMap::new();
+        let before = map.get_threshold("council_harmony");
+        let _ = map.set_threshold("one_organism_unity", 0.93);
+        assert_eq!(map.get_threshold("council_harmony"), before);
+    }
+
+    #[test]
+    fn decrease_is_rejected_and_equal_or_higher_is_stored() {
+        let mut map = GateThresholdMap::new();
+        assert_eq!(map.get_threshold("one_organism_unity"), 0.90);
+        assert!(map.set_threshold("one_organism_unity", 0.89).is_err());
+        assert_eq!(map.get_threshold("one_organism_unity"), 0.90);
+        assert_eq!(map.set_threshold("one_organism_unity", 0.90).unwrap(), 0.90);
+        assert_eq!(map.get_threshold("one_organism_unity"), 0.90);
+        assert_eq!(map.set_threshold("one_organism_unity", 0.91).unwrap(), 0.91);
+        assert_eq!(map.get_threshold("one_organism_unity"), 0.91);
+        assert_eq!(map.get_threshold("council_harmony"), 0.80);
+    }
+
+    #[test]
+    fn non_finite_values_are_refused_and_0_90_stays() {
+        let mut map = GateThresholdMap::new();
+        for value in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY] {
+            let err = map
+                .set_threshold("one_organism_unity", value)
+                .expect_err("non-finite");
+            assert!(err.contains("finite"));
+            assert_eq!(map.get_threshold("one_organism_unity"), 0.90);
+        }
+    }
+
+    // `-0.0` is finite. `set_threshold` refuses it because `-0.0 < 0.90`.
+    // The stored value stays 0.90.
+    #[test]
+    fn negative_zero_is_refused_and_0_90_stays() {
+        let mut map = GateThresholdMap::new();
+        assert!(map.set_threshold("one_organism_unity", -0.0).is_err());
+        assert_eq!(map.get_threshold("one_organism_unity"), 0.90);
+    }
+
+    #[test]
+    fn refused_nan_then_a_lower_value_is_still_refused() {
+        let mut map = GateThresholdMap::new();
+        assert!(map.set_threshold("one_organism_unity", f64::NAN).is_err());
+        assert_eq!(map.get_threshold("one_organism_unity"), 0.90);
+        assert!(map.set_threshold("one_organism_unity", 0.89).is_err());
+        assert_eq!(map.get_threshold("one_organism_unity"), 0.90);
+        assert_eq!(map.get_threshold("council_harmony"), 0.80);
+    }
+}

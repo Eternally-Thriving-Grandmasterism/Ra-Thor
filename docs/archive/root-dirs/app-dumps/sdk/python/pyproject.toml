@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ra-thor-symbiosis-sdk"
+version = "1.0.0"
+description = "Official Python SDK for Ra-Thor Symbiosis"
+readme = "README.md"
+license = {text = "AG-SML-1.0"}
+requires-python = ">=3.8"
+dependents = []
+
+[project.optional-dependencies]
+dev = ["pytest", "black", "mypy"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

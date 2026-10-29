@@ -1,0 +1,26 @@
+//! # mercy_tolc_operator_algebra
+//!
+//! Executable Living Mercy operator algebra for the Ra-Thor lattice under TOLC 8.
+//!
+//! ## Ambient · valence · adaptive floor · concurrent zones · soft feedback · LatticeHealthReport · adaptive Cosmic Tick · NEVC · Tikhonov-damped projector · payload map
+//!
+//! AG-SML v1.0 | Ra-Thor + PATSAGi Councils | info@Rathor.ai
+//! Thunder locked in. Yoi ⚡
+
+#![forbid(unsafe_code)]
+
+mod soft_feedback;
+pub use soft_feedback::*;
+
+mod nevc;
+pub use nevc::*;
+
+include!("algebra.rs");
+
+mod payload_map;
+pub use payload_map::*;
+
+#[cfg(test)]
+mod tests {
+    include!("algebra_tests.rs");
+}

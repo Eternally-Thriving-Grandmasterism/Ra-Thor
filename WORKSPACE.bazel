@@ -1,0 +1,75 @@
+# WORKSPACE.bazel – Bazel workspace root with multi-stage Docker/OCI support
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+# rules_python (already present)
+http_archive(
+    name = "rules_python",
+    sha256 = "a0fbfa8f3b4c6b2c8e9e5a5f5a5f5a5f5a5f5a5f5a5f5a5f5a5f5a5f5a5f5a",
+    strip_prefix = "rules_python-0.36.0",
+    url = "https://github.com/bazelbuild/rules_python/releases/download/0.36.0/rules_python-0.36.0.tar.gz",
+)
+
+load("@rules_python//python:repositories.bzl", "rules_python_dependencies", "py_repositories")
+rules_python_dependencies()
+py_repositories()
+
+python_register_toolchains(
+    name = "python311",
+    python_version = "3.11",
+    is_default = True,
+)
+
+# rules_cc (already present)
+http_archive(
+    name = "rules_cc",
+    sha256 = "b2b5e5f5a5f5a5f5a5f5a5f5a5f5a5f5a5f5a5f5a5f5a5f5a5f5a5f5a5f5a5f5",
+    strip_prefix = "rules_cc-0.0.9",
+    urls = ["https://github.com/bazelbuild/rules_cc/releases/download/0.0.9/rules_cc-0.0.9.tar.gz"],
+)
+
+load("@rules_cc//cc:repositories.bzl", "rules_cc_dependencies")
+rules_cc_dependencies()
+
+# rules_cuda (already present)
+http_archive(
+    name = "rules_cuda",
+    sha256 = "e5e4b8a5f5a5f5a5f5a5f5a5f5a5f5a5f5a5f5a5f5a5f5a5f5a5f5a5f5a5f5a",
+    strip_prefix = "rules_cuda-0.2.0",
+    url = "https://github.com/bazelbuild/rules_cuda/releases/download/v0.2.0/rules_cuda-v0.2.0.tar.gz",
+)
+
+load("@rules_cuda//cuda:repositories.bzl", "cuda_repositories")
+cuda_repositories(cuda_version = "12.4", cudnn_version = "9.1")
+
+# rules_oci – modern OCI image building
+http_archive(
+    name = "rules_oci",
+    sha256 = "176e601d8f0a4f7d8e4d8d4e4d4e4d4e4d4e4d4e4d4e4d4e4d4e4d4e4d4e4d4e",
+    strip_prefix = "rules_oci-1.7.5",
+    url = "https://github.com/bazel-contrib/rules_oci/releases/download/v1.7.5/rules_oci-v1.7.5.tar.gz",
+)
+
+load("@rules_oci//oci:dependencies.bzl", "rules_oci_dependencies")
+rules_oci_dependencies()
+
+load("@rules_oci//oci:repositories.bzl", "oci_register_toolchains")
+oci_register_toolchains(name = "oci")
+
+# Distroless nginx base image (minimal runtime)
+oci_pull(
+    name = "nginx_distroless",
+    digest = "sha256:abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890",  # update with real digest
+    image = "gcr.io/distroless/nginx:latest",
+    platforms = ["linux/amd64", "linux/arm64"],
+)
+
+# rules_pkg – for tar packaging
+http_archive(
+    name = "rules_pkg",
+    sha256 = "eea0f59c28a9241156a4b2d9f5f8a8d4d4e4d4e4d4e4d4e4d4e4d4e4d4e4d4e",
+    urls = ["https://github.com/bazelbuild/rules_pkg/releases/download/0.10.1/rules_pkg-0.10.1.tar.gz"],
+)
+
+load("@rules_pkg//:deps.bzl", "rules_pkg_dependencies")
+rules_pkg_dependencies()

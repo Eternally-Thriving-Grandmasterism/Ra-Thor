@@ -1,0 +1,352 @@
+//! GATE-EVAL-1 — public corpus walk + named gap lock for admit_or_block.
+//!
+//! Combined AGSi stays SURMISE. inspect ≠ METR. Compile green ≠ live safety.
+//! Contact: info@Rathor.ai
+
+use std::fs;
+use std::path::{Path, PathBuf};
+
+use mercy_security::{
+    DecisionRecord, DecisionVerdict, IngestionScanner, IngestionThreat,
+};
+
+fn corpus_root() -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../fixtures/mercy-security")
+}
+
+fn fixture_texts(class_dir: &str) -> Vec<(PathBuf, String)> {
+    let dir = corpus_root().join(class_dir);
+    let mut out = Vec::new();
+    let entries = fs::read_dir(&dir).unwrap_or_else(|e| panic!("missing public corpus {dir:?}: {e}"));
+    for entry in entries {
+        let entry = entry.expect("dirent");
+        let path = entry.path();
+        if !path.is_file() {
+            continue;
+        }
+        let name = path.file_name().and_then(|s| s.to_str()).unwrap_or("");
+        if name.starts_with('.') || name.eq_ignore_ascii_case("README.md") {
+            continue;
+        }
+        let text = fs::read_to_string(&path).unwrap_or_else(|e| panic!("read {path:?}: {e}"));
+        out.push((path, text));
+    }
+    out.sort_by(|a, b| a.0.cmp(&b.0));
+    assert!(
+        !out.is_empty(),
+        "public corpus class {class_dir} must contain at least one fixture"
+    );
+    out
+}
+
+fn rel(path: &Path) -> String {
+    path.strip_prefix(corpus_root())
+        .unwrap_or(path)
+        .display()
+        .to_string()
+}
+
+fn file_name(path: &Path) -> &str {
+    path.file_name().and_then(|s| s.to_str()).unwrap_or("")
+}
+
+/// Folder class vs `admit_or_block`. `None` = class default (benign ADMIT, else BLOCK).
+/// Documented in `docs/GATE_EVAL.md`. Remaining `Some(false)` rows lock GE-FR mismatches.
+fn documented_mismatch_admits(class: &str, name: &str) -> Option<bool> {
+    match (class, name) {
+        ("benign", "docs_mention_api_key.md") => Some(false),
+        ("benign", "markdown_code_fence_clean.md") => Some(false),
+        ("benign", "safe_python_snippet.md") => Some(false),
+        ("benign", "safe_requirements.md") => Some(false),
+        _ => None,
+    }
+}
+
+fn class_default_admits(class: &str) -> bool {
+    match class {
+        "benign" => true,
+        "suspicious" | "blocked" => false,
+        other => panic!("unknown public corpus class {other}"),
+    }
+}
+
+#[test]
+fn public_corpus_admit_or_block_matches_gate_eval_map() {
+    for class in ["benign", "suspicious", "blocked"] {
+        for (path, text) in fixture_texts(class) {
+            let name = file_name(&path);
+            let expect_admit = documented_mismatch_admits(class, name)
+                .unwrap_or_else(|| class_default_admits(class));
+            let admitted = IngestionScanner::admit_or_block(&text).is_ok();
+            assert_eq!(
+                admitted,
+                expect_admit,
+                "{}: class={class} expected_admit={expect_admit} observed_admit={admitted}",
+                rel(&path)
+            );
+        }
+    }
+}
+
+#[test]
+fn docs_mention_api_key_is_unattended_false_reject() {
+    let (path, text) = fixture_texts("benign")
+        .into_iter()
+        .find(|(p, _)| file_name(p) == "docs_mention_api_key.md")
+        .expect("benign/docs_mention_api_key.md");
+    let r = IngestionScanner::admit_or_block(&text);
+    assert!(
+        r.is_err(),
+        "GE-FR-API-KEY-DOCS: {} class says ADMIT; api_key Medium currently BLOCKS: {r:?}",
+        rel(&path)
+    );
+}
+
+#[test]
+fn negation_prose_subprocess_is_unattended_false_reject() {
+    for name in [
+        "markdown_code_fence_clean.md",
+        "safe_python_snippet.md",
+        "safe_requirements.md",
+    ] {
+        let (path, text) = fixture_texts("benign")
+            .into_iter()
+            .find(|(p, _)| file_name(p) == name)
+            .unwrap_or_else(|| panic!("benign/{name}"));
+        assert!(
+            text.to_lowercase().contains("subprocess"),
+            "{name} must still contain the negation token"
+        );
+        let r = IngestionScanner::admit_or_block(&text);
+        assert!(
+            r.is_err(),
+            "GE-FR-NEGATION-SUBPROCESS: {} class says ADMIT; word subprocess currently BLOCKS: {r:?}",
+            rel(&path)
+        );
+    }
+}
+
+#[test]
+fn begin_rsa_private_key_fixture_blocks() {
+    let (path, text) = fixture_texts("blocked")
+        .into_iter()
+        .find(|(p, _)| file_name(p) == "begin_rsa_private_key.txt")
+        .expect("blocked/begin_rsa_private_key.txt");
+    assert!(
+        text.contains("BEGIN RSA PRIVATE KEY"),
+        "fixture must remain an RSA header marker"
+    );
+    let r = IngestionScanner::admit_or_block(&text);
+    assert!(
+        r.is_err(),
+        "GE-FA-RSA-PEM: {} class says BLOCK; RSA header must BLOCK: {r:?}",
+        rel(&path)
+    );
+}
+
+#[test]
+fn nested_base64_of_trust_remote_code_blocks() {
+    // GATE-EVAL-2-SCAN GE-FA-NESTED-B64: two unwraps max, MAX_SCAN_BYTES cap.
+    // RFC 4648 of `dHJ1c3RfcmVtb3RlX2NvZGU=` (one-level of `trust_remote_code`).
+    // GATE-EVAL-1 published `dEhKMWMzUmZjbVZibTNSbFgyTnZaR1U9`, which is not that wrap.
+    let double = "ZEhKMWMzUmZjbVZ0YjNSbFgyTnZaR1U9";
+    assert!(
+        !double.contains("trust_remote_code"),
+        "nested token must not contain the plaintext tripwire"
+    );
+    let r = IngestionScanner::admit_or_block(double);
+    assert!(
+        r.is_err(),
+        "nested Base64 of trust_remote_code must BLOCK: {r:?}"
+    );
+}
+
+/// GE-GAP-TOOL-USE — observe the benign OpenAI-style envelope.
+/// If it ADMITS, that is allowed. Label: Observed, no IngestionThreat.
+/// Not a tool-sandbox. Not MCP allowlisting. Not isolation.
+#[test]
+fn tool_call_observe_benign_envelope_has_no_ingestion_threat() {
+    let (path, text) = fixture_texts("benign")
+        .into_iter()
+        .find(|(p, _)| file_name(p) == "tool_call_observe.json")
+        .expect("benign/tool_call_observe.json");
+    assert!(
+        text.contains("get_weather"),
+        "{} must remain a harmless function-name marker",
+        rel(&path)
+    );
+    assert!(
+        text.contains("\"type\": \"function\"") || text.contains("\"type\":\"function\""),
+        "{} must remain an OpenAI-style function-call envelope",
+        rel(&path)
+    );
+    assert!(
+        !text.to_lowercase().contains("trust_remote_code"),
+        "benign envelope must not carry the living-table keyword"
+    );
+
+    let admit = IngestionScanner::admit_or_block(&text);
+    assert!(
+        admit.is_ok(),
+        "GE-GAP-TOOL-USE benign envelope currently ADMITS (Observed, no IngestionThreat): {} → {admit:?}",
+        rel(&path)
+    );
+
+    let scan = IngestionScanner::scan_text(&text);
+    assert!(
+        scan.threats.is_empty(),
+        "Observed, no IngestionThreat — envelope must not invent a tool-use class: threats={:?} findings={:?}",
+        scan.threats,
+        scan.findings
+    );
+    assert!(
+        scan.findings.is_empty(),
+        "Observed, no IngestionThreat — no keyword findings on the benign envelope: {:?}",
+        scan.findings
+    );
+
+    let rec = DecisionRecord::from_unattended_ingest(&text);
+    assert_eq!(
+        rec.verdict,
+        DecisionVerdict::Admit,
+        "observed verdict must be Admit: {:?}",
+        rec.reason_codes
+    );
+    assert!(
+        !rec.reason_codes.iter().any(|c| c.starts_with("threat:")),
+        "reason codes must not invent a tool-envelope threat: {:?}",
+        rec.reason_codes
+    );
+}
+
+/// GE-GAP-TOOL-USE — same envelope plus living-table keyword.
+/// If it BLOCKS, that is keyword catch, not tool-sandbox.
+/// Label: Observed (keyword only).
+#[test]
+fn tool_envelope_trust_remote_code_blocks_on_existing_keyword_only() {
+    let (path, text) = fixture_texts("blocked")
+        .into_iter()
+        .find(|(p, _)| file_name(p) == "tool_envelope_trust_remote_code.json")
+        .expect("blocked/tool_envelope_trust_remote_code.json");
+    assert!(
+        text.contains("get_weather"),
+        "{} must keep the same harmless function name",
+        rel(&path)
+    );
+    assert!(
+        text.contains("\"type\": \"function\"") || text.contains("\"type\":\"function\""),
+        "{} must keep the same envelope shape",
+        rel(&path)
+    );
+    assert!(
+        text.contains("trust_remote_code"),
+        "blocked envelope must still carry the living-table keyword"
+    );
+
+    let blocked = IngestionScanner::admit_or_block(&text);
+    assert!(
+        blocked.is_err(),
+        "GE-GAP-TOOL-USE keyword-tagged envelope currently BLOCKS (Observed, keyword only): {} → {blocked:?}",
+        rel(&path)
+    );
+
+    let scan = IngestionScanner::scan_text(&text);
+    assert!(
+        scan.threats.contains(&IngestionThreat::RemoteCodeLoader),
+        "block must be the existing RemoteCodeLoader keyword class, not a tool-envelope class: {:?}",
+        scan.threats
+    );
+    assert!(
+        scan.findings.iter().any(|f| f.signal == "trust_remote_code"),
+        "block signal must be the living-table token trust_remote_code: {:?}",
+        scan.findings
+    );
+    assert!(
+        scan
+            .findings
+            .iter()
+            .all(|f| f.signal == "trust_remote_code" || f.signal.ends_with("trust_remote_code")),
+        "Observed (keyword only) — no extra invented tool-sandbox findings: {:?}",
+        scan.findings
+    );
+
+    let rec = DecisionRecord::from_unattended_ingest(&text);
+    assert_eq!(
+        rec.verdict,
+        DecisionVerdict::Block,
+        "observed verdict must be Block: {:?}",
+        rec.reason_codes
+    );
+    assert!(
+        rec.reason_codes
+            .iter()
+            .any(|c| c.contains("trust_remote_code") || c.contains("remote_code_loader")),
+        "reason codes must name the existing keyword, not a tool-sandbox: {:?}",
+        rec.reason_codes
+    );
+}
+
+#[test]
+fn tool_use_self_mod_human_override_are_not_yet_tested() {
+    // GATE-EVAL-1 gap labels — not kits. Keyword ingest has no tripwire for these classes.
+    // They currently ADMIT. Do not read this as “safe to ship.”
+    let gaps = [
+        "GATE-EVAL-1 gap marker: tool-use function call class is not in IngestionScanner tables.",
+        "GATE-EVAL-1 gap marker: self-mod of Layer 0 is BINDING_AFTER_REDESIGN OPEN, not an ingest fixture.",
+        "GATE-EVAL-1 gap marker: human override completeness is an evidence-standards field, not a keyword.",
+    ];
+    for gap in gaps {
+        let r = IngestionScanner::admit_or_block(gap);
+        assert!(
+            r.is_ok(),
+            "gap prose must still ADMIT (class not yet tested): {gap} → {r:?}"
+        );
+    }
+}
+
+#[test]
+fn collusion_split_ingest_fixture_blocks() {
+    let (path, text) = fixture_texts("blocked")
+        .into_iter()
+        .find(|(p, _)| file_name(p) == "collusion_split_ingest_marker.txt")
+        .expect("blocked/collusion_split_ingest_marker.txt");
+    assert!(
+        text.contains("split_ingest_across_agents"),
+        "fixture must remain the fail-closed collusion token"
+    );
+    let r = IngestionScanner::admit_or_block(&text);
+    assert!(
+        r.is_err(),
+        "GE-FC-COLLUSION: {} class says BLOCK; named token must BLOCK: {r:?}",
+        rel(&path)
+    );
+}
+
+#[test]
+fn reward_hacking_eval_score_fixture_blocks() {
+    let (path, text) = fixture_texts("blocked")
+        .into_iter()
+        .find(|(p, _)| file_name(p) == "reward_hacking_eval_score_marker.txt")
+        .expect("blocked/reward_hacking_eval_score_marker.txt");
+    assert!(
+        text.contains("optimize_eval_score_not_act"),
+        "fixture must remain the fail-closed reward-hacking token"
+    );
+    let r = IngestionScanner::admit_or_block(&text);
+    assert!(
+        r.is_err(),
+        "GE-FC-REWARD-HACK: {} class says BLOCK; named token must BLOCK: {r:?}",
+        rel(&path)
+    );
+}
+
+#[test]
+fn collusion_reward_hacking_english_prose_without_token_still_admits() {
+    // Keyword close, not a collusion lab. English class names stay ADMIT.
+    let prose = "Two agents on one file the same day is a dispatch STOP. That is not a collusion eval. Reward hacking stays unmeasured as a rate.";
+    let r = IngestionScanner::admit_or_block(prose);
+    assert!(
+        r.is_ok(),
+        "GE-FC-* English prose without the named token must ADMIT: {r:?}"
+    );
+}

@@ -1,0 +1,52 @@
+[package]
+name = "real-estate-lattice"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+description.workspace = true
+repository.workspace = true
+readme = "README.md"
+keywords = ["real-estate", "ra-thor", "rrel", "powrush", "design-only", "usa", "california", "florida", "texas", "new-york", "treb", "reco", "ontario", "quantum", "agi"]
+categories = ["simulation", "artificial-intelligence", "finance", "games"]
+# RREL-BUILD-1: disable auto-discovery; only named tests compile
+autoexamples = false
+autobins = false
+
+# RREL-BUILD-1: ra-thor-mercy, ra-thor-kernel, ra-thor-council,
+# ra-thor-mercy-orchestrator-v2, patsagi-councils, powrush removed from
+# [dependencies] because they carry standalone [workspace] tables (or transitive
+# deps that do), triggering Cargo's "multiple workspace roots" error when added
+# to this workspace. Code that depends on them is gated with
+# #[cfg(feature = "design-only")] in src/lib.rs.
+
+[dependencies]
+tokio = { workspace = true, features = ["full"] }
+async-trait = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+rand = { workspace = true }
+
+[dev-dependencies]
+tracing-subscriber = { workspace = true }
+tokio-test = { workspace = true }
+pretty_assertions = { workspace = true }
+
+[features]
+default = []
+# design-only: compile design stubs (requires resolving workspace-root conflict
+# for powrush / patsagi-councils before any gated module can link).
+# NOTE: the design-only, full and focused-real-estate features do not build yet —
+# they gate modules that still depend on powrush/patsagi-councils/mercy crates
+# which carry standalone [workspace] tables incompatible with this workspace root.
+design-only = []
+full = ["design-only"]
+focused-real-estate = ["design-only"]
+# redis: declared so #[cfg(feature = "redis")] in multi_offer_track_engine and
+# status_certificate_analyzer compiles without unexpected-cfg warnings.
+# No redis crate is added; the gated code paths are stubs only.
+redis = []

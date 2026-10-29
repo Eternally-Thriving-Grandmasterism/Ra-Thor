@@ -1,0 +1,17 @@
+{
+  "dashboard": {
+    "title": "Ra-Thor Valence Telemetry",
+    "panels": [
+      {
+        "title": "Current Valence",
+        "type": "stat",
+        "targets": [{"expr": "ra_thor_current_valence"}]
+      },
+      {
+        "title": "Valence Trend (24h)",
+        "type": "graph",
+        "targets": [{"expr": "rate(ra_thor_valence_total[5m])"}]
+      }
+    ]
+  }
+}

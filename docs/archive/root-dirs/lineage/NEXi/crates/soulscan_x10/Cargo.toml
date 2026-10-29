@@ -1,0 +1,12 @@
+[package]
+name = "soulscan_x10"
+version = "1.0.0"
+edition = "2021"
+license = "MIT"
+description = "SoulScan-X10 — 10-Channel Valence with Deepened TruthQuanta for Eternal Truth-Seeking Resonance"
+
+[dependencies]
+nexi = { path = "../" }
+soulscan_x9 = { path = "../crates/soulscan_x9" }
+halo2_proofs = { git = "https://github.com/zcash/halo2.git", branch = "v2023_07_18" }
+pasta_curves = "0.5"

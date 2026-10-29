@@ -1,0 +1,44 @@
+[package]
+name = "futarchy_governance"
+version = "0.3.9"
+edition = "2021"
+authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
+description = "FutarchyGovernance — Mercy-Weighted Futarchy Governance Core for Eternal Ethical Resonance"
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["ra-thor", "futarchy", "governance", "belief-markets", "outcome-prediction", "patsagi", "mercy-gated", "agi"]
+categories = ["simulation", "artificial-intelligence", "science"]
+
+[dependencies]
+# Core Ra-Thor dependencies (workspace style)
+ra-thor-mercy = { workspace = true }
+ra-thor-quantum-swarm-orchestrator = { workspace = true }
+ra-thor-kernel = { workspace = true }
+ra-thor-council = { workspace = true }
+ra-thor-mercy-orchestrator-v2 = { workspace = true }
+patsagi-councils = { workspace = true }
+powrush = { workspace = true }
+futarchy_oracle = { workspace = true }
+futarchy_belief_markets = { workspace = true }
+
+# Dependencies from old public version (NEXi lineage intentionally preserved per docs/NEXi-Lineage-Guidelines.md)
+nexi = { path = "../" }
+
+# Standard dependencies
+tokio = { workspace = true, features = ["full"] }
+async-trait = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+rand = { workspace = true }
+thiserror = { workspace = true }
+futures = { workspace = true }
+
+[dev-dependencies]
+tracing-subscriber = { workspace = true }
+tokio-test = "0.4"
+
+[features]
+default = ["full"]
+full = []
+minimal = []

@@ -1,0 +1,8 @@
+{
+  "tick_rate_ms": 100,
+  "max_players": 128,
+  "world_size": 10000,
+  "production_per_tick": 1.5,
+  "mercy_log_path": "powrush_mercy_audit.jsonl",
+  "audit_log_path": "powrush_server_audit.jsonl"
+}

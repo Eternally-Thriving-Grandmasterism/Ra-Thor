@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  ra-thor-mercy-api:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      - RA_THOR_SHARD=offline
+      - AUTH_TOKEN=change-me
+    volumes:
+      - mercy-mesh-data:/var/lib/ra-thor
+volumes:
+  mercy-mesh-data:
+# Supports both online and offline shards. Thunder locked in.

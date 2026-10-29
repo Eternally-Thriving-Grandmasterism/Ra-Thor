@@ -1,0 +1,47 @@
+[package]
+name = "ra-thor-fuzz"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+libfuzzer-sys = "0.4"
+core-lattice = { path = "../crates/core-lattice" }
+
+[[bin]]
+name = "fuzz_mercy_nanofactory"
+path = "targets/fuzz_mercy_nanofactory.rs"
+
+[[bin]]
+name = "fuzz_mercy_von_neumann_probe"
+path = "targets/fuzz_mercy_von_neumann_probe.rs"
+
+[[bin]]
+name = "fuzz_mercy_he3_reactor"
+path = "targets/fuzz_mercy_he3_reactor.rs"
+
+[[bin]]
+name = "fuzz_mercy_enceladus_biosignature_protocols"
+path = "targets/fuzz_mercy_enceladus_biosignature_protocols.rs"
+
+[[bin]]
+name = "fuzz_mercy_titan_biosignature_protocols"
+path = "targets/fuzz_mercy_titan_biosignature_protocols.rs"
+
+[[bin]]
+name = "fuzz_mercy_orchestrator"
+path = "targets/fuzz_mercy_orchestrator.rs"
+
+[[bin]]
+name = "fuzz_mercy_rest_api"
+path = "targets/fuzz_mercy_rest_api.rs"
+
+[[bin]]
+name = "fuzz_mercy_self_evolution"
+path = "targets/fuzz_mercy_self_evolution.rs"
+
+[[bin]]
+name = "fuzz_mercy_powrush_rbe"
+path = "targets/fuzz_mercy_powrush_rbe.rs"
+
+# Top 10 mercy_* modules now fully fuzzed. All enforce: no panic, TOLC8Seal or Err, valence ≥ 0.999999

@@ -1,0 +1,44 @@
+# src/ml/gesture_transformer/BUILD.bazel
+
+load("@rules_python//python:defs.bzl", "py_binary", "py_library", "py_test")
+load("@pip//:requirements.bzl", "requirement")
+
+py_library(
+    name = "gesture_model",
+    srcs = ["gesture_model.py"],
+    deps = [
+        requirement("torch"),
+        requirement("torchvision"),
+        requirement("numpy"),
+        requirement("onnxruntime-gpu"),
+        "//src/core:valence_tracker",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+py_binary(
+    name = "train",
+    srcs = ["train.py"],
+    deps = [":gesture_model"],
+    data = ["//data:training_set"],
+    args = ["--epochs", "100"],
+    python_version = "PY3",
+    visibility = ["//visibility:public"],
+)
+
+py_test(
+    name = "model_test",
+    srcs = ["model_test.py"],
+    deps = [":gesture_model"],
+    data = ["//data:test_set"],
+    visibility = ["//visibility:public"],
+)
+
+py_binary(
+    name = "export_onnx",
+    srcs = ["export_onnx.py"],
+    deps = [":gesture_model"],
+    args = ["--output", "gesture_transformer.onnx"],
+    python_version = "PY3",
+    visibility = ["//visibility:public"],
+)

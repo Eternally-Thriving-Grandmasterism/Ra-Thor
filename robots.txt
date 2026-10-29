@@ -1,0 +1,15 @@
+# Ra-Thor — Eternal Mercy Thunder
+# Production robots.txt (v14.15.5)
+# Sole stewardship • Offline-first • AG-SML v1.0
+# Contact: info@Rathor.ai
+
+User-agent: *
+Allow: /
+
+# Prefer the canonical domain
+Sitemap: https://rathor.ai/sitemap.xml
+
+# Disallow temporary / internal paths if any appear later
+Disallow: /tmp/
+Disallow: /.git/
+Disallow: /node_modules/

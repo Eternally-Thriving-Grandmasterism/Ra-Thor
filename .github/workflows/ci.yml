@@ -1,0 +1,96 @@
+name: CI — Ra-Thor Monorepo
+
+on:
+  # Full-workspace nextest + clippy is opt-in.
+  # Default PR/main gate is .github/workflows/core-tier1-ci.yml (TIER_MAP -p).
+  # Do not claim workspace-green from this workflow.
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  test:
+    name: cargo nextest (97 crates)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Install Rust toolchain (1.75+)
+        uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          toolchain: 1.75
+          components: rustfmt, clippy
+
+      - name: Cache cargo registry + target
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Install cargo-nextest
+        uses: taiki-e/install-action@9252097d36d2d3618ad98f5d873696a962b6897c # nextest
+
+      - name: Run full workspace tests with nextest
+        run: |
+          cargo nextest run \
+            --workspace \
+            --profile ci \
+            --no-fail-fast \
+            --junit target/nextest/ci/junit.xml
+
+      - name: Upload test results (JUnit)
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: nextest-results
+          path: target/nextest/ci/junit.xml
+          retention-days: 7
+
+      - name: Run clippy (strict)
+        run: cargo clippy --workspace --all-targets -- -D warnings
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+  shard-checks:
+    name: Shard Profile Checks
+    runs-on: ubuntu-latest
+    needs: test
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          toolchain: stable
+
+      - name: Cache cargo
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Check full ONE Organism shard
+        run: cargo run -p ra-thor-xtask -- check-shard --profile full
+
+      - name: Check focused-real-estate shard
+        run: cargo run -p ra-thor-xtask -- check-shard --profile focused-real-estate
+
+      - name: Check focused-geometry shard
+        run: cargo run -p ra-thor-xtask -- check-shard --profile focused-geometry

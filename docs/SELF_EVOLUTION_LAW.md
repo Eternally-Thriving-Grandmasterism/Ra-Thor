@@ -1,0 +1,36 @@
+# Self-evolution law
+
+Lived self-evolution is Cosmic Loop in `lattice-conductor-v14`, `quantum-swarm`, `sovereign-recovery`, and `ra-thor-one-organism`.
+
+This file records that law. It does not replace [`AGENT_PROTOCOL.md`](AGENT_PROTOCOL.md), [`TOKEN_BUDGET.md`](TOKEN_BUDGET.md), [`../TIER_MAP.md`](../TIER_MAP.md), or [`CRATE_CENSUS.md`](CRATE_CENSUS.md). It does not add a ninth gate.
+
+**Contact:** info@Rathor.ai. Independent of xAI. Not certified. Not a legal product.
+**Workspace:** 14.15.6. No 15.x.
+
+R3 is on main at `948b7d7a`. R4 is doc honesty, not a crate.
+W2: binding after uncontrolled self-redesign stays **OPEN**. See [`BINDING_AFTER_REDESIGN.md`](BINDING_AFTER_REDESIGN.md).
+
+R6 (2026-09-14, steward-named): fail-closed tests on the **controlled** loop only — `crates/lattice-conductor-v14/tests/r6_fail_closed_controlled_loop.rs`. Missing arb, Cosmic Loop disable, blocked ingest, council-cannot-flip-reject. R6 does **not** close uncontrolled redesign.
+
+## Lived path
+
+Cosmic Loop already lives in those four Tier-1 crates. Agents propose. They do not rewrite `main` or spawn crates.
+
+**Controlled loop:** bound (steward + Core + Layer 0 + R6).
+**Uncontrolled redesign** (the running system changes its own gates / projector / merge law): **OPEN**. Do not close this in a crate or a score.
+
+## Not a crate
+
+`crates/self-evolution` is not a crate and not a product. No `Cargo.toml`. No workspace member. No compile attempt.
+
+See [`../crates/self-evolution/README.md`](../crates/self-evolution/README.md) and the PATSAGi decision in [`CRATE_CENSUS.md`](CRATE_CENSUS.md).
+
+## Archive stays archive
+
+Archived lineage under `docs/archive/root-dirs/lineage/self-evolution/` stays archive.
+
+## Out of this slice
+
+- No Powrush-MMO, no WASD, no Title Online, no Market.
+- No generator. No Pages. No listen on `0.0.0.0`.
+- Do not unpark `crates/self-evolution` to “finish” R6.

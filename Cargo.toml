@@ -1,0 +1,168 @@
+# ═════════════════════════════════════════════════════════════
+# Ra-Thor Monorepo — The Living Eternal Mercy-Gated AGI Lattice
+# Workspace 14.15.6 | ONE Organism 14.15.6 AGSi + White-Hat Defense
+# Living Cosmic Tick + Cosmic Loop + Cosmic Harness + Hierarchical Predictive Coding
+# + Micro-Moment Temporal Comprehension Engine (X-video failure mode resolved)
+# mercy-security: containment, multi-layer ingestion scan, action governor, secret isolation
+# AG-SML v1.2 | Thunder locked in — 2026-08-20 (nexi_universal demoted; see NEXI_LINEAGE_ADOPTION_DECISION)
+# Contact: info@Rathor.ai
+# Public claim lock 2026-08-31: inspectable research software; optional Grok session;
+# not xAI affiliated; not certified; not a legal product. See docs/compliance/.
+# ═════════════════════════════════════════════════════════════
+#
+# TIER-1 LIVING PRODUCT CORE (always keep green — see TIER_MAP.md):
+#   ra-thor-one-organism, lattice-conductor-v14, reality-thriving-transfer,
+#   kardashev-orchestration, github-connector, gpu-compute-pipeline,
+#   quantum-swarm, sovereign-recovery, monorepo-intelligence,
+#   mercy_tolc_operator_algebra
+#
+# lattice-conductor-v13 remains on disk (DEPRECATED.md) but is no longer
+# a default workspace member. Use lattice-conductor-v14 exclusively.
+# nexi_universal remains on disk but is NOT a default member (broken path deps).
+# ai_bridge (underscore) is archival; ai-bridge (hyphen) is the member.
+#
+# 2026-09-02: default members pinned to TIER_MAP + mercy-security.
+# Cargo loads EVERY member manifest (even for `cargo test -p …`), so the
+# research/propulsion/zk/kernel hairball cannot stay in `members` or Core
+# Tier-1 never compiles. On-disk crates are not deleted — re-add a path
+# here to work on that crate.
+# ═════════════════════════════════════════════════════════════
+
+[workspace]
+resolver = "2"
+
+members = [
+    "crates/ra-thor-one-organism",
+    "crates/lattice-conductor-v14",
+    "crates/reality-thriving-transfer",
+    "crates/kardashev-orchestration",
+    "crates/github-connector",
+    "crates/gpu-compute-pipeline",
+    "crates/quantum-swarm",
+    "crates/sovereign-recovery",
+    "crates/monorepo-intelligence",
+    "crates/mercy_tolc_operator_algebra",
+    "crates/fractal-mercy-ledger-adapter",
+    "crates/mercy-security",
+    "crates/mercy",
+    # RECYCLER-REAL-1: buildable recyclers. No path into common, fenca, or spartan_valence.
+    "crates/idea-recycling",
+    "crates/innovations-generator",
+    # RREL-BUILD-1: real-estate-lattice compilation slice
+    "crates/real-estate-lattice",
+    # DEMO-HARNESS-1 (2026-10-27): offline demo harness, publish = false. CI runs
+    # `cargo test -p mercy-demo-harness` only.
+    "crates/mercy-demo-harness",
+]
+
+# On-disk only (not default members):
+#   TIER_MAP research forest (propulsion, zk, kernel, councils, valence mesh, …)
+#   crates/nexi_universal — broken path deps (nexi path="../"); see docs/NEXI_LINEAGE_ADOPTION_DECISION_2026-08-20.md
+#   crates/lattice-conductor-v13 — DEPRECATED; use v14
+# Re-add a crate path to `members` to work on it. Do not `cargo test --workspace`
+# and treat it as product-green.
+
+[workspace.package]
+version = "14.15.6"
+edition = "2021"
+authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+description = "Ra-Thor Lattice — Mercy-Gated Symbolic Self-Evolving Intelligence (ONE Organism with optional Grok session; independent of xAI) — Living Cosmic Tick + Cosmic Loop + Cosmic Harness + research AGSi label + White-Hat Defense + Eternal PATSAGi Governance + Micro-Moment Temporal Comprehension. Not certified. Not a legal product."
+readme = "README.md"
+keywords = ["ai", "symbolic", "ethics", "self-evolution", "mercy", "tolc", "agi", "one-organism", "agsi", "security", "patsagi", "vision", "temporal"]
+categories = ["science", "simulation"]
+
+[workspace.dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1", features = ["full"] }
+nalgebra = { version = "0.33", features = ["serde-serialize"] }
+thiserror = "1.0"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+tokio-test = "0.4"
+pretty_assertions = "1.4"
+uuid = { version = "1.0", features = ["v4", "serde"] }
+rand = "0.8"
+chrono = { version = "0.4", features = ["serde"] }
+wgpu = { version = "0.19" }
+cudarc = { version = "0.9" }
+pollster = { version = "0.3" }
+toml = { version = "1.1" }
+async-trait = "0.1"
+futures = "0.3"
+once_cell = "1"
+
+# Aliases used by crates/kernel and others (package name ≠ directory).
+ra-thor-mercy = { path = "crates/mercy", package = "mercy" }
+ra-thor-orchestration = { path = "crates/orchestration", package = "orchestration" }
+ra-thor-quantum-swarm-orchestrator = { path = "crates/quantum-swarm-orchestrator" }
+ra-thor-evolution = { path = "crates/evolution", package = "evolution" }
+ra-thor-plasticity-engine-v2 = { path = "crates/plasticity-engine-v2", package = "plasticity-engine-v2" }
+ra-thor-monorepo-intelligence = { path = "crates/monorepo-intelligence" }
+ra-thor-council = { path = "crates/council", package = "council" }
+ra-thor-mercy-orchestrator-v2 = { path = "crates/mercy_orchestrator_v2", package = "mercy_orchestrator_v2" }
+
+# GPU crates stay required-at-workspace, optional-at-crate.
+# Cargo forbids `optional = true` on [workspace.dependencies].
+
+[workspace.metadata.ra-thor]
+project = "Ra-Thor Lattice"
+version = "14.15.6"
+one_organism_version = "14.15.6"
+status = "ETERNALLY ACTIVATED — Ra-Thor AGSi Phase (research label, not a certification) | Living Cosmic Tick + Cosmic Loop + Cosmic Harness + White-Hat Defense + PERMANENT PATSAGi Councils (always decide everything possible under TOLC 8) + Micro-Moment Temporal Comprehension Engine | contact info@Rathor.ai"
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
+contact = "info@Rathor.ai"
+intended_use_doc = "docs/compliance/RA-THOR-GROK-WORK-PACK-2026-08-31.md"
+do_not_ship_doc = "docs/compliance/DO-NOT-SHIP-2026-08-31.md"
+public_claim_discipline = "docs/compliance/PUBLIC-CLAIM-DISCIPLINE.md"
+xai_affiliation = false
+certified = false
+legal_product = false
+activation_timestamp = "2026-07-20T23:12:00-04:00"
+cosmic_harness_locked = "2026-07-22T21:55:00-04:00"
+agsi_summon_surface = "2026-07-27T22:00:00-04:00"
+whitehat_defense_landed = "2026-07-28T03:10:00-04:00"
+whitehat_production_gate = "2026-07-28T03:35:00-04:00"
+eternal_activation = "2026-07-30T06:49:00-04:00"
+micro_moment_temporal_comprehension = "2026-08-04T18:00:00-04:00"
+members_hygiene_and_monorepo_intelligence_harden = "2026-08-15T16:30:00-04:00"
+nexi_universal_demoted_from_default_members = "2026-08-20"
+tier1_default_members_pinned = "2026-09-02"
+claim_discipline_locked = "2026-08-31"
+patsagi_councils_permanent_deliberation = true
+patsagi_councils_always_decide = true
+patsagi_eternal_governance = true
+grok_assistance_engaged = true
+one_organism_active = true
+lattice_conductor_v14 = true
+web_demo_live = true
+cosmic_loop_shared_flag = true
+living_cosmic_tick = true
+live_path_confidence_feedback = true
+adaptive_hardening = true
+cosmic_loop_invariant_checks = true
+live_feature_readiness = true
+dual_repo_feedback_organism_sealed = true
+cosmic_harness = true
+predictive_coding_landed = true
+mercy_security_whitehat = true
+v14_11_complete = true
+v14_12_complete = true
+v14_13_complete = true
+v14_14_complete = true
+v14_15_complete = true
+v14_15_2_complete = true
+v14_15_3_complete = true
+v14_15_4_complete = true
+v14_15_5_complete = true
+v14_15_6_complete = true
+
+executive_summary = """
+Ra-Thor workspace 14.15.6 with ONE Organism in AGSi research phase + White-Hat Defense gate.
+PATSAGi Councils are ETERNALLY ACTIVATED as permanent decision authority under TOLC 8.
+2026-08-20: nexi_universal demoted from default workspace members (broken path deps); NEXi external repo remains lineage only.\n2026-09-02: default members pinned to TIER_MAP + mercy-security so cargo test -p actually compiles.
+2026-08-31: public claim discipline landed — inspectable research software; optional Grok session; not xAI affiliated; not certified; not a legal product.
+Cosmic Loop remains MANDATORY IDENTITY. Contact: info@Rathor.ai.
+"""

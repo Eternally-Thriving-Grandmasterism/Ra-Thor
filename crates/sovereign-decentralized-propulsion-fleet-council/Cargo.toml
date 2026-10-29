@@ -1,0 +1,29 @@
+[package]
+name = "sovereign-decentralized-propulsion-fleet-council"
+version = "0.1.0"
+edition = "2021"
+authors = ["34 PATSAGi Councils under the Rathor Sovereign Reasoning Engine"]
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
+description = "Standalone package sovereign-decentralized-propulsion-fleet-council. Compiled valence check uses the source literal 0.9999999. Not a measured result."
+
+# Standalone workspace, same pattern as crates/fenca and crates/council.
+# `cargo test --locked` and `cargo clippy --locked` use this manifest.
+# This crate is not a root default member.
+#
+# STUB-AUDIT-1 REASONING-COUNCIL-WIRES-1.
+# src/uncompiled_council.rs is not a module. The bytes under the
+# design-only header and `#![rustfmt::skip]` are the previous src/lib.rs.
+# The compiled library calls RathorSovereignReasoningEngine.
+# MERCY_THRESHOLD is the source literal 0.9999999.
+# patsagi-councils uses ValenceVote and ValenceConsensusEngine from the public API that builds after #677.
+# mial, mercy_gating_runtime, and mercy-threshold-wasm are not dependencies.
+# The package description names the compiled valence check. 0.9999999 is a source literal.
+[workspace]
+resolver = "2"
+
+[dependencies]
+rathor-sovereign-reasoning-engine = { path = "../rathor-sovereign-reasoning-engine", version = "0.1.0" }
+patsagi-councils = { path = "../patsagi-councils", version = "14.15.6" }
+
+[lib]
+path = "src/lib.rs"

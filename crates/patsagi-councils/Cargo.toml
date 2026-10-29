@@ -1,0 +1,52 @@
+[package]
+name = "patsagi-councils"
+version = "14.15.6"
+edition = "2021"
+rust-version = "1.89"
+authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
+description = "Older PATSAGi council monolith beside crates/council. A mercy-block reject is not flipped to apply. Design-only files are not modules."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+autobins = false
+autoexamples = false
+
+# Standalone workspace, same pattern as crates/fenca, crates/council,
+# crates/powrush, and crates/sovereign-shard-genesis.
+# `cargo test --locked` and `cargo clippy --locked` use this manifest.
+# This crate is not a root default member.
+# serde, serde_json, chrono, uuid, and thiserror stay at the versions
+# the root workspace table already named.
+#
+# Path dependencies are packages that already build:
+#   ../powrush (policy hints)
+#   ../quantum-swarm-orchestrator (package ra-thor-quantum-swarm-orchestrator)
+# ra-thor-core is not imported by this crate, so it is not a dependency.
+# mercy is not a dependency: crates/mercy exports MercyCore, not MercyEngine.
+# lean-sys is not a dependency. It was not shown to resolve.
+# The previous "FFI bridge active" note is not a demonstrated bridge.
+# Optional paths real-estate-lattice, ra-thor-post-quantum-sig, and
+# interstellar-operations are not dependencies. Cargo still loads an
+# optional path, and those crates are not part of this build.
+# src/bin/council_simulator.rs is not a binary target.
+[workspace]
+resolver = "2"
+
+[dependencies]
+powrush = { path = "../powrush" }
+ra-thor-quantum-swarm-orchestrator = { path = "../quantum-swarm-orchestrator" }
+chrono = { version = "0.4", features = ["serde"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
+uuid = { version = "1.0", features = ["v4", "serde"] }
+
+[lib]
+path = "src/lib.rs"
+
+[[example]]
+name = "feedback_loop_demo"
+path = "examples/feedback_loop_demo.rs"
+
+[[example]]
+name = "live_resonance_test"
+path = "examples/live_resonance_test.rs"

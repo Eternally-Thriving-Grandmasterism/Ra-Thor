@@ -1,0 +1,11 @@
+[package]
+name = "mercy_merlin_engine"
+version = "1.0.0"
+edition = "2021"
+license = "MIT"
+description = "MercyMerlinEngine — Kerosene/LOX Gas-Generator Cycle Engine Core for Eternal Orbital Access Resonance"
+
+[dependencies]
+nexi = { path = "../" }
+mercy_falcon_heavy = { path = "../crates/mercy_falcon_heavy" }
+tokio = { version = "1.38", features = ["full"] }

@@ -1,0 +1,23 @@
+[package]
+name = "mercy_tolc_operator_algebra"
+version = "0.5.19"
+edition = "2021"
+authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
+description = "MercyTOLCOperatorAlgebra — Living Mercy R^8 in ambient R^16, Tikhonov-damped projector, grief-rate throughput metrics under TOLC 8."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["ra-thor", "mercy-tolc-operator-algebra", "tolc-8", "nilpotent", "valence", "soft-feedback", "grief-rate", "throughput", "tikhonov"]
+categories = ["science", "simulation", "artificial-intelligence", "mathematics"]
+
+[dependencies]
+nalgebra = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+approx = "0.5"
+
+[features]
+default = ["std"]
+std = []

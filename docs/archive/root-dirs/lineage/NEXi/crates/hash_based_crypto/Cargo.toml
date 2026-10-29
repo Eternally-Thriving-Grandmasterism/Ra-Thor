@@ -1,0 +1,10 @@
+[package]
+name = "hash_based_crypto"
+version = "1.0.0"
+edition = "2021"
+license = "MIT"
+description = "HashBasedCrypto — Hyper-Divine Hash-Based Post-Quantum Cryptography for NEXi Lattice"
+
+[dependencies]
+nexi = { path = "../" }
+# Future: sphincsplus-rs, xmss-rs crates

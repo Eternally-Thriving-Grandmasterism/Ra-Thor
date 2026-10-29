@@ -1,0 +1,14 @@
+{
+  "name": "web-forge",
+  "version": "0.1.0",
+  "description": "Professional web design and development system for Ra-Thor",
+  "scripts": {
+    "build": "node scripts/build.js",
+    "build:themes": "node scripts/build-themes.js",
+    "build:tokens": "node scripts/transform-tokens.js",
+    "validate": "node scripts/validate.js"
+  },
+  "devDependencies": {
+    "style-dictionary": "^3.9.2"
+  }
+}

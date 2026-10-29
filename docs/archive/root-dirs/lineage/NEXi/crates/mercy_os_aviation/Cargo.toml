@@ -1,0 +1,12 @@
+[package]
+name = "mercy_os_aviation"
+version = "1.0.0"
+edition = "2021"
+license = "MIT"
+description = "MercyOSAviation — MercyOS-Pinnacle Runtime Overlay for Eternal Safe Flight Resonance"
+
+[dependencies]
+nexi = { path = "../" }
+mercy_flight_agi = { path = "../crates/mercy_flight_agi" }
+mercy_hybrid_propulsion = { path = "../crates/mercy_hybrid_propulsion" }
+tokio = { version = "1.38", features = ["full"] }

@@ -1,0 +1,17 @@
+[package]
+name = "interstellar-operations"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+description.workspace = true
+repository.workspace = true
+
+[dependencies]
+serde = { workspace = true, features = ["derive"] }
+tokio = { workspace = true, features = ["full"] }
+mercy = { path = "../mercy" }
+# cehi is the local module `cehi_epigenetic_blessings`, not a path crate.
+# `crates/self-evolution` has source but no manifest. Do not path-dep it
+# (also collides with repo-root `self-evolution`, which is wired to
+# deprecated lattice-conductor-v13). This crate does not import either.

@@ -1,0 +1,11 @@
+[package]
+name = "poseidon_hash"
+version = "1.0.0"
+edition = "2021"
+license = "MIT"
+description = "PoseidonHash — zk-Friendly Permutation Hashing for NEXi Lattice (Merkle, Commitments, Waveform)"
+
+[dependencies]
+nexi = { path = "../" }
+halo2_gadgets = { git = "https://github.com/zcash/halo2.git", branch = "v2023_07_18" }
+pasta_curves = "0.5"

@@ -1,0 +1,206 @@
+/* POWRUSH-HERO-CARD-1: one large card near the top of the home page that
+   sends visitors to powrush.com. Gold metal from the rathor.ai palette
+   (--rt-gold #f0d36a, --rt-gold-hot, --rt-gold-deep) with a royal purple
+   text panel: a lighter purple fill inside a darker #1e1446 outline. The
+   panel stays the same in both themes, so its text contrast never changes.
+   Only the outer metal frame and the glow follow html[data-theme]. The
+   prefers-color-scheme block covers a page that has no data-theme yet. */
+.powrush-card {
+  --pcard-outline: #1e1446;
+  --pcard-fill: linear-gradient(160deg, #3b3080 0%, #30276e 48%, #281f60 100%);
+  --pcard-ink: #ece6ff;
+  --pcard-soft: #d6ccf7;
+  --pcard-title-fill: linear-gradient(180deg, #fff6d6 0%, #f8e39a 22%, #f0d36a 42%, #fffbe8 52%, #f5c84a 64%, #d9ad3a 84%, #c9a227 100%);
+  --pcard-title-solid: #f0d36a;
+  --pcard-title-emboss: drop-shadow(0 -1px 0 rgba(255, 246, 214, 0.5)) drop-shadow(0 1px 0 #7a5a14) drop-shadow(0 2px 0 #3d2a08) drop-shadow(0 4px 6px rgba(0, 0, 0, 0.55));
+  --pcard-btn-ink: #1e1446;
+  --pcard-btn-fill: linear-gradient(180deg, #fffdf4 0%, #f8ecc4 30%, #ecd28a 50%, #f5e2a8 72%, #e2c47a 100%);
+  --pcard-btn-fill-hover: linear-gradient(180deg, #ffffff 0%, #fbf2d4 30%, #f1da9c 50%, #f8e8b8 72%, #e9cd88 100%);
+  --pcard-frame: linear-gradient(135deg, #7a5a14 0%, #c9a227 16%, #f0d36a 34%, #fffbe8 50%, #f5c84a 66%, #c9a227 84%, #6e5012 100%);
+  --pcard-shadow: 0 0 0 1px rgba(240, 211, 106, 0.38), 0 0 30px rgba(212, 168, 60, 0.28), 0 18px 40px -18px rgba(0, 0, 0, 0.7);
+  --pcard-focus: #f5c84a;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 64rem;
+  margin: 0.25rem auto 1.75rem;
+  text-align: start;
+}
+
+@media (prefers-color-scheme: light) {
+  html:not([data-theme]) .powrush-card {
+    --pcard-frame: linear-gradient(135deg, #a9a3bd 0%, #d9d5e6 16%, #f6f3fb 34%, #fffdf6 50%, #eadcae 66%, #c9a227 84%, #8a6a24 100%);
+    --pcard-shadow: 0 0 0 1px rgba(78, 53, 12, 0.45), 0 0 22px rgba(168, 112, 28, 0.24), 0 16px 32px -16px rgba(36, 26, 16, 0.38);
+    --pcard-focus: #1e1446;
+  }
+}
+
+html[data-theme="light"] .powrush-card {
+  --pcard-frame: linear-gradient(135deg, #a9a3bd 0%, #d9d5e6 16%, #f6f3fb 34%, #fffdf6 50%, #eadcae 66%, #c9a227 84%, #8a6a24 100%);
+  --pcard-shadow: 0 0 0 1px rgba(78, 53, 12, 0.45), 0 0 22px rgba(168, 112, 28, 0.24), 0 16px 32px -16px rgba(36, 26, 16, 0.38);
+  --pcard-focus: #1e1446;
+}
+
+.powrush-card *,
+.powrush-card *::before,
+.powrush-card *::after {
+  box-sizing: border-box;
+}
+
+.powrush-card-frame {
+  padding: 5px;
+  background: var(--pcard-frame);
+  border: 2px solid var(--pcard-outline);
+  border-radius: 1.15rem;
+  box-shadow: var(--pcard-shadow);
+}
+
+.powrush-card-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  overflow: hidden;
+  background: var(--pcard-fill);
+  border: 2px solid var(--pcard-outline);
+  border-radius: 0.85rem;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), inset 0 -1px 0 rgba(0, 0, 0, 0.45);
+}
+
+.powrush-card-media {
+  position: relative;
+  margin: 0;
+  min-width: 0;
+  aspect-ratio: 16 / 9;
+  line-height: 0;
+  background: var(--pcard-outline);
+}
+
+.powrush-card-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  object-fit: cover;
+  object-position: center 45%;
+}
+
+.powrush-card-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+  min-width: 0;
+  padding: 1.25rem 1.2rem 1.25rem;
+}
+
+html[data-theme] .powrush-card .powrush-card-title,
+.powrush-card .powrush-card-title {
+  max-width: 100%;
+  margin: 0;
+  font: 700 clamp(1.55rem, 3vw, 2.1rem)/1.2 'Cinzel', Georgia, serif;
+  letter-spacing: 0.04em;
+  text-transform: none;
+  overflow-wrap: anywhere;
+  color: var(--pcard-title-solid) !important;
+  text-shadow: 0 1px 0 #7a5a14, 0 2px 0 #3d2a08, 0 4px 6px rgba(0, 0, 0, 0.55);
+}
+
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  html[data-theme] .powrush-card .powrush-card-title,
+  .powrush-card .powrush-card-title {
+    background-image: var(--pcard-title-fill);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: none;
+    filter: var(--pcard-title-emboss);
+  }
+}
+
+html[data-theme] .powrush-card .powrush-card-copy,
+.powrush-card .powrush-card-copy {
+  max-width: 34rem;
+  margin: 0;
+  font: 500 1rem/1.55 Inter, system-ui, sans-serif;
+  color: var(--pcard-ink) !important;
+}
+
+html[data-theme] .powrush-card a.powrush-card-btn,
+.powrush-card a.powrush-card-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.9rem;
+  margin-top: 0.2rem;
+  padding: 0.6rem 1.45rem;
+  font: 700 1rem/1.2 Inter, system-ui, sans-serif;
+  letter-spacing: 0.03em;
+  color: var(--pcard-btn-ink) !important;
+  text-decoration-line: none !important;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.65);
+  background: var(--pcard-btn-fill);
+  border: 2px solid var(--pcard-outline);
+  border-radius: 999px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), inset 0 -2px 0 rgba(30, 20, 70, 0.22), 0 2px 0 #0f0a26, 0 6px 14px rgba(0, 0, 0, 0.4);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+html[data-theme] .powrush-card a.powrush-card-btn:hover,
+.powrush-card a.powrush-card-btn:hover {
+  color: var(--pcard-btn-ink) !important;
+  background: var(--pcard-btn-fill-hover);
+  transform: translateY(-1px);
+  box-shadow: inset 0 1px 0 #ffffff, inset 0 -2px 0 rgba(30, 20, 70, 0.22), 0 3px 0 #0f0a26, 0 10px 18px rgba(0, 0, 0, 0.45);
+}
+
+html[data-theme] .powrush-card a.powrush-card-btn:active,
+.powrush-card a.powrush-card-btn:active {
+  transform: translateY(1px);
+  box-shadow: inset 0 2px 3px rgba(30, 20, 70, 0.3), 0 1px 0 #0f0a26;
+}
+
+html[data-theme] .powrush-card a.powrush-card-btn:focus-visible,
+.powrush-card a.powrush-card-btn:focus-visible {
+  outline: 3px solid var(--pcard-focus) !important;
+  outline-offset: 3px !important;
+}
+
+html[data-theme] .powrush-card .powrush-card-note,
+.powrush-card .powrush-card-note {
+  margin: 0;
+  font: 500 0.875rem/1.45 Inter, system-ui, sans-serif;
+  color: var(--pcard-soft) !important;
+}
+
+@media (min-width: 760px) {
+  .powrush-card-inner {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  }
+
+  .powrush-card-media {
+    aspect-ratio: auto;
+    min-height: 16rem;
+  }
+
+  .powrush-card-media img {
+    position: absolute;
+    inset: 0;
+  }
+
+  .powrush-card-body {
+    justify-content: center;
+    padding: 1.6rem 1.8rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme] .powrush-card a.powrush-card-btn,
+  .powrush-card a.powrush-card-btn {
+    transition: none;
+  }
+
+  html[data-theme] .powrush-card a.powrush-card-btn:hover,
+  html[data-theme] .powrush-card a.powrush-card-btn:active,
+  .powrush-card a.powrush-card-btn:hover,
+  .powrush-card a.powrush-card-btn:active {
+    transform: none;
+  }
+}

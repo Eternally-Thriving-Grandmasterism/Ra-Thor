@@ -1,0 +1,27 @@
+[package]
+name = "lattice-conductor-v13"
+version = "0.3.0"
+edition = "2021"
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
+authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
+description = "DEPRECATED — use lattice-conductor-v14 with features = [\"v13-compat\"] (see crates/lattice-conductor-v14/MIGRATION_v13_to_v14.md). Legacy v13.6 Quantum Swarm / PATSAGi surface retained for one more cycle."
+
+[dependencies]
+nalgebra = { workspace = true }
+
+# NEXi / hyperon-metta-pln bridge (v13 foundation)
+# hyperon-metta-pln = { path = "../hyperon-metta-pln" }
+
+[dev-dependencies]
+proptest = "1.5"
+
+[features]
+default = []
+external-symbolic = []
+self-proposal = []
+full-v13-2 = ["external-symbolic", "self-proposal"]
+experimental = ["full-v13-2"]
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]

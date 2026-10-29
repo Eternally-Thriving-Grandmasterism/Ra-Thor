@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#050505">
+    <meta name="color-scheme" content="dark light">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" href="/icons/ra-thor-icon-192.png" type="image/png">
+    <link rel="stylesheet" href="/css/rathor-theme.css">
+    <title>Forge — Ra-Thor</title>
+    <meta name="description" content="Web-Forge is a local weight generator for the TOLC 8 mercy checks. Forge a sovereign shard on this device, then export. Demo only.">
+    <script>
+        (function () {
+            try { document.documentElement.setAttribute('data-theme', localStorage.getItem('rathor-theme') || 'dark'); }
+            catch (e) { document.documentElement.setAttribute('data-theme', 'dark'); }
+        })();
+    </script>
+    <style>
+        /* PHONE-CLIP-1: page-scoped (web-forge only). Below the shared 900px two-column rule, the single
+           forge column may shrink below its content; presets never force 152px columns wider than the card;
+           sliders may shrink so the value column stays inside the card on 320px phones. */
+        @media (max-width: 899.98px) { .rt-forge-grid { grid-template-columns: minmax(0, 1fr); } }
+        .rt-forge-grid .rt-preset-row { grid-template-columns: repeat(auto-fit, minmax(min(9.5rem, 100%), 1fr)); }
+        .rt-forge-grid .rt-gate-row input[type="range"] { min-width: 0; }
+    </style>
+</head>
+<body>
+    <main class="rt-demo-page" id="rt-family-main">
+        <p><a class="rt-week-back" href="/">← Home</a></p>
+        <figure class="rt-art-hero rounded-2xl">
+          <img src="/assets/art/hero-forge-workshop-768.webp" srcset="/assets/art/hero-forge-workshop-768.webp 768w, /assets/art/hero-forge-workshop-1672.webp 1672w" sizes="(max-width: 900px) 192px, 1400px" width="1672" height="941" alt="Two purple-skinned workers in dark work clothes stand in a workshop: one services a silver and teal utility truck while the other works a wall console, with tool racks on the wall and a cliffside town visible through an open arch." fetchpriority="high" decoding="async">
+        </figure>
+        <p class="rt-kicker">Demo · not a product</p>
+        <h1>Web-Forge</h1>
+        <p class="rt-demo-lead">Interactive weighting for the TOLC 8 mercy checks, real-time valence preview, and standalone HTML export. Nothing leaves your device. Local demo surface only. Not a live Conductor and not a product warranty.</p>
+        <div class="rt-forge-grid">
+            <section class="rt-card">
+                <h2>TOLC 8 mercy-check weighting</h2>
+                <p>Presets</p>
+                <div class="rt-preset-row">
+                    <button type="button" onclick="applyPreset(0)" class="preset-btn active" id="preset-0">Balanced</button>
+                    <button type="button" onclick="applyPreset(1)" class="preset-btn" id="preset-1">Compassion</button>
+                    <button type="button" onclick="applyPreset(2)" class="preset-btn" id="preset-2">Abundance</button>
+                    <button type="button" onclick="applyPreset(3)" class="preset-btn" id="preset-3">Harmonic Council</button>
+                    <button type="button" onclick="applyPreset(4)" class="preset-btn" id="preset-4">Truth-Seeker</button>
+                </div>
+                <div id="controls"></div>
+                <div class="rt-cta-row">
+                    <button type="button" onclick="generateShard()" class="rt-btn-primary" id="forge-btn"><span id="forge-btn-text">Forge sovereign shard</span></button>
+                    <button type="button" onclick="resetWeights()" class="rt-btn-ghost">Reset</button>
+                </div>
+            </section>
+            <section class="rt-card">
+                <h2>Local sovereign shard preview</h2>
+                <div id="preview">
+                    <div id="shard-card">
+                        <div id="shard-name">— Generating —</div>
+                        <div class="rt-fill"><span id="valence-fill"></span></div>
+                        <div class="rt-metric-grid">
+                            <div><span>Valence</span><div id="valence-value" class="rt-mono">0.000000</div></div>
+                            <div><span>Evolution</span><div id="evolution-value" class="rt-mono">0</div></div>
+                            <div><span>Mercy</span><div id="mercy-value" class="rt-mono">0</div></div>
+                            <div><span>Harmony</span><div id="harmony-value" class="rt-mono">0</div></div>
+                        </div>
+                    </div>
+                    <div class="rt-cta-row">
+                        <button type="button" onclick="exportShard()" class="rt-btn-primary">Export JSON</button>
+                        <button type="button" onclick="exportHTML()" class="rt-btn-ghost">Export standalone HTML</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+<script>
+        const gates = [
+            { name: "Truth", key: "truth", default: 1.0 },
+            { name: "Order", key: "order", default: 1.0 },
+            { name: "Love", key: "love", default: 1.0 },
+            { name: "Compassion", key: "compassion", default: 1.0 },
+            { name: "Service", key: "service", default: 1.0 },
+            { name: "Abundance", key: "abundance", default: 1.5 },
+            { name: "Joy", key: "joy", default: 1.0 },
+            { name: "Cosmic Harmony", key: "cosmicHarmony", default: 1.0 }
+        ];
+        const presets = [
+            { truth: 1.0, order: 1.0, love: 1.0, compassion: 1.0, service: 1.0, abundance: 1.2, joy: 1.0, cosmicHarmony: 1.1 },
+            { truth: 1.0, order: 0.9, love: 1.4, compassion: 1.8, service: 1.6, abundance: 1.1, joy: 1.2, cosmicHarmony: 1.3 },
+            { truth: 0.9, order: 1.0, love: 1.1, compassion: 1.1, service: 1.0, abundance: 1.9, joy: 1.7, cosmicHarmony: 1.2 },
+            { truth: 1.1, order: 1.2, love: 1.3, compassion: 1.3, service: 1.2, abundance: 1.2, joy: 1.3, cosmicHarmony: 1.8 },
+            { truth: 1.8, order: 1.6, love: 0.9, compassion: 1.0, service: 1.1, abundance: 1.0, joy: 0.9, cosmicHarmony: 1.2 }
+        ];
+        let weights = {};
+        let currentShard = null;
+        function generateSecureId(prefix = 'ss') {
+            const array = new Uint8Array(16);
+            crypto.getRandomValues(array);
+            const hex = Array.from(array).map(b => b.toString(16).padStart(2, '0')).join('');
+            return `${prefix}-${hex}`;
+        }
+        function initControls() {
+            const container = document.getElementById('controls');
+            gates.forEach(gate => {
+                const div = document.createElement('div');
+                div.className = 'rt-gate-row';
+                div.innerHTML = `
+                    <div class="rt-gate-name">${gate.name}</div>
+                    <input type="range" min="0.5" max="2" step="0.01" value="${gate.default}" id="slider-${gate.key}">
+                    <div class="rt-gate-val rt-mono" id="value-${gate.key}">${gate.default.toFixed(2)}</div>
+                `;
+                container.appendChild(div);
+                const slider = document.getElementById(`slider-${gate.key}`);
+                const valueEl = document.getElementById(`value-${gate.key}`);
+                slider.addEventListener('input', () => {
+                    weights[gate.key] = parseFloat(slider.value);
+                    valueEl.textContent = weights[gate.key].toFixed(2);
+                    clearActivePreset();
+                });
+                weights[gate.key] = gate.default;
+            });
+            applyPreset(0, true);
+        }
+        function applyPreset(index, silent = false) {
+            const preset = presets[index];
+            if (!preset) return;
+            gates.forEach(gate => {
+                const slider = document.getElementById(`slider-${gate.key}`);
+                const valueEl = document.getElementById(`value-${gate.key}`);
+                if (slider && valueEl) {
+                    slider.value = preset[gate.key];
+                    valueEl.textContent = preset[gate.key].toFixed(2);
+                    weights[gate.key] = preset[gate.key];
+                }
+            });
+            clearActivePreset();
+            const btn = document.getElementById(`preset-${index}`);
+            if (btn) btn.classList.add('active');
+        }
+        function clearActivePreset() {
+            for (let i = 0; i < 5; i++) {
+                const btn = document.getElementById(`preset-${i}`);
+                if (btn) btn.classList.remove('active');
+            }
+        }
+        function calculateValence() {
+            let total = 0;
+            gates.forEach(gate => total += weights[gate.key] || 1.0);
+            return Math.min(1.0, total / 8 * 0.92);
+        }
+        function generateShard() {
+            const valence = calculateValence();
+            currentShard = {
+                name: "Sovereign Shard #" + Math.floor(Math.random() * 9999),
+                shardId: generateSecureId('ss'),
+                lineageRootHash: null,
+                valence: valence,
+                weights: {...weights},
+                evolution: Math.floor(valence * 420),
+                mercy: Math.floor(valence * 980),
+                harmony: (valence * 1.618).toFixed(2)
+            };
+            document.getElementById('shard-name').textContent = currentShard.name;
+            document.getElementById('valence-fill').style.width = (valence * 100) + '%';
+            document.getElementById('valence-value').textContent = valence.toFixed(6);
+            document.getElementById('evolution-value').textContent = currentShard.evolution;
+            document.getElementById('mercy-value').textContent = currentShard.mercy;
+            document.getElementById('harmony-value').textContent = currentShard.harmony;
+            document.getElementById('forge-btn-text').textContent = 'Re-forge shard';
+        }
+        function resetWeights() {
+            applyPreset(0);
+            currentShard = null;
+            document.getElementById('forge-btn-text').textContent = 'Forge sovereign shard';
+        }
+        function exportShard() {
+            if (!currentShard) { alert("Please forge a shard first."); return; }
+            const data = JSON.stringify(currentShard, null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = currentShard.name.replace(/ /g, '-') + '.json';
+            a.click();
+        }
+        function exportHTML() {
+            if (!currentShard) { alert("Please forge a shard first."); return; }
+            const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="theme-color" content="#050505">
+<title>${currentShard.name} · Ra-Thor local shard</title>
+<style>
+:root { color-scheme: dark; --bg:#050505; --ink:#f6f1e4; --gold:#f0d36a; --muted:rgba(246,241,228,0.68); --elev:#0d0b08; --line:rgba(240,211,106,0.34); }
+body { font-family: Inter, system-ui, sans-serif; background:var(--bg); color:var(--ink); max-width:42rem; margin:0 auto; padding:2rem 1.25rem; }
+h1 { font-size:1.7rem; font-weight:650; }
+.note { color:var(--muted); }
+.grid { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; }
+.card { background:var(--elev); border:1px solid var(--line); border-radius:1rem; padding:1rem; }
+.k { color:var(--gold); font-size:0.75rem; text-transform:uppercase; letter-spacing:0.04em; }
+</style>
+</head>
+<body>
+    <p class="note">Demo · not a product</p>
+    <h1>${currentShard.name}</h1>
+    <p class="note">Generated by Ra-Thor Web-Forge · local demo</p>
+    <div class="grid">
+        <div class="card"><div class="k">Valence</div><div>${currentShard.valence.toFixed(6)}</div></div>
+        <div class="card"><div class="k">Evolution</div><div>${currentShard.evolution}</div></div>
+        <div class="card"><div class="k">Mercy score</div><div>${currentShard.mercy}</div></div>
+        <div class="card"><div class="k">Harmony</div><div>${currentShard.harmony}</div></div>
+    </div>
+</body>
+</html>`;
+            const blob = new Blob([html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = currentShard.name.replace(/ /g, '-') + '.html';
+            a.click();
+        }
+        window.onload = () => {
+            initControls();
+            setTimeout(() => { generateShard(); }, 150);
+        };
+    </script>
+    <script src="/js/rathor-theme.js"></script>
+    <script src="/js/pwa-install.js"></script>
+    <script src="/js/family-nav-2026-08-22.js"></script>
+  <script src="/js/site-lock-2026-08-22.js"></script>
+</body>
+</html>

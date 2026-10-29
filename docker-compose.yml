@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  powrush-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: powrush-mmo:latest
+    container_name: powrush-server
+    ports:
+      - "7777:7777"      # TCP
+      - "7778:7778"      # WebSocket
+      - "8080:8080"      # HTTP + Client + Metrics
+    environment:
+      - POWRUSH_TCP_PORT=7777
+      - POWRUSH_WS_PORT=7778
+      - POWRUSH_HTTP_PORT=8080
+      - POWRUSH_TICK_RATE_MS=100
+      - POWRUSH_MAX_PLAYERS=128
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+# Optional: Add a reverse proxy later for production TLS
+#   powrush-proxy:
+#     image: caddy:2
+#     ...

@@ -1,0 +1,36 @@
+[package]
+name = "lattice-conductor-v14"
+version = "14.15.0"
+edition = "2021"
+description = "Lattice Conductor v14.15 — CouncilArbitration + RuntimeSelfHealing + Cosmic Loop invariants + optional v13-compat surface (quiet-hold migration) | Living Cosmic Tick core"
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
+authors = ["Eternally-Thriving-Grandmasterism", "Sherif Samy Botros <info@Rathor.ai>"]
+
+[dependencies]
+nalgebra = { version = "0.33", features = ["serde-serialize"] }
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+rand = "0.8"
+tokio = { version = "1", features = ["full"], optional = true }
+axum = { version = "0.7", optional = true }
+mercy-security = { path = "../mercy-security" }
+mercy_tolc_operator_algebra = { path = "../mercy_tolc_operator_algebra" }
+sovereign-recovery = { path = "../sovereign-recovery" }
+sha2 = "0.11"
+
+[features]
+default = []
+full-clifford = []
+web-demo = ["tokio", "axum"]
+# Additive v13 trait surface for leaf-crate migration (see MIGRATION_v13_to_v14.md)
+v13-compat = []
+# Design-only SAELens / HF / NNsight hook surface. No Python. No weight download.
+sae-lens-hook = []
+
+[lib]
+path = "src/lib.rs"
+
+[[example]]
+name = "shared_chat_mercy_mesh_web_demo"
+required-features = ["web-demo"]

@@ -1,0 +1,5 @@
+if forwardChains is empty or max(forwardChains).tv.confidence < 0.5:
+    backwardChains ← BackwardPLNChainInfer("Entropy", "Harm", maxDepth=5)
+    # Boost harmScore from backward abduction evidence
+    for each chain in backwardChains:
+        harmScore ← harmScore + chain.tv.strength * chain.tv.confidence * 0.4 / chain.length

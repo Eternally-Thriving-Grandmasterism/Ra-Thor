@@ -1,0 +1,96 @@
+name: Core Tier-1 CI (ONE Organism + Kardashev path)
+
+# Default PR/main gate. TIER_MAP: focused -p tests, not cargo test --workspace.
+# Runs on every main push/PR so Tier 1 stays actually green (path filters were skipping it).
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  tier1-tests:
+    name: Tier-1 package tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2
+
+      - name: Test lattice-conductor-v14
+        run: cargo test --locked -p lattice-conductor-v14 -- --nocapture
+
+      - name: Test lattice-conductor-v14 (v13-compat)
+        run: cargo test --locked -p lattice-conductor-v14 --features v13-compat -- --nocapture
+
+      - name: Test reality-thriving-transfer
+        run: cargo test --locked -p reality-thriving-transfer -- --nocapture
+
+      - name: Test kardashev-orchestration
+        run: cargo test --locked -p kardashev-orchestration -- --nocapture
+
+      - name: Test ra-thor-one-organism (default / facade)
+        run: cargo test --locked -p ra-thor-one-organism -- --nocapture
+
+      - name: Test github-connector
+        run: cargo test --locked -p github-connector -- --nocapture
+
+      - name: Test gpu-compute-pipeline
+        run: cargo test --locked -p gpu-compute-pipeline -- --nocapture
+
+      - name: Test quantum-swarm
+        run: cargo test --locked -p quantum-swarm -- --nocapture
+
+      - name: Test sovereign-recovery
+        run: cargo test --locked -p sovereign-recovery -- --nocapture
+
+      - name: Test ra-thor-monorepo-intelligence
+        run: cargo test --locked -p ra-thor-monorepo-intelligence -- --nocapture
+
+      - name: Check ra-thor-monorepo-intelligence CLI bin + examples (compile only)
+        run: cargo check --locked -p ra-thor-monorepo-intelligence --features cli --all-targets
+
+      - name: Test mercy_tolc_operator_algebra
+        run: cargo test --locked -p mercy_tolc_operator_algebra -- --nocapture
+
+      - name: Test fractal-mercy-ledger-adapter (Tier 2 bridge)
+        run: cargo test --locked -p fractal-mercy-ledger-adapter -- --nocapture
+
+      - name: Test mercy-security (Tier-1 member; required by ONE Organism)
+        run: cargo test --locked -p mercy-security -- --nocapture
+
+      - name: Test ra-thor-one-organism (extended-live)
+        run: cargo test --locked -p ra-thor-one-organism --features extended-live -- --nocapture
+
+      - name: Check live-feature gates (compile only)
+        run: |
+          cargo check --locked -p ra-thor-one-organism --features kardashev-live
+          cargo check --locked -p ra-thor-one-organism --features recovery-live
+          cargo check --locked -p ra-thor-one-organism --features quantum-live
+          cargo check --locked -p ra-thor-one-organism --features gpu-live
+          cargo check --locked -p ra-thor-one-organism --features web-demo
+          cargo check --locked -p ra-thor-one-organism --features github-live
+          cargo check --locked -p ra-thor-one-organism --features extended-live
+
+      - name: Test idea-recycling
+        run: cargo test --locked -p idea-recycling -- --nocapture
+
+      - name: Test innovations-generator
+        run: cargo test --locked -p innovations-generator -- --nocapture
+
+      # RREL-BUILD-1: real-estate-lattice compilation slice
+      - name: Test real-estate-lattice
+        run: cargo test --locked -p real-estate-lattice -- --nocapture

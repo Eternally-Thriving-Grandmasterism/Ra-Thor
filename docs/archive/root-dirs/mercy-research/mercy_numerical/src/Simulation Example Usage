@@ -1,0 +1,25 @@
+fn albatross_ode(t: f64, y: &[f64; 5]) -> [f64; 5] {
+    // y = [x, h, v_a, gamma, psi]
+    let g = 9.81;
+    let rho = 1.225;
+    let s = 0.8;
+    let m = 10.0;
+    let c_l = 1.2;
+    let c_d = 0.015 + 0.04 * c_l.powi(2);
+    let lift = 0.5 * rho * y[2].powi(2) * s * c_l;
+    let drag = 0.5 * rho * y[2].powi(2) * s * c_d;
+
+    let v_w = 5.0 * (y[1] + 0.001f64).ln() / (10.0 + 0.001f64).ln();
+
+    let dv_dt = g * (y[3].sin() - (c_d / c_l) * y[3].cos()) + (5.0 / (10.0 + 0.001)) * y[2] * y[3].sin() * y[4].cos();
+    let dgamma_dt = (g / y[2]) * (c_l * 0.0 - y[3].cos()); // ϕ=0 for straight segments
+    let dpsi_dt = 0.0; // straight flight
+
+    [y[2] * y[3].cos() * y[4].cos() + v_w, y[2] * y[3].sin(), dv_dt, dgamma_dt, dpsi_dt]
+}
+
+fn main() {
+    let solver = RK45Solver::<5>::new(1e-8, 1e-8);
+    let result = solver.integrate(albatross_ode, 0.0, [0.0, 10.0, 20.0, 0.0, PI/2.0], 100.0, 0.1);
+    // Plot or analyze energy gain
+}

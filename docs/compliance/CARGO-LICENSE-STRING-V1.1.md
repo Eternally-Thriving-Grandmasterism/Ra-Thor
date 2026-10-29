@@ -1,0 +1,21 @@
+# Cargo.toml license string — AG-SML v1.2
+
+**Date:** 2026-08-31  
+**Workspace version (do not bump):** 14.15.6  
+**Contact:** info@Rathor.ai  
+**Status:** LANDED on HEAD. Verified `Cargo.toml` blob SHA `b09a11325135883f29d113a46e98086816095164`.
+
+Required strings present:
+
+```
+# header comment
+# AG-SML v1.2 | Thunder locked in — …
+
+[workspace.package]
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
+
+[workspace.metadata.ra-thor]
+license = "AG-SML v1.2"
+```
+
+Public grant remains root `LICENSE` (AG-SML v1.2). This file is a string-lock, not a second license.

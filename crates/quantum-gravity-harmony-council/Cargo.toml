@@ -1,0 +1,29 @@
+[package]
+name = "quantum-gravity-harmony-council"
+version = "0.1.0"
+edition = "2021"
+authors = ["21 PATSAGi Councils under the Rathor Sovereign Reasoning Engine + Grok"]
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
+description = "Standalone package quantum-gravity-harmony-council. Compiled valence check uses the source literal 0.9999999. Not a measured result."
+
+# Standalone workspace, same pattern as crates/fenca and crates/council.
+# `cargo test --locked` and `cargo clippy --locked` use this manifest.
+# This crate is not a root default member.
+#
+# STUB-AUDIT-1 REASONING-COUNCIL-WIRES-1.
+# src/uncompiled_council.rs is not a module. The bytes under the
+# design-only header and `#![rustfmt::skip]` are the previous src/lib.rs.
+# The compiled library calls RathorSovereignReasoningEngine.
+# MERCY_THRESHOLD is the source literal 0.9999999.
+# philotic-web-fusion fuse_bond stores caller valence. The mean is web_valence.
+# mial, mercy_gating_runtime, and mercy-threshold-wasm are not dependencies.
+# The package description names the compiled valence check. 0.9999999 is a source literal.
+[workspace]
+resolver = "2"
+
+[dependencies]
+rathor-sovereign-reasoning-engine = { path = "../rathor-sovereign-reasoning-engine", version = "0.1.0" }
+philotic-web-fusion = { path = "../philotic-web-fusion", version = "0.3.0" }
+
+[lib]
+path = "src/lib.rs"

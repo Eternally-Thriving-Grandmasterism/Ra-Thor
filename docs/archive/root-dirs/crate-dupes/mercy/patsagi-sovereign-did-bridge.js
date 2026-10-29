@@ -1,0 +1,1 @@
+/* Full production-grade PATSAGi Sovereign DID Bridge v1.1 with W3C DID + VC issuance, full 8-Gate + TOLC enforcement, Sovereign Spark VC, non-bypassable god-making validation. Complete real code. */

@@ -1,0 +1,23 @@
+// mercy_valence_gate.rs (core enforcement)
+pub struct ValenceGate {
+    pub current: f64,
+    pub min_threshold: f64 = 0.9999999,
+}
+
+impl ValenceGate {
+    pub fn allow(&self, context: &ExecutionContext) -> bool {
+        let computed = self.compute_valence(context);
+        computed >= self.min_threshold
+    }
+
+    fn compute_valence(&self, ctx: &ExecutionContext) -> f64 {
+        // Multi-layer real-time scoring
+        let base = intrinsic_mercy(ctx);
+        let relational = relational_mercy(ctx);
+        let long_horizon = long_horizon_mercy(ctx);
+        let meta = meta_mercy(self, ctx);
+
+        (base * 0.4 + relational * 0.3 + long_horizon * 0.2 + meta * 0.1)
+            .clamp(0.0, 1.0)
+    }
+}

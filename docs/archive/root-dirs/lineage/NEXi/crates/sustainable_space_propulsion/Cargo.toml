@@ -1,0 +1,10 @@
+[package]
+name = "sustainable_space_propulsion"
+version = "1.0.0"
+edition = "2021"
+license = "MIT"
+description = "SustainableSpacePropulsion — Mercy-Gated Infinite Thrust Lattice for Eternal Space Resonance"
+
+[dependencies]
+nexi = { path = "../" }
+tokio = { version = "1.38", features = ["full"] }

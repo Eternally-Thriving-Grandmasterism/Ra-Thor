@@ -1,0 +1,20 @@
+[package]
+name = "shared-valence-field"
+version = "0.1.0"
+edition = "2021"
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
+authors = ["Sherif Samy Botros <info@Rathor.ai>"]
+description = "In-memory field. new sets collective_valence to the source literal 0.999999 (not a measured value). emit floors with .max(0.999999)."
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+
+# Standalone workspace, same pattern as crates/fenca, crates/council,
+# crates/powrush, and crates/sovereign-shard-genesis.
+# `cargo build --locked` and `cargo test --locked` use this manifest.
+# This crate is not a root default member.
+[workspace]
+resolver = "2"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+chrono = { version = "0.4", features = ["serde"] }
+# NEVC binding will be wired to the sealed NEVC scoring + lattice flow share surfaces

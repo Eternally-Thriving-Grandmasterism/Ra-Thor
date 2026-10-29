@@ -1,0 +1,27 @@
+[package]
+name = "ra-thor-legal-lattice"
+version = "14.15.6"
+edition = "2021"
+authors = ["Sherif Samy Botros <info@Rathor.ai>", "Eternally-Thriving-Grandmasterism"]
+description = "Internal legal research notes tool for Ra-Thor. Not legal advice, not a lawyer or legal team, not a legal product."
+license = "AG-SML v1.2 — Autonomicity Games Sovereign Mercy License"
+repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
+keywords = ["legal", "lattice", "governance", "mercy", "ra-thor"]
+categories = ["science", "simulation"]
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+thiserror = "1.0"
+tracing = "0.1"
+
+[features]
+default = []
+# Known-broken legacy module kept for history; does not compile yet.
+legacy-sensor-bridge = []
+
+[dev-dependencies]
+tokio = { version = "1", features = ["rt", "macros"] }
+
+# Standalone workspace root so `cargo test -p ra-thor-legal-lattice` works from this
+# directory without adding the crate to the monorepo's default members.
+[workspace]

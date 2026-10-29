@@ -1,0 +1,33 @@
+name: Rust Crate CI
+
+on:
+  push:
+    branches: [main, mercy-*]
+  pull_request:
+    branches: [main, mercy-*]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build all crates
+        run: cargo build --verbose --all
+
+      - name: Run all tests
+        run: cargo test --verbose --all
+
+      - name: Run cargo clippy (lint)
+        run: cargo clippy --all-targets -- -D warnings
+
+      - name: Mercy-approved – Rust CI passed
+        run: echo "Lattice integrity verified"

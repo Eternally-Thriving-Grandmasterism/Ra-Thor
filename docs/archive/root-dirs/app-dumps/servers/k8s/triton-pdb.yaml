@@ -1,0 +1,14 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: triton-inference-pdb
+  namespace: rathor-inference
+  labels:
+    app: triton
+    mercy-priority: high
+spec:
+  minAvailable: 2                # Always keep at least 2 pods running during voluntary disruptions
+  selector:
+    matchLabels:
+      app: triton
+  maxUnavailable: 1              # Allow at most 1 pod to be unavailable at a time (alternative to minAvailable)

@@ -1,0 +1,15 @@
+[package]
+name = "hotfix_propagator"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+license.workspace = true
+description.workspace = true
+repository.workspace = true
+
+[dependencies]
+# Hotfix propagation + monorepo sync engine
+# Responsible for safe, mercy-gated rolling updates across the lattice
+
+[features]
+default = []
