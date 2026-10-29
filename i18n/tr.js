@@ -489,7 +489,7 @@ window.translations["tr"] = {
   "privacyThird1": "Bu sayfa yalnızca rathor.ai üzerinden birinci taraf CSS ve JS yükler (tema, aile gezintisi, PWA kurulumu, hafta penceresi). Burada Tailwind, Font Awesome ya da Google Fonts CDN yoktur. Yalnızca tıklanınca açılan Google Translate isteğe bağlıdır: siz isteyene dek yüklenmez, sonra ağ üzerinde Google kullanır. Bu sitedeki çevrimdışı dil paketleri varsayılan kalır. Analitik ya da izleme çerezi çalıştırmayız.",
   "privacyThird2": "grok.com ya da x.com üzerindeki bağlı demolar sırasıyla xAI ve X Corp gizlilik ilkelerine tabidir. info@Rathor.ai adresine e-posta isteğe bağlıdır ve onaya dayanır; yazışma satılmaz ya da paylaşılmaz.",
   "privacyThirdTitle": "Üçüncü taraf hizmetler",
-  "privacyUpdated": "Son güncelleme: 2026-10-22 · Şununla hizalı <a href=\"/privacy.html\" target=\"_blank\" rel=\"noopener\" class=\"text-amber-300 underline\">rathor.ai/privacy</a>",
+  "privacyUpdated": "Son güncelleme: 2026-10-22 · Şununla hizalı <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/Legal/privacy.md\" target=\"_blank\" rel=\"noopener\" class=\"text-amber-300 underline\">docs/Legal/privacy.md</a>",
   "swatchCalBody": "Politika-kod ve ALLOW / BLOCK / ESCALATE içeren, yönetişim öncelikli bir 1+3 hücre. Koşut iş. Ra-Thor mercy-security yalnızca beyaz şapkadır ve bir AEGIS ya da LATTICE portu değildir. A1–A5 varsayımları her sıfır-baypas cümlesiyle birlikte gider.",
   "swatchCalLink": "Ra-Thor sinyal metabolizması →",
   "swatchCalTitle": "Calboreanu LATTICE, Frontiers AI 2026 makalesi",

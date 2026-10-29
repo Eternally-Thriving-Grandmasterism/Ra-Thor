@@ -498,7 +498,7 @@ window.translations["en"] = {
   "privacyThird1": "This page loads first-party CSS and JS from rathor.ai only (theme, family navigation, PWA install, week window). There is no Tailwind, Font Awesome, or Google Fonts CDN here. Click-only Google Translate is optional: it does not load until you ask, and then it uses Google on the network. Offline language packs on this site stay the default. We do not run analytics or tracking cookies.",
   "privacyThird2": "Connected demos on grok.com or x.com are subject to the privacy policies of xAI and X Corp respectively. Email to info@Rathor.ai is optional and consent-based; correspondence is never sold or shared.",
   "privacyThirdTitle": "Third-Party Services",
-  "privacyUpdated": "Last Updated: 2026-10-22 · Aligned with <a href=\"/privacy.html\" target=\"_blank\" rel=\"noopener\" class=\"text-amber-300 underline\">rathor.ai/privacy</a>",
+  "privacyUpdated": "Last Updated: 2026-10-22 · Aligned with <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/Legal/privacy.md\" target=\"_blank\" rel=\"noopener\" class=\"text-amber-300 underline\">docs/Legal/privacy.md</a>",
   "swatchCalBody": "A governance-first 1+3 cell with policy-as-code and ALLOW / BLOCK / ESCALATE. Parallel work. Ra-Thor mercy-security is white-hat only and is not an AEGIS or LATTICE port. Assumptions A1–A5 travel with any zero-bypass sentence.",
   "swatchCalLink": "Ra-Thor signal metabolism →",
   "swatchCalTitle": "Calboreanu LATTICE (Frontiers AI 2026)",

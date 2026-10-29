@@ -489,7 +489,7 @@ window.translations["el"] = {
   "privacyThird1": "Αυτή η σελίδα φορτώνει CSS και JS πρώτου μέρους μόνο από το rathor.ai (θέμα, πλοήγηση οικογένειας, εγκατάσταση PWA, παράθυρο εβδομάδας). Δεν υπάρχει CDN των Tailwind, Font Awesome ή Google Fonts εδώ. Το Google Translate μόνο με κλικ είναι προαιρετικό: δεν φορτώνει ώσπου να το ζητήσετε, και τότε χρησιμοποιεί την Google στο δίκτυο. Τα πακέτα γλώσσας εκτός σύνδεσης σε αυτόν τον ιστότοπο μένουν η προεπιλογή. Δεν τρέχουμε αναλυτικά ή cookies παρακολούθησης.",
   "privacyThird2": "Οι συνδεδεμένες επιδείξεις στο grok.com ή στο x.com υπόκεινται στις πολιτικές απορρήτου της xAI και της X Corp αντίστοιχα. Το μήνυμα προς info@Rathor.ai είναι προαιρετικό και βασίζεται σε συναίνεση· η αλληλογραφία δεν πωλείται ούτε κοινοποιείται.",
   "privacyThirdTitle": "Υπηρεσίες τρίτων",
-  "privacyUpdated": "Τελευταία ενημέρωση: 2026-10-22 · Ευθυγραμμισμένο με το <a href=\"/privacy.html\" target=\"_blank\" rel=\"noopener\" class=\"text-amber-300 underline\">rathor.ai/privacy</a>",
+  "privacyUpdated": "Τελευταία ενημέρωση: 2026-10-22 · Ευθυγραμμισμένο με το <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/Legal/privacy.md\" target=\"_blank\" rel=\"noopener\" class=\"text-amber-300 underline\">docs/Legal/privacy.md</a>",
   "swatchCalBody": "Κυψέλη 1+3 με προτεραιότητα στη διακυβέρνηση, με πολιτική-ως-κώδικα και ALLOW / BLOCK / ESCALATE. Παράλληλη εργασία. Το mercy-security του Ra-Thor είναι μόνο white-hat και δεν είναι μεταφορά AEGIS ή LATTICE. Οι υποθέσεις A1–A5 ταξιδεύουν με κάθε πρόταση μηδενικής παράκαμψης.",
   "swatchCalLink": "Μεταβολισμός σήματος Ra-Thor →",
   "swatchCalTitle": "Calboreanu LATTICE (Frontiers AI 2026)",

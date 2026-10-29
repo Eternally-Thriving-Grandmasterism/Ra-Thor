@@ -489,7 +489,7 @@ window.translations["id"] = {
   "privacyThird1": "Halaman ini hanya memuat CSS dan JS pihak pertama dari rathor.ai (tema, navigasi keluarga, pemasangan PWA, jendela minggu). Tidak ada CDN Tailwind, Font Awesome, atau Google Fonts di sini. Google Translate yang hanya lewat klik bersifat opsional: ia tidak dimuat sampai Anda meminta, lalu memakai Google di jaringan. Paket bahasa luring di situs ini tetap bawaan. Kami tidak menjalankan analitik atau cookie pelacakan.",
   "privacyThird2": "Demo yang tersambung di grok.com atau x.com tunduk pada kebijakan privasi xAI dan X Corp masing-masing. Surel ke info@Rathor.ai bersifat opsional dan berbasis persetujuan; korespondensi tidak pernah dijual atau dibagikan.",
   "privacyThirdTitle": "Layanan pihak ketiga",
-  "privacyUpdated": "Terakhir diperbarui: 2026-10-22 · Selaras dengan <a href=\"/privacy.html\" target=\"_blank\" rel=\"noopener\" class=\"text-amber-300 underline\">rathor.ai/privacy</a>",
+  "privacyUpdated": "Terakhir diperbarui: 2026-10-22 · Selaras dengan <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/Legal/privacy.md\" target=\"_blank\" rel=\"noopener\" class=\"text-amber-300 underline\">docs/Legal/privacy.md</a>",
   "swatchCalBody": "Sel 1+3 yang mengutamakan tata kelola, dengan kebijakan-sebagai-kode dan ALLOW / BLOCK / ESCALATE. Kerja yang sejajar. mercy-security Ra-Thor hanya topi putih dan bukan port AEGIS atau LATTICE. Asumsi A1–A5 menyertai setiap kalimat nol-pintasan.",
   "swatchCalLink": "Metabolisme sinyal Ra-Thor →",
   "swatchCalTitle": "Calboreanu LATTICE, makalah Frontiers AI 2026",

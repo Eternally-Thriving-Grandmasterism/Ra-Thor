@@ -489,7 +489,7 @@ window.translations["zh"] = {
   "privacyThird1": "本页只从 rathor.ai 加载第一方 CSS 与 JS（主题、家族导航、PWA 安装、周窗口）。这里没有 Tailwind、Font Awesome 或 Google Fonts 的 CDN。仅在点击时使用的 Google Translate 是可选的：你要求之前它不加载，加载之后则在网络上使用 Google。本站的离线语言包仍是默认。我们不运行分析或跟踪 cookie。",
   "privacyThird2": "grok.com 或 x.com 上的已连接演示，分别适用 xAI 与 X Corp 的隐私政策。写给 info@Rathor.ai 的电子邮件是可选的、基于同意的；通信从不出售或分享。",
   "privacyThirdTitle": "第三方服务",
-  "privacyUpdated": "最后更新：2026-10-22 · 与 <a href=\"/privacy.html\" target=\"_blank\" rel=\"noopener\" class=\"text-amber-300 underline\">rathor.ai/privacy</a> 对齐",
+  "privacyUpdated": "最后更新：2026-10-22 · 与 <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/docs/Legal/privacy.md\" target=\"_blank\" rel=\"noopener\" class=\"text-amber-300 underline\">docs/Legal/privacy.md</a> 对齐",
   "swatchCalBody": "治理优先的 1+3 单元，带有策略即代码，以及 ALLOW / BLOCK / ESCALATE。这是平行的工作。Ra-Thor mercy-security 仅为白帽，不是 AEGIS 或 LATTICE 的移植。假设 A1–A5 与任何零绕过语句一同出现。",
   "swatchCalLink": "Ra-Thor 信号代谢 →",
   "swatchCalTitle": "Calboreanu LATTICE (Frontiers AI 2026)",
