@@ -85,42 +85,61 @@ export async function settleHold(db, holdId, actual, meta = {}) {
 }
 
 // API-ABUSE-HARDEN-1: called once xAI usage has come back. Retries settleHold with backoff; if
-// it still fails, charges exactly `actual` (never more). If that write fails too, records the whole
-// amount as a shortfall and sets settle_locked. The hold is never released silently.
+// it still fails, charges min(actual, hold) (HOLD-HEADROOM-1: never other holds' reserve) and sends
+// any remainder to settle_shortfalls + settle_locked. If that write fails too, records the whole
+// amount as a shortfall. The hold is never released silently. A hold already settled (for example
+// settleHold committed and then threw) is never charged twice; its recorded charge is returned.
+async function settledCharge(db, holdId) {
+  const h = await db.prepare('SELECT status FROM holds WHERE id = ?1').bind(holdId).first();
+  if (h?.status !== 'settled') return null;
+  const r = await db.prepare("SELECT COALESCE(-SUM(delta), 0) AS c FROM ledger WHERE hold_id = ?1 AND reason = 'chat'").bind(holdId).first();
+  return r?.c ?? 0;
+}
 export async function settleWithFallback(db, holdId, actual, meta = {}, backoff = [25, 100, 400]) {
   for (let i = 0; ; i += 1) {
-    try { return await settleHold(db, holdId, actual, meta); } catch (e) {
+    try {
+      const c = await settleHold(db, holdId, actual, meta);
+      return c !== null ? c : await settledCharge(db, holdId);
+    } catch (e) {
       if (i >= backoff.length) break;
       await new Promise((r) => setTimeout(r, backoff[i]));
     }
   }
-  const h = await db.prepare("SELECT account_id FROM holds WHERE id = ?1 AND status = 'open'").bind(holdId).first();
-  if (!h) return null;
+  const h = await db.prepare("SELECT account_id, amount FROM holds WHERE id = ?1 AND status = 'open'").bind(holdId).first();
+  if (!h) return settledCharge(db, holdId);
   const log = (msg, charged) => console.error(JSON.stringify({ msg, alert: true, account_id: h.account_id, hold_id: holdId, model: meta.model ?? null, actual, charged }));
+  const shortfallStmts = (charged, shortfall) => [
+    db.prepare('INSERT INTO settle_shortfalls (account_id, hold_id, actual_credits, charged_credits, shortfall_credits, model) SELECT ?1, ?2, ?3, ?4, ?5, ?6 WHERE changes() = 1 AND ?5 > 0')
+      .bind(h.account_id, holdId, actual, charged, shortfall, meta.model ?? null),
+    db.prepare("INSERT INTO ledger (account_id, delta, reason, hold_id) SELECT ?1, 0, 'settle_shortfall', ?2 WHERE changes() = 1").bind(h.account_id, holdId),
+    db.prepare('UPDATE accounts SET settle_locked = 1 WHERE id = ?1 AND changes() = 1').bind(h.account_id),
+  ];
+  const charge = Math.min(actual, h.amount);
+  const rest = actual - charge;
   try {
     await db.batch([
       db.prepare("UPDATE holds SET status = 'settled' WHERE id = ?1 AND status = 'open'").bind(holdId),
-      db.prepare('UPDATE accounts SET balance = balance - ?2 WHERE id = ?1 AND changes() = 1').bind(h.account_id, actual),
-      db.prepare("INSERT INTO ledger (account_id, delta, reason, hold_id) SELECT ?1, ?2, 'chat', ?3 WHERE changes() = 1").bind(h.account_id, -actual, holdId),
+      db.prepare('UPDATE accounts SET balance = balance - ?2 WHERE id = ?1 AND changes() = 1').bind(h.account_id, charge),
+      db.prepare("INSERT INTO ledger (account_id, delta, reason, hold_id) SELECT ?1, ?2, 'chat', ?3 WHERE changes() = 1").bind(h.account_id, -charge, holdId),
+      ...(rest > 0 ? shortfallStmts(charge, rest) : []),
     ]);
-    log('settle_fallback_exact_charge', actual);
-    return actual;
+    const c = await settledCharge(db, holdId);
+    log(rest > 0 ? 'settle_fallback_hold_capped_shortfall' : 'settle_fallback_exact_charge', c);
+    return c;
   } catch { /* fall through to shortfall */ }
   try {
     await db.batch([
-    db.prepare("UPDATE holds SET status = 'settled' WHERE id = ?1 AND status = 'open'").bind(holdId),
-    db.prepare('INSERT INTO settle_shortfalls (account_id, hold_id, actual_credits, charged_credits, shortfall_credits, model) SELECT ?1, ?2, ?3, 0, ?3, ?4 WHERE changes() = 1 AND ?3 > 0')
-      .bind(h.account_id, holdId, actual, meta.model ?? null),
-    db.prepare("INSERT INTO ledger (account_id, delta, reason, hold_id) SELECT ?1, 0, 'settle_shortfall', ?2 WHERE changes() = 1").bind(h.account_id, holdId),
-    db.prepare('UPDATE accounts SET settle_locked = 1 WHERE id = ?1').bind(h.account_id),
+      db.prepare("UPDATE holds SET status = 'settled' WHERE id = ?1 AND status = 'open'").bind(holdId),
+      ...shortfallStmts(0, actual),
     ]);
   } catch (e) {
     // D1 is down: the hold stays OPEN (reserved, not released) and this alert needs a human.
     log('settle_unrecorded_hold_left_open', 0);
     throw e;
   }
-  log('settle_fallback_shortfall', 0);
-  return 0;
+  const c = await settledCharge(db, holdId);
+  log('settle_fallback_shortfall', c);
+  return c;
 }
 
 export async function releaseHold(db, holdId) {

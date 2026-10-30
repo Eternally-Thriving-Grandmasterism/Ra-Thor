@@ -8,6 +8,7 @@ import {
   CHAT_RATE_PER_ACCOUNT_PER_WINDOW, CREDITS_RATE_PER_ACCOUNT_PER_WINDOW, RATE_WINDOW_SEC, CHAT_MESSAGES_MAX_BYTES,
   MERCY_BLOCK_ROWS_PER_WINDOW, xaiTimeoutMs, XAI_TIMEOUT_MS_DEFAULT,
 } from '../src/config.js';
+import { placeHold, settleHold } from '../src/db.js';
 import { fakeD1 } from './fakeD1.js';
 
 const O = 'https://rathor.ai';
@@ -225,18 +226,70 @@ describe('4) settle failure after usage returns', () => {
     // Locked: the next chat is refused before any hold.
     expect((await worker.fetch(chatReq(), env)).status).toBe(403); // settle_locked -> account_frozen
   });
-  it('an exact charge the balance cannot cover falls to the shortfall path (CHECK balance >= 0)', async () => {
+  const bigUsage = { prompt_tokens: 1000, completion_tokens: 200000 };
+  const bigFetch = () => vi.spyOn(globalThis, 'fetch').mockImplementation(async () => new Response(JSON.stringify({ choices: [{ message: { content: 'x' } }], usage: bigUsage })));
+  it('A1: over-hold fallback charges min(actual, hold); the remainder is a shortfall plus settle_locked', async () => {
     quiet();
     env.DB.q("UPDATE accounts SET balance = ?1 WHERE id='u1'", hold);
-    const big = { prompt_tokens: 1000, completion_tokens: 200000 };
-    vi.spyOn(globalThis, 'fetch').mockImplementation(async () => new Response(JSON.stringify({ choices: [{ message: { content: 'x' } }], usage: big })));
-    failSettles(4);
-    expect((await worker.fetch(chatReq(), env)).status).toBe(200);
-    const want = creditsForSettle('grok-4.3', big, hold);
+    bigFetch(); failSettles(4);
+    const r = await worker.fetch(chatReq(), env);
+    expect(r.status).toBe(200);
+    const want = creditsForSettle('grok-4.3', bigUsage, hold);
     expect(want).toBeGreaterThan(hold);
-    expect(bal()).toBe(hold);
-    expect(env.DB.q('SELECT shortfall_credits FROM settle_shortfalls')[0].shortfall_credits).toBe(want);
+    expect((await r.json()).rathor.credits_charged).toBe(hold);
+    expect(bal()).toBe(0);
+    expect(env.DB.q('SELECT charged_credits, shortfall_credits FROM settle_shortfalls')).toEqual([{ charged_credits: hold, shortfall_credits: want - hold }]);
     expect(env.DB.q("SELECT settle_locked FROM accounts WHERE id='u1'")[0].settle_locked).toBe(1);
+  });
+  it("A1: two open holds: the fallback never consumes the other hold's reserve", async () => {
+    quiet();
+    const other = 300;
+    env.DB.q("UPDATE accounts SET balance = ?1 WHERE id='u1'", hold + other);
+    expect(await placeHold(env.DB, 'other-hold', 'u1', other)).toBe(true);
+    bigFetch(); failSettles(4);
+    expect((await worker.fetch(chatReq(), env)).status).toBe(200);
+    expect(bal()).toBe(other);
+    expect(env.DB.q("SELECT status FROM holds WHERE id = 'other-hold'")[0].status).toBe('open');
+    // The other hold can still settle in full from its own reserve.
+    expect(await settleHold(env.DB, 'other-hold', other)).toBe(other);
+    expect(bal()).toBe(0);
+    expect(env.DB.q('SELECT shortfall_credits FROM settle_shortfalls')[0].shortfall_credits).toBe(creditsForSettle('grok-4.3', bigUsage, hold) - hold);
+  });
+  it('A2: settle_locked is never set without a shortfall record when the hold is settled by a racer', async () => {
+    quiet();
+    okFetch();
+    const orig = env.DB.batch.bind(env.DB);
+    let seen = 0;
+    env.DB.batch = async (st) => {
+      if (st.some((x) => /'settled'/.test(x.sql))) {
+        seen += 1;
+        if (seen <= 5) throw new Error('CAS lost');
+        // The shortfall batch: a racer settles the hold first.
+        env.DB.q("UPDATE holds SET status = 'settled'");
+      }
+      return orig(st);
+    };
+    expect((await worker.fetch(chatReq(), env)).status).toBe(200);
+    expect(env.DB.q('SELECT COUNT(*) AS n FROM settle_shortfalls')[0].n).toBe(0);
+    expect(env.DB.q("SELECT settle_locked FROM accounts WHERE id='u1'")[0].settle_locked).toBe(0);
+    expect(ledger()).toEqual([]);
+  });
+  it('N1: settleHold commits then throws: no double charge, credits_charged is the real charge', async () => {
+    quiet();
+    okFetch();
+    const orig = env.DB.batch.bind(env.DB);
+    let once = false;
+    env.DB.batch = async (st) => {
+      const out = await orig(st);
+      if (!once && st.some((x) => /'settled'/.test(x.sql))) { once = true; throw new Error('lost reply after commit'); }
+      return out;
+    };
+    const r = await worker.fetch(chatReq(), env);
+    expect(r.status).toBe(200);
+    expect((await r.json()).rathor.credits_charged).toBe(actual);
+    expect(ledger()).toEqual([{ delta: -actual, reason: 'chat' }]);
+    expect(bal()).toBe(1000 - actual);
+    expect(env.DB.q("SELECT settle_locked FROM accounts WHERE id='u1'")[0].settle_locked).toBe(0);
   });
 });
 
