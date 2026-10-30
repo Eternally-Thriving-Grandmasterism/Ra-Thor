@@ -19,6 +19,26 @@ export const CUSTOMER_KEY_PREFIX_LIVE = ['rth', 'live', ''].join('_');
 export const AUTH_REQUEST_PER_EMAIL_PER_HOUR = 5;
 export const AUTH_REQUEST_PER_IP_PER_HOUR = 20;
 
+// API-ABUSE-HARDEN-1: per-account limits (D1 rate_counters, fixed window). Over the limit is
+// 429 {error:'rate_limited', retry_after}; nothing is charged and no ledger row is written.
+export const RATE_WINDOW_SEC = 60;
+export const CHAT_RATE_PER_ACCOUNT_PER_WINDOW = 20;
+export const CREDITS_RATE_PER_ACCOUNT_PER_WINDOW = 60;
+// xAI fetch timeout. XAI_TIMEOUT_MS is clamped to 60000-90000; unset or invalid -> 75000.
+export const XAI_TIMEOUT_MS_DEFAULT = 75000;
+export const XAI_TIMEOUT_MS_MIN = 60000;
+export const XAI_TIMEOUT_MS_MAX = 90000;
+export function xaiTimeoutMs(env) {
+  const n = Number.parseInt(String(env?.XAI_TIMEOUT_MS ?? ''), 10);
+  if (!Number.isInteger(n)) return XAI_TIMEOUT_MS_DEFAULT;
+  return Math.min(XAI_TIMEOUT_MS_MAX, Math.max(XAI_TIMEOUT_MS_MIN, n));
+}
+// Backoff (ms) between settleHold retries after xAI usage has come back.
+export const SETTLE_RETRY_BACKOFF_MS = Object.freeze([25, 100, 400]);
+// mercy_blocks rows per window; past this only the aggregate counter (rate_counters) grows.
+export const MERCY_BLOCK_WINDOW_SEC = 3600;
+export const MERCY_BLOCK_ROWS_PER_WINDOW = 500;
+
 // Fail-closed live/sandbox gate. Only the exact string "true" is live; unset,
 // misspelled, or any other value is sandbox.
 export const isLiveMode = (env) => String(env?.LIVE_MODE) === 'true';

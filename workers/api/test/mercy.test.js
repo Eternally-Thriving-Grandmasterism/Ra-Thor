@@ -94,7 +94,7 @@ describe('P8 false positives pass on input and output', () => {
   }
   it('benign prompts reach upstream and return 200', async () => {
     upstream({ role: 'assistant', content: 'ok' });
-    for (const t of BENIGN) expect((await worker.fetch(req(user(t)), env)).status).toBe(200);
+    for (const t of BENIGN) { env.DB.q('DELETE FROM rate_counters'); expect((await worker.fetch(req(user(t)), env)).status).toBe(200); } // per-account limit reset per prompt
   });
 });
 

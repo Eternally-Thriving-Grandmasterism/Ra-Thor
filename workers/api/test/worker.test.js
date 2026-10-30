@@ -239,13 +239,15 @@ describe('hold / settle', () => {
     expect((await worker.fetch(req(), env)).status).toBe(502);
     expect(env.DB.q('SELECT status FROM holds')[0].status).toBe('released'); expect(bal()).toBe(1000);
   });
-  it('releases the hold if settleHold throws', async () => {
+  it('API-ABUSE-HARDEN-1: if every settle write throws, the hold is never released silently', async () => {
     okFetch();
+    const err = vi.spyOn(console, 'error').mockImplementation(() => {});
     const orig = env.DB.batch.bind(env.DB);
     env.DB.batch = async (st) => { if (st.some((x) => /'settled'/.test(x.sql))) throw new Error('D1 down'); return orig(st); };
     await expect(worker.fetch(req(), env)).rejects.toThrow('D1 down');
     env.DB.batch = orig;
-    expect(env.DB.q('SELECT status FROM holds')[0].status).toBe('released'); expect(bal()).toBe(1000);
+    expect(env.DB.q('SELECT status FROM holds')[0].status).toBe('open'); expect(bal()).toBe(1000);
+    expect(err.mock.calls.some((c) => String(c[0]).includes('settle_unrecorded_hold_left_open'))).toBe(true);
   });
   it('concurrent calls cannot double-spend', async () => {
     // Each call holds holdEstimate(grok-4.3, 2 bytes, 0 messages, 2000) = 67 credits; balance 140 covers at most 2.

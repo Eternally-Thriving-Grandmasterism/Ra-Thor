@@ -7,10 +7,10 @@ import { creditsForSettle, holdEstimate, ratesVerified, PRICING } from './credit
 import { resolveLineItem, checkoutLineItem, invoiceLineItem, resolveCheckoutPrice } from './prices.js';
 import { verifyStripeSignature } from './stripe.js';
 import { authenticateBearer } from './auth.js';
-import { ALLOWED_MODELS, DEFAULT_MODEL, MAX_TOKENS_CAP, DEFAULT_MAX_TOKENS, CHAT_MESSAGES_MAX_BYTES, CSRF_HEADER, isLiveMode, stripeKeyMatchesLiveMode, stripeRetryExhaustSeconds } from './config.js';
+import { ALLOWED_MODELS, DEFAULT_MODEL, MAX_TOKENS_CAP, DEFAULT_MAX_TOKENS, CHAT_MESSAGES_MAX_BYTES, CSRF_HEADER, CHAT_RATE_PER_ACCOUNT_PER_WINDOW, CREDITS_RATE_PER_ACCOUNT_PER_WINDOW, SETTLE_RETRY_BACKOFF_MS, xaiTimeoutMs, isLiveMode, stripeKeyMatchesLiveMode, stripeRetryExhaustSeconds } from './config.js';
 import { mercyChecks, rebuildMessages, mercyLevelGate, recordBlock, RULES_VERSION } from './mercyChecks.js';
-import { ensureAccount, placeHold, settleHold, releaseHold, available, applyStripeEvent, grantStmts, trialClaimStmt, accountExists, isSchemaMissing, trialAlreadyUsed, stripeId, clawTarget, findGrant, findGrantById, findAccountByCustomer, isFrozen, accountBalance, freezeStmt, unfreezeIfNoOpenDisputesStmt, unmatchedStmt, disputeUpsertStmt, earlyDisputeUpsertStmt, earlyDisputeGrantStmts, applyClawCas, isDisputeUnfreezeStatus, isDisputeTerminalStatus } from './db.js';
-import { requestMagicLink, verifyMagicLink, verifyConfirmPage, logout, issueKey, revokeKeys, requireSessionCsrf, authenticateSession, csrfGuard, parseCookie } from './session.js';
+import { ensureAccount, placeHold, settleWithFallback, releaseHold, available, applyStripeEvent, grantStmts, trialClaimStmt, accountExists, isSchemaMissing, trialAlreadyUsed, stripeId, clawTarget, findGrant, findGrantById, findAccountByCustomer, isFrozen, accountBalance, freezeStmt, unfreezeIfNoOpenDisputesStmt, unmatchedStmt, disputeUpsertStmt, earlyDisputeUpsertStmt, earlyDisputeGrantStmts, applyClawCas, isDisputeUnfreezeStatus, isDisputeTerminalStatus } from './db.js';
+import { requestMagicLink, verifyMagicLink, verifyConfirmPage, logout, issueKey, revokeKeys, requireSessionCsrf, authenticateSession, csrfGuard, parseCookie, accountRateHit } from './session.js';
 
 const XAI_URL = 'https://api.x.ai/v1/chat/completions';
 const STRIPE_API = 'https://api.stripe.com/v1';
@@ -31,6 +31,27 @@ function cors(env, req) {
     h['Access-Control-Allow-Credentials'] = 'true';
   }
   return h;
+}
+const rateLimited = (retryAfter, h) => json({ error: 'rate_limited', retry_after: retryAfter }, 429, { ...h, 'Retry-After': String(retryAfter) });
+
+// API-ABUSE-HARDEN-1: read the body as a stream with a hard byte cap, before any JSON parse.
+// Returns the text, or null once more than `cap` bytes have arrived (Content-Length is not trusted).
+export async function readBodyCapped(req, cap) {
+  if (!req.body) return '';
+  const reader = req.body.getReader();
+  const chunks = [];
+  let total = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    total += value.byteLength;
+    if (total > cap) { try { await reader.cancel(); } catch { /* ignore */ } return null; }
+    chunks.push(value);
+  }
+  const buf = new Uint8Array(total);
+  let off = 0;
+  for (const c of chunks) { buf.set(c, off); off += c.byteLength; }
+  return new TextDecoder().decode(buf);
 }
 const json = (obj, status, headers = {}) => new Response(JSON.stringify(obj), { status, headers: { 'Content-Type': 'application/json', ...headers } });
 
@@ -79,10 +100,15 @@ async function chat(req, env, h) {
   // MERCY-LAUNCH-1: production refuses chat unless MERCY_CHECKS_LEVEL is exactly 'launch'. Before the hold; never charged.
   const lv = mercyLevelGate(env);
   if (lv) return json(lv, 503, h);
+  // API-ABUSE-HARDEN-1: per-account limit after auth, before the body is read and the mercy scan.
+  const ra = await accountRateHit(env, 'chat', user, CHAT_RATE_PER_ACCOUNT_PER_WINDOW);
+  if (ra) return rateLimited(ra, h);
   const cl = Number(req.headers.get('Content-Length'));
   if (Number.isFinite(cl) && cl > CHAT_MESSAGES_MAX_BYTES + 8192) return json({ error: 'payload_too_large', max_bytes: CHAT_MESSAGES_MAX_BYTES }, 413, h);
+  const text = await readBodyCapped(req, CHAT_MESSAGES_MAX_BYTES + 8192);
+  if (text === null) return json({ error: 'payload_too_large', max_bytes: CHAT_MESSAGES_MAX_BYTES }, 413, h);
   let raw;
-  try { raw = await req.json(); } catch { return json({ error: 'bad_json' }, 400, h); }
+  try { raw = JSON.parse(text); } catch { return json({ error: 'bad_json' }, 400, h); }
   const v = validateChat(raw);
   if (v.error) return json(v, 400, h);
   if (enc.encode(JSON.stringify(v.body.messages)).length > CHAT_MESSAGES_MAX_BYTES) {
@@ -102,17 +128,31 @@ async function chat(req, env, h) {
   const holdId = crypto.randomUUID();
   if (!(await placeHold(env.DB, holdId, user, hold))) return json({ error: 'insufficient_credits', required_hold: hold }, 402, h);
 
-  // From here on the hold is always closed: settled on success, released on any failure
-  // (fetch, non-2xx, r.json(), or settleHold throwing). releaseHold is a no-op once settled.
+  // From here on the hold is always closed: released on any failure before usage is known
+  // (fetch, timeout, non-2xx, r.json()); once usage is known it is settled by settleWithFallback,
+  // which charges actual usage or records a shortfall + settle_locked, never a silent release.
+  let settling = false;
   try {
     let r;
     try {
-      r = await fetch(XAI_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${env.XAI_API_KEY}` }, body: JSON.stringify(v.body) });
-    } catch { return json({ error: 'upstream_unreachable' }, 502, h); }
-    if (!r.ok) return json({ error: 'upstream_error', status: r.status }, 502, h);
+      r = await fetch(XAI_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${env.XAI_API_KEY}` }, body: JSON.stringify(v.body), signal: AbortSignal.timeout(xaiTimeoutMs(env)) });
+    } catch (e) {
+      if (e?.name === 'TimeoutError' || e?.name === 'AbortError') {
+        // Uncharged (the hold is released below); xAI may still bill us. Counts against the limit.
+        console.error(JSON.stringify({ msg: 'upstream_timeout_possibly_billed', alert: true, account_id: user, hold_id: holdId, model: v.body.model, timeout_ms: xaiTimeoutMs(env) }));
+        try { await accountRateHit(env, 'chat', user, CHAT_RATE_PER_ACCOUNT_PER_WINDOW); } catch { /* best effort */ }
+        return json({ error: 'upstream_timeout' }, 504, h);
+      }
+      return json({ error: 'upstream_unreachable' }, 502, h);
+    }
+    if (!r.ok) {
+      console.warn(JSON.stringify({ msg: 'upstream_error_possibly_unbilled', alert: true, account_id: user, hold_id: holdId, model: v.body.model, status: r.status }));
+      return json({ error: 'upstream_error', status: r.status }, 502, h);
+    }
     let data;
     try { data = await r.json(); } catch { return json({ error: 'upstream_bad_json' }, 502, h); }
-    const charged = await settleHold(env.DB, holdId, creditsForSettle(v.body.model, data.usage, hold), { model: v.body.model });
+    settling = true;
+    const charged = await settleWithFallback(env.DB, holdId, creditsForSettle(v.body.model, data.usage, hold), { model: v.body.model }, SETTLE_RETRY_BACKOFF_MS);
     const remaining = await available(env.DB, user);
     const meta = { credits_held: hold, credits_charged: charged, credits_remaining: remaining, pricing_status: PRICING.status };
     // Tokens were used, so the charge stands even if Mercy-Checks withholds the reply.
@@ -124,7 +164,9 @@ async function chat(req, env, h) {
     }
     return json({ ...out.shaped, rathor: meta }, 200, h);
   } finally {
-    try { await releaseHold(env.DB, holdId); } catch { /* best effort; hold stays open only if D1 itself is down */ }
+    if (!settling) {
+      try { await releaseHold(env.DB, holdId); } catch { /* best effort; hold stays open only if D1 itself is down */ }
+    }
   }
 }
 
@@ -681,6 +723,8 @@ async function readCredits(req, env, h) {
   } else {
     return json({ error: 'unauthorized' }, 401, h);
   }
+  const ra = await accountRateHit(env, 'credits', user, CREDITS_RATE_PER_ACCOUNT_PER_WINDOW);
+  if (ra) return rateLimited(ra, h);
   const row = await accountBalance(env.DB, user);
   return json({
     credits: await available(env.DB, user),

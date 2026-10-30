@@ -84,6 +84,45 @@ export async function settleHold(db, holdId, actual, meta = {}) {
   throw new Error('settle_over_hold_cas_failed');
 }
 
+// API-ABUSE-HARDEN-1: called once xAI usage has come back. Retries settleHold with backoff; if
+// it still fails, charges exactly `actual` (never more). If that write fails too, records the whole
+// amount as a shortfall and sets settle_locked. The hold is never released silently.
+export async function settleWithFallback(db, holdId, actual, meta = {}, backoff = [25, 100, 400]) {
+  for (let i = 0; ; i += 1) {
+    try { return await settleHold(db, holdId, actual, meta); } catch (e) {
+      if (i >= backoff.length) break;
+      await new Promise((r) => setTimeout(r, backoff[i]));
+    }
+  }
+  const h = await db.prepare("SELECT account_id FROM holds WHERE id = ?1 AND status = 'open'").bind(holdId).first();
+  if (!h) return null;
+  const log = (msg, charged) => console.error(JSON.stringify({ msg, alert: true, account_id: h.account_id, hold_id: holdId, model: meta.model ?? null, actual, charged }));
+  try {
+    await db.batch([
+      db.prepare("UPDATE holds SET status = 'settled' WHERE id = ?1 AND status = 'open'").bind(holdId),
+      db.prepare('UPDATE accounts SET balance = balance - ?2 WHERE id = ?1 AND changes() = 1').bind(h.account_id, actual),
+      db.prepare("INSERT INTO ledger (account_id, delta, reason, hold_id) SELECT ?1, ?2, 'chat', ?3 WHERE changes() = 1").bind(h.account_id, -actual, holdId),
+    ]);
+    log('settle_fallback_exact_charge', actual);
+    return actual;
+  } catch { /* fall through to shortfall */ }
+  try {
+    await db.batch([
+    db.prepare("UPDATE holds SET status = 'settled' WHERE id = ?1 AND status = 'open'").bind(holdId),
+    db.prepare('INSERT INTO settle_shortfalls (account_id, hold_id, actual_credits, charged_credits, shortfall_credits, model) SELECT ?1, ?2, ?3, 0, ?3, ?4 WHERE changes() = 1 AND ?3 > 0')
+      .bind(h.account_id, holdId, actual, meta.model ?? null),
+    db.prepare("INSERT INTO ledger (account_id, delta, reason, hold_id) SELECT ?1, 0, 'settle_shortfall', ?2 WHERE changes() = 1").bind(h.account_id, holdId),
+    db.prepare('UPDATE accounts SET settle_locked = 1 WHERE id = ?1').bind(h.account_id),
+    ]);
+  } catch (e) {
+    // D1 is down: the hold stays OPEN (reserved, not released) and this alert needs a human.
+    log('settle_unrecorded_hold_left_open', 0);
+    throw e;
+  }
+  log('settle_fallback_shortfall', 0);
+  return 0;
+}
+
 export async function releaseHold(db, holdId) {
   await db.prepare("UPDATE holds SET status = 'released' WHERE id = ?1 AND status = 'open'").bind(holdId).run();
 }
