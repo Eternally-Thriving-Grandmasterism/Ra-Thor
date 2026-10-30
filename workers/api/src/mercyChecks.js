@@ -14,7 +14,8 @@
 // - Every block writes one mercy_blocks audit row (no content) and one log line. A failed
 //   audit write never changes the block.
 import { RULES_VERSION, INPUT_RULES, OUTPUT_RULES, UNKNOWN_OUTPUT_SHAPE, PAST_FRAMING, PAST_FRAME_OBJECTS, GAME_CONTEXT, GAME_CONTEXT_PHRASES, COLLAPSE_LEXICON, DESPACED_PHRASES } from './mercyRules.js';
-import { isLiveMode } from './config.js';
+import { isLiveMode, MERCY_BLOCK_WINDOW_SEC, MERCY_BLOCK_ROWS_PER_WINDOW } from './config.js';
+import { rateHit } from './session.js';
 
 export { RULES_VERSION };
 // Kept for compatibility: false now that the launch rule set replaces the baseline deny-list.
@@ -539,11 +540,18 @@ export const mercyChecks = {
 };
 
 // ---------- audit (no content) ----------
-// One mercy_blocks row and one log line per block. Never throws.
+// One log line per block. API-ABUSE-HARDEN-1: an aggregate counter (rate_counters bucket
+// 'mercy_blocks', no content) counts every block; at most MERCY_BLOCK_ROWS_PER_WINDOW rows per
+// window are written to mercy_blocks. Never throws.
 export async function recordBlock(db, { stage, ruleId, model, accountId = null, chargedCredits = 0 }) {
   const row = { ts: Math.floor(Date.now() / 1000), stage, rule_id: ruleId, rules_version: RULES_VERSION, model: model ?? null, account_id: accountId, charged_credits: chargedCredits, request_id: crypto.randomUUID() };
   console.warn(JSON.stringify({ msg: 'mercy_block', ...row }));
   try {
+    const windowStart = Math.floor(row.ts / MERCY_BLOCK_WINDOW_SEC) * MERCY_BLOCK_WINDOW_SEC;
+    if (await rateHit(db, 'mercy_blocks', windowStart, MERCY_BLOCK_ROWS_PER_WINDOW)) {
+      console.warn(JSON.stringify({ msg: 'mercy_block_rows_capped', window_start: windowStart, cap: MERCY_BLOCK_ROWS_PER_WINDOW }));
+      return row;
+    }
     await db.prepare('INSERT INTO mercy_blocks (ts, stage, rule_id, rules_version, model, account_id, charged_credits, request_id) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)')
       .bind(row.ts, row.stage, row.rule_id, row.rules_version, row.model, row.account_id, row.charged_credits, row.request_id).run();
   } catch (e) {

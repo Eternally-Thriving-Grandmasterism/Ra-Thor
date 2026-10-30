@@ -3,7 +3,7 @@
 import { sha256Hex, constantTimeEqual } from './hash.js';
 import {
   AUTH_TOKEN_TTL_SEC, SESSION_TTL_SEC, SESSION_COOKIE_NAME, CSRF_HEADER,
-  AUTH_REQUEST_PER_EMAIL_PER_HOUR, AUTH_REQUEST_PER_IP_PER_HOUR,
+  AUTH_REQUEST_PER_EMAIL_PER_HOUR, AUTH_REQUEST_PER_IP_PER_HOUR, RATE_WINDOW_SEC,
   CUSTOMER_KEY_PREFIX_TEST, CUSTOMER_KEY_PREFIX_LIVE,
 } from './config.js';
 import { SIGNUP_GRANT_CREDITS } from './db.js';
@@ -133,7 +133,7 @@ export async function requireSessionCsrf(req, env, h) {
   return { user };
 }
 
-async function rateHit(db, bucket, windowStart, limit) {
+export async function rateHit(db, bucket, windowStart, limit) {
   await db.prepare(
     `INSERT INTO rate_counters (bucket, window_start, count) VALUES (?1, ?2, 1)
      ON CONFLICT(bucket, window_start) DO UPDATE SET count = count + 1`,
@@ -141,6 +141,14 @@ async function rateHit(db, bucket, windowStart, limit) {
   const row = await db.prepare('SELECT count FROM rate_counters WHERE bucket = ?1 AND window_start = ?2')
     .bind(bucket, windowStart).first();
   return (row?.count ?? 0) > limit;
+}
+
+// API-ABUSE-HARDEN-1: per-account bucket. Returns 0 when allowed, else retry_after seconds.
+export async function accountRateHit(env, route, accountId, limit) {
+  const now = nowSec(env);
+  const windowStart = Math.floor(now / RATE_WINDOW_SEC) * RATE_WINDOW_SEC;
+  if (!(await rateHit(env.DB, `acct:${route}:${accountId}`, windowStart, limit))) return 0;
+  return Math.max(1, windowStart + RATE_WINDOW_SEC - now);
 }
 
 export async function findOrCreateAccountByEmail(db, email) {
