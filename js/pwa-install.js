@@ -71,6 +71,7 @@
   }
   var braveFlag = /Brave/i.test(ua());
   var HINT_WAIT_MS = 5000;
+  var FF_DESKTOP = 'Firefox on desktop can’t install web apps — open rathor.ai in Chrome, Edge or Brave to install.';
   function detectBrave() {
     try {
       if (navigator.brave && typeof navigator.brave.isBrave === 'function') {
@@ -79,7 +80,9 @@
     } catch (e) {}
   }
   function browserKind() {
-    if (/Firefox|FxiOS/i.test(ua())) return 'firefox';
+    var android = /Android/i.test(ua());
+    if (/Firefox|FxiOS/i.test(ua())) return android ? 'firefox' : 'firefox-desktop';
+    if (!android) return 'chrome';
     if (braveFlag || (navigator.brave && typeof navigator.brave.isBrave === 'function')) return 'brave';
     return 'chrome';
   }
@@ -141,7 +144,8 @@
           ? 'Chrome is ready. One tap opens the system install sheet.'
           : (browserKind() === 'chrome'
             ? 'When Chrome is ready it will offer a system sheet — or use the menu Install app.'
-            : 'Use your browser menu ⋮ to add Ra-Thor to your home screen.'));
+            : (browserKind() === 'firefox-desktop' ? FF_DESKTOP
+              : 'Use your browser menu ⋮ to add Ra-Thor to your home screen.')));
     }
     if (note && disabled && (label === 'Installed' || label === 'Already installed')) {
       note.textContent = isStandalone()
@@ -325,10 +329,14 @@
       );
       return;
     }
-    speak({ title: 'Firefox install', body: 'Firefox menu ⋮ → Install.', tone: 'hold', ms: 3000 });
+    if (kind === 'firefox-desktop') {
+      showHint('<p>' + FF_DESKTOP + '</p>');
+      return;
+    }
+    speak({ title: 'Firefox install', body: 'Firefox menu ⋮ → Install (or Add app to Home screen).', tone: 'hold', ms: 3000 });
     showHint(
       '<p class="text-amber-300 font-semibold mb-1">Firefox install</p>' +
-      '<p>Use Firefox’s menu <strong>⋮ → Install</strong>.</p>'
+      '<p>Use Firefox’s menu <strong>⋮ → Install</strong> (or <strong>Add app to Home screen</strong>).</p>'
     );
   }
 
@@ -336,7 +344,7 @@
     setTimeout(function () {
       if (deferredPrompt || (window.__rtPwa && window.__rtPwa.ev)) return;
       if (knownInstalled || bannerEl || isStandalone() || isEmbedded() || isIos() || wasDismissedRecently()) return;
-      if (browserKind() === 'chrome') return;
+      if (browserKind() === 'chrome' || browserKind() === 'firefox-desktop') return;
       markDismissed();
       showBrowserSteps();
     }, HINT_WAIT_MS);
