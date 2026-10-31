@@ -69,6 +69,23 @@
   function markDismissed() {
     try { localStorage.setItem(DISMISS_KEY, String(Date.now())); } catch (e) {}
   }
+  var braveFlag = /Brave/i.test(ua());
+  var HINT_WAIT_MS = 5000;
+  var FF_DESKTOP = 'Firefox on desktop can’t install web apps — open rathor.ai in Chrome, Edge or Brave to install.';
+  function detectBrave() {
+    try {
+      if (navigator.brave && typeof navigator.brave.isBrave === 'function') {
+        navigator.brave.isBrave().then(function (v) { if (v) braveFlag = true; }).catch(function () {});
+      }
+    } catch (e) {}
+  }
+  function browserKind() {
+    var android = /Android/i.test(ua());
+    if (/Firefox|FxiOS/i.test(ua())) return android ? 'firefox' : 'firefox-desktop';
+    if (!android) return 'chrome';
+    if (braveFlag || (navigator.brave && typeof navigator.brave.isBrave === 'function')) return 'brave';
+    return 'chrome';
+  }
   function chromeIntent() {
     return 'intent://rathor.ai/#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=https%3A%2F%2Frathor.ai%2F;end';
   }
@@ -125,7 +142,10 @@
         ? 'Already on this device. Use the home-screen icon — nothing new to install.'
         : (deferredPrompt
           ? 'Chrome is ready. One tap opens the system install sheet.'
-          : 'When Chrome is ready it will offer a system sheet — or use the menu Install app.');
+          : (browserKind() === 'chrome'
+            ? 'When Chrome is ready it will offer a system sheet — or use the menu Install app.'
+            : (browserKind() === 'firefox-desktop' ? FF_DESKTOP
+              : 'Use your browser menu ⋮ to add Ra-Thor to your home screen.')));
     }
     if (note && disabled && (label === 'Installed' || label === 'Already installed')) {
       note.textContent = isStandalone()
@@ -263,13 +283,13 @@
     }
     if (isEmbedded()) {
       speak({
-        title: 'Open in Chrome',
-        body: 'This in-app view cannot install a real app. Chrome can.',
+        title: 'Open in your browser',
+        body: 'This in-app view cannot install a real app. Chrome, Brave or Firefox can.',
         tone: 'hold',
         ms: 3000
       });
       showHint(
-        '<p class="text-amber-300 font-semibold mb-1">Open in Chrome</p>' +
+        '<p class="text-amber-300 font-semibold mb-1">Open in your browser (Chrome, Brave or Firefox)</p>' +
         '<p>This in-app view cannot create a real app.</p>' +
         '<a href="' + chromeIntent() + '" class="mt-3 inline-flex px-4 py-2 rounded-xl bg-amber-400 text-black text-sm font-semibold">Open rathor.ai in Chrome</a>'
       );
@@ -285,6 +305,7 @@
       return;
     }
     if (firePrompt()) return;
+    if (browserKind() !== 'chrome') { showBrowserSteps(); return; }
     speak({
       title: 'Sheet not ready yet',
       body: 'Stay on this page a few seconds, then tap Install again — or Chrome menu Install app.',
@@ -295,6 +316,38 @@
       '<p class="text-amber-300 font-semibold mb-1">Chrome install</p>' +
       '<p>Stay on this page a few seconds, then tap Install again — or use Chrome’s menu <strong>⋮ → Install app</strong> (not Add to Home screen).</p>'
     );
+  }
+
+  function showBrowserSteps() {
+    var kind = browserKind();
+    if (kind === 'brave') {
+      speak({ title: 'Brave install', body: 'Brave menu ⋮ → Add to Home screen / Install app.', tone: 'hold', ms: 3000 });
+      showHint(
+        '<p class="text-amber-300 font-semibold mb-1">Brave install</p>' +
+        '<p>Use Brave’s menu <strong>⋮ → Add to Home screen / Install app</strong>.</p>' +
+        '<p class="mt-2 text-white/60 text-xs">Tip: if no icon appears, allow home-screen shortcuts for Brave in Android <strong>Settings → Apps → Brave</strong>.</p>'
+      );
+      return;
+    }
+    if (kind === 'firefox-desktop') {
+      showHint('<p>' + FF_DESKTOP + '</p>');
+      return;
+    }
+    speak({ title: 'Firefox install', body: 'Firefox menu ⋮ → Install (or Add app to Home screen).', tone: 'hold', ms: 3000 });
+    showHint(
+      '<p class="text-amber-300 font-semibold mb-1">Firefox install</p>' +
+      '<p>Use Firefox’s menu <strong>⋮ → Install</strong> (or <strong>Add app to Home screen</strong>).</p>'
+    );
+  }
+
+  function scheduleBrowserHint() {
+    setTimeout(function () {
+      if (deferredPrompt || (window.__rtPwa && window.__rtPwa.ev)) return;
+      if (knownInstalled || bannerEl || isStandalone() || isEmbedded() || isIos() || wasDismissedRecently()) return;
+      if (browserKind() === 'chrome' || browserKind() === 'firefox-desktop') return;
+      markDismissed();
+      showBrowserSteps();
+    }, HINT_WAIT_MS);
   }
 
   function wire(el) {
@@ -337,6 +390,7 @@
     if (bannerBtn && !bannerBtn.disabled) bannerBtn.textContent = installLabel();
   });
 
+  detectBrave();
   window.rathorTriggerPWAInstall = triggerInstall;
   registerServiceWorker();
 
@@ -389,6 +443,7 @@
     var extras = document.querySelectorAll('[data-rt-pwa-install]');
     for (var i = 0; i < extras.length; i++) wire(extras[i]);
     if (!knownInstalled) setButtons('Install Ra-Thor', false);
+    scheduleBrowserHint();
   }
   if (document.body) mount();
   else document.addEventListener('DOMContentLoaded', mount);
