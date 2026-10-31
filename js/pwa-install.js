@@ -50,7 +50,11 @@
       (document.referrer && document.referrer.indexOf('android-app://') !== -1)
     );
   }
-  function isIos() { return /iphone|ipad|ipod/i.test(ua()); }
+  function isIos() {
+    if (/iphone|ipad|ipod/i.test(ua())) return true;
+    // iPadOS 13+ reports a desktop Mac UA; a touch-capable "MacIntel" is an iPad.
+    return navigator.platform === 'MacIntel' && (navigator.maxTouchPoints || 0) > 1;
+  }
   function isEmbedded() {
     var s = ua();
     if (/\bwv\b/.test(s) || /WebView/i.test(s)) return true;
@@ -71,7 +75,31 @@
   }
   var braveFlag = /Brave/i.test(ua());
   var HINT_WAIT_MS = 5000;
-  var FF_DESKTOP = 'Firefox on desktop can’t install web apps — open rathor.ai in Chrome, Edge or Brave to install.';
+  var HINT_ONCE_KEY = 'rathor-pwa-hint-shown';
+  var FF_NOWIN = 'Firefox on this system can’t install web apps yet. Bookmark rathor.ai (Ctrl/⌘+D), or open it in Chrome or Edge — or on a Mac, in Safari → File → Add to Dock.';
+  // Manual steps per browser (no beforeinstallprompt there). Sources: research note 2026-10-31.
+  var STEPS = {
+    'firefox-win': { name: 'Firefox', title: 'Firefox: pin to taskbar',
+      html: '<p>Click the <strong>Add tab to taskbar</strong> icon at the right of the address bar (Firefox 143+ on Windows).</p>',
+      body: 'Firefox: click the Add tab to taskbar icon at the right of the address bar.' },
+    'firefox-nowin': { name: 'Firefox', title: '', html: '<p>' + FF_NOWIN + '</p>', body: FF_NOWIN },
+    'safari-mac': { name: 'Safari', title: 'Safari: add to Dock',
+      html: '<p>In Safari choose <strong>File → Add to Dock</strong> (or <strong>Share → Add to Dock</strong>).</p>',
+      body: 'Safari: File → Add to Dock.' },
+    'ios': { name: 'Safari', title: 'Add to Home Screen',
+      html: '<p>Tap <strong>Share</strong> → <strong>Add to Home Screen</strong> and keep <em>Open as Web App</em> on.</p>' +
+        '<p class="mt-2 text-white/60 text-xs">Chrome or Edge on iPhone/iPad: tap the <strong>Share</strong> icon in the address bar, then <strong>Add to Home Screen</strong>.</p>',
+      body: 'Share → Add to Home Screen. That is the install path on iPhone and iPad.' },
+    'samsung': { name: 'Samsung Internet', title: 'Samsung Internet install',
+      html: '<p>Tap the install icon in the address bar, or <strong>≡ → Add page to → Home screen</strong>.</p>',
+      body: 'Samsung Internet: install icon in the address bar, or ≡ → Add page to → Home screen.' },
+    'edge-android': { name: 'Edge', title: 'Edge install',
+      html: '<p>Use Edge’s menu <strong>… → Add to phone</strong> (or <strong>Add to Home screen</strong>).</p>',
+      body: 'Edge menu … → Add to phone.' },
+    'opera-android': { name: 'Opera', title: 'Opera install',
+      html: '<p>Use Opera’s menu <strong>⋮ → Add to → Home screen</strong>.</p>',
+      body: 'Opera menu ⋮ → Add to → Home screen.' }
+  };
   function detectBrave() {
     try {
       if (navigator.brave && typeof navigator.brave.isBrave === 'function') {
@@ -80,12 +108,30 @@
     } catch (e) {}
   }
   function browserKind() {
-    var android = /Android/i.test(ua());
-    if (/Firefox|FxiOS/i.test(ua())) return android ? 'firefox' : 'firefox-desktop';
-    if (!android) return 'chrome';
+    var s = ua();
+    var android = /Android/i.test(s);
+    if (isIos()) return 'ios';
+    if (/Firefox/i.test(s)) return android ? 'firefox-android' : (/Windows/i.test(s) ? 'firefox-win' : 'firefox-nowin');
+    if (!android) {
+      if (/Macintosh/i.test(s) && /Safari\//.test(s) && !/Chrome|Chromium|CriOS|Edg|OPR/i.test(s)) return 'safari-mac';
+      return 'chromium';
+    }
+    if (/SamsungBrowser\//i.test(s)) return 'samsung';
+    if (/EdgA\//i.test(s)) return 'edge-android';
+    if (/OPR\//i.test(s)) return 'opera-android';
     if (braveFlag || (navigator.brave && typeof navigator.brave.isBrave === 'function')) return 'brave';
-    return 'chrome';
+    return 'chromium';
   }
+  function browserName() {
+    var k = browserKind();
+    if (STEPS[k]) return STEPS[k].name;
+    if (k === 'brave') return 'Brave';
+    if (k === 'firefox-android') return 'Firefox';
+    if (/Edg\//.test(ua())) return 'Edge';
+    if (/OPR\//.test(ua())) return 'Opera';
+    return 'Chrome';
+  }
+  window.__rtPwa.kind = browserKind;
   function chromeIntent() {
     return 'intent://rathor.ai/#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=https%3A%2F%2Frathor.ai%2F;end';
   }
@@ -141,10 +187,10 @@
       note.textContent = knownInstalled
         ? 'Already on this device. Use the home-screen icon — nothing new to install.'
         : (deferredPrompt
-          ? 'Chrome is ready. One tap opens the system install sheet.'
-          : (browserKind() === 'chrome'
-            ? 'When Chrome is ready it will offer a system sheet — or use the menu Install app.'
-            : (browserKind() === 'firefox-desktop' ? FF_DESKTOP
+          ? browserName() + ' is ready. One tap opens the system install sheet.'
+          : (browserKind() === 'chromium'
+            ? 'When ' + browserName() + ' is ready it will offer a system sheet — or use the menu Install app.'
+            : (STEPS[browserKind()] ? STEPS[browserKind()].body
               : 'Use your browser menu ⋮ to add Ra-Thor to your home screen.')));
     }
     if (note && disabled && (label === 'Installed' || label === 'Already installed')) {
@@ -162,7 +208,7 @@
     try { ev.prompt(); } catch (e) { return false; }
     speak({
       title: 'System sheet opened',
-      body: 'Chrome is asking whether to install Ra-Thor on this device. Accept or cancel there.',
+      body: browserName() + ' is asking whether to install Ra-Thor on this device. Accept or cancel there.',
       ms: 3000
     });
     if (ev.userChoice) {
@@ -174,7 +220,7 @@
           setButtons('Installed', true);
           speak({
             title: 'Installed',
-            body: 'Chrome added Ra-Thor to this device. Look for the gold thunder icon on your home screen.',
+            body: browserName() + ' added Ra-Thor to this device. Look for the gold thunder icon on your home screen.',
             tone: 'ok',
             ms: 3000
           });
@@ -222,7 +268,7 @@
     if (bannerInstall) bannerInstall.textContent = bannerLabel;
     speak({
       title: 'Install ready',
-      body: 'Chrome can add Ra-Thor to this device. Accept opens the system sheet — no store.',
+      body: browserName() + ' can add Ra-Thor to this device. Accept opens the system sheet — no store.',
       ms: 3000
     });
     var inst = document.getElementById('rathor-pwa-install-btn');
@@ -247,6 +293,7 @@
     hideBanner();
     var hint = document.createElement('div');
     hint.id = 'rathor-pwa-banner';
+    hint.setAttribute('data-kind', 'hint');
     hint.className =
       'fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-sm z-[9999] ' +
       'bg-zinc-950 border border-amber-300/40 rounded-2xl p-4 text-sm text-white/80';
@@ -256,7 +303,7 @@
     bannerEl = hint;
     var ok = document.getElementById('rathor-ios-hint-ok');
     if (ok) ok.addEventListener('click', hideBanner);
-    setTimeout(hideBanner, 16000);
+    setTimeout(function () { if (bannerEl === hint) hideBanner(); }, 16000);
   }
 
   function triggerInstall() {
@@ -295,17 +342,9 @@
       );
       return;
     }
-    if (isIos()) {
-      speak({
-        title: 'iPhone / iPad',
-        body: 'Safari: Share → Add to Home Screen. That is the install path on iOS.',
-        ms: 3000
-      });
-      showHint('<p class="text-amber-300 font-semibold mb-1">Add to Home Screen</p><p>Tap <strong>Share</strong> → <strong>Add to Home Screen</strong>.</p>');
-      return;
-    }
+    if (isIos()) { showBrowserSteps(); return; }
     if (firePrompt()) return;
-    if (browserKind() !== 'chrome') { showBrowserSteps(); return; }
+    if (browserKind() !== 'chromium') { showBrowserSteps(); return; }
     speak({
       title: 'Sheet not ready yet',
       body: 'Stay on this page a few seconds, then tap Install again — or Chrome menu Install app.',
@@ -329,8 +368,14 @@
       );
       return;
     }
-    if (kind === 'firefox-desktop') {
-      showHint('<p>' + FF_DESKTOP + '</p>');
+    var st = STEPS[kind];
+    if (kind === 'firefox-nowin') {
+      showHint(st.html);
+      return;
+    }
+    if (st) {
+      speak({ title: kind === 'ios' ? 'iPhone / iPad' : st.title, body: st.body, tone: 'hold', ms: 3000 });
+      showHint('<p class="text-amber-300 font-semibold mb-1">' + st.title + '</p>' + st.html);
       return;
     }
     speak({ title: 'Firefox install', body: 'Firefox menu ⋮ → Install (or Add app to Home screen).', tone: 'hold', ms: 3000 });
@@ -344,8 +389,13 @@
     setTimeout(function () {
       if (deferredPrompt || (window.__rtPwa && window.__rtPwa.ev)) return;
       if (knownInstalled || bannerEl || isStandalone() || isEmbedded() || isIos() || wasDismissedRecently()) return;
-      if (browserKind() === 'chrome' || browserKind() === 'firefox-desktop') return;
-      markDismissed();
+      if (browserKind() === 'chromium' || browserKind() === 'firefox-nowin') return;
+      // Automatic hint: once per session. Never writes the 14-day dismiss key
+      // (that would also hide a real install banner from a later beforeinstallprompt).
+      try {
+        if (sessionStorage.getItem(HINT_ONCE_KEY) === '1') return;
+        sessionStorage.setItem(HINT_ONCE_KEY, '1');
+      } catch (e) {}
       showBrowserSteps();
     }, HINT_WAIT_MS);
   }
@@ -361,6 +411,14 @@
     deferredPrompt = e;
     window.__rtPwa.ev = e;
     setButtons('Install Ra-Thor', false);
+    if (bannerEl && bannerEl.getAttribute('data-kind') === 'hint') {
+      // A real install sheet is now available: replace the manual steps right away.
+      var old = bannerEl;
+      bannerEl = null;
+      if (old.parentNode) old.parentNode.removeChild(old);
+      if (!wasDismissedRecently() && !isStandalone()) showBanner();
+      return;
+    }
     setTimeout(function () {
       if (!wasDismissedRecently() && !isStandalone()) showBanner();
     }, 2500);
@@ -375,7 +433,7 @@
     setButtons('Installed', true);
     speak({
       title: 'Installed',
-      body: 'Done. Chrome placed Ra-Thor on this device. Open it from the home screen next time.',
+      body: 'Done. ' + browserName() + ' placed Ra-Thor on this device. Open it from the home screen next time.',
       tone: 'ok',
       ms: 3000
     });
