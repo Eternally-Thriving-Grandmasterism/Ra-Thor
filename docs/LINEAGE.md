@@ -52,7 +52,7 @@ APMCheck v1.2, the other v2.x releases and v4.0 are cited later, but no commit o
 | 2026-02-09 | `RA-THOR_MIGRATION.md`, the earliest "Ra-Thor" commit message | [Commit evidence] |
 | 2026-02-18 | TOLC folded into Ra-Thor | [Commit evidence] |
 | 2026-03-24 | First PATSAGi commit message | [Commit evidence] |
-| 2026-04-11 | AlphaProMega repos marked legacy; AG-SML licence adopted ([APM-v3 3955d7d](https://github.com/AlphaProMega/APM-v3/commit/3955d7d)) | [Commit evidence] |
+| 2026-04-11 | AG-SML licence added to APM-v3 (LICENSE only; this commit does not mark the repo legacy) ([APM-v3 3955d7d](https://github.com/AlphaProMega/APM-v3/commit/3955d7d)) | [Commit evidence] |
 | 2026-04-23 | FENCA docs describe it as "the direct evolution of the original QSA-AGi Quad+Check v1.2+ and APMCheck systems" | [Commit evidence] |
 | 2026-05 → 06 | Snapshot backup repos (private) | [Commit evidence] |
 | through 2026-10-29 | Monorepo archive reaches **14,943 commits**; now private as **Ra-Thor-Archive** | [Commit evidence] |
