@@ -312,6 +312,7 @@
               '<a href="/web-forge.html">Web-Forge</a>' +
               '<a href="/contact.html"' + fk('navContact') + '>Contact</a>' +
               '<a href="/privacy.html"' + fk('navPrivacy') + '>Privacy</a>' +
+              '<a href="/lineage.html">Lineage</a>' +
               '<a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor" target="_blank" rel="noopener"' + fk('homeMonorepo') + '>Monorepo</a>' +
               '<a href="mailto:info@Rathor.ai">info@Rathor.ai</a>' +
             '</div>' +
