@@ -1,5 +1,7 @@
 # From a 2003 Diplomacy Simulation to Ra-Thor
 
+> Full evidence-tiered timeline: [`LINEAGE.md`](LINEAGE.md)
+
 Since 2003, the goal has been the same: solve global diplomacy through a video-game simulation that lets people safely experience high-stakes choices and learn from them. That work became Autonomicity Games Inc. on 17 March 2016 and the Powrush universe — a resource-based economy simulation where players can practice diplomacy, faction-building, and abundance without real-world harm.
 
 Building Powrush led to Ra-Thor.  
