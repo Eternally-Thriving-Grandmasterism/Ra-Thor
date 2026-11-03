@@ -38,6 +38,9 @@
     .rt-example-card .rt-example-link:focus { outline: none; }
     .rt-example-card .rt-example-link:focus-visible::after { outline: 3px solid #fcd34d; outline-offset: 2px; }
     .rt-example-card:hover { border-color: rgba(252,211,77,.6); }
+    /* A filter on the link would make it the containing block for its ::after and shrink the stretched overlay (Clerk 6592291146), so brighten the card's button without one. */
+    .rt-example-card .rt-example-link:hover { filter: none; }
+    .rt-example-card:hover .rt-example-link { filter: none; box-shadow: 0 0 0 1px rgba(252,211,77,.6); }
   </style>
 </head>
 <body class="bg-black text-white overflow-x-hidden">
