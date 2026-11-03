@@ -436,12 +436,14 @@ html[data-theme] .card-link a.stretched-link,
 html[data-theme] .card-link a.stretched-link:is(:hover, :active, :focus-visible),
 html[data-theme] .card-link :has(a.stretched-link),
 html[data-theme] .card-link :has(a.stretched-link):hover {
-  filter: none;
-  transform: none;
-  perspective: none;
-  backdrop-filter: none;
-  will-change: auto;
-  contain: none;
+  /* !important: later sheets (e.g. css/powrush-card.css hover translateY) tie this
+     specificity and load after this file, so load order alone can't win (Clerk 6592474748). */
+  filter: none !important;
+  transform: none !important;
+  perspective: none !important;
+  backdrop-filter: none !important;
+  will-change: auto !important;
+  contain: none !important;
 }
 /* Wrappers between the card and its link must not be positioned either, or the
    cover stops at the wrapper instead of the card edge. */

@@ -39,3 +39,14 @@ Object.keys(groups).forEach(function (rel) {
 
 console.log('CARDS-CLICKABLE-1: shared card-link class present and used on ' +
   Object.keys(groups).length + ' pages');
+
+// Pin (Clerk 6592474748): the guard must use !important so later sheets such as
+// css/powrush-card.css (hover translateY at equal specificity) cannot collapse the cover.
+{
+  const fs = require('fs'); const path = require('path');
+  const css = fs.readFileSync(path.join(__dirname, '..', 'css', 'rathor-theme.css'), 'utf8');
+  for (const prop of ['filter: none', 'transform: none', 'perspective: none', 'backdrop-filter: none', 'will-change: auto', 'contain: none']) {
+    if (!css.includes(prop + ' !important')) { console.error('cards-clickable-1: guard missing !important on ' + prop); process.exit(1); }
+  }
+  console.log('cards-clickable-1 guard !important: ok');
+}
