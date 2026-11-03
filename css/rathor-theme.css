@@ -411,3 +411,31 @@ html[data-theme] .rt-world-card .rt-world-hook {
   overflow-wrap: anywhere;
   word-break: break-word;
 }
+
+/* CARDS-CLICKABLE-1: the whole card is the click target, not just its button.
+   Owner rule (Sherif, 2026-11-02, permanent): make all cards fully clickable,
+   instead of tiny buttons partially clickable, because humans like easy navigating.
+   Use: .card-link on the card, .stretched-link on its one primary link.
+   Any other link inside gets .card-link-secondary so it stays clickable.
+   Never nest interactive elements. Cards with no link stay as they are. */
+.card-link { position: relative; cursor: pointer; }
+.card-link .stretched-link { position: static; }
+.card-link .stretched-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+.card-link .card-link-secondary { position: relative; z-index: 2; }
+/* The cover is part of the link, so a transform or filter on link hover would
+   shrink the cover to the button and flicker. The card lifts a little instead. */
+html[data-theme] .card-link a.stretched-link:hover,
+.card-link a.stretched-link:hover { transform: none; filter: none; }
+.card-link:hover { filter: brightness(1.05); }
+html[data-theme] .card-link:has(.stretched-link:focus-visible) {
+  outline: 2px solid var(--rt-gold-hot);
+  outline-offset: 3px;
+}
+html[data-theme="light"] .card-link:has(.stretched-link:focus-visible) {
+  outline-color: var(--rt-gold-deep);
+}
