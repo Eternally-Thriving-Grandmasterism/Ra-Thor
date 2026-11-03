@@ -112,13 +112,12 @@ var linkBlock = familyNav.slice(familyNav.indexOf('var LINKS = ['), familyNav.in
 assert(linkBlock.indexOf("{ href: '/', label: 'Home' }") !== -1, 'family walk must keep Home');
 assert(linkBlock.indexOf("{ href: '/chat.html', label: 'Chat' }") !== -1, 'family walk must keep Chat');
 assert(linkBlock.indexOf("{ href: '/employ.html', label: 'Employ' }") !== -1, 'family walk must keep Employ');
-assert(linkBlock.indexOf("{ href: '/Launch-Ra-Thor.html', label: 'Launch' }") !== -1, 'family walk must keep Launch');
+assert(linkBlock.indexOf("{ href: '/examples.html', label: 'Examples' }") !== -1, 'family walk must keep Examples (Launch/Shard/Forge live there)');
 assert(linkBlock.indexOf("{ href: '/micro-moment.html', label: 'Moments' }") !== -1, 'family walk must keep Moments');
-assert(linkBlock.indexOf("{ href: '/sovereign-shard.html', label: 'Shard' }") !== -1, 'family walk must keep Shard');
-assert(linkBlock.indexOf("{ href: '/web-forge.html', label: 'Forge' }") !== -1, 'family walk must keep Forge');
+assert(linkBlock.indexOf("{ href: '/lineage.html', label: 'Lineage' }") !== -1, 'family walk must keep Lineage');
 assert(linkBlock.indexOf("{ href: '/contact.html', label: 'Contact' }") !== -1, 'family walk must keep Contact');
 assert(linkBlock.indexOf("{ href: '/privacy.html', label: 'Privacy' }") !== -1, 'family walk must keep Privacy');
-assert((linkBlock.match(/href:/g) || []).length === 10, 'family walk is nine destinations plus Pilot');
+assert((linkBlock.match(/href:/g) || []).length === 9, 'family walk is eight destinations plus Pilot (NAV-LINEAGE-1)');
 assert(linkBlock.indexOf("{ href: '/pilot.html', label: 'Pilot' }") !== -1, 'family walk must include Pilot');
 assert(linkBlock.indexOf('license') === -1, 'family walk must not grow a license page');
 

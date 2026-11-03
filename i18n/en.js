@@ -178,6 +178,8 @@ window.translations["en"] = {
   "navForge": "Forge",
   "navContact": "Contact",
   "navPrivacy": "Privacy",
+  "navExamples": "Examples",
+  "navLineage": "Lineage",
   "navLicence": "Ra-Thor Commercial Licence",
   "contactInquiry": "Write to info@Rathor.ai",
   "gTranslateBtn": "Translate with Google",

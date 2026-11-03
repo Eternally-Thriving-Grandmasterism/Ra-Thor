@@ -39,6 +39,7 @@ var EXPECT = [
   ['surfaceShard', "'<a href=\"/sovereign-shard.html\"' + fk('surfaceShard') + '>Sovereign Shard</a>'"],
   ['navContact', "'<a href=\"/contact.html\"' + fk('navContact') + '>Contact</a>'"],
   ['navPrivacy', "'<a href=\"/privacy.html\"' + fk('navPrivacy') + '>Privacy</a>'"],
+  ['navLicence', "'<a href=\"/licence.html\"' + fk('navLicence') + '>Ra-Thor Commercial Licence</a>'"],
   ['homeMonorepo', "rel=\"noopener\"' + fk('homeMonorepo') + '>Monorepo</a>'"]
 ];
 EXPECT.forEach(function (pair) {
@@ -48,6 +49,7 @@ var hooked = (footer.match(/fk\('([A-Za-z0-9]+)'\)/g) || []).map(function (s) { 
 assert(hooked.length === EXPECT.length, 'unexpected hook count: ' + hooked.length);
 // Lines without a matching pack key stay English and unhooked.
 ['<a href="/chat.html">Lattice Chat</a>', '<a href="/web-forge.html">Web-Forge</a>',
+ '<a href="/examples.html">Examples</a>', '<a href="/lineage.html">Lineage</a>',
  '<div>© 2026 Sherif Samy Botros — sole steward of Autonomicity Games Inc. & AlphaProMega Air Foundation. TOLC 8.'
 ].forEach(function (s) { assert(footer.indexOf(s) !== -1, 'unkeyed line changed: ' + s); });
 // No data-i18n in the fallback footer: the chrome/essay/site-lock appliers must never touch it.
@@ -82,7 +84,7 @@ var PACKS = {
   'ar.js': '5e4cea59ade5a85ccb738c96c6b53dc587e1598094e91fe7779e3ae3f6efd02e',
   'de.js': 'feffe50eebedf9323f1a28925d8e6f80a953087d59b529754ba0613ae8165821',
   'el.js': '99a3c57fd9b91fe1a161c9d437cf44b9740409c85f00d3b7e827905a18f82fc7',
-  'en.js': '86031bc2e70124fc07f3002daa53ce5b96573f04847217f0a1f617ea6223bde1',
+  'en.js': '75b868ca913751bc7b94fc432bc8dfb65f207edb0f88742aec85d8c621d376ed',
   'es.js': 'dd107d70c9b77f976aa7be38456a9ea896c79b90404bcce616c1773ab4219aa6',
   'fa.js': '0fd948865bf980ed25838fc7bba943f9355cad243f2581b39168e8afcae7b5be',
   'fr.js': '5243d2cf06ef02f0730b555cda078e7c0835702ed0728888fb96cadcded88a13',

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Product examples — Ra-Thor</title>
+  <meta name="description" content="Experimental demos: Launch, Shard demo and Forge.">
+  <meta name="theme-color" content="#050505">
+  <meta name="color-scheme" content="dark light">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://rathor.ai/examples.html">
+  <meta property="og:title" content="Product examples — Ra-Thor">
+  <meta property="og:description" content="Experimental demos: Launch, Shard demo and Forge.">
+  <meta property="og:image" content="https://rathor.ai/icons/ra-thor-og-1200x630.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://rathor.ai/icons/ra-thor-og-1200x630.png">
+  <link rel="canonical" href="https://rathor.ai/examples.html">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icons/ra-thor-icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="/icons/ra-thor-icon-192.png">
+  <link rel="stylesheet" href="/css/rathor-theme.css">
+  <script>
+    (function () {
+      try { document.documentElement.setAttribute('data-theme', localStorage.getItem('rathor-theme') || 'dark');
+      } catch (e) { document.documentElement.setAttribute('data-theme', 'dark'); }
+    })();
+  </script>
+  <style>
+    body { font-family: Inter, system-ui, sans-serif; }
+    .title-font { font-family: Inter, system-ui, sans-serif; }
+    .thunder-glow { text-shadow: 0 0 40px #ffd700, 0 0 80px #ffaa00; }
+    .rt-lineage-tl { list-style: none; padding: 0; margin: 0; }
+    .rt-lineage-tl li { border-left: 2px solid rgba(252,211,77,.35); padding: 0 0 1rem 1rem; }
+    .rt-lineage-tl .when { color: #fcd34d; font-weight: 600; font-size: .9rem; display: block; }
+    .rt-lineage-tl a, .rt-lineage-link { color: #fcd34d; text-decoration: underline; }
+    .rt-example-card { position: relative; cursor: pointer; }
+    .rt-example-card .rt-example-link::after { content: ''; position: absolute; inset: 0; border-radius: inherit; }
+    .rt-example-card .rt-example-link:focus { outline: none; }
+    .rt-example-card .rt-example-link:focus-visible::after { outline: 3px solid #fcd34d; outline-offset: 2px; }
+    .rt-example-card:hover { border-color: rgba(252,211,77,.6); }
+    /* A filter on the link would make it the containing block for its ::after and shrink the stretched overlay (Clerk 6592291146), so brighten the card's button without one. */
+    .rt-example-card .rt-example-link:hover { filter: none; }
+    .rt-example-card:hover .rt-example-link { filter: none; box-shadow: 0 0 0 1px rgba(252,211,77,.6); }
+  </style>
+</head>
+<body class="bg-black text-white overflow-x-hidden">
+  <main class="max-w-3xl mx-auto px-4 sm:px-6 py-12 sm:py-16" id="rt-family-main" dir="ltr" lang="en" data-rt-prose>
+    <div class="text-center mb-12">
+      <h1 class="title-font text-5xl sm:text-6xl font-black tracking-tighter thunder-glow mb-3">Product examples</h1>
+      <p class="text-lg sm:text-xl text-amber-300">Experimental demos, built mostly for Grok and Ra-Thor to try out rather than as finished products for people.</p>
+    </div>
+
+    <section class="rt-example-card rt-card-uniform bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8">
+      <h2 class="text-xl font-semibold text-amber-300 mb-4">Launch</h2>
+      <p class="text-white/80 leading-relaxed mb-4">Launch map for Ra-Thor: Chat, Shard, Forge, and research.</p>
+      <div class="rt-cta-row"><a href="/Launch-Ra-Thor.html" class="rt-btn-primary rt-example-link">Open Launch</a></div>
+    </section>
+    <section class="rt-example-card rt-card-uniform bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8">
+      <h2 class="text-xl font-semibold text-amber-300 mb-4">Shard demo</h2>
+      <p class="text-white/80 leading-relaxed mb-4">A demo that runs only on your device. Not a live conductor node.</p>
+      <div class="rt-cta-row"><a href="/sovereign-shard.html" class="rt-btn-primary rt-example-link">Open Shard demo</a></div>
+    </section>
+    <section class="rt-example-card rt-card-uniform bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8">
+      <h2 class="text-xl font-semibold text-amber-300 mb-4">Forge</h2>
+      <p class="text-white/80 leading-relaxed mb-4">Web-Forge is a local weight generator for the TOLC 8 mercy checks. Forge a sovereign shard on this device, then export. Demo only.</p>
+      <div class="rt-cta-row"><a href="/web-forge.html" class="rt-btn-primary rt-example-link">Open Forge</a></div>
+    </section>
+  </main>
+  <script src="/i18n/en.js?v=20260924a"></script>
+  <script src="/js/i18n-chrome.js?v=20260924a"></script>
+  <script src="/js/week-window.js"></script>
+  <script src="/js/rathor-theme.js"></script>
+  <script src="/js/pwa-install.js"></script>
+  <script src="/js/family-nav-2026-08-22.js"></script>
+  <script src="/js/site-lock-2026-08-22.js"></script>
+</body>
+</html>

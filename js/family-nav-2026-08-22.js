@@ -11,6 +11,10 @@
    2026-08-31: Public speech lock — no APTD badge in fallback footer
    2026-09-09: Employ destination in the bar and the fallback directory
    2026-09-15: Compact Follow row — X / LinkedIn / Facebook (visible labels)
+   2026-11-02: NAV-LINEAGE-1 — top bar is Home · Chat · Employ · Pilot · Moments · Examples ·
+               Lineage · Contact · Privacy; Launch/Shard/Forge move under /examples.html
+               (footer keeps them); fallback footer adds Licence (navLicence) + Examples;
+               Examples/Lineage stay unhooked until every pack has them
    2026-09-30: FOOTER-I18N-1 — fallback footer follows the chosen language with
                existing pack keys only; English keeps its original text; /pilot.html
                keeps its footer exactly as before (no hooks, no listener)
@@ -31,10 +35,9 @@
     { href: '/chat.html', label: 'Chat' },
     { href: '/employ.html', label: 'Employ' },
     { href: '/pilot.html', label: 'Pilot' },
-    { href: '/Launch-Ra-Thor.html', label: 'Launch' },
     { href: '/micro-moment.html', label: 'Moments' },
-    { href: '/sovereign-shard.html', label: 'Shard' },
-    { href: '/web-forge.html', label: 'Forge' },
+    { href: '/examples.html', label: 'Examples' },
+    { href: '/lineage.html', label: 'Lineage' },
     { href: '/contact.html', label: 'Contact' },
     { href: '/privacy.html', label: 'Privacy' }
   ];
@@ -79,7 +82,7 @@
       var t = (anchors[i].textContent || '').replace(/\s+/g, ' ').trim();
       if (t) found[t] = true;
     }
-    return !!(found.Home && found.Chat && found.Employ && found.Pilot && found.Launch && found.Moments && found.Shard && found.Forge && found.Contact && found.Privacy);
+    return !!(found.Home && found.Chat && found.Employ && found.Pilot && found.Moments && found.Examples && found.Lineage && found.Contact && found.Privacy);
   }
 
   function retireLocalFamilyNavs() {
@@ -310,8 +313,10 @@
               '<a href="/micro-moment.html"' + fk('homeMoments') + '>Micro-moments</a>' +
               '<a href="/sovereign-shard.html"' + fk('surfaceShard') + '>Sovereign Shard</a>' +
               '<a href="/web-forge.html">Web-Forge</a>' +
+              '<a href="/examples.html">Examples</a>' +
               '<a href="/contact.html"' + fk('navContact') + '>Contact</a>' +
               '<a href="/privacy.html"' + fk('navPrivacy') + '>Privacy</a>' +
+              '<a href="/licence.html"' + fk('navLicence') + '>Ra-Thor Commercial Licence</a>' +
               '<a href="/lineage.html">Lineage</a>' +
               '<a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor" target="_blank" rel="noopener"' + fk('homeMonorepo') + '>Monorepo</a>' +
               '<a href="mailto:info@Rathor.ai">info@Rathor.ai</a>' +
