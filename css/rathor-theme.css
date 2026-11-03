@@ -411,3 +411,49 @@ html[data-theme] .rt-world-card .rt-world-hook {
   overflow-wrap: anywhere;
   word-break: break-word;
 }
+
+/* CARDS-CLICKABLE-1: the whole card is the click target, not just its button.
+   Owner rule (Sherif, 2026-11-02, permanent): make all cards fully clickable,
+   instead of tiny buttons partially clickable, because humans like easy navigating.
+   Use: .card-link on the card, .stretched-link on its one primary link.
+   Any other link inside gets .card-link-secondary so it stays clickable.
+   Never nest interactive elements. Cards with no link stay as they are. */
+.card-link { position: relative; cursor: pointer; }
+.card-link .stretched-link { position: static; }
+.card-link .stretched-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+.card-link .card-link-secondary { position: relative; z-index: 2; }
+/* The cover is part of the link. A filter, transform, perspective, backdrop-filter,
+   will-change or contain on the link, or on any wrapper between it and the card,
+   makes that element the cover's containing block, so the cover shrinks to the
+   button and flickers on hover. Switch them all off, at rest and on hover.
+   The hover feedback lives on the card itself (the card is the containing block anyway). */
+html[data-theme] .card-link a.stretched-link,
+html[data-theme] .card-link a.stretched-link:is(:hover, :active, :focus-visible),
+html[data-theme] .card-link :has(a.stretched-link),
+html[data-theme] .card-link :has(a.stretched-link):hover {
+  /* !important: later sheets (e.g. css/powrush-card.css hover translateY) tie this
+     specificity and load after this file, so load order alone can't win (Clerk 6592474748). */
+  filter: none !important;
+  transform: none !important;
+  perspective: none !important;
+  backdrop-filter: none !important;
+  will-change: auto !important;
+  contain: none !important;
+}
+/* Wrappers between the card and its link must not be positioned either, or the
+   cover stops at the wrapper instead of the card edge. */
+html[data-theme] .card-link :has(a.stretched-link) { position: static; }
+/* Hover feedback on the card itself: a thin ring that keeps the card's own shadow. */
+.card-link:hover { outline: 1px solid var(--rt-gold-hot); outline-offset: 3px; }
+html[data-theme] .card-link:has(.stretched-link:focus-visible) {
+  outline: 2px solid var(--rt-gold-hot);
+  outline-offset: 3px;
+}
+html[data-theme="light"] .card-link:has(.stretched-link:focus-visible) {
+  outline-color: var(--rt-gold-deep);
+}
