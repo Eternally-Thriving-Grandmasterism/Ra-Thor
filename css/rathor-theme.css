@@ -427,11 +427,27 @@ html[data-theme] .rt-world-card .rt-world-hook {
   z-index: 1;
 }
 .card-link .card-link-secondary { position: relative; z-index: 2; }
-/* The cover is part of the link, so a transform or filter on link hover would
-   shrink the cover to the button and flicker. The card lifts a little instead. */
-html[data-theme] .card-link a.stretched-link:hover,
-.card-link a.stretched-link:hover { transform: none; filter: none; }
-.card-link:hover { filter: brightness(1.05); }
+/* The cover is part of the link. A filter, transform, perspective, backdrop-filter,
+   will-change or contain on the link, or on any wrapper between it and the card,
+   makes that element the cover's containing block, so the cover shrinks to the
+   button and flickers on hover. Switch them all off, at rest and on hover.
+   The hover feedback lives on the card itself (the card is the containing block anyway). */
+html[data-theme] .card-link a.stretched-link,
+html[data-theme] .card-link a.stretched-link:is(:hover, :active, :focus-visible),
+html[data-theme] .card-link :has(a.stretched-link),
+html[data-theme] .card-link :has(a.stretched-link):hover {
+  filter: none;
+  transform: none;
+  perspective: none;
+  backdrop-filter: none;
+  will-change: auto;
+  contain: none;
+}
+/* Wrappers between the card and its link must not be positioned either, or the
+   cover stops at the wrapper instead of the card edge. */
+html[data-theme] .card-link :has(a.stretched-link) { position: static; }
+/* Hover feedback on the card itself: a thin ring that keeps the card's own shadow. */
+.card-link:hover { outline: 1px solid var(--rt-gold-hot); outline-offset: 3px; }
 html[data-theme] .card-link:has(.stretched-link:focus-visible) {
   outline: 2px solid var(--rt-gold-hot);
   outline-offset: 3px;
