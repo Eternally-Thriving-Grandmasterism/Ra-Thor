@@ -33,6 +33,11 @@
     .rt-lineage-tl li { border-left: 2px solid rgba(252,211,77,.35); padding: 0 0 1rem 1rem; }
     .rt-lineage-tl .when { color: #fcd34d; font-weight: 600; font-size: .9rem; display: block; }
     .rt-lineage-tl a, .rt-lineage-link { color: #fcd34d; text-decoration: underline; }
+    .rt-example-card { position: relative; cursor: pointer; }
+    .rt-example-card .rt-example-link::after { content: ''; position: absolute; inset: 0; border-radius: inherit; }
+    .rt-example-card .rt-example-link:focus { outline: none; }
+    .rt-example-card .rt-example-link:focus-visible::after { outline: 3px solid #fcd34d; outline-offset: 2px; }
+    .rt-example-card:hover { border-color: rgba(252,211,77,.6); }
   </style>
 </head>
 <body class="bg-black text-white overflow-x-hidden">
@@ -42,20 +47,20 @@
       <p class="text-lg sm:text-xl text-amber-300">Experimental demos, built mostly for Grok and Ra-Thor to try out rather than as finished products for people.</p>
     </div>
 
-    <section class="rt-card-uniform bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8">
+    <section class="rt-example-card rt-card-uniform bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8">
       <h2 class="text-xl font-semibold text-amber-300 mb-4">Launch</h2>
       <p class="text-white/80 leading-relaxed mb-4">Launch map for Ra-Thor: Chat, Shard, Forge, and research.</p>
-      <div class="rt-cta-row"><a href="/Launch-Ra-Thor.html" class="rt-btn-primary">Open Launch</a></div>
+      <div class="rt-cta-row"><a href="/Launch-Ra-Thor.html" class="rt-btn-primary rt-example-link">Open Launch</a></div>
     </section>
-    <section class="rt-card-uniform bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8">
+    <section class="rt-example-card rt-card-uniform bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8">
       <h2 class="text-xl font-semibold text-amber-300 mb-4">Shard demo</h2>
       <p class="text-white/80 leading-relaxed mb-4">A demo that runs only on your device. Not a live conductor node.</p>
-      <div class="rt-cta-row"><a href="/sovereign-shard.html" class="rt-btn-primary">Open Shard demo</a></div>
+      <div class="rt-cta-row"><a href="/sovereign-shard.html" class="rt-btn-primary rt-example-link">Open Shard demo</a></div>
     </section>
-    <section class="rt-card-uniform bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8">
+    <section class="rt-example-card rt-card-uniform bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8">
       <h2 class="text-xl font-semibold text-amber-300 mb-4">Forge</h2>
       <p class="text-white/80 leading-relaxed mb-4">Web-Forge is a local weight generator for the TOLC 8 mercy checks. Forge a sovereign shard on this device, then export. Demo only.</p>
-      <div class="rt-cta-row"><a href="/web-forge.html" class="rt-btn-primary">Open Forge</a></div>
+      <div class="rt-cta-row"><a href="/web-forge.html" class="rt-btn-primary rt-example-link">Open Forge</a></div>
     </section>
   </main>
   <script src="/i18n/en.js?v=20260924a"></script>
