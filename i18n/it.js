@@ -172,6 +172,8 @@ window.translations["it"] = {
   "navForge": "Forgia",
   "navContact": "Contatto",
   "navPrivacy": "Privacy",
+  "navExamples": "Esempi",
+  "navLineage": "Lignaggio",
   "navLicence": "Ra-Thor Commercial Licence",
   "followTitle": "Segui",
   "followX": "X / Twitter",

@@ -172,6 +172,8 @@ window.translations["ja"] = {
   "navForge": "鍛造",
   "navContact": "連絡",
   "navPrivacy": "プライバシー",
+  "navExamples": "実例",
+  "navLineage": "系譜",
   "navLicence": "Ra-Thor Commercial Licence",
   "followTitle": "フォロー",
   "followX": "X / Twitter",

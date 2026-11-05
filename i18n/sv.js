@@ -172,6 +172,8 @@ window.translations["sv"] = {
   "navForge": "Smedja",
   "navContact": "Kontakt",
   "navPrivacy": "Integritet",
+  "navExamples": "Exempel",
+  "navLineage": "Härstamning",
   "navLicence": "Ra-Thor Commercial Licence",
   "followTitle": "Följ",
   "followX": "X / Twitter",

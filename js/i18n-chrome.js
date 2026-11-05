@@ -25,7 +25,8 @@
 
   var CHROME = {
     navHome: 1, navChat: 1, navEmploy: 1, navPilot: 1, navLaunch: 1, navMoments: 1,
-    navShard: 1, navForge: 1, navContact: 1, navPrivacy: 1, navLicence: 1,
+    navShard: 1, navForge: 1, navContact: 1, navPrivacy: 1,
+    navExamples: 1, navLineage: 1, navLicence: 1,
     followTitle: 1, followX: 1, followLinkedIn: 1, followFacebook: 1,
     headline: 1, fusion: 1, kicker: 1,
     weekTitle: 1, weekLineWrap: 1, weekLineRa: 1, weekLinePowrush: 1, weekLineResearch: 1, weekMore: 1,
@@ -81,6 +82,8 @@
     '/pilot.html': 'navPilot',
     '/Launch-Ra-Thor.html': 'navLaunch',
     '/micro-moment.html': 'navMoments',
+    '/examples.html': 'navExamples',
+    '/lineage.html': 'navLineage',
     '/sovereign-shard.html': 'navShard',
     '/web-forge.html': 'navForge',
     '/contact.html': 'navContact',

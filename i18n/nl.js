@@ -172,6 +172,8 @@ window.translations["nl"] = {
   "navForge": "Smederij",
   "navContact": "Contact",
   "navPrivacy": "Privacy",
+  "navExamples": "Voorbeelden",
+  "navLineage": "Afstamming",
   "navLicence": "Ra-Thor Commercial Licence",
   "followTitle": "Volgen",
   "followX": "X / Twitter",

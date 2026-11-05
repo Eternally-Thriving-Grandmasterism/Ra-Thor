@@ -10,7 +10,7 @@ Offline packs apply **chrome** and **visitor essays**. Operator documents (`docs
 
 **Chrome** (`js/i18n-chrome.js`):
 
-- family labels — `navHome` … `navPrivacy`
+- family labels — `navHome` … `navPrivacy`, plus `navExamples` and `navLineage`
 - Follow — `followTitle`, `followX`, `followLinkedIn`, `followFacebook`
 - hero / subhead — `headline`, `fusion`, `kicker`
 - recent updates — `weekTitle`, `weekLineWrap`, `weekLineRa`, `weekLinePowrush`, `weekLineResearch`, `weekMore`

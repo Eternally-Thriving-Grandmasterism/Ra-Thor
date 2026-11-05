@@ -39,7 +39,9 @@ var EXPECT = [
   ['surfaceShard', "'<a href=\"/sovereign-shard.html\"' + fk('surfaceShard') + '>Sovereign Shard</a>'"],
   ['navContact', "'<a href=\"/contact.html\"' + fk('navContact') + '>Contact</a>'"],
   ['navPrivacy', "'<a href=\"/privacy.html\"' + fk('navPrivacy') + '>Privacy</a>'"],
+  ['navExamples', "'<a href=\"/examples.html\"' + fk('navExamples') + '>Examples</a>'"],
   ['navLicence', "'<a href=\"/licence.html\"' + fk('navLicence') + '>Ra-Thor Commercial Licence</a>'"],
+  ['navLineage', "'<a href=\"/lineage.html\"' + fk('navLineage') + '>Lineage</a>'"],
   ['homeMonorepo', "rel=\"noopener\"' + fk('homeMonorepo') + '>Monorepo</a>'"]
 ];
 EXPECT.forEach(function (pair) {
@@ -49,7 +51,6 @@ var hooked = (footer.match(/fk\('([A-Za-z0-9]+)'\)/g) || []).map(function (s) { 
 assert(hooked.length === EXPECT.length, 'unexpected hook count: ' + hooked.length);
 // Lines without a matching pack key stay English and unhooked.
 ['<a href="/chat.html">Lattice Chat</a>', '<a href="/web-forge.html">Web-Forge</a>',
- '<a href="/examples.html">Examples</a>', '<a href="/lineage.html">Lineage</a>',
  '<div>© 2026 Sherif Samy Botros — sole steward of Autonomicity Games Inc. & AlphaProMega Air Foundation. TOLC 8.'
 ].forEach(function (s) { assert(footer.indexOf(s) !== -1, 'unkeyed line changed: ' + s); });
 // No data-i18n in the fallback footer: the chrome/essay/site-lock appliers must never touch it.
@@ -81,29 +82,29 @@ files.forEach(function (f) {
 // 4. Fingerprints are pinned to the i18n pack text after LLMS-NO-GATE-WORDING-1 (#702, main e6e85a37).
 // Hashes updated by PRIVACY-DATE-1: privacyUpdated → 2026-10-22, employStamp → 22 Oct 2026, swatchStamp date stripped.
 var PACKS = {
-  'ar.js': '5e4cea59ade5a85ccb738c96c6b53dc587e1598094e91fe7779e3ae3f6efd02e',
-  'de.js': 'feffe50eebedf9323f1a28925d8e6f80a953087d59b529754ba0613ae8165821',
-  'el.js': '99a3c57fd9b91fe1a161c9d437cf44b9740409c85f00d3b7e827905a18f82fc7',
+  'ar.js': '5dd29e52739ca3cbbccaa4ef3d6151fb62e866c8bafdd27e0f0f75559f23bccc',
+  'de.js': 'e665fd4189f1fd9f944e7a641b5c8be3fc34267f347496a6ed89d2a51f53db29',
+  'el.js': '504d8de274a2137b5a2a9def4f88ea51f5f1899eabe2e15d26d1822cfde0c153',
   'en.js': '75b868ca913751bc7b94fc432bc8dfb65f207edb0f88742aec85d8c621d376ed',
-  'es.js': 'dd107d70c9b77f976aa7be38456a9ea896c79b90404bcce616c1773ab4219aa6',
-  'fa.js': '0fd948865bf980ed25838fc7bba943f9355cad243f2581b39168e8afcae7b5be',
-  'fr.js': '5243d2cf06ef02f0730b555cda078e7c0835702ed0728888fb96cadcded88a13',
-  'he.js': '457850989e0514f7c15d2b179fed60eb599f58c77dc5d1d6f958943c28832db1',
-  'hi.js': '47dfa241e447191f47f18b9cedf5bc7423a25b027ceea0bdc7c8a688511c333f',
-  'id.js': '7f8fd60b540fd1beedbd4e095586eb68e4588ceae670773c4f7dc40e97dc6272',
-  'it.js': 'b5d5271f44383a0a0c836c4ebc05f8f246515649419cc22901a5d72f3e0cf099',
-  'ja.js': '9f2122e4aa8d08e1c07ca2c167e50716a30ca186e11ff181f3f9a4f6b9aa2908',
-  'ko.js': 'bf2c8c99af3b4d5e592db0f36c83620b482ac2a92537c8ba83a339a97acdc367',
-  'nl.js': 'dace4d8045b779e60bd1cd5674beed6b2080b508e23fbc7a7a7201f2c40fb0a4',
-  'pl.js': '8a543b233af950c2fbc0b7287c8ffcbd6ce3c9a66dfd81aefb14c60afcf33a0a',
-  'pt.js': '2f88b9c7f0fdd3a362f9553a7397a7c28be2a97ac343529ea3900d1dd10b0818',
-  'ru.js': 'a6c921a8f7f899ce47466d9037598a25c0923a42d56d476fceb944a32fe35277',
-  'sv.js': 'ea6a7d2e140b07f063326315fcad6dfb9909e02cbc4fa5d946cfc618f728a2b8',
-  'th.js': 'c4667b961ac44f0ff224d07f2935d80bb818344e6d26322c84f293d657414114',
-  'tr.js': 'c98295d59bdf284f71c8872b90c1deeb170347d1e36eb34427088228d5cc6343',
-  'uk.js': '15f411150c26b4e734d7e8a1c1df1655354a2282f760ca9021d3f9d4885e98f0',
-  'vi.js': '1e5a09c3afbde3ae9f68ea6496ca747b502d49ac58b5f02a6a5affdb91d58443',
-  'zh.js': '37f1831c3e2481e67c453731ef11a961beaa451476a9fd1952fde63356ca6918',
+  'es.js': 'f672d95d983244ad5ffbb708fdc52e67c5c809c25d80a5302ec627053417e103',
+  'fa.js': 'cdc52edfc0e0575908ce73d487da676115b006632e2cae33922baa23b2833e22',
+  'fr.js': '1fb582e1386ef987a4eb9f997afe4c1cc8e31a3ff2a15f510cca9be7698bbbc4',
+  'he.js': 'd2c3c2c975cb65e7420cedb59646d7eccfd0031fa045b9daaff64aeca55f7d03',
+  'hi.js': '483d0b43e12b41eb5f795033fd38ebbdabb8f78316c2aac04e455ecdc8cc7678',
+  'id.js': 'ea50604a6063cd84b168a8ee768a6d6a643564351783e89a05a02fd9d2814c9e',
+  'it.js': '9018ecd92ed0e1fc3dd8c5907b2d2fb04f37fd6891a1c911d2fd2879e1705a66',
+  'ja.js': '458673d7ed1b21c433d3c266edb42e9bf1ec4f5e1dfcb90fce7da3ac38ba6b80',
+  'ko.js': 'ccc47f88e0468331afc7c5212b15d5e14f2dc6fac33adc0cc2333eae4c267c15',
+  'nl.js': '53085214bb4b6ffd5d35b544375f3438892662c9a30d0bcf03544dd0a20006ac',
+  'pl.js': 'd7dd865dc75cab55936ffc0880573fb3f576776776467bc6c90a68f7b408f30e',
+  'pt.js': 'a8a078cdf2173c96f5c5d839b19bfa476139b9d18f7f7f5224bf6b3483f48bb7',
+  'ru.js': '8aac9718cb211798ee1248b97baf24b64d2443b102acdad7a4919060699c4a2a',
+  'sv.js': '03b1edec2470dfc3114cdb7d0e49643fc4595038dcd16d7abb1aa89728fb8abd',
+  'th.js': '8452b6c9a52bb98c5b4f24728b1c70ed9d4878ddd1ea261b6df5aa1a34cd2e73',
+  'tr.js': 'bde847d88d02c1c1eeb25247b57a8432d6cff2023b651fc3ad5308b086300dc4',
+  'uk.js': 'ea9fe44ca5dab6c2fc18cced967cd97eb3652b9420a456c5bc025f43dfd3d4f9',
+  'vi.js': '79d2747eea43186cfc03d5133ed12aea3e728803ef139b0531c21643d647e8b9',
+  'zh.js': '9b3ca11add1a24fbc2d064e8ad1e7333cd4148c2c43e578bcf3cca8527ec4d0b',
 };
 assert(Object.keys(PACKS).length === 23, 'pack manifest must list 23 packs');
 files.forEach(function (f) {

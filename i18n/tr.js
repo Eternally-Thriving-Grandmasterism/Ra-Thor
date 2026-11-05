@@ -172,6 +172,8 @@ window.translations["tr"] = {
   "navForge": "Ocak",
   "navContact": "İletişim",
   "navPrivacy": "Gizlilik",
+  "navExamples": "Örnekler",
+  "navLineage": "Soy çizgisi",
   "navLicence": "Ra-Thor Commercial Licence",
   "followTitle": "Takip",
   "followX": "X / Twitter",

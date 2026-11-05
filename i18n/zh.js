@@ -172,6 +172,8 @@ window.translations["zh"] = {
   "navForge": "锻炉",
   "navContact": "联系",
   "navPrivacy": "隐私",
+  "navExamples": "示例",
+  "navLineage": "谱系",
   "navLicence": "Ra-Thor Commercial Licence",
   "followTitle": "关注",
   "followX": "X / Twitter",

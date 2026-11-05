@@ -172,6 +172,8 @@ window.translations["ko"] = {
   "navForge": "대장간",
   "navContact": "연락",
   "navPrivacy": "개인정보",
+  "navExamples": "예시",
+  "navLineage": "계보",
   "navLicence": "Ra-Thor Commercial Licence",
   "followTitle": "팔로우",
   "followX": "X / Twitter",
