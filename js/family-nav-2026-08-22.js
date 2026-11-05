@@ -13,11 +13,12 @@
    2026-09-15: Compact Follow row — X / LinkedIn / Facebook (visible labels)
    2026-11-02: NAV-LINEAGE-1 — top bar is Home · Chat · Employ · Pilot · Moments · Examples ·
                Lineage · Contact · Privacy; Launch/Shard/Forge move under /examples.html
-               (footer keeps them); fallback footer adds Licence (navLicence) + Examples;
-               Examples/Lineage stay unhooked until every pack has them
+               (footer keeps them); fallback footer adds Licence (navLicence) + Examples
    2026-09-30: FOOTER-I18N-1 — fallback footer follows the chosen language with
                existing pack keys only; English keeps its original text; /pilot.html
                keeps its footer exactly as before (no hooks, no listener)
+   2026-11-05: NAV-I18N-CHROME-1 — navExamples and navLineage in every pack; top-bar
+               links carry data-i18n; fallback footer hooks Examples and Lineage
 */
 (function () {
   /* LANG-HIDE-1: master flag — the ONE line to change on all 21 pages.
@@ -41,6 +42,18 @@
     { href: '/contact.html', label: 'Contact' },
     { href: '/privacy.html', label: 'Privacy' }
   ];
+
+  var NAV_KEY = {
+    '/': 'navHome',
+    '/chat.html': 'navChat',
+    '/employ.html': 'navEmploy',
+    '/pilot.html': 'navPilot',
+    '/micro-moment.html': 'navMoments',
+    '/examples.html': 'navExamples',
+    '/lineage.html': 'navLineage',
+    '/contact.html': 'navContact',
+    '/privacy.html': 'navPrivacy'
+  };
 
   function norm(p) {
     if (!p || p === '') return '/';
@@ -135,6 +148,11 @@
       var a = document.createElement('a');
       a.href = item.href;
       a.textContent = item.label;
+      var navKey = NAV_KEY[item.href];
+      if (navKey) {
+        a.setAttribute('data-i18n', navKey);
+        a.__rtNavEn = item.label;
+      }
       styleLink(a, isHere(item.href));
       nav.appendChild(a);
     });
@@ -221,8 +239,37 @@
     try { return localStorage.getItem('rathor-lang') || 'en'; } catch (e) { return 'en'; }
   }
 
+  function applyFamilyNavI18n(lang) {
+    var nav = document.getElementById('rt-family-nav');
+    if (!nav || !nav.querySelectorAll) return;
+    lang = lang || 'en';
+    var packs = window.translations || {};
+    var pack = lang === 'en' ? null : packs[lang];
+    var en = packs.en || {};
+    var nodes = nav.querySelectorAll('a[data-i18n]');
+    for (var i = 0; i < nodes.length; i++) {
+      var el = nodes[i];
+      if (el.__rtNavEn == null) el.__rtNavEn = el.textContent;
+      var key = el.getAttribute('data-i18n');
+      var val = pack ? pack[key] : null;
+      if (val == null || String(val) === '') {
+        if (el.textContent !== el.__rtNavEn) el.textContent = el.__rtNavEn;
+        el.removeAttribute('dir');
+        el.removeAttribute('lang');
+        continue;
+      }
+      val = String(val);
+      el.textContent = val;
+      var real = !(en[key] != null && String(en[key]) === val);
+      el.setAttribute('lang', real ? lang : 'en');
+      el.setAttribute('dir', real && /[\u0590-\u08FF\uFB1D-\uFDFF\uFE70-\uFEFF]/.test(val) ? 'rtl' : 'ltr');
+    }
+    nav.setAttribute('dir', 'ltr');
+  }
+
   function applyFooterI18n(lang) {
     if (!FOOTER_I18N) return;
+    applyFamilyNavI18n(lang);
     var foot = document.getElementById('rt-family-footer');
     if (!foot || !foot.querySelectorAll) return;
     lang = lang || 'en';
@@ -313,11 +360,11 @@
               '<a href="/micro-moment.html"' + fk('homeMoments') + '>Micro-moments</a>' +
               '<a href="/sovereign-shard.html"' + fk('surfaceShard') + '>Sovereign Shard</a>' +
               '<a href="/web-forge.html">Web-Forge</a>' +
-              '<a href="/examples.html">Examples</a>' +
+              '<a href="/examples.html"' + fk('navExamples') + '>Examples</a>' +
               '<a href="/contact.html"' + fk('navContact') + '>Contact</a>' +
               '<a href="/privacy.html"' + fk('navPrivacy') + '>Privacy</a>' +
               '<a href="/licence.html"' + fk('navLicence') + '>Ra-Thor Commercial Licence</a>' +
-              '<a href="/lineage.html">Lineage</a>' +
+              '<a href="/lineage.html"' + fk('navLineage') + '>Lineage</a>' +
               '<a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor" target="_blank" rel="noopener"' + fk('homeMonorepo') + '>Monorepo</a>' +
               '<a href="mailto:info@Rathor.ai">info@Rathor.ai</a>' +
             '</div>' +

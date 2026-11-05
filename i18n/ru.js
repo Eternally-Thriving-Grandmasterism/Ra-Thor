@@ -172,6 +172,8 @@ window.translations["ru"] = {
   "navForge": "Горн",
   "navContact": "Контакт",
   "navPrivacy": "Конфиденциальность",
+  "navExamples": "Примеры",
+  "navLineage": "Родословная",
   "navLicence": "Ra-Thor Commercial Licence",
   "followTitle": "Подписка",
   "followX": "X / Twitter",

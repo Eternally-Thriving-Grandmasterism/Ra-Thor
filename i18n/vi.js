@@ -172,6 +172,8 @@ window.translations["vi"] = {
   "navForge": "Lò rèn",
   "navContact": "Liên hệ",
   "navPrivacy": "Riêng tư",
+  "navExamples": "Ví dụ",
+  "navLineage": "Dòng dõi",
   "navLicence": "Ra-Thor Commercial Licence",
   "followTitle": "Theo dõi",
   "followX": "X / Twitter",

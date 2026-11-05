@@ -172,6 +172,8 @@ window.translations["id"] = {
   "navForge": "Tempa",
   "navContact": "Kontak",
   "navPrivacy": "Privasi",
+  "navExamples": "Contoh",
+  "navLineage": "Silsilah",
   "navLicence": "Ra-Thor Commercial Licence",
   "followTitle": "Ikuti",
   "followX": "X / Twitter",

@@ -172,6 +172,8 @@ window.translations["fa"] = {
   "navForge": "کوره",
   "navContact": "تماس",
   "navPrivacy": "حریم خصوصی",
+  "navExamples": "مثال‌ها",
+  "navLineage": "تبار",
   "navLicence": "Ra-Thor Commercial Licence",
   "followTitle": "دنبال کردن",
   "followX": "X / توییتر",

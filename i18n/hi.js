@@ -172,6 +172,8 @@ window.translations["hi"] = {
   "navForge": "फोर्ज",
   "navContact": "संपर्क",
   "navPrivacy": "गोपनीयता",
+  "navExamples": "उदाहरण",
+  "navLineage": "वंश",
   "navLicence": "Ra-Thor Commercial Licence",
   "followTitle": "फ़ॉलो",
   "followX": "X / Twitter",

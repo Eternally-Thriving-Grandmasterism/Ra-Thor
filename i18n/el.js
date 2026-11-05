@@ -172,6 +172,8 @@ window.translations["el"] = {
   "navForge": "Καμίνι",
   "navContact": "Επικοινωνία",
   "navPrivacy": "Απόρρητο",
+  "navExamples": "Παραδείγματα",
+  "navLineage": "Γενεαλογία",
   "navLicence": "Ra-Thor Commercial Licence",
   "followTitle": "Ακολουθήστε",
   "followX": "X / Twitter",

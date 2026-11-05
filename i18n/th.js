@@ -172,6 +172,8 @@ window.translations["th"] = {
   "navForge": "เตาหลอม",
   "navContact": "ติดต่อ",
   "navPrivacy": "ความเป็นส่วนตัว",
+  "navExamples": "ตัวอย่าง",
+  "navLineage": "สายที่มา",
   "navLicence": "Ra-Thor Commercial Licence",
   "followTitle": "ติดตาม",
   "followX": "X / Twitter",

@@ -24,6 +24,10 @@ assert(KEYS.indexOf('gTranslateNote') !== -1, 'gTranslateNote must stay applied'
 assert(KEYS.indexOf('navEmploy') !== -1, 'navEmploy must stay applied');
 assert(KEYS.indexOf('navPilot') !== -1, 'navPilot must stay applied');
 assert(KEYS.indexOf('navLicence') !== -1, 'navLicence must stay applied');
+assert(KEYS.indexOf('navExamples') !== -1, 'navExamples must stay applied');
+assert(KEYS.indexOf('navLineage') !== -1, 'navLineage must stay applied');
+assert(chrome.indexOf("'/examples.html': 'navExamples'") !== -1, 'examples href must stamp navExamples');
+assert(chrome.indexOf("'/lineage.html': 'navLineage'") !== -1, 'lineage href must stamp navLineage');
 assert(KEYS.indexOf('steward') !== -1, 'steward must be applied chrome');
 assert(KEYS.indexOf('langStoredNote') !== -1, 'lang storage note must be applied chrome');
 assert(KEYS.indexOf('installCta') !== -1, 'installCta must stay applied chrome');
@@ -140,6 +144,10 @@ files.forEach(function (file) {
     assert(pack.steward !== en.steward, lang + ' steward must be translated');
     assert(pack.langStoredNote !== en.langStoredNote, lang + ' langStoredNote must be translated');
     assert(pack.homeSurfacePaperNote !== en.homeSurfacePaperNote, lang + ' homeSurfacePaperNote must be translated');
+    assert(pack.navExamples !== en.navExamples, lang + ' navExamples must be translated');
+    assert(pack.navLineage !== en.navLineage, lang + ' navLineage must be translated');
+    assert(pack.navExamples !== 'Examples', lang + ' navExamples must not stay the English label');
+    assert(pack.navLineage !== 'Lineage', lang + ' navLineage must not stay the English label');
   }
   assert(pack.pathWrapTitle === 'WRAP-EW2', lang + ' WRAP title stays the repo name');
   assert(pack.pathPlayBody.indexOf('Title Online') !== -1, lang + ' play card must keep Title Online');
@@ -150,6 +158,8 @@ files.forEach(function (file) {
     assert(RTL_RE.test(pack.employTitle), lang + ' employTitle must be RTL script');
     assert(RTL_RE.test(pack.navEmploy), lang + ' navEmploy must be RTL script');
     assert(RTL_RE.test(pack.navPilot), lang + ' navPilot must be RTL script');
+    assert(RTL_RE.test(pack.navExamples), lang + ' navExamples must be RTL script');
+    assert(RTL_RE.test(pack.navLineage), lang + ' navLineage must be RTL script');
     assert(RTL_RE.test(pack.gTranslateNote), lang + ' gTranslateNote must be RTL script');
     assert(RTL_RE.test(pack.pathPlayTitle), lang + ' pathPlayTitle must be RTL script');
     assert(RTL_RE.test(pack.pathWrapBody), lang + ' pathWrapBody must be RTL script');
