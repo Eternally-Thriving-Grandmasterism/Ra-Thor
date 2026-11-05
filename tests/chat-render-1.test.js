@@ -39,8 +39,8 @@ assert(chat.indexOf("./vendor/web-llm/0.2.85/index.js") !== -1, 'WebLLM pin stay
 assert(chat.indexOf('max_tokens: budget.maxTokens') !== -1, 'completions use the reply budget');
 assert(chat.indexOf('max_tokens: 500') === -1, 'WebLLM no longer hard-codes max_tokens 500');
 assert(chat.indexOf('max_tokens: 900') === -1, 'Local Server no longer hard-codes max_tokens 900');
-// COPY-HUMAN-1: LOCK bumped to 20261022f; update this assertion when LOCK changes again
-assert(sw.indexOf("var LOCK = '20261022f';") !== -1, 'service worker LOCK is 20261022f (COPY-HUMAN-1; was 20261022d)');
+// SW-PREPAGES-1: LOCK bumped to 20261105a; update this assertion when LOCK changes again
+assert(sw.indexOf("var LOCK = '20261105a';") !== -1, 'service worker LOCK is 20261105a (SW-PREPAGES-1; was 20261022f)');
 
 var promptMarker = 'const SYSTEM_PROMPT = `';
 var promptAt = chat.indexOf(promptMarker);
