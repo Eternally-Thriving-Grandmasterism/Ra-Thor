@@ -1,15 +1,16 @@
 /* sw.js — Ra-Thor vanilla offline worker
- * Workspace 14.15.6 · LOCK 20261022f · i18n pack token 20260924a
+ * Workspace 14.15.6 · LOCK 20261105a · i18n pack token 20260924a
  * Pass-through documents. Fetch handler present for Chrome installability.
  * Contact: info@Rathor.ai
  */
-var LOCK = '20261022f'; /* DISCLAIMER-RESTORE-1: bumped 2026-10-23 — restore disclaimer wording in en.js, sovereign-shard.html, ra-thor-website-1.html */
+var LOCK = '20261105a'; /* SW-PREPAGES-1: bumped 2026-11-05 — precache /examples.html and /lineage.html */
 var CACHE = 'rathor-core-' + LOCK;
 var PRECACHE = [
   '/', '/index.html', '/chat.html', '/contact.html', '/privacy.html', '/licence.html',
   '/offline.html', '/thanks.html', '/go-x.html', '/Launch-Ra-Thor.html',
   '/micro-moment.html', '/sovereign-shard.html', '/web-forge.html', '/science-watches.html',
-  '/constellation-week.html', '/employ.html', '/pilot.html', '/manifest.json',
+  '/constellation-week.html', '/employ.html', '/pilot.html',
+  '/examples.html', '/lineage.html', '/manifest.json',
   '/mercy-motion-vision-engine.js', '/fuzzy-mercy-logic.js', '/one-organism-launch.js',
   '/js/pwa-boot.js', '/js/pwa-install.js', '/js/lang-offer.js',
   '/js/rathor-feedback.js', '/js/rathor-theme.js', '/js/rathor-unify.js',
