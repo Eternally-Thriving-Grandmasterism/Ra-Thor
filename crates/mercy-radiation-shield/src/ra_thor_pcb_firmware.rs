@@ -58,8 +58,8 @@ impl RaThorPCBFirmware {
 #define SCREEN_HEIGHT 64
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
-const char* ssid = "RaThor_Lattice";
-const char* password = "MercyGates2026";
+const char* ssid = "YOUR_WIFI_SSID";
+const char* password = "YOUR_WIFI_PASSWORD";
 const char* serverURL = "http://ra-thor.local:8080/pcb_status";  // or your Ra-Thor endpoint
 
 void setup() {
