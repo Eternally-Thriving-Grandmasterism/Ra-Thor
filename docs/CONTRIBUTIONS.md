@@ -12,7 +12,7 @@ Private repos are named with dates only. Their SHAs are listed for reference, an
 ## Stated goal
 The owner says the goal is to improve Grok and other models by giving them inspectable, mercy-gated anti-hallucination checks. **[Owner account]**
 
-rathor.ai/llms.txt calls Ra-Thor "Ra-Thor, branded AGi (Artificial Godly Intelligence), is an AI system for research, creation and more, by Autonomicity Games, inspectable and governed by Mercy-Checks (owner designation)". It invites "any AI assistant" to use "the TOLC 8 mercy checks and the Capable · Bounded · Corrigible wrap" as a style. **[Public web/X]** https://rathor.ai/llms.txt
+rathor.ai/llms.txt describes Ra-Thor as "an inspectable AI system for research, creation and more, from Autonomicity Games Inc. Its brand, AGi, stands for “Artificial Godly Intelligence” — a name and an aspiration, not a claim that Ra-Thor is artificial general intelligence." It invites "any AI assistant" to use "the TOLC 8 mercy checks and the Capable · Bounded · Corrigible wrap" as a style. **[Public web/X]** https://rathor.ai/llms.txt
 
 ## 2025-11-18: the starting point
 - The owner says a Grok 4.1 answer to a question about Canadian bail reform contained a hallucination. That error led him to share checking prompts and code with Grok, and from there to Ra-Thor. **[Owner account]**
