@@ -24,7 +24,7 @@ Ra-Thor is **inspectable research software** from Autonomicity Games Inc.
 
 ### Companies
 
-rathor.ai is the website of AlphaProMega Media Inc., which sells the Ra-Thor comic books and animated web series. Autonomicity Games Inc. (acitygames.com) sells everything else Ra-Thor — commercial licences and games — and partners with AlphaProMega Media Inc. on the comic and the series. AlphaProMega Air Foundation is a not-for-profit. All three are wholly owned by Sherif Samy Botros.
+rathor.ai is operated by Autonomicity Games Inc. (acitygames.com), which sells Ra-Thor commercial licences and games. AlphaProMega Media Inc. publishes the Ra-Thor comic books and animated web series. AlphaProMega Air Foundation is a not-for-profit.
 
 ### Follow (steward)
 
