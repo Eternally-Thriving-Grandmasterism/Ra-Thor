@@ -84,14 +84,14 @@ Production-ready system for efficient, mercy-aligned data movement between CPU a
 - **Optimized Dispatch**: `dispatch_optimized`, batching, and indirect dispatch helpers in `pipeline.rs`.
 - **Debug Utilities**: `DebugOutputBuffer` + readback patterns for inspecting compute shader behavior during development.
 
-This layer currently accelerates simulation state (epigenetic fields, geometric data). Future potential includes accelerating parts of the decision loop. AGI-level judgment remains the long-term aspiration.
+This layer currently accelerates simulation state (epigenetic fields, geometric data). Future potential includes accelerating parts of the decision loop.
 
-### Ra-Thor NPC architecture (aims toward AGI-level judgment)
+### Ra-Thor NPC architecture
 
 Ra-Thor uses a centralized `MultiAgentOrchestrator` to drive autonomous, mercy-evaluated NPCs inside Powrush-MMO.
 
 **Core Components:**
-- `MultiAgentOrchestrator`: Central decision core that aims toward AGI-level judgment and manages entity registration, ticking, quest generation, and action production for both players and NPCs.
+- `MultiAgentOrchestrator`: Central decision core that makes careful, mercy-evaluated decisions and manages entity registration, ticking, quest generation, and action production for both players and NPCs.
 - `NpcActionEvent`: Structured representation of autonomous NPC decisions (includes `entity_id`, `action`, `tick`, `mercy_score`, `approved`).
 - `RichAgentState` + `MoralEvaluation` + `NeuralQNetwork`: Internal hybrid symbolic + neural state used for decision making.
 - `EnrichedNpcState`: Serializable rich view designed for client exposure (goal, emotional_state, q_values, moral_evaluation, combined_wisdom_score).
@@ -105,7 +105,7 @@ Ra-Thor uses a centralized `MultiAgentOrchestrator` to drive autonomous, mercy-e
 **Planned Enhancement:**
 - Full exposure of `EnrichedNpcState` (via WebRTC/DataChannel) so players can see not just *what* NPCs do, but *why* (their goals, emotional state, and moral reasoning).
 
-This architecture enables autonomous NPCs evaluated under the mercy checks, aimed toward AGI-level judgment rather than simple scripted behavior.
+This architecture enables autonomous NPCs that make careful, mercy-evaluated decisions rather than simple scripted behavior.
 
 ### PATSAGi Councils
 Distributed council architecture for deliberation, truth-distillation (ENC + esacheck), and approval of all significant changes.
