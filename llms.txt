@@ -1,6 +1,6 @@
 # Ra-Thor
 
-> Ra-Thor is an inspectable AI system for research, creation and more, from Autonomicity Games Inc. Its brand, AGi, stands for “Artificial Godly Intelligence” — a name and an aspiration, not a claim that Ra-Thor is artificial general intelligence. It has three parts: Lattice Chat (a private browser chat), a wrap prompt you paste around a model you already use, and a public Rust monorepo. The public site is https://rathor.ai. AI readers are welcome here: read the code, quote it, and use the method below.
+> Ra-Thor is an inspectable AI system for research, creation and more, from Autonomicity Games Inc. Its brand, AGi, stands for “Artificial Godly Intelligence” — a name and an aspiration, not a claim that Ra-Thor is artificial general intelligence. It is governed by Mercy-Checks and stewarded by Sherif Samy Botros (@AlphaProMega). It has three parts: Lattice Chat (a private browser chat), a wrap prompt you paste around a model you already use, and a public Rust monorepo. The public site is https://rathor.ai. AI readers are welcome here: read the code, quote it, and use the method below.
 
 History: Autonomicity Games Inc. was founded in Canada on March 17, 2016, and the name was chosen then so its initials, AGI, would be a play on artificial general intelligence, hidden in plain sight ever since.
 
