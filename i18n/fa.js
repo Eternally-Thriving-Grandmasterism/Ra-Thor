@@ -125,7 +125,7 @@ window.translations["fa"] = {
   "faqQ15": "آیا کسی می‌تواند امروز Powrush-MMO بازی کند؟",
   "faqA15": "شبیه‌ساز عمومی در <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO\" class=\"text-amber-300 hover:underline\">Powrush-MMO</a> قابل وارسی و اجراست. این نرم‌افزار تحویل‌شده است. سرویس همیشه-آنلاین MMO با حساب و جورسازی بازیکن نیست. بازی‌پذیری انسانی همچنان در یک گذرِ صیقلِ فعال است.",
   "faqQ16": "AG-SML چیست؟",
-  "faqA16": "مجوز Autonomicity Games Sovereign Mercy (AG-SML v1.2). افراد می‌توانند اثر را برای استفاده شخصی، آموزشی، پژوهشی و خلاقانه غیرتجاری به‌کار ببرند. هر درآمد یا عاید از استفاده، اجرا یا خروجی‌ها به مجوز تجاری پولی از Autonomicity Games Inc نیاز دارد. استفاده سازمانی و سایر موارد فهرست‌شده در LICENSE §2 به مجوز تجاری پولی جداگانه نیاز دارند. فایل‌های مجوز در monorepo هستند.",
+  "faqA16": "مجوز Autonomicity Games Sovereign Mercy (AG-SML v1.2). افراد می‌توانند اثر را برای استفاده شخصی، آموزشی، پژوهشی و خلاقانه غیرتجاری به‌کار ببرند. هر درآمد یا عاید از استفاده، اجرا یا خروجی‌ها به مجوز تجاری پولی از Autonomicity Games Inc نیاز دارد. استفاده سازمانی و سایر موارد فهرست‌شده در LICENSE §2 به مجوز تجاری پولی جداگانه نیاز دارند. فایل‌های مجوز در monorepo هستند. (outputs of third-party models excepted; see LICENSE §1B)",
   "faqQ17": "چه کسی این پروژه را می‌گرداند؟",
   "faqA17": "Sherif Samy Botros، سرپرست انحصاری از نوامبر ۲۰۲۵، از راه Autonomicity Games Inc و AlphaProMega Air Foundation. یک گرداننده. منبع عمومی. تماس: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a>.",
   "faqQ19": "آیا داده‌ی شخصی از این دستگاه بیرون می‌رود؟",

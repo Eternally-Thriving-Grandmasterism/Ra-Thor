@@ -132,7 +132,7 @@ window.translations["en"] = {
   "faqQ15": "Can someone play Powrush-MMO today?",
   "faqA15": "The public simulator in <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO\" class=\"text-amber-300 hover:underline\">Powrush-MMO</a> can be inspected and run. That is delivered software. It is not an always-online MMO service with accounts and matchmaking. Human playability remains an active polish pass.",
   "faqQ16": "What is AG-SML?",
-  "faqA16": "The Autonomicity Games Sovereign Mercy License (AG-SML v1.2). Individuals may use the work for personal, educational, research, and non-commercial creative use. Any revenue or income from using, running, or outputs requires a paid commercial licence from Autonomicity Games Inc. Organization use and the other cases listed in LICENSE §2 require a separate paid commercial licence. License files live in the monorepo.",
+  "faqA16": "The Autonomicity Games Sovereign Mercy License (AG-SML v1.2). Individuals may use the work for personal, educational, research, and non-commercial creative use. Any revenue or income from using, running, or outputs (outputs of third-party models excepted; see LICENSE §1B) requires a paid commercial licence from Autonomicity Games Inc. Organization use and the other cases listed in LICENSE §2 require a separate paid commercial licence. License files live in the monorepo.",
   "faqQ17": "Who operates this project?",
   "faqA17": "Sherif Samy Botros, sole steward since November 2025, through Autonomicity Games Inc. and AlphaProMega Air Foundation. One operator. Public source. Contact: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a>.",
   "faqQ19": "Do personal data leave this device?",

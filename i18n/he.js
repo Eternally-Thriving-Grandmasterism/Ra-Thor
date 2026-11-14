@@ -125,7 +125,7 @@ window.translations["he"] = {
   "faqQ15": "האם אפשר לשחק ב-Powrush-MMO היום?",
   "faqA15": "אפשר לבדוק ולהריץ את המדמה הציבורי ב-<a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO\" class=\"text-amber-300 hover:underline\">Powrush-MMO</a>. זו תוכנה שנמסרה. זה אינו שירות MMO תמיד-מקוון עם חשבונות והתאמת משחקים. יכולת המשחק האנושית נשארת במעבר ליטוש פעיל.",
   "faqQ16": "מהו AG-SML?",
-  "faqA16": "רישיון Autonomicity Games Sovereign Mercy (AG-SML v1.2). אנשים יכולים להשתמש ביצירה לשימוש אישי, חינוכי, מחקרי ויצירתי לא מסחרי. כל הכנסה או רווח משימוש, הפעלה או פלטים דורשים רישיון מסחרי בתשלום מ-Autonomicity Games Inc. שימוש ארגוני ומקרים אחרים ב-LICENSE §2 דורשים רישיון מסחרי בתשלום נפרד. קבצי הרישיון במונורפו.",
+  "faqA16": "רישיון Autonomicity Games Sovereign Mercy (AG-SML v1.2). אנשים יכולים להשתמש ביצירה לשימוש אישי, חינוכי, מחקרי ויצירתי לא מסחרי. כל הכנסה או רווח משימוש, הפעלה או פלטים דורשים רישיון מסחרי בתשלום מ-Autonomicity Games Inc. שימוש ארגוני ומקרים אחרים ב-LICENSE §2 דורשים רישיון מסחרי בתשלום נפרד. קבצי הרישיון במונורפו. (outputs of third-party models excepted; see LICENSE §1B)",
   "faqQ17": "מי מפעיל את הפרויקט הזה?",
   "faqA17": "Sherif Samy Botros, נאמן יחיד מאז נובמבר 2025, דרך Autonomicity Games Inc. ו-AlphaProMega Air Foundation. מפעיל אחד. מקור ציבורי. יצירת קשר: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a>.",
   "faqQ19": "האם נתונים אישיים יוצאים מהמכשיר הזה?",

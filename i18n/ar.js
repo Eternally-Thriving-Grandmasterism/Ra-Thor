@@ -127,7 +127,7 @@ window.translations["ar"] = {
   "faqQ15": "هل يمكن لعب Powrush-MMO اليوم؟",
   "faqA15": "يمكن معاينة المحاكي العام في <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO\" class=\"text-amber-300 hover:underline\">Powrush-MMO</a> وتشغيله. هذه برمجيات مُسلَّمة. ليست خدمة MMO دائمة الاتصال بحسابات ومطابقة. قابلية اللعب البشرية تبقى ممر صقل نشطًا.",
   "faqQ16": "ما AG-SML؟",
-  "faqA16": "رخصة Autonomicity Games Sovereign Mercy (AG-SML v1.2). يمكن للأفراد استخدام العمل للاستخدام الشخصي والتعليمي والبحثي والإبداعي غير التجاري. أي إيراد أو دخل من الاستخدام أو التشغيل أو المخرجات يتطلب رخصة تجارية مدفوعة من Autonomicity Games Inc. استخدام المنظمة والحالات الأخرى المدرجة في LICENSE §2 تتطلب رخصة تجارية مدفوعة منفصلة. ملفات الرخصة في المستودع الموحّد.",
+  "faqA16": "رخصة Autonomicity Games Sovereign Mercy (AG-SML v1.2). يمكن للأفراد استخدام العمل للاستخدام الشخصي والتعليمي والبحثي والإبداعي غير التجاري. أي إيراد أو دخل من الاستخدام أو التشغيل أو المخرجات يتطلب رخصة تجارية مدفوعة من Autonomicity Games Inc. استخدام المنظمة والحالات الأخرى المدرجة في LICENSE §2 تتطلب رخصة تجارية مدفوعة منفصلة. ملفات الرخصة في المستودع الموحّد. (outputs of third-party models excepted; see LICENSE §1B)",
   "faqQ17": "من يشغّل هذا المشروع؟",
   "faqA17": "شريف سامي بطرس، الولي الوحيد منذ تشرين الثاني/نوفمبر 2025، عبر Autonomicity Games Inc. ومؤسسة AlphaProMega Air. مشغّل واحد. مصدر عام. الاتصال: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a>.",
   "faqQ19": "هل تغادر بيانات شخصية هذا الجهاز؟",

@@ -125,7 +125,7 @@ window.translations["ko"] = {
   "faqQ15": "오늘 Powrush-MMO를 플레이할 수 있습니까?",
   "faqA15": "<a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO\" class=\"text-amber-300 hover:underline\">Powrush-MMO</a>의 공개 시뮬레이터는 검사하고 실행할 수 있습니다. 납품된 소프트웨어입니다. 계정과 매치메이킹이 있는 상시 접속 MMO 서비스가 아닙니다. 사람이 플레이할 수 있게 다듬는 일은 아직 진행 중인 회차입니다.",
   "faqQ16": "AG-SML이란 무엇입니까?",
-  "faqA16": "Autonomicity Games Sovereign Mercy License(AG-SML v1.2). 개인은 개인·교육·연구·비상업적 창작 이용을 위해 저작물을 사용할 수 있습니다. 사용·실행·출력에서의 수익이나 소득은 Autonomicity Games Inc.의 유료 상업 라이선스가 필요합니다. 조직 이용 및 LICENSE §2에 열거된 다른 경우는 별도의 유료 상업 라이선스가 필요합니다. 라이선스 파일은 모노레포에 있습니다.",
+  "faqA16": "Autonomicity Games Sovereign Mercy License(AG-SML v1.2). 개인은 개인·교육·연구·비상업적 창작 이용을 위해 저작물을 사용할 수 있습니다. 사용·실행·출력에서의 수익이나 소득은 Autonomicity Games Inc.의 유료 상업 라이선스가 필요합니다. 조직 이용 및 LICENSE §2에 열거된 다른 경우는 별도의 유료 상업 라이선스가 필요합니다. 라이선스 파일은 모노레포에 있습니다. (outputs of third-party models excepted; see LICENSE §1B)",
   "faqQ17": "누가 이 프로젝트를 운영합니까?",
   "faqA17": "Sherif Samy Botros. 2025년 11월부터의 단독 관장입니다. Autonomicity Games Inc.와 AlphaProMega Air Foundation을 통하여. 운영자는 한 사람입니다. 공개 소스입니다. 연락: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a>.",
   "faqQ19": "개인 데이터가 이 기기를 나갑니까?",

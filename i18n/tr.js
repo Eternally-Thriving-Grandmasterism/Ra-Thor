@@ -125,7 +125,7 @@ window.translations["tr"] = {
   "faqQ15": "Bugün Powrush-MMO oynanabilir mi?",
   "faqA15": "<a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO\" class=\"text-amber-300 hover:underline\">Powrush-MMO</a> içindeki kamu simülatörü incelenebilir ve çalıştırılabilir. Bu, teslim edilmiş yazılımdır. Hesapları ve eşleştirmesi olan her zaman çevrimiçi bir MMO hizmeti değildir. İnsan oynanabilirliği etkin bir cila geçişi olarak sürer.",
   "faqQ16": "AG-SML nedir?",
-  "faqA16": "Autonomicity Games Sovereign Mercy License (AG-SML v1.2). Bireyler eseri kişisel, eğitim, araştırma ve ticari olmayan yaratıcı kullanım için kullanabilir. Kullanım, çalıştırma veya çıktılardan her gelir veya kazanç Autonomicity Games Inc.'ten ücretli ticari lisans gerektirir. Kuruluş kullanımı ve LICENSE §2'de listelenen diğer durumlar ayrı ücretli ticari lisans gerektirir. Lisans dosyaları monorepoda bulunur.",
+  "faqA16": "Autonomicity Games Sovereign Mercy License (AG-SML v1.2). Bireyler eseri kişisel, eğitim, araştırma ve ticari olmayan yaratıcı kullanım için kullanabilir. Kullanım, çalıştırma veya çıktılardan her gelir veya kazanç Autonomicity Games Inc.'ten ücretli ticari lisans gerektirir. Kuruluş kullanımı ve LICENSE §2'de listelenen diğer durumlar ayrı ücretli ticari lisans gerektirir. Lisans dosyaları monorepoda bulunur. (outputs of third-party models excepted; see LICENSE §1B)",
   "faqQ17": "Bu projeyi kim yürütür?",
   "faqA17": "Kasım 2025'ten beri tek gözetmen Sherif Samy Botros, Autonomicity Games Inc. ve AlphaProMega Air Foundation aracılığıyla. Tek işletmeci. Kamuya açık kaynak. İletişim: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a>.",
   "faqQ19": "Kişisel veriler bu cihazdan çıkar mı?",

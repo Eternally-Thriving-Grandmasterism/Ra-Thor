@@ -64,9 +64,11 @@ packFiles.forEach(function (name) {
   vm.createContext(sb);
   vm.runInContext(read('i18n/' + name), sb, { filename: name });
   var lang = name.slice(0, 2);
-  var quote = sb.window.translations[lang] && sb.window.translations[lang].licenceFaqQuote;
+  var pack = sb.window.translations[lang];
+  var quote = pack && pack.licenceFaqQuote;
   assert(typeof quote === 'string' && quote.indexOf('see LICENSE §1B') !== -1, lang + ' licenceFaqQuote must contain see LICENSE §1B');
   assert(quote.indexOf(excepted) !== -1, lang + ' licenceFaqQuote must keep the English parenthetical');
+  assert(pack.faqA16 === quote, lang + ' faqA16 must equal licenceFaqQuote');
 });
 var enQuote = (function () {
   var sb = { window: { translations: {} } };

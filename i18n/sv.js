@@ -125,7 +125,7 @@ window.translations["sv"] = {
   "faqQ15": "Kan någon spela Powrush-MMO idag?",
   "faqA15": "Den offentliga simulatorn i <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO\" class=\"text-amber-300 hover:underline\">Powrush-MMO</a> kan granskas och köras. Det är levererad programvara. Det är inte en alltid uppkopplad MMO-tjänst med konton och matchning. Mänsklig spelbarhet är fortfarande ett aktivt putspass.",
   "faqQ16": "Vad är AG-SML?",
-  "faqA16": "Autonomicity Games Sovereign Mercy License (AG-SML v1.2). Personer får använda verket för personligt, pedagogiskt, forsknings- och icke-kommersiellt kreativt bruk. All intäkt eller inkomst från användning, körning eller utdata kräver en betald kommersiell licens från Autonomicity Games Inc. Organisationsanvändning och övriga fall i LICENSE §2 kräver en separat betald kommersiell licens. Licensfiler finns i monorepot.",
+  "faqA16": "Autonomicity Games Sovereign Mercy License (AG-SML v1.2). Personer får använda verket för personligt, pedagogiskt, forsknings- och icke-kommersiellt kreativt bruk. All intäkt eller inkomst från användning, körning eller utdata kräver en betald kommersiell licens från Autonomicity Games Inc. Organisationsanvändning och övriga fall i LICENSE §2 kräver en separat betald kommersiell licens. Licensfiler finns i monorepot. (outputs of third-party models excepted; see LICENSE §1B)",
   "faqQ17": "Vem driver det här projektet?",
   "faqA17": "Sherif Samy Botros, ensam förvaltare sedan november 2025, genom Autonomicity Games Inc. och AlphaProMega Air Foundation. En operatör. Offentlig källa. Kontakt: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a>.",
   "faqQ19": "Lämnar personuppgifter den här enheten?",
