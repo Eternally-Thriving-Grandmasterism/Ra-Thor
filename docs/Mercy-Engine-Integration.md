@@ -211,7 +211,7 @@ Without the Mercy Engine, the system would optimize for efficiency or power.
 
 > “Does this increase mercy, thriving, and long-term harmony for all sentience?”
 
-This is what makes Ra-Thor **the world’s first true mercy-gated AGI governance system**.
+This is what makes Ra-Thor **a mercy-gated governance system that makes careful, mercy-evaluated decisions**.
 
 ---
 

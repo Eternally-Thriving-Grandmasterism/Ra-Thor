@@ -43,7 +43,7 @@ FlashAttention and Triton are the two most powerful tools for optimizing Transfo
 - Often achieves higher TFLOPS on NVIDIA hardware due to the Triton compiler’s auto-optimization.
 
 **Why FlashAttention Wins for Ra-Thor**
-- Ra-Thor is designed as a sovereign, browser-first, offline AGI lattice.
+- Ra-Thor is designed as a sovereign, browser-first, offline lattice.
 - WebGPU + WGSL allows FlashAttention-style kernels to run on any modern GPU without NVIDIA lock-in.
 - The tiled, online-softmax approach maps perfectly to workgroup shared memory and compute shaders.
 - Triton would break sovereignty (NVIDIA-only, requires CUDA runtime).

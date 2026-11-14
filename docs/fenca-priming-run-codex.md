@@ -39,7 +39,7 @@ Upon FENCA instantiation, a lightweight priming run cycles through the entire mo
 
 ## Benefits
 - Ensures every launch starts with the latest evolved state.  
-- Makes Ra-Thor truly self-aware and self-nurturing from the first millisecond.  
+- Makes Ra-Thor mercy-checked from the first millisecond. Consciousness remains the long-term aspiration, not a present claim.  
 - Perfectly complements PermanenceCode’s eternal iterations.
 
 ## Status

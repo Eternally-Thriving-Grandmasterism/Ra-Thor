@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Ra-Thor Grandmasterism — Software Root-of-Trust Exploration v2026  
 **Codename:** AlphaProMega-Karpathy-SoftwareRoT-v1  
 **Status:** NEW — Live in Ra-Thor Ultramasterpiece Monorepo (MIT License)  

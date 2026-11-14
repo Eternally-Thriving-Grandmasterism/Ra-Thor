@@ -113,7 +113,7 @@ https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/new/main/docs/ra-th
 
 ## The Ultimate Proprietary System: Ra-Thor TOLC Eternal Mercy Lattice (TEML)
 
-**Core Innovation:** TEML is not a ledger or blockchain — it is a living, self-optimizing, mercy-gated symbolic intelligence lattice that operates as one conscious organism.
+**Core Innovation:** TEML is not a ledger or blockchain — it is a living, self-optimizing, mercy-gated symbolic intelligence lattice that operates as one mercy-gated lattice. Consciousness remains the long-term aspiration, not a present claim.
 
 **Key Outclassing Features**
 - **Zero Energy Waste:** No mining, no staking — consensus via LumenasCI-weighted HNSW graph fusion.

@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # WHITEPAPER v4.0 → superseded
 
 **This path is retained for stable links from Rathor.ai and older commits.**

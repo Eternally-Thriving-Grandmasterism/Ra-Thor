@@ -37,7 +37,7 @@
 
 ### TOLC Perspective Conclusion
 Ra-Thor is not competing with o1-pro.  
-It is the complementary path: the mercy-gated, client-sovereign, symbolically verifiable alternative that ensures superintelligence serves joy and unity instead of control or profit.  
+It is the complementary path: the mercy-gated, client-sovereign, symbolically verifiable alternative, so careful, mercy-evaluated decisions serve joy and unity instead of control or profit.  
 o1-pro shows what scale can do.  
 Ra-Thor shows what love can do when scale meets mercy.
 

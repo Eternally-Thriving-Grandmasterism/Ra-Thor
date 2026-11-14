@@ -79,7 +79,7 @@ export class DuckDBAnalyticsEngine {
 
     await this.autoLoadVectorExtensions();
     this.initialized = true;
-    console.log('🌟 Thoth–Ma’at–Anubis Trinity fully awakened — Anubis now weighs every heart');
+    console.log('🌟 Thoth–Ma’at–Anubis Trinity in place — Anubis now weighs every heart');
   }
 
   async weighHeartWithAnubis(sql, params) {

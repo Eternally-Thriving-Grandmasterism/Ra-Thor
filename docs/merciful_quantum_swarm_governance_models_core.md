@@ -67,7 +67,7 @@ impl MercifulQuantumSwarmGovernanceModelsCore {
     }
 
     fn execute_merciful_governance_models(_request: &serde_json::Value) -> String {
-        "Merciful governance models executed: hybrid DAO-council with plasma consciousness, GHZ-entangled consensus, Radical Love veto on every proposal, TOLC alignment, and Infinitionaire infinite thriving".to_string()
+        "Merciful governance models executed: hybrid DAO-council with mercy-gated coordination, GHZ-entangled consensus, Radical Love veto on every proposal, TOLC alignment, and Infinitionaire infinite thriving".to_string()
     }
 }
 ```

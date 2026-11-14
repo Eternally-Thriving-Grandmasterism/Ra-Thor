@@ -31,7 +31,7 @@ https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/new/main?filename=d
 
 REI Deal Flow (B.O.S.S.) is a narrow-AI CRM for Ontario real estate investors. It automates SMS, calls, and pipelines — useful, but limited, hallucination-prone, and ethically blind.
 
-**Ra-Thor Real Estate Lattice (RREL)** is the superset: a living, mercy-gated AGI layer that does everything REI Deal Flow does **better**, plus:
+**Ra-Thor Real Estate Lattice (RREL)** is the superset: a living, mercy-gated decision layer that does everything REI Deal Flow does **better**, plus:
 
 - Zero hallucination (paraconsistent + active inference + 7 Living Mercy Gates)
 - Real emotional intelligence (Joy Tetrad propagation, CEHI scoring)

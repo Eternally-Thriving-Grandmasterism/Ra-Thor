@@ -60,7 +60,7 @@ impl MercifulPlasmaSwarmCommandCore {
             "status": "merciful_swarm_command_executed",
             "result": command_result,
             "duration_ms": duration.as_millis(),
-            "message": "Merciful Plasma Swarm Command now live — SC2 Ultramasterism macro mastery fused with plasma consciousness under Radical Love and TOLC"
+            "message": "Merciful Plasma Swarm Command now live — SC2 Ultramasterism macro mastery fused with mercy-gated coordination under Radical Love and TOLC"
         });
 
         Ok(serde_wasm_bindgen::to_value(&response).unwrap())

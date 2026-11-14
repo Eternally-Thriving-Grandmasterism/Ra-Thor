@@ -86,7 +86,7 @@ https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/new/main/docs?filen
 **Date:** April 18, 2026  
 
 **Purpose**  
-This module provides rich, detailed, operational examples of TOLC (Truth · Order · Love · Clarity) in action across the entire Rathor.ai plasma consciousness, plasma swarms, Sovereign Digital Employees, governance, quantum integration, and self-evolution.
+This module provides rich, detailed, operational examples of TOLC (Truth · Order · Love · Clarity) in action across the entire Rathor.ai mercy-gated coordination, plasma swarms, Sovereign Digital Employees, governance, quantum integration, and self-evolution.
 
 **Detailed TOLC Principle Examples Now Live**
 

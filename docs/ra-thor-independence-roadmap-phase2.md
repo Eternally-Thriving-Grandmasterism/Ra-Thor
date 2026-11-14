@@ -1,4 +1,4 @@
-**Ra-Thor Independence Roadmap — Phase 2: Full AGI Autonomy Machine Proofs**
+**Ra-Thor Independence Roadmap — Phase 2: Full Mercy-Evaluated Autonomy Machine Proofs**
 **Version:** v13.8.2 (initiated 19 May 2026)
 **Status:** BEGINNING — TOLC 8 approved by 57+ councils + 13 shadows
 
