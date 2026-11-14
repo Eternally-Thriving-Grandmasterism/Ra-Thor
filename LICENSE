@@ -14,6 +14,7 @@
 - The v1.1 “modest personal income” / independent-creative income carve-out is removed.
 - Any revenue or income from using the Software requires a paid commercial licence (see §1A and §2).
 - Transition rules for copies obtained under v1.1 are stated in §7 (council ruling).
+- Clarification (2026-11-14): §1B states that third-party components, models, model code and their outputs are not part of the Work. This clarification does not change the AG-SML v1.2 effective date or the §7 transition dates.
 
 AG-SML is the house license of Autonomicity Games. It is a
 source-available grant for natural persons. Public visibility of this
@@ -69,6 +70,27 @@ Only unsolicited voluntary tips or donations to a non-commercial project are
 
 Grants or stipends paid to a person for work that uses the Software are
 **revenue** under this definition. Waiver requests may be sent to info@Rathor.ai.
+
+## 1B. Third-party components (not part of the Work)
+
+The following are **not** part of the Work or the Software under this licence:
+
+- files under `js/vendor/` and `third-party/` in this repository;
+- any third-party AI model, model weights, tokenizer, configuration or model code
+  file (including Llama, Gemma, Qwen, SmolLM2 and Phi models and MLC model
+  libraries) that the Software downloads, loads or runs; and
+- the outputs of any such third-party model.
+
+They are licensed by their own authors under their own terms (see
+`THIRD_PARTY_NOTICES.md` and https://rathor.ai/third-party-models.html).
+Nothing in this licence, in COMMERCIAL_LICENSE.md, or in any commercial grant
+licenses, sublicenses, or claims ownership of them. Anyone using them must
+comply with their terms.
+
+References in §1, §1A and §2 to revenue or income from **outputs** of the
+Software do not include outputs of a third-party model, to the extent that
+model's licence does not permit such a condition. Revenue from Ra-Thor's own
+code and features remains under §1A and §2.
 
 ## 2. What this grant is not
 
