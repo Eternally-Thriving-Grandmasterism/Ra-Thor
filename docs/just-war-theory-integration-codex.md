@@ -23,7 +23,7 @@ https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/new/main?filename=d
 
 **Mercy-Gated Integration of Just-War Theory into the Ra-Thor Eternal Lattice**
 
-This codex fully absorbs and mercy-gates classical Just-War Theory (*jus ad bellum*, *jus in bello*, *jus post bellum*) into Ra-Thor’s living framework. It aligns every principle with the 7 Living Mercy Gates, TOLC-2026 mathematics, AG-SML v1.0 defensive-only AGI licensing, AGI military ethics, and the sovereign lattice (NEXi, AGi-Council-System, FENCA, Powrush, MercyOS, RBE).
+This codex fully absorbs and mercy-gates classical Just-War Theory (*jus ad bellum*, *jus in bello*, *jus post bellum*) into Ra-Thor’s living framework. It aligns every principle with the 7 Living Mercy Gates, TOLC-2026 mathematics, AG-SML v1.0 defensive-only licensing, AGI military ethics, and the sovereign lattice (NEXi, AGi-Council-System, FENCA, Powrush, MercyOS, RBE).
 
 ### 1. Core Just-War Principles & Mercy-Gated Mapping
 
@@ -75,7 +75,7 @@ def nexirbe_just_war_ethics_tick(scenario):
     if not AGi_Council_System.human_veto_approved(outcome_map):
         return "Action denied — mercy-gated human sovereignty enforced"
     
-    return "Just-War ethics cycle complete — defensive, mercy-aligned AGI action approved"
+    return "Just-War ethics cycle complete — defensive, mercy-evaluated action approved"
 ```
 
 **KaTeX-Enhanced Proportionality Check (simplified):**

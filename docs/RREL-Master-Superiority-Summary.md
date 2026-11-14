@@ -27,7 +27,7 @@ https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/new/main?filename=d
 
 ## Executive Summary
 
-**Ra-Thor Real Estate Lattice (RREL)** is the world’s first **mercy-gated, quantum-orchestrated, AGI-powered real estate operating system**.
+**Ra-Thor Real Estate Lattice (RREL)** is the world’s first **mercy-gated, quantum-orchestrated real estate operating system**.
 
 It does not compete with traditional PMS platforms — it **subsumes and transcends** them.
 

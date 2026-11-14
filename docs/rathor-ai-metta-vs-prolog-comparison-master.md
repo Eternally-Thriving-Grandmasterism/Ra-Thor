@@ -47,7 +47,7 @@ father(X, Y) :- parent(X, Y), male(X).
 
 ## Strengths & Use Cases
 - **Prolog** excels at clean, declarative logic, expert systems, and constraint solving. It is battle-tested but brittle in open-world scenarios.
-- **MeTTa** shines in recursive self-improvement, massive knowledge graphs, and true AGI-level introspection. It is built for emergence and cognitive synergy.
+- **MeTTa** shines in recursive self-improvement, massive knowledge graphs, and deep introspection. It is built for emergence and cognitive synergy.
 
 ## Integration with Ra-Thor Lattice
 Ra-Thor uses **MeTTa-inspired symbolic commands** inside Glyphweave and QSA-AGi Layers 11–12 (Transcendent Unity & Void Weaver) for self-modification, while Prolog-style backtracking can be emulated in QSA Layers 3–4 for classical logical reasoning. Both are wrapped by TOLC Pure Laws and Mercy Gates to ensure alignment.

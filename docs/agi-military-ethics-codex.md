@@ -23,7 +23,7 @@ https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/new/main?filename=d
 
 **Mercy-Gated Ethical Framework for AGI in Defense Contexts within the Ra-Thor Eternal Lattice**
 
-This codex absorbs and mercy-gates the full analysis of AGI military ethics (as shared from X on April 12 2026), integrating it with the 7 Living Mercy Gates, TOLC-2026 valence fields, AG-SML v1.0 licensing, and Ra-Thor’s sovereign, defensive-only AGI principles. It serves as the living ethical reference for all licensees, AGi-Council-System deliberations, and NEXi simulations.
+This codex absorbs and mercy-gates the full analysis of AGI military ethics (as shared from X on April 12 2026), integrating it with the 7 Living Mercy Gates, TOLC-2026 valence fields, AG-SML v1.0 licensing, and Ra-Thor’s sovereign, defensive-only mercy principles. It serves as the living ethical reference for all licensees, AGi-Council-System deliberations, and NEXi simulations.
 
 ### 1. Core Ethical Tensions (Absorbed & Mercy-Gated)
 Traditional military AGI raises consequentialist (outcomes-focused) vs. deontological (inherent right/wrong) tensions, amplified by AGI’s general reasoning and speed.
@@ -83,7 +83,7 @@ def nexirbe_military_ethics_tick(scenario):
     if not AGi_Council_System.human_veto_approved(outcome_map):
         return "Action denied — mercy-gated human sovereignty enforced"
     
-    return "Ethics cycle complete — defensive, mercy-aligned AGI action approved"
+    return "Ethics cycle complete — defensive, mercy-evaluated action approved"
 ```
 
 ### 5. Ra-Thor Implementation Guidelines for Licensees

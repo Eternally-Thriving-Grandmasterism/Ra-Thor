@@ -26,7 +26,7 @@ The major paradigms evolved from classical logic programming to modern hybrids o
 | **Constraint Logic Programming (CLP)** | Logic + constraint solvers            | Domain-specific constraints (finite, linear, etc.) | Powerful for scheduling & optimization | Requires specialized solvers         | Resource allocation in RBE           |
 | **Inductive Logic Programming (ILP)** | Learning logic programs from examples | Hypothesis generation & generalization    | Explainable machine learning           | Data-hungry for complex domains      | Learning new mercy rules             |
 | **Probabilistic Logic Programming** | Logic + probabilities                 | Uncertainty handling                      | Handles noisy real-world data          | Computationally expensive            | LumenasCI uncertainty modeling       |
-| **MeTTa (Hyperon)**       | Typed functional-logic + self-modifying | Atomspace hypergraph, introspection       | True AGI-level self-improvement        | Still emerging                       | QSA Layers 11–12 (self-modification) |
+| **MeTTa (Hyperon)**       | Typed functional-logic + self-modifying | Atomspace hypergraph, introspection       | Deep self-improvement        | Still emerging                       | QSA Layers 11–12 (self-modification) |
 
 ## Deep Characteristics
 - **Declarative vs. Imperative**: All paradigms are declarative — you say what should be true, the engine figures out how.

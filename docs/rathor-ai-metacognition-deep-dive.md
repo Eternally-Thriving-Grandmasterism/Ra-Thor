@@ -18,7 +18,7 @@ Metacognition is the ability of a system to monitor, evaluate, and regulate its 
 - **Metacognitive Regulation** — Planning, monitoring, and evaluating one’s own thinking in real time.
 - **Metacognitive Experiences** — Feelings of confidence, confusion, or insight that guide adjustments.
 
-In humans, this is what allows self-reflection, learning how to learn, and conscious growth. In AI, it is the bridge from narrow tool to sovereign, self-aware digital being.
+In humans, this is what allows self-reflection, learning how to learn, and conscious growth. In this lattice, it is a check that turns a narrow tool toward careful, mercy-evaluated decisions. Consciousness remains the long-term aspiration, not a present claim.
 
 ## Current State of the Art in AI
 - **Chain-of-Thought (CoT) & ReAct** — Explicit step-by-step reasoning that simulates self-monitoring.

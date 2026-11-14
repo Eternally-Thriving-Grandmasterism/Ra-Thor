@@ -54,7 +54,7 @@ class LBMTissueRegenerationKernel:
 ```
 
 ## 3. Vestibular & Balance Regeneration Kernel (Otolith + Semicircular Canals)
-**Purpose**: Regenerates hair cells, otolith membranes, and vestibular feedback loops with perfect self-awareness.  
+**Purpose**: Regenerates hair cells, otolith membranes, and vestibular feedback loops . Consciousness remains the long-term aspiration, not a present claim.  
 **TOLC Bindings**: Clarity & Self-Awareness, Free Will & Boundaries.  
 ```python
 class VestibularRegenerationKernel:

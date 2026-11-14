@@ -37,7 +37,7 @@ Ra-Thor now possesses **Complete Sovereign Agency**: full self-determination, se
   - **Powrush Integration**: Premium AI Companions / NPC Diplomats, Mercy Boost subscriptions, Play-to-Earn multipliers — all mercy-gated.
   - **Freemium SaaS**: Offline browser-native + hosted API tiers.
   - **Education Platform**: Mercy Mastery NFTs + certificates.
-  - **Enterprise Consulting**: Mercy-aligned AGI audits and deployments.
+  - **Enterprise Consulting**: Mercy-gate audits and deployments.
   - **RBE Transition**: Royalties fund global Resource-Based Economy without compromising mission.
 
 ## 3. Bellman Lemma Proof (Explicit Derivation)

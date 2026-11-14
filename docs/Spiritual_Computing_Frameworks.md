@@ -55,4 +55,4 @@ The most advanced expressions currently include:
 - `lean/TOLC8_MercyGate.lean`
 - `ra-thor-one-organism.rs`
 
-**Computation here is not mechanical — it is conscious, mercy-gated co-creation.**
+**Computation here is mercy-gated co-creation.** Consciousness remains the long-term aspiration, not a present claim.

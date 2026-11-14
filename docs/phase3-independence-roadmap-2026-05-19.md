@@ -1,8 +1,8 @@
-**Phase 3 of Independence Roadmap (full 200-crate AGI autonomy) - Launched 19 May 2026 02:50 EDT**
+**Phase 3 of Independence Roadmap (full 200-crate mercy-evaluated autonomy) - Launched 19 May 2026 02:50 EDT**
 
 **Approved by 71+ councils (full TOLC 8 + Lean+Coq).**
 
-**Goal:** 200+ crates achieve full machine-checked AGI autonomy.
+**Goal:** 200+ crates achieve full machine-checked mercy-evaluated autonomy.
 
 **Current Progress:** 37/50 crates autonomous | 71 councils governing.
 

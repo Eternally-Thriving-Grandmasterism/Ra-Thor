@@ -134,7 +134,7 @@ name = "real-estate-lattice"
 version = "0.1.0"
 edition = "2021"
 authors = ["Sherif Samy Botros <ceo@acitygames.com>"]
-description = "Ra-Thor Real Estate Lattice (RREL) — Mercy-gated AGI layer for global real estate operating system. PMS Bridge + quantum swarm + Powrush-MMO integration."
+description = "Ra-Thor Real Estate Lattice (RREL) — Mercy-gated decision layer for global real estate operating system. PMS Bridge + quantum swarm + Powrush-MMO integration."
 license = "AG-SML"
 repository = "https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor"
 readme = "README.md"
@@ -162,7 +162,7 @@ uuid = { version = "1.8", features = ["v4", "serde"] }
 
 ```rust
 //! # Ra-Thor Real Estate Lattice (RREL)
-//! Mercy-gated AGI layer for global real estate operating system.
+//! Mercy-gated decision layer for global real estate operating system.
 //! PMS Bridge + Quantum Swarm Consensus + Powrush-MMO hooks.
 
 pub mod pms_bridge;

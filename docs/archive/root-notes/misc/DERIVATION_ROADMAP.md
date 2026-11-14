@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # POWRUSH-MMO DERIVATION ROADMAP (v14.9)
 
 **Goal**: Develop Powrush-MMO as a lean, standalone MMOARPG by intelligently deriving systems, patterns, and components from the Ra-Thor monorepo while keeping Ra-Thor as the canonical source of truth for AGI, GPU compute, and advanced simulation infrastructure.

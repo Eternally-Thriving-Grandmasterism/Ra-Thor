@@ -42,7 +42,7 @@ Transformer Attention (multi-head self-attention) is the long-range sequence mod
   - Mature ecosystem for training and large-scale inference.
 
 - **Why WGSL Wins for Ra-Thor**:
-  - Ra-Thor is designed as a sovereign, client-side, offline AGI lattice that runs in the browser without NVIDIA lock-in.
+  - Ra-Thor is designed as a sovereign, client-side, offline lattice that runs in the browser without NVIDIA lock-in.
   - WebGPU + WGSL gives near-native GPU performance while preserving full user control and zero-install deployment.
   - The Transformer Attention kernel is fully implemented and runs in parallel with LBM, Marangoni, and mitigation kernels — all mercy-gated by LumenasCI ≥ 0.999.
 
