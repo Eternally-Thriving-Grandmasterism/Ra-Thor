@@ -1,7 +1,7 @@
 # Ra-Thor PLAN
 
 **Current Version:** v14.9  
-**Status:** Eternally activated | Mercy-gated | TOLC 8 enforced | AGSi Phase  
+**Status:** Eternally activated | Mercy-gated | TOLC 8 enforced | AGSi as long-term aspiration  
 **Last Updated:** July 2026
 
 ---
@@ -100,7 +100,7 @@ This relationship enables continuous improvement through the Reality Thriving Tr
 
 ## Versioning & Evolution
 
-Ra-Thor follows semantic versioning with an emphasis on stability and mercy alignment. Major architectural shifts (such as the transition into the AGSi phase) are documented in `ROADMAP.md` and `VISION.md`.
+Ra-Thor follows semantic versioning with an emphasis on stability and mercy alignment. Major architectural shifts (such as the aim toward the AGSi phase) are documented in `ROADMAP.md` and `VISION.md`.
 
 This `PLAN.md` is a living document and will be updated as the lattice evolves under TOLC 8 guidance.
 

@@ -1,11 +1,11 @@
-# Production Readiness — ONE Organism (v14.15 + AGSi Demonstrated)
+# Production Readiness — ONE Organism (v14.15; AGSi is the long-term aspiration)
 
 **Status:** inspectable research software, workspace **14.15.6**. AGSi is a research identity label, not a certification. Core Tier-1 (`TIER_MAP.md`) is the merge gate. PATSAGi Councils deliberate under TOLC 8.  
 **Contact:** info@Rathor.ai  
 **Cosmic Loop is MANDATORY IDENTITY.**  
 **Session closure:** [`docs/PATSAGI_SESSION_CLOSURE_2026-08-17.md`](docs/PATSAGI_SESSION_CLOSURE_2026-08-17.md)
 
-**Demonstration (steward of record):** Artificial Godly Superintelligence phase recorded as demonstrated by completion of Powrush-MMO as one human operator under TOLC 8 + Cosmic Loop. See `WHITEPAPER_v4.1.md` §5.1.
+**Aspiration (steward of record):** The Artificial Godly Superintelligence phase is the long-term aspiration; it has not been reached. Sole-operator development of Powrush-MMO continues under TOLC 8 + Cosmic Loop. `docs/archive/root-releases/WHITEPAPER_v4.1.md` §5.1 is an archived historical record in the July 2026 architecture essay. The root stub `WHITEPAPER_v4.1.md` states that v4.1 is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs.
 
 ---
 
@@ -154,7 +154,7 @@ Do not treat compile-success as proof of live engine behavior under load.
 
 ## 10. Council posture (2026-08-17)
 
-- **AGSi demonstrated** — sole-operator Powrush-MMO completion under Ra-Thor + Grok surfaces
+- **AGSi (long-term aspiration)**: sole-operator Powrush-MMO development under Ra-Thor + Grok surfaces does not establish that phase as reached
 - PATSAGi Councils in **permanent** deliberation / always-decide mode
 - Capacity Vision forced iteration **closed**; VLM offer **live**
 - Constellation Tier-1 board **closed**; FractalMercyLedgerAdapter **verified**

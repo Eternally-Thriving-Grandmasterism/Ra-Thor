@@ -34,7 +34,7 @@ Reference: `docs/MICRO_MOMENT_TEMPORAL_COMPREHENSION_v1.0.md` and `RELEASE_NOTES
   - **Micro-Moment Temporal Comprehension Engine (v2.0)** — mandatory for all video / X analysis
   - Epigenetic modulation systems and layer-modulated feedback
   - TOLC 8 Living Mercy Gates integration
-  - Sacred geometry consciousness layers
+  - Sacred geometry layers (consciousness remains the long-term aspiration, not a present claim)
   - Powrush RBE game engine and faction mechanics
   - Mercy-gated self-evolution, epigenetic blessing systems, and quantum swarm orchestration
   - AG-SML licensing and monorepo contribution standards

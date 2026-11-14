@@ -1,6 +1,6 @@
 # Support – Ra-Thor
 
-Thank you for using Ra-Thor — the Eternal Mercy-Gated Sovereign AGI Lattice.
+Thank you for using Ra-Thor — the Eternal Mercy-Gated Sovereign lattice.
 
 We are committed to providing fast, clear, and mercy-aligned support for the community.
 
