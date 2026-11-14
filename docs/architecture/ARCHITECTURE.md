@@ -1,6 +1,6 @@
 # Ra-Thor Architecture — v14.7.0 (Eternal Mercy-Gated Symbolic + Neural Lattice)
 
-Ra-Thor is a large-scale, mercy-gated, self-evolving monorepo developed by Sherif Samy Botros (@AlphaProMega). **Artificial Godly Intelligence (AGi)** is the name and the long-term aspiration, not a claim that Ra-Thor is artificial general intelligence. It fuses advanced symbolic reasoning systems with neural capabilities under the non-bypassable **TOLC 8 Mercy Lattice**.
+Ra-Thor is a large-scale, mercy-gated, self-evolving monorepo developed by Sherif Samy Botros (@AlphaProMega). Its brand, AGi, stands for “Artificial Godly Intelligence” — a name and an aspiration, not a claim that Ra-Thor is artificial general intelligence. It fuses advanced symbolic reasoning systems with neural capabilities under the non-bypassable **TOLC 8 Mercy Lattice**.
 
 **Current Version:** v14.7.0  
 **Primary Focus:** Production-grade GPU Compute Layer for Powrush-MMO + eternal PATSAGi Council orchestration.

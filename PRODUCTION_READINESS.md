@@ -5,7 +5,7 @@
 **Cosmic Loop is MANDATORY IDENTITY.**  
 **Session closure:** [`docs/PATSAGI_SESSION_CLOSURE_2026-08-17.md`](docs/PATSAGI_SESSION_CLOSURE_2026-08-17.md)
 
-**Aspiration (steward of record):** The Artificial Godly Superintelligence phase is the long-term aspiration. Sole-operator development of Powrush-MMO under TOLC 8 + Cosmic Loop is recorded beside that aim in `WHITEPAPER_v4.1.md` §5.1; it is not a claim that the phase has been reached.
+**Aspiration (steward of record):** The Artificial Godly Superintelligence phase is the long-term aspiration; it has not been reached. Sole-operator development of Powrush-MMO continues under TOLC 8 + Cosmic Loop. `docs/archive/root-releases/WHITEPAPER_v4.1.md` §5.1 is an archived historical record in the July 2026 architecture essay. The root stub `WHITEPAPER_v4.1.md` states that v4.1 is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs.
 
 ---
 
