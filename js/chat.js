@@ -100,6 +100,7 @@
   let webllmRowRuntime = {};
   let webllmDownloadCancelled = false;
   let llmUiState = 'idle';
+  let webllmAppConfig = null;
 
   const WEBLLM_MODEL_KEY = 'rathor-webllm-model-v1';
   const WEBLLM_VENDOR = './vendor/web-llm/0.2.85/index.js';
@@ -111,9 +112,10 @@
   );
   const WEBLLM_DEFAULT_BASE = 'Llama-3.2-1B-Instruct';
   // Phone picker rows: only entries marked phoneRow (Qwen2.5-0.5B), and still at or under this cap.
-  // Other Light rows stay in the curated list for desktop. A stored model key is never rewritten.
+  // Other Light rows stay in the curated list for desktop. A stored key stays put when the
+  // phone list omits it. A saved gemma-2-2b-it choice is the exception: that row is gone.
   const PHONE_MAX_VRAM_MB = 1200;
-  // Curated order. Quantization is chosen from the pinned prebuiltAppConfig.
+  // Curated order. Quantization is chosen from the vendored prebuiltAppConfig.
   // q4f32_1 is used only when the WebGPU adapter lacks shader-f16.
   const WEBLLM_CURATED = [
     {
@@ -147,15 +149,6 @@
       links: [{ text: 'Apache-2.0', href: 'https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct/blob/989aa7980e4cf806f80c7fef2b1adb7bc71aa306/LICENSE' }]
     },
     {
-      base: 'gemma-2-2b-it',
-      q4f16: 'gemma-2-2b-it-q4f16_1-MLC',
-      q4f32: 'gemma-2-2b-it-q4f32_1-MLC',
-      links: [
-        { text: 'Gemma Terms of Use', href: 'https://ai.google.dev/gemma/terms' },
-        { text: 'Prohibited Use Policy', href: 'https://ai.google.dev/gemma/prohibited_use_policy' }
-      ]
-    },
-    {
       base: 'Llama-3.2-3B-Instruct',
       q4f16: 'Llama-3.2-3B-Instruct-q4f16_1-MLC',
       q4f32: 'Llama-3.2-3B-Instruct-q4f32_1-MLC',
@@ -181,6 +174,94 @@
       desktopLabel: 'Desktop. Not SuperGrok. Needs a real GPU.'
     }
   ];
+
+  // PIN-MODELS-1. Weights and wasm libs are pinned to these revisions.
+  // WebLLM 0.2.85 cleanModelUrl (js/vendor/web-llm/0.2.85/index.js) appends a
+  // floating revision only when model has no /resolve/<rev>/ segment. These
+  // records already include that segment. model_lib keeps the vendored file
+  // name, including the v0_2_84/base/ directory, and replaces the git ref.
+  const WEBLLM_WASM_REVISION = '146ed9cd4b4062e967b017fd2291f7106b50599f';
+  const WEBLLM_HF_REVISIONS = {
+    'SmolLM2-360M-Instruct-q4f16_1-MLC': '3a622fd89e0216e8bb10c410c007c786baa8a033',
+    'SmolLM2-360M-Instruct-q4f32_1-MLC': '1e6b2ca3684e2bc8a6d39eb36e8d6cd51eb12bda',
+    'Qwen2.5-0.5B-Instruct-q4f16_1-MLC': '32ff081fe7e4dfe4ffb167b94c66fdf11e02b8ad',
+    'Qwen2.5-0.5B-Instruct-q4f32_1-MLC': '8e6ec5f417c7d0e1414703ef619b8a24686e3ab0',
+    'Llama-3.2-1B-Instruct-q4f16_1-MLC': '2a37b0a5ecb622d51ddc2fac74de0b95872affd7',
+    'Llama-3.2-1B-Instruct-q4f32_1-MLC': 'a949835e0f9a65335bd834db02a44cf8fae34020',
+    'Qwen2.5-1.5B-Instruct-q4f16_1-MLC': '9bd564b064631febf14deadcac492efb761d60c3',
+    'Qwen2.5-1.5B-Instruct-q4f32_1-MLC': 'a822ee410075710c9673005eafa017b90136b85d',
+    'Llama-3.2-3B-Instruct-q4f16_1-MLC': '1e80abf71e3d17cd564e2d2b63caa15cb226018e',
+    'Llama-3.2-3B-Instruct-q4f32_1-MLC': '6083cfdaaf08d2dd4872d7f5b87fb0242aa7d75c',
+    'Phi-3.5-mini-instruct-q4f16_1-MLC': '206a7da25b5efbef7b50502993367fcb05183a1d',
+    'Phi-3.5-mini-instruct-q4f32_1-MLC': '44ec9d969b381a490f4ea7424f16af7df47c2d7a',
+    'Qwen2.5-7B-Instruct-q4f16_1-MLC': '691c5f2512745eeae9607266e7df43e67339f403'
+  };
+
+  /* pin-models-1-pure */
+  function copyModelRecord(rec) {
+    var copy = {};
+    Object.keys(rec || {}).forEach(function (key) {
+      copy[key] = rec[key];
+    });
+    if (rec && rec.overrides) {
+      var overrides = {};
+      Object.keys(rec.overrides).forEach(function (key) {
+        overrides[key] = rec.overrides[key];
+      });
+      copy.overrides = overrides;
+    }
+    if (rec && rec.required_features && rec.required_features.slice) {
+      copy.required_features = rec.required_features.slice();
+    }
+    return copy;
+  }
+
+  function pinWasmLibUrl(modelLib) {
+    var url = String(modelLib || '');
+    var marker = '/binary-mlc-llm-libs/';
+    var at = url.indexOf(marker);
+    if (at === -1) return url;
+    var rest = url.slice(at + marker.length);
+    var slash = rest.indexOf('/');
+    if (slash < 1) return url;
+    return url.slice(0, at + marker.length) + WEBLLM_WASM_REVISION + rest.slice(slash);
+  }
+
+  function pinModelRecord(rec) {
+    var copy = copyModelRecord(rec);
+    var sha = WEBLLM_HF_REVISIONS[copy.model_id];
+    if (sha) {
+      copy.model = 'https://huggingface.co/mlc-ai/' + copy.model_id + '/resolve/' + sha + '/';
+    }
+    if (copy.model_lib) copy.model_lib = pinWasmLibUrl(copy.model_lib);
+    return copy;
+  }
+
+  function curatedWebllmAppConfig(module) {
+    var source = (module && module.prebuiltAppConfig) || {};
+    var list = source.model_list || [];
+    var byId = {};
+    list.forEach(function (rec) {
+      if (rec && rec.model_id) byId[rec.model_id] = rec;
+    });
+    var modelList = [];
+    WEBLLM_CURATED.forEach(function (entry) {
+      [entry.q4f16, entry.q4f32].forEach(function (id) {
+        if (!id || !byId[id]) return;
+        modelList.push(pinModelRecord(byId[id]));
+      });
+    });
+    var config = { model_list: modelList };
+    if (source.cacheBackend !== undefined) config.cacheBackend = source.cacheBackend;
+    return config;
+  }
+  /* pin-models-1-pure-end */
+
+  function ensureWebllmAppConfig(module) {
+    var source = module || webllmModule;
+    if (!webllmAppConfig && source) webllmAppConfig = curatedWebllmAppConfig(source);
+    return webllmAppConfig;
+  }
 
   let backendEnabled = false;
   let backendConfig = { endpoint: 'http://localhost:11434/v1', model: 'llama3.2' };
@@ -1623,7 +1704,6 @@ License: AG-SML v1.2 (non-revenue personal / research). Organizations license.`;
     var url = String(modelUrl || '');
     if (!url) return '';
     if (url.charAt(url.length - 1) !== '/') url += '/';
-    if (!/.+\/resolve\/.+\//.test(url)) url += 'resolve/main/';
     try { return new URL(url).href; } catch (e) { return url; }
   }
 
@@ -1632,6 +1712,8 @@ License: AG-SML v1.2 (non-revenue personal / research). Organizations license.`;
     return name === 'webllm/model' || name === 'webllm/wasm' || name === 'webllm/config';
   }
 
+  // Pinned record only. A download stored under the previous revision must not
+  // count as cached for the pinned model. Delete uses requestMatchesPurge.
   function requestMatchesModel(requestUrl, modelUrl, modelLib) {
     var url = String(requestUrl || '');
     if (!url) return false;
@@ -1641,12 +1723,47 @@ License: AG-SML v1.2 (non-revenue personal / research). Organizations license.`;
     return false;
   }
 
+  function legacyResolveMainPrefix(modelUrl) {
+    var prefix = modelCacheUrlPrefix(modelUrl);
+    if (!prefix) return '';
+    var origin = 'https://huggingface.co/mlc-ai/';
+    if (prefix.indexOf(origin) !== 0) return '';
+    var tail = prefix.slice(origin.length);
+    var slash = tail.indexOf('/');
+    if (slash < 1) return '';
+    return origin + tail.slice(0, slash) + '/resolve/' + 'main' + '/';
+  }
+
+  function legacyWasmLibUrl(modelLib) {
+    var url = String(modelLib || '');
+    var marker = '/binary-mlc-llm-libs/';
+    var at = url.indexOf(marker);
+    if (at === -1) return '';
+    var rest = url.slice(at + marker.length);
+    var slash = rest.indexOf('/');
+    if (slash < 1) return '';
+    var floating = 'main';
+    if (rest.slice(0, slash) === floating) return url;
+    return url.slice(0, at + marker.length) + floating + rest.slice(slash);
+  }
+
+  function requestMatchesPurge(requestUrl, modelUrl, modelLib) {
+    if (requestMatchesModel(requestUrl, modelUrl, modelLib)) return true;
+    var url = String(requestUrl || '');
+    if (!url) return false;
+    var legacyPrefix = legacyResolveMainPrefix(modelUrl);
+    if (legacyPrefix && legacyPrefix !== modelCacheUrlPrefix(modelUrl) && url.indexOf(legacyPrefix) !== -1) return true;
+    var legacyLib = legacyWasmLibUrl(modelLib);
+    if (legacyLib && legacyLib !== String(modelLib || '') && url === legacyLib) return true;
+    return false;
+  }
+
   function purgeOwnedModelEntries(stores, modelUrl, modelLib) {
     var next = {};
     Object.keys(stores || {}).forEach(function (name) {
       var urls = (stores[name] || []).slice();
       if (isWebllmOwnedCache(name)) {
-        urls = urls.filter(function (url) { return !requestMatchesModel(url, modelUrl, modelLib); });
+        urls = urls.filter(function (url) { return !requestMatchesPurge(url, modelUrl, modelLib); });
       }
       next[name] = urls;
     });
@@ -1812,6 +1929,51 @@ License: AG-SML v1.2 (non-revenue personal / research). Organizations license.`;
     };
   }
 
+  function canonicalStoredBase(stored, defaultBase) {
+    if (stored === 'gemma-2-2b-it') return defaultBase || '';
+    return stored || '';
+  }
+
+  function retiredPickerFallback(plan, stored, defaultBase) {
+    if (stored !== 'gemma-2-2b-it') return plan;
+    var next = defaultBase || '';
+    return { active: next, stored: next, writeDefault: true };
+  }
+
+  // Both Gemma weights used these vendored wasm file names. The 1k ids share the same repos.
+  function retiredGemmaTargets() {
+    var ids = ['gemma-2-2b-it-q4f16_1-MLC', 'gemma-2-2b-it-q4f32_1-MLC'];
+    var files = [
+      'gemma-2-2b-it-q4f16_1_cs1k-webgpu.wasm',
+      'gemma-2-2b-it-q4f32_1_cs1k-webgpu.wasm'
+    ];
+    var targets = [];
+    for (var i = 0; i < ids.length; i++) {
+      targets.push({
+        model: 'https://huggingface.co/mlc-ai/' + ids[i] + '/resolve/' + 'main' + '/',
+        model_lib: 'https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/' + 'main' + '/web-llm-models/v0_2_84/base/' + files[i]
+      });
+    }
+    return targets;
+  }
+
+  function purgeTargetEntries(stores, targets) {
+    var next = stores;
+    for (var i = 0; i < (targets || []).length; i++) {
+      next = purgeOwnedModelEntries(next, targets[i].model, targets[i].model_lib);
+    }
+    return next;
+  }
+
+  function storesAfterGemmaFallback(cacheStores, idbStores, stored) {
+    if (stored !== 'gemma-2-2b-it') return { caches: cacheStores, indexedDB: idbStores };
+    var targets = retiredGemmaTargets();
+    return {
+      caches: purgeTargetEntries(cacheStores, targets),
+      indexedDB: purgeTargetEntries(idbStores, targets)
+    };
+  }
+
   function phoneHighlightPlan(phonePath, stored, listedBases, ready, desktopActive) {
     var qwen = 'Qwen2.5-0.5B-Instruct';
     var kept = stored || '';
@@ -1923,7 +2085,9 @@ License: AG-SML v1.2 (non-revenue personal / research). Organizations license.`;
   /* chat-models-1-pure-end */
 
   function readStoredModelBase() {
-    try { return localStorage.getItem(WEBLLM_MODEL_KEY) || ''; } catch (e) { return ''; }
+    var stored = '';
+    try { stored = localStorage.getItem(WEBLLM_MODEL_KEY) || ''; } catch (e) { return ''; }
+    return canonicalStoredBase(stored, WEBLLM_DEFAULT_BASE);
   }
 
   function rowErrorLabel(text) {
@@ -2020,8 +2184,8 @@ License: AG-SML v1.2 (non-revenue personal / research). Organizations license.`;
     return false;
   }
 
-  async function purgeModelLeftovers(rec) {
-    if (!rec || typeof caches === 'undefined' || !caches.keys) return;
+  async function purgeCacheApiModel(modelUrl, modelLib) {
+    if (typeof caches === 'undefined' || !caches.keys) return;
     var names;
     try { names = await caches.keys(); } catch (e) { return; }
     for (var i = 0; i < names.length; i++) {
@@ -2032,9 +2196,80 @@ License: AG-SML v1.2 (non-revenue personal / research). Organizations license.`;
       try { reqs = await cache.keys(); } catch (e) { reqs = []; }
       for (var r = 0; r < reqs.length; r++) {
         var url = reqs[r] && reqs[r].url ? reqs[r].url : '';
-        if (!requestMatchesModel(url, rec.model, rec.model_lib)) continue;
+        if (!requestMatchesPurge(url, modelUrl, modelLib)) continue;
         try { await cache.delete(reqs[r]); } catch (e2) {}
       }
+    }
+  }
+
+  // WebLLM 0.2.85 prebuiltAppConfig.cacheBackend is "cache" (Cache API).
+  // ArtifactIndexedDBCache is the other backend: database name is the scope
+  // (webllm/model, webllm/wasm, webllm/config) and the object store is "urls".
+  function openListedWebllmDb(name) {
+    return new Promise(function (resolve, reject) {
+      var req = indexedDB.open(name);
+      var created = false;
+      req.onupgradeneeded = function () {
+        created = true;
+        try { req.transaction.abort(); } catch (e) {}
+      };
+      req.onsuccess = function () {
+        if (created) {
+          try { req.result.close(); } catch (e2) {}
+          reject(new Error('refused to create ' + name));
+          return;
+        }
+        resolve(req.result);
+      };
+      req.onerror = function () { reject(req.error); };
+    });
+  }
+
+  async function purgeIndexedDbModel(modelUrl, modelLib) {
+    if (typeof indexedDB === 'undefined' || typeof indexedDB.databases !== 'function') return;
+    var listed;
+    try { listed = await indexedDB.databases(); } catch (e) { return; }
+    for (var i = 0; i < listed.length; i++) {
+      var name = listed[i] && listed[i].name;
+      if (!isWebllmOwnedCache(name)) continue;
+      var db;
+      try { db = await openListedWebllmDb(name); } catch (eOpen) { continue; }
+      try {
+        if (!db.objectStoreNames.contains('urls')) continue;
+        await new Promise(function (resolve, reject) {
+          var tx = db.transaction(['urls'], 'readwrite');
+          var store = tx.objectStore('urls');
+          var cursorReq = store.openCursor();
+          cursorReq.onerror = function () { reject(cursorReq.error); };
+          cursorReq.onsuccess = function () {
+            var cursor = cursorReq.result;
+            if (!cursor) return;
+            var key = cursor.key == null ? '' : String(cursor.key);
+            if (requestMatchesPurge(key, modelUrl, modelLib)) cursor.delete();
+            cursor.continue();
+          };
+          tx.oncomplete = function () { resolve(); };
+          tx.onerror = function () { reject(tx.error); };
+          tx.onabort = function () { reject(tx.error || new Error('indexedDB abort')); };
+        });
+      } catch (eTx) {
+      } finally {
+        try { db.close(); } catch (eClose) {}
+      }
+    }
+  }
+
+  async function purgeModelLeftovers(rec) {
+    if (!rec) return;
+    await purgeCacheApiModel(rec.model, rec.model_lib);
+    await purgeIndexedDbModel(rec.model, rec.model_lib);
+  }
+
+  async function purgeRetiredGemmaCaches() {
+    var targets = retiredGemmaTargets();
+    for (var i = 0; i < targets.length; i++) {
+      await purgeCacheApiModel(targets[i].model, targets[i].model_lib);
+      await purgeIndexedDbModel(targets[i].model, targets[i].model_lib);
     }
   }
 
@@ -2043,7 +2278,7 @@ License: AG-SML v1.2 (non-revenue personal / research). Organizations license.`;
     if (rt.downloading) return;
     var full = false;
     try {
-      full = !!(webllmModule && await webllmModule.hasModelInCache(opt.id));
+      full = !!(webllmModule && webllmAppConfig && await webllmModule.hasModelInCache(opt.id, webllmAppConfig));
     } catch (e) {
       full = false;
     }
@@ -2334,7 +2569,9 @@ License: AG-SML v1.2 (non-revenue personal / research). Organizations license.`;
     }
     var engine = null;
     try {
+      ensureWebllmAppConfig(webllmModule);
       engine = new webllmModule.MLCEngine({
+        appConfig: webllmAppConfig,
         initProgressCallback: function (report) {
           if (token !== llmLoadToken || !fromDownload) return;
           var pct = Math.round((report.progress || 0) * 100);
@@ -2349,7 +2586,7 @@ License: AG-SML v1.2 (non-revenue personal / research). Organizations license.`;
       await engine.reload(opt.id);
       if (token !== llmLoadToken) return;
       var full = false;
-      try { full = await webllmModule.hasModelInCache(opt.id); } catch (e) { full = false; }
+      try { full = await webllmModule.hasModelInCache(opt.id, webllmAppConfig); } catch (e) { full = false; }
       rt.downloading = false;
       llmLoading = false;
       if (full) {
@@ -2406,7 +2643,8 @@ License: AG-SML v1.2 (non-revenue personal / research). Organizations license.`;
     if ((llmEngine || llmReady || llmLoading) && llmModelId === opt.id) await unloadWebllmEngine();
     if (readNetMode() !== 'offline-only' && webllmModule && webllmModule.deleteModelAllInfoInCache) {
       try {
-        await webllmModule.deleteModelAllInfoInCache(opt.id);
+        ensureWebllmAppConfig(webllmModule);
+        await webllmModule.deleteModelAllInfoInCache(opt.id, webllmAppConfig);
       } catch (err) {
         console.error('[Ra-Thor WebLLM] delete', err);
       }
@@ -2592,9 +2830,9 @@ License: AG-SML v1.2 (non-revenue personal / research). Organizations license.`;
       logPhoneLight(rowLoadErrorText(err));
       return false;
     }
+    webllmAppConfig = curatedWebllmAppConfig(webllmModule);
     var byId = new Map();
-    var list = (webllmModule.prebuiltAppConfig && webllmModule.prebuiltAppConfig.model_list) || [];
-    list.forEach(function (rec) {
+    (webllmAppConfig.model_list || []).forEach(function (rec) {
       if (rec && rec.model_id) byId.set(rec.model_id, rec);
     });
     webllmOptions = [];
@@ -2607,9 +2845,18 @@ License: AG-SML v1.2 (non-revenue personal / research). Organizations license.`;
     });
     var listedBases = [];
     for (var b = 0; b < webllmOptions.length; b++) listedBases.push(webllmOptions[b].entry.base);
-    var plan = rememberedModelPlan(readStoredModelBase(), listedBases, WEBLLM_DEFAULT_BASE);
+    var rawStored = '';
+    try { rawStored = localStorage.getItem(WEBLLM_MODEL_KEY) || ''; } catch (e) {}
+    var storedBase = canonicalStoredBase(rawStored, WEBLLM_DEFAULT_BASE);
+    var plan = rememberedModelPlan(storedBase, listedBases, WEBLLM_DEFAULT_BASE);
+    plan = retiredPickerFallback(plan, rawStored, WEBLLM_DEFAULT_BASE);
+    if (rawStored === 'gemma-2-2b-it') {
+      try { await purgeRetiredGemmaCaches(); } catch (eGemma) {
+        console.error('[Ra-Thor WebLLM] gemma cache', eGemma);
+      }
+    }
     if (plan.writeDefault) {
-      try { localStorage.setItem(WEBLLM_MODEL_KEY, WEBLLM_DEFAULT_BASE); } catch (e) {}
+      try { localStorage.setItem(WEBLLM_MODEL_KEY, WEBLLM_DEFAULT_BASE); } catch (e2) {}
     }
     if (!webllmOptions.length) {
       webllmPicker.classList.add('hidden');
