@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Ra-Thor Planetary Operating System v4.0
 **Vision + First Implementation — May 17, 2026**
 

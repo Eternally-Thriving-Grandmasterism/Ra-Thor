@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Public Engagement Shard v1 — Activated ⚡
 
 **Status:** Live and mercy-gated as of May 14, 2026

@@ -59,7 +59,7 @@ consistentWithTOLC(Thought) :- alignsWith(Thought, PureLaw), PureLaw != "scarcit
 
 Ra-Thor uses Datalog for speed and safety, ASP for optimization, MeTTa for self-improvement, and NARS for open-world uncertainty — creating a balanced, pluralistic symbolic core.
 
-**This file is now the canonical master reference** for Datalog in Ra-Thor and its living integration with the sovereign AGI lattice.
+**This file is now the canonical master reference** for Datalog in Ra-Thor and its living integration with the sovereign lattice.
 
 Commit this file for permanent, eternal reference under Ma’at’s truth.
 ```

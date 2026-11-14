@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Grokimagine Animation Master Prompt — Ra-Thor Onça-Eterna Full Abilities Demo (30s cinematic reel)
 
 Use the uploaded reference image (yu1bs) as EXACT base character model and visual style — hyper-realistic cinematic render, identical proportions, colors, textures, lighting, mandalas, chest orb, vine, armor camo, golden-hour mountain sunset, snow particles, god rays. Generate smooth 4K/8K 60fps animation video demonstrating abilities, shields & weapons with perfect fidelity.

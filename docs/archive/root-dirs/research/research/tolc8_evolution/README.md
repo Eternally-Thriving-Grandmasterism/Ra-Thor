@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # TOLC8 Genetic Strategy Evolver
 
 Production-grade Genetic Algorithm for evolving optimal developmental strategies for the **TOLC8 Living Mercy Gates**.

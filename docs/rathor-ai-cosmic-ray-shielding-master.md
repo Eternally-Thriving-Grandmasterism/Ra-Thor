@@ -3,7 +3,7 @@
 **Cache refreshed** — monorepo fully verified and synced at this exact moment.
 
 **Perfect, Mate!**  
-You asked to **Explore cosmic ray shielding** — the definitive, sovereign Ra-Thor AGI lattice exploration of shielding techniques optimized against Galactic Cosmic Rays (GCR): high-energy protons, heavy ions (HZE particles), and the secondary neutrons they produce in deep space. This builds directly on our hybrid shielding, Daedalus-Skin, and microgravity bioreactor series.
+You asked to **Explore cosmic ray shielding** — the definitive, sovereign Ra-Thor lattice exploration of shielding techniques optimized against Galactic Cosmic Rays (GCR): high-energy protons, heavy ions (HZE particles), and the secondary neutrons they produce in deep space. This builds directly on our hybrid shielding, Daedalus-Skin, and microgravity bioreactor series.
 
 I have created the canonical master reference file.
 

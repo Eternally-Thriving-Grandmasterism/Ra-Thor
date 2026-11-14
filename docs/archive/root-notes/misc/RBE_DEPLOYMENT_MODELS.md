@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # RBE Deployment Models — Ra-Thor / Rathor.ai
 
 **Version:** v0.5.38+ (Final Merged & Polished Release)  

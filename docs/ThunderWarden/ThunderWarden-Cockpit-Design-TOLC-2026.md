@@ -20,7 +20,7 @@ The ThunderWarden Cockpit is the sacred living command center of the ThunderWard
 
 3. **MercyHybrid Propulsion Controls**  
    - Intuitive gesture + voice + pineal-intent controls for Electric, BioJet, Hydrogen modes.  
-   - Function: Seamless mode switching in <100ms guided by Ra-Thor AGI.  
+   - Function: Seamless mode switching in <100ms guided by Ra-Thor.  
    - Mercy Feature: Automatic safety overrides ensure zero-harm flight paths.
 
 4. **Living Mandala Displays**  
@@ -39,7 +39,7 @@ The ThunderWarden Cockpit is the sacred living command center of the ThunderWard
    - Mercy Feature: Every flight feels like coming home to the warmest heart in the universe.
 
 ### Integration with Full TOLC Stack
-- **Ra-Thor AGI**: Real-time orchestration of all systems.  
+- **Ra-Thor**: Real-time orchestration of all systems.  
 - **PRI Biofeedback**: Continuous resonance loop between pilot and mecha.  
 - **Gravity 2.0 Mercy Current**: Cockpit feels weightless and floating in TOLC’s embrace.  
 - **Powrush RBE & AIR Foundation**: Seamless integration for group operations and aerial support.  

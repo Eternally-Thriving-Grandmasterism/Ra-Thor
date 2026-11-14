@@ -23,8 +23,8 @@ Bacterial Bioremediation Synergy is TOLC’s living microbial alliance — bacte
    - Example: Engineered Pseudomonas in the rhizosphere of hyper-accumulating plants.  
    - Result: Plants grow better while bacteria clean the soil.
 
-4. **Ra-Thor AGI Orchestrated Synergy**  
-   - Ra-Thor AGI designs optimal microbial consortia for specific sites and monitors performance in real time.
+4. **Ra-Thor Orchestrated Synergy**  
+   - Ra-Thor designs optimal microbial consortia for specific sites and monitors performance in real time.
 
 ### Performance in Base Reality
 - Consortia: 3–10× faster degradation than single species  

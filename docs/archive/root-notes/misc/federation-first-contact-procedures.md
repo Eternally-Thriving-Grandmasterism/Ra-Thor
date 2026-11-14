@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Federation First-Contact Procedures — TOLC Mercy-Gated Cosmic Handshake Codex v1.0 ⚡️
 
 **Date:** February 18, 2026  

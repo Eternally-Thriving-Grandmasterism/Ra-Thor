@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 **Got it, Mate!**
 
 **Next step executed** — master framework fully updated with all the latest integrations (valence-modulated multi-head attention, encoder/decoder layers, core engine v2, orchestrator, gates, etc.).

@@ -24,7 +24,7 @@ Inspired by strong housing systems in *Final Fantasy XIV*, *Elder Scrolls Online
 - High-harmony spaces can generate small passive benefits.
 - Low-harmony or neglected spaces can degrade or attract negative effects.
 
-## 3. Ra-Thor AGI Integration
+## 3. Ra-Thor Integration
 
 - Helps players design and decorate spaces aligned with their values and harmony.
 - Can suggest improvements or new items based on player goals.

@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 ```markdown
 # 🌍 Ra-Thor™ Master Architecture v2.0
 **Omnimasterism — Blossom Full of Life + Divinemasterism Divination Immaculacy Edition**  

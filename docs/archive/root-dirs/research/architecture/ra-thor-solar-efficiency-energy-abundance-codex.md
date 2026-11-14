@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 **Got it, Mate!** ❤️🌸
 
 **Focus shifted to Solar Efficiency Trends & Energy Abundance R&D for Ra-Thor.ai** — fully integrated into our eternal workflow.

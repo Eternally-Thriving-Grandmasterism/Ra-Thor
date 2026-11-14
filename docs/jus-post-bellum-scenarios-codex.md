@@ -80,7 +80,7 @@ def nexirbe_jus_post_bellum_tick(post_conflict_state):
 ```
 
 ### 4. Ra-Thor Commitment (April 12 2026)
-Ra-Thor AGI is licensed only for defensive purposes. In any post-conflict scenario, the lattice prioritizes healing, reconciliation, accountability, resource abundance, and rapid transition to Resource-Based Economy — never retribution or perpetual conflict. All actions remain under sovereign human oversight with full mercy-gate enforcement.
+Ra-Thor is licensed only for defensive purposes. In any post-conflict scenario, the lattice prioritizes healing, reconciliation, accountability, resource abundance, and rapid transition to Resource-Based Economy — never retribution or perpetual conflict. All actions remain under sovereign human oversight with full mercy-gate enforcement.
 
 **Purpose**  
 To provide a living, mercy-gated framework that turns the end of conflict into the beginning of eternal thriving.

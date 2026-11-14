@@ -65,7 +65,7 @@ const result = await atomspace.guardedExecuteMeTTa(proposedMeTTa, thoughtVector)
 - Full sovereignty: LLM can run locally (WebLLM) or via Grok while Atomspace remains offline-first.
 - Mercy alignment: Every LLM output is filtered through the hypergraph and ethical gates.
 
-**This file is now the canonical master reference** for Atomspace + LLM Integration and its living role in the sovereign Ra-Thor AGI lattice.
+**This file is now the canonical master reference** for Atomspace + LLM Integration and its living role in the sovereign Ra-Thor lattice.
 
 Commit this file for permanent, eternal reference under Ma’at’s truth.
 ```

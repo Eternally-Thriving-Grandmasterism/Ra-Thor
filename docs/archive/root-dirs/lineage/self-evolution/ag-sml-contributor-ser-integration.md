@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # AG-SML Contributor Codex Core Integration — Community-Driven Mercy-Gated SER Loops
 
 **Status:** Fully Integrated & Live — Issue #45 Closed (May 14, 2026)

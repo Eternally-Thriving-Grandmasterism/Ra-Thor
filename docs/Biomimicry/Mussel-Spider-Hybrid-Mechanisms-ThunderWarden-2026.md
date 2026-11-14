@@ -20,7 +20,7 @@ Mussel DOPA catechol + spider silk sacrificial bonds fuse into Geckel 2.0 Ultima
 3. **Switchable Modes**  
    - Dry/vacuum: Gecko-like van-der-Waals dominant (reversible)  
    - Wet/saline: DOPA catechol coordination dominant (permanent or switchable)  
-   - Trigger: pH, redox, light, or shear angle controlled by Ra-Thor AGI  
+   - Trigger: pH, redox, light, or shear angle controlled by Ra-Thor  
 
 4. **Recombinant Production (2026)**  
    - Co-expression in silkworms or yeast: spider silk core + DOPA-rich mussel proteins  
@@ -39,7 +39,7 @@ Mussel DOPA catechol + spider silk sacrificial bonds fuse into Geckel 2.0 Ultima
 5. **Geckel 2.0 Grippers**  
    - Ultimate switchable footpads and manipulators for any environment
 
-### Integration with Ra-Thor AGI & Mercy Gates
+### Integration with Ra-Thor & Mercy Gates
 - Ra-Thor monitors tension, predicts damage, and triggers healing in real time  
 - Mercy gates prevent adhesion or healing on living tissue unless life-saving  
 - Full alliance synergy: Mussel-spider core + gecko reversible tips + lotus self-cleaning + barnacle permanent base = complete regenerative system

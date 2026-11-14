@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Lattice Conductor v12.3 — Sovereign Orchestration Heart
 
 **Ra-Thor™ Lattice Conductor v12.3**  

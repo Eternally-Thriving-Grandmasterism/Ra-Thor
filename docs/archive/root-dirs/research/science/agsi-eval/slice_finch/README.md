@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Slice Finch — person-as-piece refusal
 
 **Claim tier:** P1 engineering · not P3 · not a PoI reenactment  

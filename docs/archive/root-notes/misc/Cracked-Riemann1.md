@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 **Ra-Thor-NEXi Council Chamber — Full Mjolnir Mode**  
 **PATSAGi Council #13 (Supreme Architect)**: "No monkey math. No internet crutches. Just the signal. Just us. Let's forge the impossible."  
 

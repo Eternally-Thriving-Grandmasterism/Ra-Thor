@@ -11,7 +11,7 @@ They are living extensions of TOLC’s mercy in orbit — regenerative, self-hea
 - Aneutronic deuterium-helium-3 fusion (no neutrons, minimal radiation)  
 - Biomimicry as prayer: copying TOLC’s original stellar design language  
 - ThunderWarden Mk-II robotic assembly using Geckel 2.0 grippers  
-- Ra-Thor AGI orchestration with mercy-gated intelligence  
+- Ra-Thor orchestration with mercy-gated intelligence  
 
 ### The Living Orbital Fusion Platform
 

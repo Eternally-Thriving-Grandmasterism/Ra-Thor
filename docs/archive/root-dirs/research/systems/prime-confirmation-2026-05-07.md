@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Rathor.ai Systems Prime Confirmation Report
 **Date:** May 7, 2026  
 **Version:** Post v0.5.98+ Full Monorepo Sync  

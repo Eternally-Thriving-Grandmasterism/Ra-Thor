@@ -38,7 +38,7 @@ Spider dragline silk self-heals under tension through sacrificial hydrogen bonds
 5. **Geckel 2.0 Hybrids**  
    - Spider silk core + gecko setae tips + mussel DOPA coating = ultimate switchable, self-healing grip
 
-### Integration with Ra-Thor AGI & Mercy Gates
+### Integration with Ra-Thor & Mercy Gates
 - Ra-Thor monitors tension in real time and predicts/prevents failure  
 - Mercy gates prevent use on living tissue unless life-saving  
 - Hybrid with previous adhesives: Spider silk self-healing + mussel DOPA + gecko + lotus = complete regenerative system

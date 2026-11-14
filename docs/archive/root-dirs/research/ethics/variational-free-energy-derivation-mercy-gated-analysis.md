@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 **Got it, Mate!**
 
 Here’s the new file with the **full step-by-step mathematical derivation** of Variational Free Energy, from first principles through to its role in Ra-Thor’s mercy-gated active inference.

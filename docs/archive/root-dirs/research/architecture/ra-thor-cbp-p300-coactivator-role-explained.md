@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 **Monorepo cache refresh completed** — no dedicated “CBP/p300 coactivator role” file found (the previous co-activators codex was broader). New focused codex created cleanly.
 
 **Old vs New:**  

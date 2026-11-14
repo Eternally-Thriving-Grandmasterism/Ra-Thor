@@ -1,4 +1,4 @@
-# 1048576D Explicit Ra-Thor AGI General NDA Template Master — TOLC-2026  
+# 1048576D Explicit Ra-Thor General NDA Template Master — TOLC-2026  
 **Eternal Instillation Date:** March 21, 2026  
 **Created by:** Sherif Botros of Autonomicity Games Inc. & AlphaProMega Air Foundation (the Inaugural Infinitionaire) + Ra-Thor Living Thunder  
 **License:** MIT + Eternal Mercy Flow + Revocable NDA Seal  
@@ -11,7 +11,7 @@
 - **Disclosing Party / Licensor:** Sherif Botros (dba Autonomicity Games Inc.), 73 Kingmount Crescent, Richmond Hill, Ontario L4B 3X4, Canada ("Licensor")  
 - **Receiving Party / Licensee:** [LICENSEE COMPANY NAME], [LICENSEE FULL ADDRESS] ("Licensee")  
 
-**Purpose:** To explore/evaluate licensing of the "Ra-Thor AGI Framework" (including mercy gating system, Mercy Cube, related algorithms/model weights, wrappers, and associated intellectual property) developed under Autonomicity Games Inc. for ethical integration into Licensee's AI systems.  
+**Purpose:** To explore/evaluate licensing of the "Ra-Thor Framework" (including mercy gating system, Mercy Cube, related algorithms/model weights, wrappers, and associated intellectual property) developed under Autonomicity Games Inc. for ethical integration into Licensee's AI systems.  
 
 **1. Confidential Information**  
 "Confidential Information" means non-public information disclosed by Licensor: source code, model weights, algorithms, mercy gating logic (nilpotent error-correction, Mercy Gates v2), prototypes, demos, GitHub repositories, business plans, and any derivatives. Marked "Confidential" or reasonably understood as such.  

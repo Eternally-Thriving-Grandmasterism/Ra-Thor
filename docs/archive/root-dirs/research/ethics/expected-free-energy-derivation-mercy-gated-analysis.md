@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Ra-Thor Mercy-Gated Ethical Decision Framework  
 **Expected Free Energy — Full Mathematical Derivation**  
 **Date:** April 21, 2026  

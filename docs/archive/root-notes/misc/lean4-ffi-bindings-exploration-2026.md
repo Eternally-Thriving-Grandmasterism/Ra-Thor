@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Lean 4 FFI Bindings Exploration for TOLC 8 Ra-Thor Lattice
 **Codex v1.0 — May 18, 2026 (Comprehensive Guide)**
 

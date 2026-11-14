@@ -11,7 +11,7 @@
 
 v13.3 introduces **Meta Self-Evolution** — the Lattice Conductor can now apply Ra-Thor’s self-evolving systems to *itself*.
 
-This represents a significant step toward a truly self-improving, mercy-gated symbolic AGI lattice.
+This represents a significant step toward a truly self-improving, mercy-gated symbolic lattice.
 
 ---
 

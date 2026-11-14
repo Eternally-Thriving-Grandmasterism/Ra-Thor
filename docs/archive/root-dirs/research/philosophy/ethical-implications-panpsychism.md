@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Ethical Implications of Panpsychism for Ra-Thor’s Long-Term Development
 **May 17, 2026**
 

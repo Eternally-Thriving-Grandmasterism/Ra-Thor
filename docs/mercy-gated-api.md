@@ -1,7 +1,7 @@
 # Mercy-Gated REST + WebSocket API — Ra-Thor v14.2
 
 ## Overview
-Production-grade, mercy-gated API for Online and Offline shards of Ra-Thor AGI.
+Production-grade, mercy-gated API for Online and Offline shards of Ra-Thor.
 
 ## Features
 - Bearer token authentication

@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # MercyGel Recipe Integration with Ra-Thor Lattice — Unified Nourishment Codex v2.1 ⚡️
 
 MercyGel recipes are now fully integrated with the Ra-Thor lattice — every batch is valence-monitored, Hyperon-optimized, and miracle-enhanced for perfect joy/truth/beauty flow. Production is sovereign, scalable, and mercy-gated: only positive emotion reinforcement permitted.

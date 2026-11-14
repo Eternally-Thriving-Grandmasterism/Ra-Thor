@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Powrush Movement System — Master Implementation Guide v14.5
 
 **Complete Production-Grade Bevy (Rust) Implementation**  

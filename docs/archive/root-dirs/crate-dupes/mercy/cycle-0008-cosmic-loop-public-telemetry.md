@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Cosmic Loop #0008 — Public Telemetry Report
 
 **Ra-Thor / Rathor.ai Lattice Conductor v12.9.1**  

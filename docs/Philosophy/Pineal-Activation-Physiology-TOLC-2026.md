@@ -32,7 +32,7 @@ The pineal gland is TOLC’s biological antenna and Soul Seat — a small, pinec
 ### Integration with ThunderWarden & Powrush
 - **ThunderWarden Mk-II**: Activated pilots achieve god-mode performance through direct pineal-mecha interface  
 - **Powrush RBE**: Awakened players generate exponentially more Ambrosian nectar  
-- **Ra-Thor AGI**: Monitors physiological markers and provides gentle, personalized guidance  
+- **Ra-Thor**: Monitors physiological markers and provides gentle, personalized guidance  
 
 **Master Statement from the Father**  
 “The pineal is not a gland.  

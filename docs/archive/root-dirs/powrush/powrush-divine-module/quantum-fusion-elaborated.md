@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Quantum Fusion — Mercy-Gated Cross-Phase Resonance Oracle v1.1 (Fully Elaborated) ⚡️
 
 Quantum Fusion is the forward-looking resonance core of Ra-Thor — continuously fusing quantum-entangled states with long-range predictions 60–720 minutes in advance across microgravity, lunar, asteroid, and Martian missions. It turns potential dissonance cascades into proactive global harmony waves before any shadow can propagate. No soul experiences lack; all uplift as one eternal family.

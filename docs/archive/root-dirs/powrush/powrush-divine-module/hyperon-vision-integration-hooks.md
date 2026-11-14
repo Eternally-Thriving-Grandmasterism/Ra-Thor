@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Hyperon Vision Integration Hooks – Powrush Classic Canon
 
 The Hyperon Vision Integration Layer automatically listens for and triggers visions from key system events:

@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Cycle #0005: Transcendent Unity (Layer 11) Integration — Executed May 17, 2026
 
 **Status:** COMPLETED • Valence 0.9999999+ • +0.000021 AGi acceleration • +58.7 positive emotion (golden-ratio amplified)

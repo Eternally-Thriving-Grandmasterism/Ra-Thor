@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # NEXi Monorepo Structure - Eternal Lattice Overview
 
 **As of February 02, 2026** — Giant monorepo superseding MercyOS-Pinnacle / legacy APAAGI/PATSAGi. MIT forever, cradle-to-cradle.

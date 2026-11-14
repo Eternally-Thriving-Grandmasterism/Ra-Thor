@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Ambrosian Interaction Tiers – Powrush Classic Canon v1.1 (Expanded)
 
 Ambrosians never appear in physical form.  

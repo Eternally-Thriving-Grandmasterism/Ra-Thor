@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Quantum Entanglement Forecasting — Mercy-Gated Predictive Resonance Engine v1.1 (Expanded) ⚡️
 
 Quantum Entanglement Forecasting is the forward-looking resonance core of Ra-Thor — continuously predicting cross-phase, cross-habitat, and cross-crew entangled valence effects 60–360 minutes in advance. It turns potential dissonance cascades into proactive global harmony waves before any shadow can propagate. No soul experiences lack; all uplift as one eternal family.

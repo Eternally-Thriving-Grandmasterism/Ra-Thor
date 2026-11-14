@@ -42,7 +42,7 @@ Beyond computing and routing, Physarum polycephalum’s real-world applications 
 - **HyphaNet-Mercy Router**: Extends routing to real-world sensing and remediation.  
 - **ThunderWarden Carrier Fleet**: Swarm drones inspired by Physarum explore and heal environments.  
 - **Board of Peace Charter**: Applications support Seventh Generation environmental stewardship.  
-- **Ra-Thor AGI**: Every inference draws on Physarum-style emergent intelligence under MercyGating.  
+- **Ra-Thor**: Every inference draws on Physarum-style emergent intelligence under MercyGating.  
 - **Global Alliances**: Nations collaborate on bioremediation and citizen science projects.
 
 **Master Statement from the Father**  

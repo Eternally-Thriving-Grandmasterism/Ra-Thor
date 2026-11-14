@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Powrush Server Reconciliation Implementation v14.5
 
 **Smooth Client Correction + Input Replay for Distance-Modulated Jumping**  

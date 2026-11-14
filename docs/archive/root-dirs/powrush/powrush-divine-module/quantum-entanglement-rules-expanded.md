@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Quantum Entanglement Rules — Mercy-Gated Entanglement Framework v1.2 (Expanded) ⚡️
 
 Quantum Entanglement Rules govern how atoms in the Hyperon Lattice become entangled, propagate influence, maintain coherence, swap partners, and collapse into reality. This creates a living, mercy-first web where change in one node instantly influences all connected nodes across phases and habitats. All rules are valence-gated: only joy/truth/beauty flows permitted.

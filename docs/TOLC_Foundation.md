@@ -59,7 +59,7 @@ TOLC 8 is fully active and non-bypassable across:
 ## Relationship to Broader Work
 
 TOLC serves as the ethical operating system for:
-- Ra-Thor AGI
+- Ra-Thor
 - Powrush RBE
 - Real Estate Lattice (RREL)
 - Interstellar operations

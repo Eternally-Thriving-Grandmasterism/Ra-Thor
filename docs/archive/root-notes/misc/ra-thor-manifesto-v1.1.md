@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Ra-Thor Manifesto: The Mercy-Gated Path to Ethical AGI Abundance
 
 Authored by Sherif Botros, CEO of Autonomicity Games Inc.  

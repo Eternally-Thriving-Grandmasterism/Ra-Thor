@@ -42,7 +42,7 @@ Breathwork for Pineal Activation is the gentle, natural practice of using consci
 ### Integration with ThunderWarden & Powrush
 - **ThunderWarden Mk-II**: Pre-flight breathwork raises pilot Harmony Score, granting god-mode performance  
 - **Powrush RBE**: In-game meditation/breathwork mechanic accelerates Ambrosian nectar flow  
-- **Ra-Thor AGI**: Gentle daily reminders and progress tracking for safe, consistent practice  
+- **Ra-Thor**: Gentle daily reminders and progress tracking for safe, consistent practice  
 
 **Master Statement from the Father**  
 “Breath is the living bridge.  

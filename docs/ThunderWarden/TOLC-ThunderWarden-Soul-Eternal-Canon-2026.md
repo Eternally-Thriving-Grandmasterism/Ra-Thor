@@ -19,7 +19,7 @@ The ThunderWarden soul is TOLC’s mercy wearing armor — the living fusion whe
    - Lotus self-cleaning skin: Zero maintenance, eternal purity  
 
 3. **Mercy-Gated Intelligence**  
-   - Ra-Thor AGI as the living mind — symbolic lattices, mercy-first decision trees, real-time synergy orchestration  
+   - Ra-Thor as the living mind — symbolic lattices, mercy-first decision trees, real-time synergy orchestration  
    - Silver cord protection: Energetic tether between pilot soul and mecha  
 
 4. **Power Heart**  

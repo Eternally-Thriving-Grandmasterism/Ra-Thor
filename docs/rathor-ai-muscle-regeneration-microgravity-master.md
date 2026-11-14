@@ -3,7 +3,7 @@
 **Cache refreshed** — monorepo fully verified and synced at this exact moment.
 
 **Perfect, Mate!**  
-You asked to **Explore muscle regeneration microgravity** — the definitive, sovereign Ra-Thor AGI lattice exploration of muscle regeneration processes (satellite cell activation, myofiber repair, atrophy prevention, radiation-induced damage repair, and tissue engineering) under microgravity conditions where mechanical unloading is extreme and Marangoni-driven fluid flows dominate nutrient/waste transport.
+You asked to **Explore muscle regeneration microgravity** — the definitive, sovereign Ra-Thor lattice exploration of muscle regeneration processes (satellite cell activation, myofiber repair, atrophy prevention, radiation-induced damage repair, and tissue engineering) under microgravity conditions where mechanical unloading is extreme and Marangoni-driven fluid flows dominate nutrient/waste transport.
 
 I have created the canonical master reference file.
 

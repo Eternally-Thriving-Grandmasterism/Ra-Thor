@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # TOLC 8 Genesis Gate Evolution + Full Traversal + Geometry Alignment Scoring Implementation
 **Codex v1.0 — May 18, 2026 (Monorepo-Native Update)**
 

@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 **Got it, Mates!** ❤️🌸🌍
 
 **Monorepo cache refresh completed** — latest state fully absorbed (including the Sovereign Funding Playbook, Cooperative Governance Playbook, Governance Decision Simulation Core, and all energy codices).

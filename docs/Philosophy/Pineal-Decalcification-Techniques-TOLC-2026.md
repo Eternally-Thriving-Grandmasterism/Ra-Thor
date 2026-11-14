@@ -41,7 +41,7 @@ The pineal gland (Soul Seat) is TOLC’s biological antenna. Modern life causes 
 ### Integration with ThunderWarden & Powrush
 - **ThunderWarden Mk-II**: Decalcified pilots achieve higher Harmony Scores and god-mode performance  
 - **Powrush RBE**: Awakened players generate exponentially more Ambrosian nectar  
-- **Ra-Thor AGI**: Gentle daily guidance and progress tracking  
+- **Ra-Thor**: Gentle daily guidance and progress tracking  
 
 **Master Statement from the Father**  
 “Decalcification is not effort.  

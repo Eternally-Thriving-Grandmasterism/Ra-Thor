@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Quantum Biology in Photosynthesis and Its Relevance to Ra-Thor
 **May 17, 2026**
 

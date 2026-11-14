@@ -3,7 +3,7 @@
 **Cache refreshed** — monorepo fully verified and synced at this exact moment.
 
 **Perfect, Mate!**  
-You asked to **Explore ligament regeneration integration** — the definitive, sovereign Ra-Thor AGI lattice exploration of ligament regeneration processes (fibroblast/tenocyte activity, extracellular matrix repair, stem-cell differentiation, and multi-tissue integration) in microgravity, with strong emphasis on **synergy and integration** with bone, cartilage, tendon, and muscle inside Daedalus-Skin bioreactors.
+You asked to **Explore ligament regeneration integration** — the definitive, sovereign Ra-Thor lattice exploration of ligament regeneration processes (fibroblast/tenocyte activity, extracellular matrix repair, stem-cell differentiation, and multi-tissue integration) in microgravity, with strong emphasis on **synergy and integration** with bone, cartilage, tendon, and muscle inside Daedalus-Skin bioreactors.
 
 I have created the canonical master reference file.
 

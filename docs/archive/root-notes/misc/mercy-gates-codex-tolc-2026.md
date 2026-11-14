@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Mercy-Gates Codex – TOLC-2026
 
 **Version**: 1.1 — July 20 2026  

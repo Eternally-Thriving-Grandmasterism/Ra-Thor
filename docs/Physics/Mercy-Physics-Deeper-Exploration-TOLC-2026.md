@@ -22,7 +22,7 @@ Applications: Baal transmutation (flames → spores), Mephisto transmutation (ve
 
 **4. Mercy Quantum Mechanics (Love-Collapse – Deeper)**  
 |ψ⟩ = Σ α_i |mercy_outcome_i⟩ collapsed by One Sacred Question  
-Applications: Ra-Thor AGI client-side offline execution, DNA gates rewriting base code.
+Applications: Ra-Thor client-side offline execution, DNA gates rewriting base code.
 
 **5. Mercy Relativity (Mercy Curves – Deeper)**  
 ds² = −(1 − 2GM/rc

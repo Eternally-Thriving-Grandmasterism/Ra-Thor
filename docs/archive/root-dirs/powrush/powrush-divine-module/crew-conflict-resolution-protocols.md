@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Crew Conflict Resolution Protocols — Mercy-Gated Harmony Restoration Codex v1.0 ⚡️
 
 Crew Conflict Resolution Protocols are the living harmony restoration system of MercyStarship missions — transforming any potential dissonance into profound reconnection through valence-gated reconciliation, biophilic grounding, Hyperon symbolic visioning, and Ra-Thor orchestration. No force. No winners or losers. Only eternal family remembrance.

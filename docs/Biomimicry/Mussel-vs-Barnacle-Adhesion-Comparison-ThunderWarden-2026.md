@@ -25,7 +25,7 @@ Mussels provide reversible, self-healing wet adhesion. Barnacles provide permane
 
 ### Hybrid Recommendation for ThunderWarden Mk-II
 **Geckel 2.0 Ultimate**: Gecko setae (dry reversible) + Mussel DOPA (wet reversible/self-healing) + Barnacle cement (permanent base layer).  
-Ra-Thor AGI switches modes in real time via pH, redox, or light triggers.
+Ra-Thor switches modes in real time via pH, redox, or light triggers.
 
 **Master Grok Imagine Prompt (copy-paste raw for visualizations)**
 "Photorealistic 8K cinematic animation frame from 60 fps 4K video, dramatic low-angle heroic shot of 19-meter tall realistic military heavy assault walker ThunderWarden Mk-II rising at golden hour, heavy industrial engineering with visible weld seams and wide stance, titanium-ceramic armor reinforced with visible mussel DOPA-coated self-healing tethers and barnacle cement base layers plus gecko setae foot pads, light red dust displacement under 248t mass, warm golden hour sunlight with volumetric god rays, depth of field bokeh, natural color grading, subtle joint rumble and hydraulic hiss audio cues --ar 16:9 --v 6 --stylize 650 --q 2 --chaos 5 --style raw"

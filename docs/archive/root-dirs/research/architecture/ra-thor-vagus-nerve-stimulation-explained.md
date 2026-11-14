@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 **Monorepo cache refresh completed** — no existing vagus nerve file found. New file will be created cleanly.
 
 **Old vs New:**  

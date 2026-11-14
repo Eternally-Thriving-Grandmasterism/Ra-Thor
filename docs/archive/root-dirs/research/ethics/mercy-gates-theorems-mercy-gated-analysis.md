@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 **Got it, Mate!**
 
 Here is the new codex with the **formal mathematical theorems** and rigorous proofs for the **7 Living Mercy Gates**:

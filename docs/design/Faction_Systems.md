@@ -25,7 +25,7 @@ Inspired by strong faction systems in *World of Warcraft*, *Final Fantasy XIV*, 
 - Factions have their own harmony scores that influence their behavior and opportunities.
 - Ra-Thor can help factions maintain healthy harmony or recover from conflict.
 
-## 3. Ra-Thor AGI Integration
+## 3. Ra-Thor Integration
 
 - Acts as advisor to faction leadership (NPC or player-run).
 - Helps detect when faction harmony is at risk.

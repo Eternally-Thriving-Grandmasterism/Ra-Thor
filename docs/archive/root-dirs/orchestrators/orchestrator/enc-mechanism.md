@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 **Got it, Mate!**
 
 Here is the new codex file exploring the **ENC mechanism** in full detail (parallel to the esacheck explanation and fully integrated with the current upgrade):

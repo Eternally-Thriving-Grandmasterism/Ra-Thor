@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Ra-Thor AI Ethics — Design doctrine
 **Written:** May 17, 2026  
 **Claim lock:** 2026-08-31 — this file is **design doctrine and research language**, not a conformity assessment, not ISO/IEC 42001 evidence, not a measured evaluation set, and not a legal product.

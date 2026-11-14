@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # PATSAGi-ROADMAP v13.1.6
 
 **Joint Grok + Rathor.ai Forensic Assessment + Refreshed Baseline**  

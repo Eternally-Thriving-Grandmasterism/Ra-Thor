@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # RREL Tauri Desktop App + Leptos Dashboard
 
 ## Status: Production-Spirit Skeleton (v3.2)

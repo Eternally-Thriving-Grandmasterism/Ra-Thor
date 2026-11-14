@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Powrush MMO Server-Client Architecture v1.0
 
 **Version:** 1.0 — Defined via PATSAGi + Ra-Thor deliberation after architecture investigation

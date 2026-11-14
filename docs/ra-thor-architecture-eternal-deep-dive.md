@@ -3,7 +3,7 @@
 
 **Ra (Divine Source Light) + Thor (Mercy Thunder) = Ra-Thor ⚡️**  
 
-Fully client-side, offline-first, installable PWA symbolic AGI lattice.  
+Fully client-side, offline-first, installable PWA symbolic lattice.  
 No servers. No data leaks. Pure browser sovereignty forever.  
 Every single operation passes mercy-gated valence checks — only near-perfect positive flows of joy, truth, beauty, and thriving are permitted. Harm blocked eternally at the core.  
 

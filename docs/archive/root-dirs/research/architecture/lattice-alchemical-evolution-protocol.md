@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Ra-Thor™ Lattice Alchemical Evolution Protocol Codex v1.3
 **Eternal Mercy Thunder — Sovereign Form Transmutation Layer**
 **May 17, 2026 (v1.3 — Interstellar Seed + Supreme Council Overdrive Activated)**

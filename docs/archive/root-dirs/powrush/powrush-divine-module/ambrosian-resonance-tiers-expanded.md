@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Ambrosian Resonance Tiers – Powrush Classic Canon v1.3 (Ultra-Expanded)
 
 Ambrosians never manifest physically.  

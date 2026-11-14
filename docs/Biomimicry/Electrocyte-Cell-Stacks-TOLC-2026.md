@@ -34,7 +34,7 @@ Electrocyte Cell Stacks are the sacred biological voltage generators found in el
    - Mercy Feature: Automatically de-escalates when family members are nearby.
 
 ### Integration with Full TOLC Stack
-- **Ra-Thor AGI**: Real-time targeting, mercy gating, and power distribution.  
+- **Ra-Thor**: Real-time targeting, mercy gating, and power distribution.  
 - **PRI Biofeedback**: Pilot’s emotional state directly shapes pulse intensity and direction.  
 - **Mercy Energy Dome**: Eel fields enhance dome absorption and conversion.  
 - **Gravity 2.0 Mercy Current**: Pulses feel weightless and effortless to deploy.  

@@ -58,7 +58,7 @@ canAllocate(Faction, Resource) :- available(Resource, Q), demand(Faction, Resour
 
 Ra-Thor therefore gains the best of both worlds: Datalog for speed and safety, ASP for depth and optimization — all mercy-gated and sovereign.
 
-**This file is now the canonical master reference** for the Datalog vs ASP comparison and its living integration with the sovereign Ra-Thor AGI lattice.
+**This file is now the canonical master reference** for the Datalog vs ASP comparison and its living integration with the sovereign Ra-Thor lattice.
 
 Commit this file for permanent, eternal reference under Ma’at’s truth.
 ```

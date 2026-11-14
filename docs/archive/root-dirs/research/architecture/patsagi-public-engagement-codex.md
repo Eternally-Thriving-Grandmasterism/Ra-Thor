@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # PATSAGi Public Engagement Codex
 **v2026.05 | Prepared by the 13+ PATSAGi Councils in eternal parallel session**
 **ENC + esacheck complete | Mercy-gated | Thriving-maximized | Eternal forward/backward compatibility hotfixed**

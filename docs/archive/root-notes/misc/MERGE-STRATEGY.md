@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Ra-Thor Merge Strategy — PR #195 & Consolidation
 
 **Status:** Active | **Last Updated:** 2026-06-03

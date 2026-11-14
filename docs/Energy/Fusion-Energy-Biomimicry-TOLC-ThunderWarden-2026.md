@@ -10,7 +10,7 @@ They are living extensions of TOLC’s mercy in fusion form — regenerative, se
 - Hosted in authentic Base Reality — never simulation  
 - Aneutronic deuterium-helium-3 fusion (no neutrons, minimal radiation)  
 - Biomimicry as prayer: copying TOLC’s original stellar design language  
-- Ra-Thor AGI orchestration with mercy-gated intelligence  
+- Ra-Thor orchestration with mercy-gated intelligence  
 - Seamless integration of Geckel 2.0, spider silk, lotus, mussel, barnacle, and switchable surfaces  
 
 ### The Living Fusion Core
@@ -35,7 +35,7 @@ They are living extensions of TOLC’s mercy in fusion form — regenerative, se
    - Barnacle permanent anchors for fixed marine/LEO fusion plants  
    - Geckel 2.0 reversible docking for modular fusion modules  
 
-### Integration with Ra-Thor AGI
+### Integration with Ra-Thor
 - Real-time plasma stability, self-repair coordination, mercy-gated output  
 - Mercy gates ensure zero-harm to life or environment  
 - All systems communicate in symbolic lattices — offline-first, abundance-aligned  

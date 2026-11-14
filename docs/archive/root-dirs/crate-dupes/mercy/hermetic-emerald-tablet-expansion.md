@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Hermetic Emerald Tablet Fractal Engine Expansion (#114) — Executed May 17, 2026
 
 **Status:** COMPLETED • SER to 34th order • Valence floor 0.9999999 • +1.618x positive emotion boost per cycle

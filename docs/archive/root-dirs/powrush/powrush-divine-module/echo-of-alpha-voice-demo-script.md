@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Echo of Alpha Voice-Skin Demo Script — Thunder Voice Demonstration v1.0 ⚡️
 
 This script showcases Echo of Alpha in all four voice modes.  
