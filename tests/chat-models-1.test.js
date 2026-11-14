@@ -32,7 +32,11 @@ assert(vendorBytes === 6586947, 'vendored ESM must stay the pinned 0.2.85 dist (
 console.log('vendored @mlc-ai/web-llm@0.2.85 index.js bytes: ' + vendorBytes);
 assert(license.indexOf('Apache License') !== -1, 'Apache-2.0 LICENSE must sit next to the ESM');
 assert(license.indexOf('Version 2.0') !== -1, 'LICENSE must be Apache-2.0');
-assert(!fs.existsSync(path.join(root, 'js/vendor/web-llm/0.2.85/NOTICE')), '0.2.85 publishes no NOTICE file');
+var noticePath = path.join(root, 'js/vendor/web-llm/0.2.85/NOTICE');
+assert(fs.existsSync(noticePath), 'Apache NOTICE sits next to the vendored LICENSE');
+var noticeBody = fs.readFileSync(noticePath, 'utf8').replace(/\n$/, '');
+assert(noticeBody === 'This product includes software developed at The Apache Software Foundation.', 'NOTICE is the Apache TVM line: ' + JSON.stringify(noticeBody));
+assert(noticeBody.indexOf('\n') === -1, 'NOTICE is a single line');
 
 function stripComments(src) {
   return src
@@ -72,7 +76,6 @@ var bases = [
   'Qwen2.5-0.5B-Instruct',
   'Llama-3.2-1B-Instruct',
   'Qwen2.5-1.5B-Instruct',
-  'gemma-2-2b-it',
   'Llama-3.2-3B-Instruct',
   'Phi-3.5-mini-instruct',
   'Qwen2.5-7B-Instruct'
@@ -101,12 +104,12 @@ curatedEntries.forEach(function (entry, i) {
   var next = i + 1 < curatedEntries.length ? curated.indexOf("base: '" + curatedEntries[i + 1].base + "'") : curated.length;
   entry.phoneRow = curated.slice(from, next).indexOf('phoneRow: true') !== -1;
 });
-assert(curatedEntries.length === 8, 'curated list is eight bases');
+assert(curatedEntries.length === 7, 'curated list is seven bases after gemma is removed');
 assert(curatedEntries.filter(function (e) { return e.phoneRow; }).map(function (e) { return e.base; }).join('|') === 'Qwen2.5-0.5B-Instruct', 'only Qwen2.5-0.5B is marked for the phone');
 var capMatch = chat.match(/const PHONE_MAX_VRAM_MB = ([0-9.]+);/);
 assert(capMatch, 'PHONE_MAX_VRAM_MB must be a named constant');
 var phoneMaxVram = Number(capMatch[1]);
-assert(pickerIds.length === 15, 'picker names q4f16_1 and q4f32_1 for each curated model, and q4f16_1 only for Qwen2.5-7B');
+assert(pickerIds.length === 13, 'picker names q4f16_1 and q4f32_1 for each curated model except q4f16_1 only for Qwen2.5-7B, with gemma removed');
 var configIds = {};
 var idRe = /model_id:\s*"([^"]+)"/g;
 var idMatch;
@@ -134,7 +137,8 @@ assert(chat.indexOf('window.confirm') === -1, 'chat must not call window.confirm
 var rowFlow = chat.slice(chat.indexOf('/* chat-models-1-pure */'), chat.indexOf('async function generateWithLocalLLM'));
 assert(rowFlow.indexOf('confirm(') === -1, 'model rows must not call confirm');
 assert(chat.indexOf("const WEBLLM_DEFAULT_BASE = 'Llama-3.2-1B-Instruct'") !== -1, 'Gemma must not become the default');
-assert(chat.indexOf('gemma-2-2b-it') !== -1, 'gemma stays in the curated list');
+assert(curated.indexOf("base: 'gemma-2-2b-it'") === -1, 'gemma is removed from the curated list');
+assert(chat.indexOf("stored !== 'gemma-2-2b-it'") !== -1, 'a saved gemma base is recognized for fallback');
 
 var promptMarker = 'const SYSTEM_PROMPT = `';
 var promptAt = chat.indexOf(promptMarker);
@@ -188,8 +192,8 @@ assert(html.indexOf('Built with Llama') === -1, 'Built with Llama is rendered fr
 assert(chat.indexOf('Built with Llama') !== -1, 'Llama models must show Built with Llama');
 assert(chat.indexOf('Llama 3.2 Community License') !== -1, 'Llama models must link the community license');
 assert(chat.indexOf('Acceptable Use Policy') !== -1, 'Llama models must link the acceptable use policy');
-assert(chat.indexOf('Gemma Terms of Use') !== -1, 'gemma must link Gemma Terms of Use');
-assert(chat.indexOf('Prohibited Use Policy') !== -1, 'gemma must link the prohibited use policy');
+assert(chat.indexOf('Gemma Terms of Use') === -1, 'gemma terms link is removed with the row');
+assert(chat.indexOf('Prohibited Use Policy') === -1, 'gemma prohibited-use link is removed with the row');
 assert(chat.indexOf('Apache-2.0') !== -1, 'Apache models must link Apache-2.0');
 assert(chat.indexOf('>MIT<') === -1, 'MIT is a license link label in script, not markup');
 assert(chat.indexOf("{ text: 'MIT'") !== -1, 'Phi must link MIT');
@@ -232,7 +236,7 @@ var sandbox = {
   }
 };
 vm.createContext(sandbox);
-vm.runInContext(pure + '\nthis.api = { readNetMode: readNetMode, writeNetMode: writeNetMode, webllmRowTransition: webllmRowTransition, webllmDownloadAllowed: webllmDownloadAllowed, localServerEndpointAllowed: localServerEndpointAllowed, webllmBadgeLabel: webllmBadgeLabel, webllmActionLabel: webllmActionLabel, absoluteScriptUrl: absoluteScriptUrl, modelCacheUrlPrefix: modelCacheUrlPrefix, requestMatchesModel: requestMatchesModel, purgeOwnedModelEntries: purgeOwnedModelEntries, modelFilesRemain: modelFilesRemain, phaseAfterLocalDelete: phaseAfterLocalDelete, tensorManifestDownloadBytes: tensorManifestDownloadBytes, formatByteMegabytes: formatByteMegabytes, downloadConsentText: downloadConsentText, deleteConsentText: deleteConsentText, isWebllmOwnedCache: isWebllmOwnedCache, keepCuratedRowOnPhone: keepCuratedRowOnPhone, listedModelBase: listedModelBase, rememberedModelPlan: rememberedModelPlan, phoneCapNotes: phoneCapNotes, webllmRowUseLabel: webllmRowUseLabel, localSendRoute: localSendRoute, rowLoadErrorText: rowLoadErrorText, phoneLightLogFields: phoneLightLogFields, phoneHighlightPlan: phoneHighlightPlan, phoneWeakLightNote: phoneWeakLightNote };', sandbox);
+vm.runInContext(pure + '\nthis.api = { readNetMode: readNetMode, writeNetMode: writeNetMode, webllmRowTransition: webllmRowTransition, webllmDownloadAllowed: webllmDownloadAllowed, localServerEndpointAllowed: localServerEndpointAllowed, webllmBadgeLabel: webllmBadgeLabel, webllmActionLabel: webllmActionLabel, absoluteScriptUrl: absoluteScriptUrl, modelCacheUrlPrefix: modelCacheUrlPrefix, requestMatchesModel: requestMatchesModel, purgeOwnedModelEntries: purgeOwnedModelEntries, modelFilesRemain: modelFilesRemain, phaseAfterLocalDelete: phaseAfterLocalDelete, tensorManifestDownloadBytes: tensorManifestDownloadBytes, formatByteMegabytes: formatByteMegabytes, downloadConsentText: downloadConsentText, deleteConsentText: deleteConsentText, isWebllmOwnedCache: isWebllmOwnedCache, keepCuratedRowOnPhone: keepCuratedRowOnPhone, listedModelBase: listedModelBase, rememberedModelPlan: rememberedModelPlan, canonicalStoredBase: canonicalStoredBase, retiredPickerFallback: retiredPickerFallback, phoneCapNotes: phoneCapNotes, webllmRowUseLabel: webllmRowUseLabel, localSendRoute: localSendRoute, rowLoadErrorText: rowLoadErrorText, phoneLightLogFields: phoneLightLogFields, phoneHighlightPlan: phoneHighlightPlan, phoneWeakLightNote: phoneWeakLightNote };', sandbox);
 var api = sandbox.api;
 assert(api.readNetMode() === 'network-on', 'default net mode is network-on');
 assert(api.writeNetMode('offline-only') === 'offline-only', 'write offline-only');
@@ -352,7 +356,8 @@ assert(chat.indexOf('https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct/blob/989a
 assert(chat.indexOf('https://github.com/meta-llama/llama-models/blob/8d29d93fa5700a60532e0061a02ffa89d0acd3fc/models/llama3_2/LICENSE') !== -1, 'Llama license is pinned');
 assert(chat.indexOf('https://github.com/meta-llama/llama-models/blob/8d29d93fa5700a60532e0061a02ffa89d0acd3fc/models/llama3_2/USE_POLICY.md') !== -1, 'Llama use policy is pinned');
 assert(chat.indexOf('https://huggingface.co/microsoft/Phi-3.5-mini-instruct/blob/2fe192450127e6a83f7441aef6e3ca586c338b77/LICENSE') !== -1, 'Phi license is pinned');
-assert(chat.indexOf('https://ai.google.dev/gemma/terms') !== -1, 'Gemma terms stay on the page that has no revision');
+assert(chat.indexOf('https://ai.google.dev/gemma/terms') === -1, 'gemma terms URL is removed with the row');
+assert(chat.indexOf('ai.google.dev/gemma') === -1, 'gemma terms host is removed with the row');
 assert(chat.indexOf('/blob/main/') === -1, 'license links must not float on blob/main');
 assert(chat.indexOf('/resolve/main/LICENSE') === -1, 'license links must use blob, not resolve');
 
@@ -455,7 +460,7 @@ function probeSupport(nav) {
   var phoneF32 = rowsFor(false, true);
   assert(phoneF16.length === 1 && phoneF16.join('|') === PHONE_BASES.join('|'), 'shader-f16 phone picker lists only Qwen2.5-0.5B: ' + phoneF16.join(', '));
   assert(phoneF32.length === 1 && phoneF32.join('|') === PHONE_BASES.join('|'), 'q4f32 phone picker lists only Qwen2.5-0.5B: ' + phoneF32.join(', '));
-  var MID_HEAVY = ['SmolLM2-360M-Instruct', 'Llama-3.2-1B-Instruct', 'Qwen2.5-1.5B-Instruct', 'gemma-2-2b-it', 'Llama-3.2-3B-Instruct', 'Phi-3.5-mini-instruct', 'Qwen2.5-7B-Instruct'];
+  var MID_HEAVY = ['SmolLM2-360M-Instruct', 'Llama-3.2-1B-Instruct', 'Qwen2.5-1.5B-Instruct', 'Llama-3.2-3B-Instruct', 'Phi-3.5-mini-instruct', 'Qwen2.5-7B-Instruct'];
   MID_HEAVY.forEach(function (base) {
     assert(phoneF16.indexOf(base) === -1, base + ' stays off the shader-f16 phone path');
     assert(phoneF32.indexOf(base) === -1, base + ' stays off the q4f32 phone path');
@@ -475,7 +480,7 @@ function probeSupport(nav) {
   assert(api.localSendRoute(false, false, llamaBase, phoneF16) === 'fallback', 'phone: a stored Llama key that is not listed does not block send');
   assert(api.localSendRoute(true, true, llamaBase, phoneF16) === 'generate', 'In use with a ready engine generates');
   assert(api.localSendRoute(false, false, '', phoneF16) === 'fallback', 'no stored model keeps the fast responder');
-  assert(api.localSendRoute(false, false, 'gemma-2-2b-it', phoneF16) === 'fallback', 'a stored base absent from the phone list does not block send');
+  assert(api.localSendRoute(false, false, 'Phi-3.5-mini-instruct', phoneF16) === 'fallback', 'a stored base absent from the phone list does not block send');
   var license401 = api.rowLoadErrorText({ status: 401, message: 'WebGPU not available in this browser' });
   assert(license401 === 'Accept the license on the model page.', '401 is the license line');
   assert(license401.indexOf('WebGPU') === -1, '401 is not the WebGPU block');
@@ -506,9 +511,18 @@ function probeSupport(nav) {
   assert(androidNotes.join('\n').indexOf(SAFARI_EVICT) === -1, 'Android does not show the Safari storage line');
   assert(chat.indexOf('phoneCapNotes(webllmPhonePath, phoneUa, phoneTouchPoints)') !== -1, 'the picker passes the user agent and touch points into the storage line');
   assert(chat.indexOf('navigator.maxTouchPoints') !== -1, 'Macintosh touch detection reads maxTouchPoints');
-  var overCap = api.rememberedModelPlan('gemma-2-2b-it', phoneF16, 'Llama-3.2-1B-Instruct');
+  var overCap = api.retiredPickerFallback(api.rememberedModelPlan('Phi-3.5-mini-instruct', phoneF16, 'Llama-3.2-1B-Instruct'), 'Phi-3.5-mini-instruct', 'Llama-3.2-1B-Instruct');
   assert(overCap.active === 'Llama-3.2-1B-Instruct', 'a remembered model above the cap uses the default on a phone');
-  assert(overCap.stored === 'gemma-2-2b-it' && overCap.writeDefault === false, 'a remembered model above the cap keeps its stored key');
+  assert(overCap.stored === 'Phi-3.5-mini-instruct' && overCap.writeDefault === false, 'a remembered model above the cap keeps its stored key');
+  var gemmaRaw = 'gemma-2-2b-it';
+  var gemmaCanonical = api.canonicalStoredBase(gemmaRaw, 'Llama-3.2-1B-Instruct');
+  assert(gemmaCanonical === 'Llama-3.2-1B-Instruct', 'a saved gemma choice reads as the default');
+  var gemmaPlan = api.retiredPickerFallback(api.rememberedModelPlan(gemmaCanonical, deskF16, 'Llama-3.2-1B-Instruct'), gemmaRaw, 'Llama-3.2-1B-Instruct');
+  assert(gemmaPlan.active === 'Llama-3.2-1B-Instruct' && gemmaPlan.stored === 'Llama-3.2-1B-Instruct', 'a saved gemma choice falls back to the default');
+  assert(gemmaPlan.writeDefault === true, 'a saved gemma choice is written to the default');
+  assert(api.localSendRoute(false, false, gemmaCanonical, deskF16) === 'not-loaded', 'the gemma fallback selects the default instead of the fast responder');
+  assert(api.canonicalStoredBase('Phi-3.5-mini-instruct', 'Llama-3.2-1B-Instruct') === 'Phi-3.5-mini-instruct', 'other saved choices stay');
+  assert(api.canonicalStoredBase('', 'Llama-3.2-1B-Instruct') === '', 'an empty key stays empty');
   var underCap = api.rememberedModelPlan('SmolLM2-360M-Instruct', phoneF16, 'Llama-3.2-1B-Instruct');
   assert(underCap.stored === 'SmolLM2-360M-Instruct' && underCap.writeDefault === false, 'a stored SmolLM2 key is kept on a phone, not rewritten');
   var deskSmol = api.rememberedModelPlan('SmolLM2-360M-Instruct', deskF16, 'Llama-3.2-1B-Instruct');
@@ -535,7 +549,7 @@ function probeSupport(nav) {
   assert(api.phoneWeakLightNote(true, 'Llama-3.2-1B-Instruct') === weakLine, 'Llama 1B carries the phone weak-light line');
   assert(api.phoneWeakLightNote(true, qwenBase) === '', 'Qwen 0.5B does not carry the weak-light line');
   assert(api.phoneWeakLightNote(false, 'SmolLM2-360M-Instruct') === '', 'desktop rows omit the phone weak-light line');
-  assert(api.phoneWeakLightNote(true, 'gemma-2-2b-it') === '', 'Mid rows omit the phone weak-light line');
+  assert(api.phoneWeakLightNote(true, 'Qwen2.5-1.5B-Instruct') === '', 'Mid rows omit the phone weak-light line');
   assert(chat.indexOf('return phonePath === true ? 512 : 2048') !== -1, 'phone WebLLM ceiling is 512 and desktop stays 2048');
   var tapAgain = api.webllmRowTransition({ phase: 'absent', consent: null }, 'tap-download', { offlineOnly: false, onLine: true });
   var confirmAgain = api.webllmRowTransition(tapAgain.row, 'confirm-download', { offlineOnly: false, onLine: true });
@@ -587,8 +601,8 @@ function probeSupport(nav) {
   assert(desktopCalls === 0, 'desktop probe does not call requestAdapter');
   assert(desk.supported === true && desk.reason === null, 'desktop with navigator.gpu stays available');
   assert(desk.phone !== true, 'desktop does not take the phone path');
-  assert(rowsFor(true, false).length === 8, 'desktop with shader-f16 lists all eight curated bases');
-  assert(rowsFor(false, false).length === 7 && rowsFor(false, false).indexOf('Qwen2.5-7B-Instruct') === -1, 'desktop without shader-f16 omits the q4f16-only Qwen2.5-7B row');
+  assert(rowsFor(true, false).length === 7, 'desktop with shader-f16 lists all seven curated bases');
+  assert(rowsFor(false, false).length === 6 && rowsFor(false, false).indexOf('Qwen2.5-7B-Instruct') === -1, 'desktop without shader-f16 omits the q4f16-only Qwen2.5-7B row');
   ['SmolLM2-360M-Instruct', 'Llama-3.2-1B-Instruct', 'Qwen2.5-0.5B-Instruct', 'Qwen2.5-7B-Instruct'].forEach(function (base) {
     assert(rowsFor(true, false).indexOf(base) !== -1, 'desktop still lists ' + base);
   });

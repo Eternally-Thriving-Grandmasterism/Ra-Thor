@@ -70,8 +70,6 @@ var expectTier = {
   'Llama-3.2-1B-Instruct-q4f32_1-MLC': 'Light',
   'Qwen2.5-1.5B-Instruct-q4f16_1-MLC': 'Mid',
   'Qwen2.5-1.5B-Instruct-q4f32_1-MLC': 'Mid',
-  'gemma-2-2b-it-q4f16_1-MLC': 'Mid',
-  'gemma-2-2b-it-q4f32_1-MLC': 'Mid',
   'Llama-3.2-3B-Instruct-q4f16_1-MLC': 'Mid',
   'Llama-3.2-3B-Instruct-q4f32_1-MLC': 'Mid',
   'Phi-3.5-mini-instruct-q4f16_1-MLC': 'Heavy',
@@ -95,7 +93,7 @@ assert(chat.indexOf("return 'Heavy'") !== -1, 'Heavy label exists');
 assert(chat.indexOf('webllm-tier') !== -1, 'rows are grouped under a tier heading');
 assert(chat.indexOf('data-tier') !== -1, 'each row carries its tier');
 assert(chat.indexOf('License:') !== -1, 'the row shows the license');
-assert(chat.indexOf("const WEBLLM_DEFAULT_BASE = 'Llama-3.2-1B-Instruct'") !== -1, 'Gemma stays off the default');
+assert(chat.indexOf("const WEBLLM_DEFAULT_BASE = 'Llama-3.2-1B-Instruct'") !== -1, 'default stays Llama-3.2-1B-Instruct');
 
 var curatedStart = chat.indexOf('const WEBLLM_CURATED');
 var curatedEnd = chat.indexOf('];', curatedStart);
@@ -107,9 +105,7 @@ var allowedLinks = {
   'Apache-2.0': true,
   'MIT': true,
   'Llama 3.2 Community License': true,
-  'Acceptable Use Policy': true,
-  'Gemma Terms of Use': true,
-  'Prohibited Use Policy': true
+  'Acceptable Use Policy': true
 };
 linkTexts.forEach(function (text) {
   assert(allowedLinks[text], 'license label not on the allowed list: ' + text);
@@ -118,8 +114,9 @@ assert(linkTexts.indexOf('Apache-2.0') !== -1, 'Apache-2.0 is on a row');
 assert(linkTexts.indexOf('MIT') !== -1, 'MIT is on a row');
 assert(linkTexts.indexOf('Llama 3.2 Community License') !== -1, 'Llama community license is on a row');
 assert(linkTexts.indexOf('Acceptable Use Policy') !== -1, 'Llama acceptable use policy is on a row');
-assert(linkTexts.indexOf('Gemma Terms of Use') !== -1, 'Gemma terms are on a row');
-assert(linkTexts.indexOf('Prohibited Use Policy') !== -1, 'Gemma prohibited use is on a row');
+assert(linkTexts.indexOf('Gemma Terms of Use') === -1, 'Gemma terms are not on a row');
+assert(linkTexts.indexOf('Prohibited Use Policy') === -1, 'Gemma prohibited use is not on a row');
+assert(curated.indexOf('gemma-2-2b-it') === -1, 'gemma is not a curated row');
 assert(chat.indexOf('Built with Llama') !== -1, 'Llama rows still say Built with Llama');
 
 var heavyOk = api.heavyGateDecision({
@@ -277,7 +274,7 @@ assert(phoneLight.length === 1 && phoneLight[0] === 'Qwen2.5-0.5B-Instruct', 'ph
 assert(api.keepCuratedRowOnPhone(true, 500, 1200, false) === false, 'an unmarked Light row stays off the phone');
 assert(api.keepCuratedRowOnPhone(true, 5000, 1200, true) === false, 'the phone cap still applies to a marked row');
 assert(api.keepCuratedRowOnPhone(false, 5000, 1200, false) === true, 'desktop keeps every row');
-['SmolLM2-360M-Instruct', 'Llama-3.2-1B-Instruct', 'Qwen2.5-1.5B-Instruct', 'gemma-2-2b-it', 'Llama-3.2-3B-Instruct', 'Phi-3.5-mini-instruct', 'Qwen2.5-7B-Instruct'].forEach(function (base) {
+['SmolLM2-360M-Instruct', 'Llama-3.2-1B-Instruct', 'Qwen2.5-1.5B-Instruct', 'Llama-3.2-3B-Instruct', 'Phi-3.5-mini-instruct', 'Qwen2.5-7B-Instruct'].forEach(function (base) {
   assert(phoneDropped.indexOf(base) !== -1, base + ' stays off the phone path');
   assert(phoneLight.indexOf(base) === -1, base + ' is not a phone Light row');
 });
