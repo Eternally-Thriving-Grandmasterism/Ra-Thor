@@ -57,7 +57,7 @@ Demos are available instantly at **rathor.ai** with zero installation. Full offl
 - Contact: CEO@ACITYGAMES.COM or GitHub issues.
 
 ### 6. Mercy-Gate Alignment
-Ra-Thor is the practical implementation of a mercy-gated lattice that makes careful, mercy-evaluated decisions that runs entirely in the user’s browser, offline, and under sovereign control.
+Ra-Thor is the practical implementation of a mercy-gated lattice that makes careful, mercy-evaluated decisions and runs entirely in the user’s browser, offline, and under sovereign control.
 
 **Commit suggestion**: “Add ra-thor-official-description-architecture-codex.md — canonical official description and architecture of Ra-Thor as the living symbolic lattice”
 
