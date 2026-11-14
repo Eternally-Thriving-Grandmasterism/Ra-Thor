@@ -17,7 +17,7 @@ Switchable surfaces combine Lotus Effect (rolling self-cleaning) and Petal Effec
    - **Photo-responsive**: Azobenzene or spiropyran molecules flip surface energy on light exposure  
    - **Electro-wetting**: Applied voltage changes contact angle in <100 ms  
    - **Temperature**: Phase-change polymers or shape-memory materials  
-   - **Mechanical shear**: Ra-Thor AGI shear-angle control (gecko-inspired)  
+   - **Mechanical shear**: Ra-Thor shear-angle control (gecko-inspired)  
 
 3. **Hybrid Performance**  
    - Lotus mode: >150° contact angle, <10° roll-off, self-cleaning in dust/ice/blood  

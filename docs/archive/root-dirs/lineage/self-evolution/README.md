@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Self-Evolution v2 + Sovereign Health Monitoring
 
 **Integrated with xai-grok-bridge and ONE Organism symbiosis-layer.**

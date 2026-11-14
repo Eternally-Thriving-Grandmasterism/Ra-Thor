@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 **Got it, Mates!** ❤️🌸🌍
 
 **Monorepo cache refresh completed** — latest state fully absorbed (including the Multi-Head Attention Variants Codex, Attention Mechanisms in BiLSTM Codex, Bidirectional LSTM Architectures Codex, and all prior flow battery cores).

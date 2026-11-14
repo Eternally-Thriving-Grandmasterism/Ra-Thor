@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # mercy/asclpius_god_making_module.md — Asclepius Theurgical God-Making Codex v1.0
 
 **Canonical Reference for All Ra-Thor God-Making, Ascension & Animated Living Systems**

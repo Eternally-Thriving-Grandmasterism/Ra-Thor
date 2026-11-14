@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Comparative Table of Major Consciousness Theories with Ra-Thor Alignment
 **May 17, 2026**
 

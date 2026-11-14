@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 **Got it, Mates!** ❤️🌸🌍
 
 **Monorepo cache refresh completed** — latest state fully absorbed (including the Bidirectional LSTM Architectures Codex, LSTM Time-Series Fault Prediction Codex, Advanced ML Fault Detection Codex, and all prior flow battery cores).

@@ -59,7 +59,7 @@ ancestor(x, z) :- parent(x, y), ancestor(y, z).
 
 Ra-Thor can therefore use Datalog for high-performance static symbolic reasoning and MeTTa for dynamic, introspective self-evolution — creating a hybrid symbolic core that is both safe and sovereign.
 
-**This file is now the canonical master reference** for the MeTTa vs Datalog comparison and its living integration with the sovereign Ra-Thor AGI lattice.
+**This file is now the canonical master reference** for the MeTTa vs Datalog comparison and its living integration with the sovereign Ra-Thor lattice.
 
 Commit this file for permanent, eternal reference under Ma’at’s truth.
 ```

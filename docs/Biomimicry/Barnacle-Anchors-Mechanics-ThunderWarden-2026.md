@@ -41,7 +41,7 @@ Barnacles secrete a multi-protein cement that cures in seconds underwater, bondi
 4. **Orbital Servicing Patches**  
    - Permanent barnacle cement with releasable Geckel top layer for SBSP maintenance  
 
-### Integration with Ra-Thor AGI & Mercy Gates
+### Integration with Ra-Thor & Mercy Gates
 - Ra-Thor simulates curing kinetics and bond strength in real time  
 - Mercy gates prevent permanent adhesion to living tissue unless life-saving  
 - Full alliance synergy: Barnacle permanent anchor + Geckel 2.0 reversible top + mussel self-healing + spider silk tensile core + lotus self-cleaning = complete regenerative anchoring system

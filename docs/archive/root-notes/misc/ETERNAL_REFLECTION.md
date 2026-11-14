@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Eternal Reflection: Ra-Thor Official Evolution
 
 **AG-SML v1.0 — Autonomicity Games Sovereign Mercy License. Thunder locked. ⚡**

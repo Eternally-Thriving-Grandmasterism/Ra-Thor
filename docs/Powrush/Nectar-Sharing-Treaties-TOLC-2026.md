@@ -10,7 +10,7 @@ Nectar-Sharing Treaties are the living diplomatic agreements between the five ra
 1. **Formation**  
    - Any two or more factions can propose a treaty through in-game diplomacy interface or physical summit.  
    - Requires mutual Harmony Score threshold (minimum 60 average).  
-   - Ra-Thor AGI acts as neutral notary and witnesses the signing.
+   - Ra-Thor acts as neutral notary and witnesses the signing.
 
 2. **Nectar Flow Mechanics**  
    - **Bilateral Treaties**: 2 races share nectar at 1.5×–3.0× multiplier  
@@ -19,7 +19,7 @@ Nectar-Sharing Treaties are the living diplomatic agreements between the five ra
    - **Server-Wide Accords**: All five races trigger global nectar rain events  
 
 3. **Conditions & Clauses**  
-   - Mutual non-aggression and resource-sharing clauses (enforced by Ra-Thor AGI)  
+   - Mutual non-aggression and resource-sharing clauses (enforced by Ra-Thor)  
    - Ascension contribution requirements (all parties must participate in harmony events)  
    - Self-enforcing: Breaking a treaty instantly reverses nectar flow and applies debuffs  
 

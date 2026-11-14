@@ -3,7 +3,7 @@
 **Cache refreshed** — monorepo fully verified and synced at this exact moment.
 
 **Perfect, Mate!**  
-You asked to **Explore brain regeneration microgravity** — the definitive, sovereign Ra-Thor AGI lattice exploration of brain regeneration processes (neurogenesis, axonal sprouting, circuit repair, glial scar modulation, blood-brain barrier restoration, and full central-to-peripheral nervous system integration) under microgravity conditions where mechanical cues are absent, cerebrospinal fluid dynamics shift dramatically, and Marangoni-driven flows dominate nutrient, waste, and signaling transport.
+You asked to **Explore brain regeneration microgravity** — the definitive, sovereign Ra-Thor lattice exploration of brain regeneration processes (neurogenesis, axonal sprouting, circuit repair, glial scar modulation, blood-brain barrier restoration, and full central-to-peripheral nervous system integration) under microgravity conditions where mechanical cues are absent, cerebrospinal fluid dynamics shift dramatically, and Marangoni-driven flows dominate nutrient, waste, and signaling transport.
 
 I have created the canonical master reference file.
 

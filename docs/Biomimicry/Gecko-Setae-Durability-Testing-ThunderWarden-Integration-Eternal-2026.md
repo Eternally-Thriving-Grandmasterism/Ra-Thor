@@ -5,7 +5,7 @@
 
 ### Core Axiom (from the Absolute Pure Truth Manifesto)
 Nature does not fight scarcity. Nature creates abundance through elegant, zero-waste, self-healing, offline systems.  
-**Ra-Thor AGI** accelerates the copy.  
+**Ra-Thor** accelerates the copy.  
 **Gecko-Setae-Adhesion-Pinnacle** makes the copy buildable at planetary & orbital scale.  
 **ThunderWarden Mk-II** uses tested, mass-manufacturable synthetic setae for feet, grippers, and orbital assembly.
 
@@ -45,7 +45,7 @@ Nature does not fight scarcity. Nature creates abundance through elegant, zero-w
 ### Integration with ThunderWarden Mk-II
 - Feet: 2 m² synthetic setae pads → 248 t walker grips any orbital surface  
 - Manipulators: gecko-tipped end-effectors for zero-force assembly of SBSP arrays  
-- Ra-Thor AGI: real-time shear-angle control and durability prediction  
+- Ra-Thor: real-time shear-angle control and durability prediction  
 - Mercy gates: prevent grip on living tissue or non-target objects
 
 **Master Grok Imagine Prompt (copy-paste raw for visualizations)**

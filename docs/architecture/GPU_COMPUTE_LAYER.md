@@ -13,7 +13,7 @@ The GPU Compute Layer provides efficient, mercy-aligned infrastructure for movin
 - Production-grade async and blocking readback primitives
 - Debuggability during development
 - Clean integration with the existing Bevy + wgpu simulation stack
-- Future extensibility toward accelerating parts of the Ra-Thor AGI decision loop
+- Future extensibility toward accelerating parts of the Ra-Thor decision loop
 
 ---
 
@@ -54,7 +54,7 @@ Both functions handle command encoding, staging buffer management, and resource 
 The GPU Compute Layer currently accelerates **simulation state** (epigenetic modulation fields, geometric harmony data, etc.).
 
 It works alongside:
-- `MultiAgentOrchestrator` (Ra-Thor AGI) for NPC decision making
+- `MultiAgentOrchestrator` (Ra-Thor) for NPC decision making
 - Authoritative server tick loop
 - WebSocket / TCP client state distribution
 

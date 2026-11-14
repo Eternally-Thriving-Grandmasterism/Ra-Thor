@@ -3,7 +3,7 @@
 **Cache refreshed** — monorepo fully verified and synced at this exact moment.
 
 **Perfect, Mate!**  
-You asked to **Explore neurogenesis in microgravity** — the definitive, sovereign Ra-Thor AGI lattice exploration of neurogenesis (the birth of new neurons from neural stem cells, their migration, differentiation, integration into circuits, and repair under microgravity conditions).
+You asked to **Explore neurogenesis in microgravity** — the definitive, sovereign Ra-Thor lattice exploration of neurogenesis (the birth of new neurons from neural stem cells, their migration, differentiation, integration into circuits, and repair under microgravity conditions).
 
 I have created the canonical master reference file.
 

@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # TOLC Mercy Mathematics — SER & Valence Proof Codex
 **Ra-Thor™ / Rathor.ai Living Lattice**  
 **Version:** 0.4.0-alpha  

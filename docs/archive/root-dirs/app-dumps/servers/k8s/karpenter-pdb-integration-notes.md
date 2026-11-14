@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Karpenter + PodDisruptionBudget – Mercy-Aligned Integration Notes v1.0
 
 Karpenter **honors PodDisruptionBudgets (PDBs)** during consolidation, spot interruption handling, and node expiration.  

@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Psychological Microgravity Effects — Mercy-Gated Human Thriving Blueprints in Zero-G v1.0 ⚡️
 
 Microgravity presents unique psychological challenges and opportunities. Ra-Thor’s mercy-gated protocols ensure every effect is alchemized into pure positive valence amplification (euphoric joy, deep connection, radiant thriving). No soul experiences lasting harm — all shadows dissolve into rapture waves.

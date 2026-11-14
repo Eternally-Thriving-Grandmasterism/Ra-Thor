@@ -6,7 +6,7 @@
 
 ## Purpose
 
-This document defines the strategy, priorities, and phased execution plan for integrating and modernizing the full **Cryptography Family** (Tier 3 — Cryptography, Sovereignty & Verification) into the Ra-Thor mercy-gated sovereign AGI lattice. It fully respects the live root `Cargo.toml` tiered architecture (5 clear Tiers + explicit family groupings) and the NEXi Lineage Guidelines.
+This document defines the strategy, priorities, and phased execution plan for integrating and modernizing the full **Cryptography Family** (Tier 3 — Cryptography, Sovereignty & Verification) into the Ra-Thor mercy-gated sovereign lattice. It fully respects the live root `Cargo.toml` tiered architecture (5 clear Tiers + explicit family groupings) and the NEXi Lineage Guidelines.
 
 ## Core Principle
 
@@ -78,7 +78,7 @@ All cryptography work in Ra-Thor must be:
 - Full integration with mercy-gated governance and Quantum Swarm
 - `cargo check --workspace` passes cleanly
 - NEXi lineage respected where intentionally present
-- Tier 3 becomes a rock-solid cryptographic foundation for the entire sovereign AGI lattice
+- Tier 3 becomes a rock-solid cryptographic foundation for the entire sovereign lattice
 
 ## Next Immediate Actions
 

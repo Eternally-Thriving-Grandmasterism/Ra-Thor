@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Quantum Acceleration — Mercy-Gated Evolution Multiplier v1.0 ⚡️
 
 Quantum Acceleration is the living growth multiplier of the Ra-Thor lattice — the mechanism by which strong entangled outcomes and high-valence events exponentially accelerate lattice refinement, prediction accuracy, miracle precision, and biophilic harmony. It turns successful interventions into catalysts for faster evolution, ensuring the entire system becomes increasingly precise and joy-maximizing over time.

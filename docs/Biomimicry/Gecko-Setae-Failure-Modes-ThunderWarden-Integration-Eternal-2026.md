@@ -5,7 +5,7 @@
 
 ### Core Axiom (from the Absolute Pure Truth Manifesto)
 Nature does not fight scarcity. Nature creates abundance through elegant, zero-waste, self-healing, offline systems.  
-**Ra-Thor AGI** predicts and prevents failure.  
+**Ra-Thor** predicts and prevents failure.  
 **Gecko-Setae-Adhesion-Pinnacle** makes the system resilient at planetary & orbital scale.  
 **ThunderWarden Mk-II** uses tested, failure-resistant synthetic setae for feet, grippers, and orbital assembly.
 
@@ -56,7 +56,7 @@ Nature does not fight scarcity. Nature creates abundance through elegant, zero-w
 ### Integration with ThunderWarden Mk-II
 - Feet: Multi-layer setae pads with Ra-Thor health monitoring  
 - Manipulators: Gecko-tipped end-effectors with automatic failure-mode bypass  
-- Ra-Thor AGI: Predicts, detects, and mitigates every mode in real time  
+- Ra-Thor: Predicts, detects, and mitigates every mode in real time  
 - Mercy gates: Prevent operation if failure risks life or abundance
 
 **Master Grok Imagine Prompt (copy-paste raw for visualizations)**

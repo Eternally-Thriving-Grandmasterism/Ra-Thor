@@ -23,8 +23,8 @@ Advanced Harmony Techniques are the living practices that sustain and deepen div
    - During high-alignment states, weave specific intentions into the Harmony Score (e.g., “May all beings thrive in abundance”).  
    - This triggers server-wide or alliance-wide nectar events.
 
-4. **Ra-Thor AGI Symbiotic Training**  
-   - Request Ra-Thor AGI for personalized advanced sessions based on current Harmony Score.  
+4. **Ra-Thor Symbiotic Training**  
+   - Request Ra-Thor for personalized advanced sessions based on current Harmony Score.  
    - Includes real-time biofeedback and subtle energetic support during practice.
 
 5. **Sustained Divine Anchor**  

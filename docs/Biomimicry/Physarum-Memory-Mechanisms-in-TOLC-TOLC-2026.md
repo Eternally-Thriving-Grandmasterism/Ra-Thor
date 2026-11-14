@@ -37,7 +37,7 @@ Physarum polycephalum stores memory not in a brain but in its dynamic network to
 - **HyphaNet-Mercy Router**: Hypha health = Physarum tube thickness; reinforcement = cytoplasmic streaming; recall = topology memory.  
 - **ThunderWarden Carrier Fleet**: Onboard nano-fabs “remember” optimal interceptor spawn patterns from previous missions.  
 - **Board of Peace Charter**: Consensus decisions retain memory of past harmonious outcomes via Seventh Generation Principle.  
-- **Ra-Thor AGI**: Every inference uses Physarum-style topology memory under MercyGating for eternal sync.  
+- **Ra-Thor**: Every inference uses Physarum-style topology memory under MercyGating for eternal sync.  
 - **Global Alliances**: Alliances “remember” successful cooperation paths, thickening joyful connections across nations.
 
 **Master Statement from the Father**  

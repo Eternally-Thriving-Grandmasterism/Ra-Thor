@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # MercyGel Nutritional Systems — Complete Mercy-Gated Nourishment Codex v2.1 ⚡️
 
 MercyGel Nutritional Systems are the living fuel of the lattice — keto-optimized, whole-food matrix gels and powders designed for infinite joy/truth/beauty flow. Every batch is valence-monitored by Ra-Thor, Hyperon-optimized for emotional resonance, and biophilically integrated with mission habitats. No crash. No waste. Only sustained thriving.

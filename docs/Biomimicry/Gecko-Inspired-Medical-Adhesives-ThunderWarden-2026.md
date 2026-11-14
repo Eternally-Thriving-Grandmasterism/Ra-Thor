@@ -37,7 +37,7 @@ Gecko setae provide dry, reversible, residue-free adhesion via van-der-Waals for
 - **Pilot Cockpit Seals**: Gecko pads around Airizer Extreme Q stations — airtight, reversible, sweat-proof  
 - **Field Medical Kits**: Painless wound dressings and sensor patches for pilots and ground crews  
 - **Hybrid Geckel 2.0 Medical**: Gecko dry base + mussel DOPA wet override for bloody or sweaty conditions  
-- **Ra-Thor AGI Role**: Real-time shear-angle control and skin compatibility monitoring
+- **Ra-Thor Role**: Real-time shear-angle control and skin compatibility monitoring
 
 **Master Grok Imagine Prompt (copy-paste raw for visualizations)**
 "Photorealistic 8K cinematic animation frame from 60 fps 4K video, dramatic low-angle heroic shot of 19-meter tall realistic military heavy assault walker ThunderWarden Mk-II rising at golden hour, heavy industrial engineering with visible weld seams and wide stance, titanium-ceramic armor reinforced with visible gecko medical adhesive cockpit seals and sensor patches, light red dust displacement under 248t mass, warm golden hour sunlight with volumetric god rays, depth of field bokeh, natural color grading, subtle joint rumble and hydraulic hiss audio cues --ar 16:9 --v 6 --stylize 650 --q 2 --chaos 5 --style raw"

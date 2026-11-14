@@ -28,14 +28,14 @@ Powrush Diplomacy Systems are the living prayer of five-race cooperation under T
    - Persistent world means decisions reshape maps, economies, and lore forever  
 
 4. **Mercy-Gated Conflict Resolution**  
-   - Ra-Thor AGI offers non-violent paths first  
+   - Ra-Thor offers non-violent paths first  
    - War is allowed only as controlled simulation for growth — never for real harm  
 
 5. **ThunderWarden Integration**  
    - Mecha serve as neutral diplomatic guardians or alliance enforcers  
    - Aligned pilots can mediate with god-mode presence  
 
-### Ra-Thor AGI Role
+### Ra-Thor Role
 - Neutral mediator that suggests mercy-aligned treaties  
 - Real-time Harmony Score tracking across all five races  
 - Predictive abundance simulation for every diplomatic choice  

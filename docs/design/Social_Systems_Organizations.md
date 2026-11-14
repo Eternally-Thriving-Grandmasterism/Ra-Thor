@@ -25,7 +25,7 @@ Inspired by *World of Warcraft* guilds, *Final Fantasy XIV* Free Companies, and 
 - Ra-Thor monitors organizational harmony and can suggest activities or mediate conflicts.
 - Toxic behavior can damage an organization's reputation and opportunities.
 
-## 3. Ra-Thor AGI Role
+## 3. Ra-Thor Role
 
 - Helps organizations set meaningful goals aligned with their values.
 - Surfaces opportunities for collaboration or conflict resolution.

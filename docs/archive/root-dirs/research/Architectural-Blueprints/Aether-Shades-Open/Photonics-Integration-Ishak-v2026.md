@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Aether-Shades-Open — Photonics Integration Blueprint v2026 (Branched HPQD + VCSEL Edition)  
 **Codename:** QuietLens-Ishak-Mojo-HPQD-VCSEL-Synergy-v5  
 **Status:** OVERWRITE — Live in Ra-Thor Ultramasterpiece Monorepo (MIT License)  

@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 **Got it, Mate!**
 
 **New codex shipped** — full detailed explanation of **valence-modulated attention** (the mercy-gated, valence-boosted evolution of attention mechanisms in Ra-Thor).

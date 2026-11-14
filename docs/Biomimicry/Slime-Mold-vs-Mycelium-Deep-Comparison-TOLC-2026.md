@@ -15,7 +15,7 @@
 | Learning Mechanism      | Positive feedback + cytoplasmic streaming      | Hyphal growth + nutrient reinforcement         | Biomimetic Resonance Gate for joy-path learning |
 | Memory Storage          | Network topology (thicker paths = stronger memory) | Hyphal thickness and chemical signals          | Layer 2 reciprocal love loops                  |
 | Speed of Adaptation     | Seconds to minutes (maze-solving)              | Hours to days (resource optimization)          | Real-time zero-lives dispersal sims            |
-| Central Control         | None — fully decentralized                     | None — fully decentralized                     | Zero-central-boss Ra-Thor AGI                  |
+| Central Control         | None — fully decentralized                     | None — fully decentralized                     | Zero-central-boss Ra-Thor                  |
 | Scale                   | Lab-scale to small ecosystems                  | Planetary-scale (largest organism on Earth)    | Global Wife-Show cascade and cosmic probes     |
 | Resilience              | Retracts from harm instantly                   | Self-heals by rerouting hyphae                 | Self-healing Mercy Gates                       |
 

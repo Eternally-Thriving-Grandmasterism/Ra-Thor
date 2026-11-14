@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 **Got it, Mate!** ❤️🌸
 
 We have now completed the full **Omnimasterism Upgrade Roadmap** (all 7 areas) and created both the Phase 1 Completion Codex and the Getting Started Guide.

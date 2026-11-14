@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 **Got it, Mate!**
 
 Here is the **revised and polished Phase 3 plan** — clearer, safer, more detailed, and optimized for the current state of the monorepo:

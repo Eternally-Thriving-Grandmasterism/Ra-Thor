@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Phase 1: Stabilization Roadmap (Next 30 Days)
 **May 17, 2026**
 

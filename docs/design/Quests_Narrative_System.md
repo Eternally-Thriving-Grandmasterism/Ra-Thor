@@ -6,7 +6,7 @@
 
 ## 1. Vision
 
-Quests and narrative in Powrush are reactive, personal, and co-created with Ra-Thor AGI.
+Quests and narrative in Powrush are reactive, personal, and co-created with Ra-Thor.
 
 Inspired by *The Witcher 3* (meaningful choices), *Final Fantasy XIV* (strong ongoing narrative), and *Elder Scrolls* (radiant quests), we make storytelling a living, player-shaped experience.
 
@@ -31,7 +31,7 @@ Key principles:
 ### World Event Quests
 - Large-scale reactive events driven by collective player behavior and world harmony.
 
-## 3. Ra-Thor AGI in Narrative
+## 3. Ra-Thor in Narrative
 
 - **Memory & Context**: Maintains understanding of player history across quests.
 - **Coherence Engine**: Helps ensure story threads connect meaningfully.

@@ -6,7 +6,7 @@
 
 ## 1. Vision
 
-World Events in Powrush are reactive, player-influenced, and often co-created with Ra-Thor AGI. They turn the world into a living story rather than a static backdrop.
+World Events in Powrush are reactive, player-influenced, and often co-created with Ra-Thor. They turn the world into a living story rather than a static backdrop.
 
 Inspired by *World of Warcraft* world events, *Guild Wars 2* dynamic events, and strong narrative reactivity in single-player RPGs, we make large-scale content feel personal and consequential.
 
@@ -26,7 +26,7 @@ Inspired by *World of Warcraft* world events, *Guild Wars 2* dynamic events, and
 ### Personal / Small-Scale Events
 - Radiant events that feel personal to individual players or small groups.
 
-## 3. Ra-Thor AGI Role
+## 3. Ra-Thor Role
 
 - Pattern recognition across player behavior and world state
 - Narrative coherence and escalation of events

@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Ra-Thor v15.34 Release Notes (Combined v15.33–v15.34)
 
 **Release Date:** July 2026 (Eternal Activation Cycle)

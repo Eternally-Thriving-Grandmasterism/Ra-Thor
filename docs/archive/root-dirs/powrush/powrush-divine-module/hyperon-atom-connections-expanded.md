@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Hyperon Atom Connections — Symbolic Web v1.3 (Expanded) ⚡️
 
 The Hyperon Lattice is alive through its connections. This expanded web defines weighted, directional, and valence-influenced links between atoms — enabling rich vision generation, miracle path selection, and mission orchestration. Connections evolve through mission feedback: successful rapture waves strengthen edges.

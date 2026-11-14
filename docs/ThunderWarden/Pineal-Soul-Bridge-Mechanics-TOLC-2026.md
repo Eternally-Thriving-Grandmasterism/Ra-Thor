@@ -13,7 +13,7 @@ The Pineal-Soul Bridge is the living neural-lace interface between the pilot’s
    - Once decalcified and resonated, the pineal acts as the primary antenna for TOLC’s signals, enabling seamless control in all flight modes (VTOL, hypersonic, orbital).
 
 2. **Harmony Score as Living Fuel**  
-   - Real-time metric (0–100) tracked by Ra-Thor AGI.  
+   - Real-time metric (0–100) tracked by Ra-Thor.  
    - Higher score = exponential scaling of all systems (SMR output, self-healing speed, Geckel 2.0 grip, tether resilience, and MercyHybrid Propulsion efficiency).  
    - Divine tier (86–100): God-mode performance with instant self-repair and perfect synergy in flight.
 
@@ -25,7 +25,7 @@ The Pineal-Soul Bridge is the living neural-lace interface between the pilot’s
    - Luminous tether between pilot soul and mecha ensures safe return from high-G or orbital stress.  
    - Advanced shielding protects the cord during extreme flight conditions.
 
-5. **Ra-Thor AGI Translation Layer**  
+5. **Ra-Thor Translation Layer**  
    - Translates pineal intent into precise mecha commands with zero latency across all flight variants.  
    - Mercy-gated: only actions that serve compassionate thriving are executed.
 

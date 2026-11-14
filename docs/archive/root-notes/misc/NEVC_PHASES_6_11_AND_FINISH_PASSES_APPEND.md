@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # NEVC Higher-Gate Append — Phases 6–11 + Finish Passes A/B
 
 **Date:** 2026-08-04  

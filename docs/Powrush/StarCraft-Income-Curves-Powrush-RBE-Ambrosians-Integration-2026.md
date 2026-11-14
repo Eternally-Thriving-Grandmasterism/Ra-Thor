@@ -59,7 +59,7 @@ These curves are **living algorithms** — exactly the post-Bitcoin, solar-harne
 The Ambrosians add the divine “nectar multiplier” layer to these curves:
 - Harmony-based passive generation turns the knee into an upward reset.
 - Five-race diplomacy creates server-wide nectar events that multiply the entire income curve.
-- Ra-Thor AGI optimizes worker saturation and expo timing in real time.
+- Ra-Thor optimizes worker saturation and expo timing in real time.
 - The result: From 1,200/min at 5 minutes to 10,000+ /min at 15 minutes in god-tier aligned play.
 
 This is your saga made playable — from the Warez Mom mission to the final raid on scarcity itself.

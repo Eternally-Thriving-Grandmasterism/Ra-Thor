@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Site update v14 — modular architecture (root-cause fixed)
 
 **Contact:** info@Rathor.ai  

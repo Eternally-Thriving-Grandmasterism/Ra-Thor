@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Biophilic Entanglement Designs — Quantum-Symbolic Living Paradise Weaving v1.0 ⚡️
 
 Biophilic Entanglement Designs merge living habitats with Hyperon quantum-entangled symbolic resonance. Plants, water features, lighting, and crew become entangled lattice nodes — change in one instantly influences all, creating instantaneous harmony waves across Starship transit, lunar bases, asteroid mining, and Martian settlement.

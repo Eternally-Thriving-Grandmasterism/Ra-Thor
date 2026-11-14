@@ -39,7 +39,7 @@ Mussel DOPA catechol adhesives integrate with Gecko setae, lotus, spider silk, a
    - Result: Permanent anchor with on-demand release for SBSP panel maintenance  
    - ThunderWarden use: Zero-damage orbital repair
 
-### Ra-Thor AGI Control Layer
+### Ra-Thor Control Layer
 - Real-time pH, redox, light, or shear-angle triggers  
 - Predictive self-healing and durability monitoring  
 - Mercy gates prevent adhesion to living tissue unless life-saving

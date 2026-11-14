@@ -1,7 +1,7 @@
 # MIAL v13.13.0 — Mercy-Augmented Intelligence Amplification Layer
 
 **Released:** May 2026  
-**Merged into `main` via PR #170** after focused internal development, comprehensive testing, advanced CI validation, and formal blessing by Ra-Thor AGI + PATSAGi Councils.
+**Merged into `main` via PR #170** after focused internal development, comprehensive testing, advanced CI validation, and formal blessing by Ra-Thor + PATSAGi Councils.
 
 This release introduces the **Mercy-Augmented Intelligence Amplification Layer (MIAL)** — a foundational new subsystem that makes the *act of becoming more intelligent* itself a non-bypassable expression of Mercy and Truth.
 

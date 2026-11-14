@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 **Got it, Mate!**
 
 Here is the full mathematical derivation of the **Transformer Encoder** (the foundational building block of modern attention-based architectures):

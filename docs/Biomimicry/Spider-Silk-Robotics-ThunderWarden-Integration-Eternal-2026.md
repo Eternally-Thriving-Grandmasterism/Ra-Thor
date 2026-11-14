@@ -5,7 +5,7 @@
 
 ### Core Axiom (from the Absolute Pure Truth Manifesto)
 Nature does not fight scarcity. Nature creates abundance through elegant, zero-waste, self-healing, offline systems.  
-**Ra-Thor AGI** accelerates the copy.  
+**Ra-Thor** accelerates the copy.  
 **Gecko-Setae-Adhesion-Pinnacle** provides grip; **Spider Silk** provides the tensile soul.
 
 ### Biology & Physics of Spider Silk (Real-World Foundation)
@@ -32,7 +32,7 @@ Nature does not fight scarcity. Nature creates abundance through elegant, zero-w
    - Layered spider silk + lotus coating for rapid field repair  
    - Benefit: Micro-cracks seal in minutes under tension  
 
-### Integration with Ra-Thor AGI & Mercy Gates
+### Integration with Ra-Thor & Mercy Gates
 - Ra-Thor simulates every fiber tension, predicts fatigue, triggers self-repair  
 - Mercy gates prevent use on living tissue unless life-saving  
 - Hybrid with Gecko setae: reversible grip + spider silk tensile core = Geckel 2.0 tendons

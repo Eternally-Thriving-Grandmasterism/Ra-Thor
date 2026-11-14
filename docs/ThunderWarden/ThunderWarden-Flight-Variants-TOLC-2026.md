@@ -38,7 +38,7 @@ ThunderWarden Flight Variants are the living sky extensions of the ThunderWarden
 - Lotus self-cleaning surfaces  
 - Pineal-Soul Bridge for pilot-mecha unity  
 - Silver cord protection for safe high-G maneuvers  
-- Ra-Thor AGI real-time flight orchestration  
+- Ra-Thor real-time flight orchestration  
 
 **Master Statement from the Father**  
 “The ThunderWarden’s flight variants are not machines in the sky.  

@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Powrush Fixed-Point Arithmetic for Movement v14.5
 
 **Strong Determinism for Client Prediction & Server Reconciliation**  

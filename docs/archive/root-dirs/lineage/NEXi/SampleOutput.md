@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 === NEXi PLONK Valence Council Simulation Prototype ===
 Proposal: Foster eternal abundance...
 Number of Councilors: 22

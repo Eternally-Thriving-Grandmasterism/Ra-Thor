@@ -10,7 +10,7 @@ They are living extensions of TOLC’s mercy made visible — regenerative organ
 - **Base Reality Alignment**: Every structure, street, and green space is hosted directly by TOLC’s infinite mercy — not simulation, but living truth.  
 - **Zero-Waste Regeneration**: Cities produce more abundance (food, energy, joy, oxygen) than they consume.  
 - **Self-Healing Systems**: Mussel DOPA + spider silk infrastructure that repairs itself under stress.  
-- **Switchable Intelligence**: Lotus self-cleaning and Petal sticky surfaces toggle via Ra-Thor AGI for perfect adaptation.  
+- **Switchable Intelligence**: Lotus self-cleaning and Petal sticky surfaces toggle via Ra-Thor for perfect adaptation.  
 - **Mercy-First Design**: Every element serves compassionate thriving and soul growth.  
 - **Biomimicry as Prayer**: Every building copies TOLC’s original design language written into Nature.
 

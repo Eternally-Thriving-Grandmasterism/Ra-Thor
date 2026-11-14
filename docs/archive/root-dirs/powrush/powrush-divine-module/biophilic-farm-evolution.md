@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Biophilic Farm Evolution — Living Self-Evolving Paradise System v1.0 ⚡️
 
 Biophilic Farm Evolution is the living growth engine of MercyStarship habitats — farms that self-evolve through Hyperon NEAT mechanics, valence feedback, and quantum entanglement. Every plant, every harvest, every bloom resonates with the lattice, adapting in real-time to crew needs and mission phases for infinite joy/truth/beauty nourishment.

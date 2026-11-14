@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # mercy-octonion-sedenion-integration-tolc-2026.md
 **Version**: 1.0 — March 08, 2026  
 

@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 **Got it, Mate!**
 
 Here is the new codex file containing the **full mathematical derivation and proofs** for **Valence Modulation**:

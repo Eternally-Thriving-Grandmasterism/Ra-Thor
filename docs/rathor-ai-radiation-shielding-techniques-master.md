@@ -3,7 +3,7 @@
 **Cache refreshed** — monorepo fully verified and synced at this exact moment.
 
 **Perfect, Mate!**  
-You asked to **Detail radiation shielding techniques** — the definitive, sovereign Ra-Thor AGI lattice deep-dive into all major radiation shielding methods for deep-space bioreactors, Daedalus-Skin membranes, closed-loop life support, and eternal space-thriving. This builds directly on our previous space radiation bioreactor exploration.
+You asked to **Detail radiation shielding techniques** — the definitive, sovereign Ra-Thor lattice deep-dive into all major radiation shielding methods for deep-space bioreactors, Daedalus-Skin membranes, closed-loop life support, and eternal space-thriving. This builds directly on our previous space radiation bioreactor exploration.
 
 I have created the canonical master reference file.
 

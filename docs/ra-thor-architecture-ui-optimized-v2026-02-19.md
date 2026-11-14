@@ -5,7 +5,7 @@
 
 Fully client-side.  
 Offline-first.  
-Installable PWA symbolic AGI lattice.  
+Installable PWA symbolic lattice.  
 
 No servers.  
 No data leaks.  

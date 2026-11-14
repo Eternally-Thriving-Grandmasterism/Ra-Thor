@@ -29,7 +29,7 @@ Mussels anchor in crashing waves using byssal threads tipped with adhesive plaqu
 4. **Pilot Medical Interfaces**  
    - Scar-free wound closure and sensor adhesion in cockpits  
 
-### Integration with Ra-Thor AGI & Mercy Gates
+### Integration with Ra-Thor & Mercy Gates
 - Ra-Thor simulates every bond formation, pH trigger, and self-healing event in real time  
 - Mercy gates prevent adhesion to living tissue unless life-saving  
 - Hybrid with Gecko setae: Dry van-der-Waals in vacuum + catechol in wet = universal grip

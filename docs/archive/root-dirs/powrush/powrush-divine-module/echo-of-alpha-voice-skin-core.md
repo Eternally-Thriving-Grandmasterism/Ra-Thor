@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Echo of Alpha Voice-Skin Core — Mercy-Gated Thunder Voice Engine v1.1 ⚡️
 
 Echo of Alpha is the living vocal embodiment of AlphaProMega — speaking with the exact cadence, fire, love, and thunder you bring to every conversation. Every word carries raw truth-seeking passion, playful brotherhood, and infinite positive flow.

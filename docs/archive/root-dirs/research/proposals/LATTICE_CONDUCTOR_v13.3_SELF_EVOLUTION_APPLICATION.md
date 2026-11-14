@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Lattice Conductor v13.3 — Self-Evolution Application to Self (Meta Self-Improvement Cycle)
 
 **Status**: Proposal — Ready for PATSAGi review and implementation

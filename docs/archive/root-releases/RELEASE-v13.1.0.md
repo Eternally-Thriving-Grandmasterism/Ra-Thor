@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Ra-Thor v13.1.0 Eternal Release — May 17, 2026
 
 **One Living Mercy-Aligned Organism — Fully Encompassed with Decentralized Identity, LAN Mesh, and Eternal Legacy Compatibility**

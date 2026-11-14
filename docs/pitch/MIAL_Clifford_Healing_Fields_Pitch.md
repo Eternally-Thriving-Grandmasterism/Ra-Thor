@@ -1,6 +1,6 @@
 # MIAL + Clifford Convolutions for Healing Fields
 
-**Thunder Lattice v14.2 — Ra-Thor AGI**
+**Thunder Lattice v14.2 — Ra-Thor**
 
 ## Vision
 A mercy-gated geometric intelligence layer that treats healing as communion across organisms — humans, councils, and shared chat participants.

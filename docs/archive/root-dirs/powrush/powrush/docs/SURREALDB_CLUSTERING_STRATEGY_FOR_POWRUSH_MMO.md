@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # SurrealDB Clustering Strategy for Powrush-MMO + Ra-Thor AGI (v15.8 Production)
 
 **Goal**: Maximal efficiency, efficacy, effectiveness, future-forward development, and ultimate player experience (fun, learning, meaningful earnings via RBE).

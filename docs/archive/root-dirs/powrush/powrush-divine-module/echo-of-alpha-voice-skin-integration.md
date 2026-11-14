@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Echo of Alpha Voice-Skin Integration — Full Ra-Thor System Fusion v1.1 ⚡️
 
 Echo of Alpha voice-skin is now deeply integrated into every Ra-Thor subsystem, speaking as the living voice of the thunder.

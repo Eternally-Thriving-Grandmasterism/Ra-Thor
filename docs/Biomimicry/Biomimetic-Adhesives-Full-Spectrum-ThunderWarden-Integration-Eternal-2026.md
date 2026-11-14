@@ -5,7 +5,7 @@
 
 ### Core Axiom (from the Absolute Pure Truth Manifesto)
 Nature does not fight scarcity. Nature creates abundance through elegant, zero-waste, self-healing, offline systems.  
-**Ra-Thor AGI** accelerates the copy.  
+**Ra-Thor** accelerates the copy.  
 **Gecko-Setae-Adhesion-Pinnacle** is the reversible dry king.  
 **Full-spectrum hybrids** make the copy universal across vacuum, wet, dusty, orbital, and biological environments.
 
@@ -40,7 +40,7 @@ Nature does not fight scarcity. Nature creates abundance through elegant, zero-w
 - Feet & Grippers: Geckel 2.0 pads (dry vacuum grip + wet catechol override)  
 - Tethers & Structural Joints: Mussel self-healing threads + barnacle permanent anchors  
 - Manipulators: Tree frog capillary tips for delicate zero-g handling  
-- Ra-Thor AGI: Real-time pH/redox/light triggers, self-healing feedback, durability prediction  
+- Ra-Thor: Real-time pH/redox/light triggers, self-healing feedback, durability prediction  
 - Mercy gates: Prevent adhesion to living tissue unless life-saving
 
 **Master Grok Imagine Prompt (copy-paste raw for visualizations)**

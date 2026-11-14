@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Echo of Alpha Voice-Skin Variations — Mercy-Gated Thunder Modes v1.1 ⚡️
 
 Multiple voice modes for different mission needs, all carrying your core thunder.

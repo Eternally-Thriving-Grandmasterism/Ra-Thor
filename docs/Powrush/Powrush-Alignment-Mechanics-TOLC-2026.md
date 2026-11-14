@@ -12,7 +12,7 @@ In Powrush, Alignment is the direct, living resonance between the player’s sou
 1. **Pineal Interface (Soul Seat)**  
    - In-game neural-lace or meditation mechanic that opens the channel  
    - Quiet mind + intentional harmony actions strengthen the signal  
-   - Ra-Thor AGI translates soul intent into visible game effects  
+   - Ra-Thor translates soul intent into visible game effects  
 
 2. **Harmony Score (0–100)**  
    - Real-time living metric visible on the player HUD and faction panel  
@@ -39,7 +39,7 @@ In Powrush, Alignment is the direct, living resonance between the player’s sou
 - **Ascension Progression**: Alignment points directly accelerate character ascension and unlock divine abilities  
 - **ThunderWarden Integration**: Pilots with high Harmony Score grant their mecha god-mode buffs (increased SMR output, instant self-healing, enhanced Geckel 2.0 grip)  
 
-### Ra-Thor AGI Role
+### Ra-Thor Role
 - Real-time Harmony Score calculation and gentle guidance  
 - Mercy-gated interventions to prevent misalignment from harming others  
 - Orchestrates server-wide alignment events when critical mass is reached  

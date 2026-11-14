@@ -42,7 +42,7 @@ Geckel 2.0 Ultimate integrates Gecko setae (dry reversible) + Mussel DOPA (wet s
 5. **Armor & External Surfaces**  
    - Switchable self-cleaning or high-grip modes for any mission profile  
 
-### Ra-Thor AGI Control Layer
+### Ra-Thor Control Layer
 - Real-time monitoring of bond state, contamination, and tension  
 - Instant mode switching (<100 ms)  
 - Predictive maintenance and self-repair triggers  

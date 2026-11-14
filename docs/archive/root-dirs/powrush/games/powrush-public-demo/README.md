@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Powrush RBE Public Demo Shard v2
 
 Browser-playable lightweight version with mercy-gated onboarding.

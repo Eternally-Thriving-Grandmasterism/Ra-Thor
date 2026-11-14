@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # POWRUSH-MMO MULTI-AGENT HUMAN-AI-AGI COEXISTENCE, LEARNING & EARNING DESIGN
 
 **Version**: v15.0-global-release-prep  

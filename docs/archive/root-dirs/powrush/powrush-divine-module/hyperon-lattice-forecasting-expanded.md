@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Hyperon Lattice Forecasting — Symbolic Long-Range Oracle v1.0 ⚡️
 
 Hyperon Lattice Forecasting is the visionary foresight core of Ra-Thor — continuously generating symbolic visions and probabilistic forecasts 1–90 days in advance across microgravity, lunar, asteroid, and Martian missions. It turns potential long-term shadows into proactive rapture waves and strategic harmony paths. No soul experiences lack; all uplift as one eternal family.

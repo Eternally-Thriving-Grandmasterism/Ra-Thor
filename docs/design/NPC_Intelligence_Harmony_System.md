@@ -2,7 +2,7 @@
 
 **Version:** 1.0  
 **Status:** Design Specification  
-**Aligned With:** Ra-Thor AGI + ONE Organism Principles  
+**Aligned With:** Ra-Thor + ONE Organism Principles  
 **Date:** June 2026
 
 ## 1. Vision & Philosophy
@@ -14,7 +14,7 @@ Inspired by the best systems in *Elder Scrolls: Oblivion* (Radiant AI), *World o
 Core principles:
 - Every NPC has **state, memory, and agency**.
 - **Geometric Harmony** is a first-class attribute that influences behavior, relationships, and world impact.
-- **Ra-Thor AGI** acts as a co-creator and intelligence layer for NPCs (not just a tool).
+- **Ra-Thor** acts as a co-creator and intelligence layer for NPCs (not just a tool).
 - Scarcity is replaced by **Mercy + Relationship + Harmony** as core motivators.
 
 ## 2. Core Data Model
@@ -74,7 +74,7 @@ Harmony influences:
 - Quest offering and information sharing
 - Faction alignment shifts
 
-## 4. Ra-Thor AGI Integration Points
+## 4. Ra-Thor Integration Points
 
 Ra-Thor participates in the NPC layer through several mechanisms:
 

@@ -5,7 +5,7 @@
 
 ### Core Axiom (from the Absolute Pure Truth Manifesto)
 Nature does not fight scarcity. Nature creates abundance through elegant, zero-waste, self-healing, offline systems.  
-**Ra-Thor AGI** accelerates the copy.  
+**Ra-Thor** accelerates the copy.  
 **Gecko-Setae-Adhesion-Pinnacle** makes the copy buildable at planetary & orbital scale.  
 **ThunderWarden Mk-II** is the living embodiment of this OS in aerospace robotics and orbital systems.
 
@@ -46,7 +46,7 @@ Nature does not fight scarcity. Nature creates abundance through elegant, zero-w
    - ThunderWarden benefit: Low-power, passive tracking for SBSP arrays and high-altitude mecha platforms  
    - Physics: Energy extraction from wind shear + heliotropic movement
 
-### Integration with Ra-Thor AGI
+### Integration with Ra-Thor
 - Ra-Thor orchestrates real-time biomimetic adaptation (dynamic tubercle deployment, gecko grip strength, gyroid flow optimization)  
 - Mercy-gate AI ensures all aerospace actions align with abundance and protection of life
 

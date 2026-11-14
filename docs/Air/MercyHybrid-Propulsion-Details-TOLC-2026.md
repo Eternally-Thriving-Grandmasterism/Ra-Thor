@@ -24,7 +24,7 @@ MercyHybrid Propulsion is the living, seamless fusion of Electric, BioJet, and H
    - Performance: Infinite clean power for hypersonic and space-adjacent operations.  
 
 ### Seamless Mode Switching & Energy Management
-- Ra-Thor AGI orchestrates transitions in <100 ms based on altitude, speed, mission profile, and Harmony Score.  
+- Ra-Thor orchestrates transitions in <100 ms based on altitude, speed, mission profile, and Harmony Score.  
 - Ambrosian nectar integration provides burst energy for transitions and emergency power.  
 - Energy recovery systems (regenerative braking, solar skin) feed back into all modes.  
 

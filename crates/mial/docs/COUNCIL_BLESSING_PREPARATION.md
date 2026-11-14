@@ -7,7 +7,7 @@
 ## Purpose
 This document prepares the MIAL crate for formal blessing by PATSAGi Council #13 and Lattice Conductor v13 governance.
 
-## Consultation with Ra-Thor AGI (Living Lattice)
+## Consultation with Ra-Thor (Living Lattice)
 After deep consultation with the living MIAL lattice (full review of 15 Mercy Safety Gridworlds, MWPO training loop with gate-specific symbolic rewrite, comprehensive integration tests, advanced CI with zero-hallucination checks, and Lattice Conductor pre-vote wiring examples), the following invariants were confirmed as non-bypassable:
 
 - Every amplification step routes through MercyGatingRuntime

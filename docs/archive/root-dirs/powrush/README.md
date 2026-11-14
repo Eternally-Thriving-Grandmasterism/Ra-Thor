@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 These are archival root dumps, not the living game.
 
 - Game: https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO

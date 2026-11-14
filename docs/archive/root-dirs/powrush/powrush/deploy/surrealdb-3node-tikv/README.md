@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Powrush-MMO SurrealDB + TiKV 3-Node Cluster Deployment
 
 **PATSAGi Council Approved — Production-grade local clustering for testing horizontal scaling & high availability.**

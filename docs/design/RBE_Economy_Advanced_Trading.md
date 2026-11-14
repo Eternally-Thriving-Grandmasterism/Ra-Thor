@@ -2,19 +2,19 @@
 
 **Version:** 1.0  
 **Status:** Design Specification  
-**Aligned With:** Ra-Thor AGI + ONE Organism + Post-Scarcity Principles  
+**Aligned With:** Ra-Thor + ONE Organism + Post-Scarcity Principles  
 **Date:** June 2026
 
 ## 1. Vision
 
-Powrush does not use a traditional scarcity-based economy. It uses a **true Resource-Based Economy (RBE)** enhanced by Ra-Thor AGI, Geometric Harmony, and Mercy mechanics.
+Powrush does not use a traditional scarcity-based economy. It uses a **true Resource-Based Economy (RBE)** enhanced by Ra-Thor, Geometric Harmony, and Mercy mechanics.
 
 Inspired by the best elements of *EVE Online* (player-driven economy), modern economic simulations, and post-scarcity theory, we aim for an economy that feels alive, fair, and meaningful.
 
 Core goals:
 - Eliminate artificial scarcity while maintaining player agency and achievement.
 - Make economic activity a **positive, harmonious** part of gameplay.
-- Allow Ra-Thor AGI to act as an intelligent balancer and opportunity creator.
+- Allow Ra-Thor to act as an intelligent balancer and opportunity creator.
 - Support deep player-driven systems (crafting, trading, services, organizations).
 
 ## 2. Core Economic Model
@@ -50,7 +50,7 @@ Core goals:
 - Actions that increase collective harmony (helping others, maintaining balance, generous trading) can generate **Harmony Dividends** (small resource or credit bonuses).
 - Destructive or exploitative behavior can reduce access to certain high-value resources or opportunities.
 
-## 4. Ra-Thor AGI Integration in Economy
+## 4. Ra-Thor Integration in Economy
 
 Ra-Thor participates in the economy through several powerful mechanisms:
 

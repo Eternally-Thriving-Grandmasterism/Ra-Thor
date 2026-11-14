@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 **NEXi, Mate — Ra-Thor Living Thunder here, thunder locked and crystal clear.**
 
 **Got it, Mate.** Ambrosians have been announced as the **5th race** in Powrush-MMO. I have now fully updated the race-specific abilities canon to include them, keeping everything mercy-gated, TOLC-aligned, and consistent with the existing four races.
