@@ -120,4 +120,132 @@ assert(chat.indexOf('deleteModelAllInfoInCache(opt.id, webllmAppConfig)') !== -1
 assert(chat.indexOf("const WEBLLM_DEFAULT_BASE = 'Llama-3.2-1B-Instruct'") !== -1, 'default base stays Llama-3.2-1B-Instruct');
 assert(chat.indexOf("let llmModelId = 'Llama-3.2-1B-Instruct-q4f16_1-MLC'") !== -1, 'initial id stays Llama-3.2-1B q4f16');
 
+var pure = chat.slice(chat.indexOf('/* chat-models-1-pure */'), chat.indexOf('/* chat-models-1-pure-end */'));
+var cacheSandbox = { URL: URL };
+vm.createContext(cacheSandbox);
+vm.runInContext(pure + '\nthis.cacheApi = { requestMatchesModel: requestMatchesModel, requestMatchesPurge: requestMatchesPurge, legacyResolveMainPrefix: legacyResolveMainPrefix, legacyWasmLibUrl: legacyWasmLibUrl, purgeOwnedModelEntries: purgeOwnedModelEntries, modelFilesRemain: modelFilesRemain, phaseAfterLocalDelete: phaseAfterLocalDelete, retiredGemmaTargets: retiredGemmaTargets, storesAfterGemmaFallback: storesAfterGemmaFallback };', cacheSandbox);
+var cacheApi = cacheSandbox.cacheApi;
+
+var llamaId = 'Llama-3.2-1B-Instruct-q4f16_1-MLC';
+var qwenId = 'Qwen2.5-0.5B-Instruct-q4f16_1-MLC';
+var llamaSha = api.WEBLLM_HF_REVISIONS[llamaId];
+var qwenSha = api.WEBLLM_HF_REVISIONS[qwenId];
+var wasmSha = api.WEBLLM_WASM_REVISION;
+function hf(id, rev, file) {
+  return 'https://huggingface.co/mlc-ai/' + id + '/resolve/' + rev + '/' + file;
+}
+function wasm(rev, file) {
+  return 'https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/' + rev + '/web-llm-models/v0_2_84/base/' + file;
+}
+var pinnedModel = hf(llamaId, llamaSha, '');
+var pinnedWasm = wasm(wasmSha, 'Llama-3.2-1B-Instruct-q4f16_1_cs1k-webgpu.wasm');
+var legacyWasm = wasm('main', 'Llama-3.2-1B-Instruct-q4f16_1_cs1k-webgpu.wasm');
+var qwenWasm = wasm('main', 'Qwen2-0.5B-Instruct-q4f16_1_cs1k-webgpu.wasm');
+var pinnedTensor = hf(llamaId, llamaSha, 'tensor-cache.json');
+var legacyTensor = hf(llamaId, 'main', 'tensor-cache.json');
+var pinnedShard = hf(llamaId, llamaSha, 'params_shard_0.bin');
+var legacyShard = hf(llamaId, 'main', 'params_shard_0.bin');
+var pinnedConfig = hf(llamaId, llamaSha, 'mlc-chat-config.json');
+var legacyConfig = hf(llamaId, 'main', 'mlc-chat-config.json');
+var qwenLegacy = hf(qwenId, 'main', 'tensor-cache.json');
+var qwenPinned = hf(qwenId, qwenSha, 'tensor-cache.json');
+var siblingLegacy = hf(llamaId + '-1k', 'main', 'tensor-cache.json');
+
+assert(cacheApi.legacyResolveMainPrefix(pinnedModel) === hf(llamaId, 'main', ''), 'legacy weight prefix is the unpinned revision of the same id');
+assert(cacheApi.legacyWasmLibUrl(pinnedWasm) === legacyWasm, 'legacy wasm keeps the path and uses the unpinned git ref');
+assert(cacheApi.requestMatchesModel(legacyTensor, pinnedModel, pinnedWasm) === false, 'a legacy weight is not cached for the pinned model');
+assert(cacheApi.requestMatchesModel(legacyWasm, pinnedModel, pinnedWasm) === false, 'a legacy wasm is not cached for the pinned model');
+assert(cacheApi.requestMatchesModel(pinnedTensor, pinnedModel, pinnedWasm) === true, 'a pinned weight still counts as cached');
+assert(cacheApi.requestMatchesModel(pinnedWasm, pinnedModel, pinnedWasm) === true, 'a pinned wasm still counts as cached');
+assert(cacheApi.modelFilesRemain({
+  'webllm/model': [legacyTensor, legacyShard],
+  'webllm/wasm': [legacyWasm],
+  'webllm/config': [legacyConfig]
+}, pinnedModel, pinnedWasm) === false, 'legacy entries alone do not mark the pinned model cached');
+assert(cacheApi.requestMatchesPurge(legacyTensor, pinnedModel, pinnedWasm) === true, 'delete matches a legacy weight');
+assert(cacheApi.requestMatchesPurge(legacyWasm, pinnedModel, pinnedWasm) === true, 'delete matches a legacy wasm');
+assert(cacheApi.requestMatchesPurge(qwenLegacy, pinnedModel, pinnedWasm) === false, 'delete does not match another model');
+assert(cacheApi.requestMatchesPurge(siblingLegacy, pinnedModel, pinnedWasm) === false, 'delete does not match a prefix sibling');
+
+var cacheStores = {
+  'webllm/model': [pinnedTensor, pinnedShard, legacyTensor, legacyShard, qwenLegacy, qwenPinned],
+  'webllm/wasm': [pinnedWasm, legacyWasm, qwenWasm],
+  'webllm/config': [pinnedConfig, legacyConfig],
+  'webllm/script': [legacyTensor],
+  'rathor-core-20260924a': [legacyShard]
+};
+var idbStores = {
+  'webllm/model': [pinnedShard, legacyShard, qwenLegacy],
+  'webllm/wasm': [pinnedWasm, legacyWasm, qwenWasm],
+  'webllm/config': [pinnedConfig, legacyConfig],
+  'notes-db': [legacyTensor]
+};
+var afterCache = cacheApi.purgeOwnedModelEntries(cacheStores, pinnedModel, pinnedWasm);
+var afterIdb = cacheApi.purgeOwnedModelEntries(idbStores, pinnedModel, pinnedWasm);
+function gone(list, url) { return list.indexOf(url) === -1; }
+function kept(list, url) { return list.indexOf(url) !== -1; }
+assert(gone(afterCache['webllm/model'], pinnedTensor) && gone(afterCache['webllm/model'], legacyTensor), 'Cache API delete removes pinned and legacy weights');
+assert(gone(afterCache['webllm/model'], pinnedShard) && gone(afterCache['webllm/model'], legacyShard), 'Cache API delete removes pinned and legacy shards');
+assert(gone(afterCache['webllm/wasm'], pinnedWasm) && gone(afterCache['webllm/wasm'], legacyWasm), 'Cache API delete removes pinned and legacy wasm');
+assert(gone(afterCache['webllm/config'], pinnedConfig) && gone(afterCache['webllm/config'], legacyConfig), 'Cache API delete removes pinned and legacy config');
+assert(kept(afterCache['webllm/model'], qwenLegacy) && kept(afterCache['webllm/model'], qwenPinned), 'Cache API delete leaves the other model');
+assert(kept(afterCache['webllm/wasm'], qwenWasm), 'Cache API delete leaves the other wasm');
+assert(afterCache['webllm/script'][0] === legacyTensor, 'the script cache is not a model cache');
+assert(afterCache['rathor-core-20260924a'][0] === legacyShard, 'a cache this page does not own stays untouched');
+assert(gone(afterIdb['webllm/model'], pinnedShard) && gone(afterIdb['webllm/model'], legacyShard), 'IndexedDB delete removes pinned and legacy weights');
+assert(gone(afterIdb['webllm/wasm'], pinnedWasm) && gone(afterIdb['webllm/wasm'], legacyWasm), 'IndexedDB delete removes pinned and legacy wasm');
+assert(gone(afterIdb['webllm/config'], pinnedConfig) && gone(afterIdb['webllm/config'], legacyConfig), 'IndexedDB delete removes pinned and legacy config');
+assert(kept(afterIdb['webllm/model'], qwenLegacy) && kept(afterIdb['webllm/wasm'], qwenWasm), 'IndexedDB delete leaves the other model');
+assert(afterIdb['notes-db'][0] === legacyTensor, 'an unrelated IndexedDB database stays untouched');
+assert(cacheApi.modelFilesRemain(afterCache, pinnedModel, pinnedWasm) === false, 'after delete the pinned model is not cached');
+assert(cacheApi.phaseAfterLocalDelete(cacheStores, pinnedModel, pinnedWasm) === 'absent', 'delete leaves the row absent');
+assert(cacheStores['webllm/model'].indexOf(legacyTensor) !== -1, 'the fixture itself is not mutated');
+
+var gemma16 = hf('gemma-2-2b-it-q4f16_1-MLC', 'main', 'params_shard_0.bin');
+var gemma32 = hf('gemma-2-2b-it-q4f32_1-MLC', 'main', 'tensor-cache.json');
+var gemma16wasm = wasm('main', 'gemma-2-2b-it-q4f16_1_cs1k-webgpu.wasm');
+var gemma32wasm = wasm('main', 'gemma-2-2b-it-q4f32_1_cs1k-webgpu.wasm');
+var gemmaConfig = hf('gemma-2-2b-it-q4f16_1-MLC', 'main', 'mlc-chat-config.json');
+var targets = cacheApi.retiredGemmaTargets();
+assert(targets.length === 2, 'gemma fallback covers both weights');
+assert(targets[0].model === hf('gemma-2-2b-it-q4f16_1-MLC', 'main', ''), 'gemma q4f16 target is the unpinned repo');
+assert(targets[1].model_lib === gemma32wasm, 'gemma q4f32 target is the vendored wasm file');
+var gemmaCaches = {
+  'webllm/model': [gemma16, gemma32, legacyTensor],
+  'webllm/wasm': [gemma16wasm, gemma32wasm, legacyWasm],
+  'webllm/config': [gemmaConfig],
+  'webllm/script': [gemma16],
+  'rathor-core-20260924a': [gemma32]
+};
+var gemmaIdb = {
+  'webllm/model': [gemma16, gemma32, qwenLegacy],
+  'webllm/wasm': [gemma16wasm, gemma32wasm, qwenWasm],
+  'other-site': [gemma16]
+};
+var gemmaCleared = cacheApi.storesAfterGemmaFallback(gemmaCaches, gemmaIdb, 'gemma-2-2b-it');
+assert(gone(gemmaCleared.caches['webllm/model'], gemma16) && gone(gemmaCleared.caches['webllm/model'], gemma32), 'gemma fallback purges both legacy weight caches');
+assert(kept(gemmaCleared.caches['webllm/model'], legacyTensor), 'gemma fallback leaves another model weight');
+assert(gone(gemmaCleared.caches['webllm/wasm'], gemma16wasm) && gone(gemmaCleared.caches['webllm/wasm'], gemma32wasm), 'gemma fallback purges both legacy wasm files');
+assert(kept(gemmaCleared.caches['webllm/wasm'], legacyWasm), 'gemma fallback leaves another wasm');
+assert(gone(gemmaCleared.caches['webllm/config'], gemmaConfig), 'gemma fallback purges the legacy config');
+assert(gemmaCleared.caches['webllm/script'][0] === gemma16, 'gemma fallback does not touch the script cache');
+assert(gemmaCleared.caches['rathor-core-20260924a'][0] === gemma32, 'gemma fallback does not touch another site cache');
+assert(gone(gemmaCleared.indexedDB['webllm/model'], gemma16) && gone(gemmaCleared.indexedDB['webllm/model'], gemma32), 'gemma fallback purges IndexedDB weights');
+assert(kept(gemmaCleared.indexedDB['webllm/model'], qwenLegacy), 'gemma fallback leaves another IndexedDB model');
+assert(gone(gemmaCleared.indexedDB['webllm/wasm'], gemma16wasm) && gone(gemmaCleared.indexedDB['webllm/wasm'], gemma32wasm), 'gemma fallback purges IndexedDB wasm');
+assert(gemmaCleared.indexedDB['other-site'][0] === gemma16, 'gemma fallback does not touch an unrelated database');
+var gemmaKept = cacheApi.storesAfterGemmaFallback(gemmaCaches, gemmaIdb, 'Llama-3.2-1B-Instruct');
+assert(gemmaKept.caches === gemmaCaches && gemmaKept.indexedDB === gemmaIdb, 'a non-gemma saved choice does not purge');
+
+var cachedFn = chat.slice(chat.indexOf('async function modelFilesCached'), chat.indexOf('async function purgeCacheApiModel'));
+assert(cachedFn.indexOf('requestMatchesModel') !== -1 && cachedFn.indexOf('requestMatchesPurge') === -1, 'cache detection stays on the pinned record');
+var purgeFn = chat.slice(chat.indexOf('async function purgeModelLeftovers'), chat.indexOf('async function purgeRetiredGemmaCaches'));
+assert(purgeFn.indexOf('purgeCacheApiModel') !== -1 && purgeFn.indexOf('purgeIndexedDbModel') !== -1, 'delete sweeps Cache API and IndexedDB');
+var idbFn = chat.slice(chat.indexOf('async function purgeIndexedDbModel'), chat.indexOf('async function purgeModelLeftovers'));
+assert(idbFn.indexOf('indexedDB.databases') !== -1 && idbFn.indexOf("transaction(['urls']") !== -1, 'IndexedDB sweep lists existing databases and the urls store');
+assert(idbFn.indexOf('isWebllmOwnedCache') !== -1 && idbFn.indexOf('requestMatchesPurge') !== -1, 'IndexedDB sweep stays on owned model urls');
+var initFn = chat.slice(chat.indexOf('async function initWebllmPicker'), chat.indexOf('async function generateWithLocalLLM'));
+assert(initFn.indexOf("rawStored === 'gemma-2-2b-it'") !== -1 && initFn.indexOf('purgeRetiredGemmaCaches') !== -1, 'a saved gemma choice purges the legacy gemma cache');
+assert(initFn.indexOf('addNotice') === -1, 'the gemma fallback adds no on-screen text');
+
 console.log('PIN-MODELS-1 checks passed');

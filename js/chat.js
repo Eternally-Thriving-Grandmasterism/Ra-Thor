@@ -1712,6 +1712,8 @@ License: AG-SML v1.2 (non-revenue personal / research). Organizations license.`;
     return name === 'webllm/model' || name === 'webllm/wasm' || name === 'webllm/config';
   }
 
+  // Pinned record only. A download stored under the previous revision must not
+  // count as cached for the pinned model. Delete uses requestMatchesPurge.
   function requestMatchesModel(requestUrl, modelUrl, modelLib) {
     var url = String(requestUrl || '');
     if (!url) return false;
@@ -1721,12 +1723,47 @@ License: AG-SML v1.2 (non-revenue personal / research). Organizations license.`;
     return false;
   }
 
+  function legacyResolveMainPrefix(modelUrl) {
+    var prefix = modelCacheUrlPrefix(modelUrl);
+    if (!prefix) return '';
+    var origin = 'https://huggingface.co/mlc-ai/';
+    if (prefix.indexOf(origin) !== 0) return '';
+    var tail = prefix.slice(origin.length);
+    var slash = tail.indexOf('/');
+    if (slash < 1) return '';
+    return origin + tail.slice(0, slash) + '/resolve/' + 'main' + '/';
+  }
+
+  function legacyWasmLibUrl(modelLib) {
+    var url = String(modelLib || '');
+    var marker = '/binary-mlc-llm-libs/';
+    var at = url.indexOf(marker);
+    if (at === -1) return '';
+    var rest = url.slice(at + marker.length);
+    var slash = rest.indexOf('/');
+    if (slash < 1) return '';
+    var floating = 'main';
+    if (rest.slice(0, slash) === floating) return url;
+    return url.slice(0, at + marker.length) + floating + rest.slice(slash);
+  }
+
+  function requestMatchesPurge(requestUrl, modelUrl, modelLib) {
+    if (requestMatchesModel(requestUrl, modelUrl, modelLib)) return true;
+    var url = String(requestUrl || '');
+    if (!url) return false;
+    var legacyPrefix = legacyResolveMainPrefix(modelUrl);
+    if (legacyPrefix && legacyPrefix !== modelCacheUrlPrefix(modelUrl) && url.indexOf(legacyPrefix) !== -1) return true;
+    var legacyLib = legacyWasmLibUrl(modelLib);
+    if (legacyLib && legacyLib !== String(modelLib || '') && url === legacyLib) return true;
+    return false;
+  }
+
   function purgeOwnedModelEntries(stores, modelUrl, modelLib) {
     var next = {};
     Object.keys(stores || {}).forEach(function (name) {
       var urls = (stores[name] || []).slice();
       if (isWebllmOwnedCache(name)) {
-        urls = urls.filter(function (url) { return !requestMatchesModel(url, modelUrl, modelLib); });
+        urls = urls.filter(function (url) { return !requestMatchesPurge(url, modelUrl, modelLib); });
       }
       next[name] = urls;
     });
@@ -1901,6 +1938,40 @@ License: AG-SML v1.2 (non-revenue personal / research). Organizations license.`;
     if (stored !== 'gemma-2-2b-it') return plan;
     var next = defaultBase || '';
     return { active: next, stored: next, writeDefault: true };
+  }
+
+  // Both Gemma weights used these vendored wasm file names. The 1k ids share the same repos.
+  function retiredGemmaTargets() {
+    var ids = ['gemma-2-2b-it-q4f16_1-MLC', 'gemma-2-2b-it-q4f32_1-MLC'];
+    var files = [
+      'gemma-2-2b-it-q4f16_1_cs1k-webgpu.wasm',
+      'gemma-2-2b-it-q4f32_1_cs1k-webgpu.wasm'
+    ];
+    var targets = [];
+    for (var i = 0; i < ids.length; i++) {
+      targets.push({
+        model: 'https://huggingface.co/mlc-ai/' + ids[i] + '/resolve/' + 'main' + '/',
+        model_lib: 'https://raw.githubusercontent.com/mlc-ai/binary-mlc-llm-libs/' + 'main' + '/web-llm-models/v0_2_84/base/' + files[i]
+      });
+    }
+    return targets;
+  }
+
+  function purgeTargetEntries(stores, targets) {
+    var next = stores;
+    for (var i = 0; i < (targets || []).length; i++) {
+      next = purgeOwnedModelEntries(next, targets[i].model, targets[i].model_lib);
+    }
+    return next;
+  }
+
+  function storesAfterGemmaFallback(cacheStores, idbStores, stored) {
+    if (stored !== 'gemma-2-2b-it') return { caches: cacheStores, indexedDB: idbStores };
+    var targets = retiredGemmaTargets();
+    return {
+      caches: purgeTargetEntries(cacheStores, targets),
+      indexedDB: purgeTargetEntries(idbStores, targets)
+    };
   }
 
   function phoneHighlightPlan(phonePath, stored, listedBases, ready, desktopActive) {
@@ -2113,8 +2184,8 @@ License: AG-SML v1.2 (non-revenue personal / research). Organizations license.`;
     return false;
   }
 
-  async function purgeModelLeftovers(rec) {
-    if (!rec || typeof caches === 'undefined' || !caches.keys) return;
+  async function purgeCacheApiModel(modelUrl, modelLib) {
+    if (typeof caches === 'undefined' || !caches.keys) return;
     var names;
     try { names = await caches.keys(); } catch (e) { return; }
     for (var i = 0; i < names.length; i++) {
@@ -2125,9 +2196,80 @@ License: AG-SML v1.2 (non-revenue personal / research). Organizations license.`;
       try { reqs = await cache.keys(); } catch (e) { reqs = []; }
       for (var r = 0; r < reqs.length; r++) {
         var url = reqs[r] && reqs[r].url ? reqs[r].url : '';
-        if (!requestMatchesModel(url, rec.model, rec.model_lib)) continue;
+        if (!requestMatchesPurge(url, modelUrl, modelLib)) continue;
         try { await cache.delete(reqs[r]); } catch (e2) {}
       }
+    }
+  }
+
+  // WebLLM 0.2.85 prebuiltAppConfig.cacheBackend is "cache" (Cache API).
+  // ArtifactIndexedDBCache is the other backend: database name is the scope
+  // (webllm/model, webllm/wasm, webllm/config) and the object store is "urls".
+  function openListedWebllmDb(name) {
+    return new Promise(function (resolve, reject) {
+      var req = indexedDB.open(name);
+      var created = false;
+      req.onupgradeneeded = function () {
+        created = true;
+        try { req.transaction.abort(); } catch (e) {}
+      };
+      req.onsuccess = function () {
+        if (created) {
+          try { req.result.close(); } catch (e2) {}
+          reject(new Error('refused to create ' + name));
+          return;
+        }
+        resolve(req.result);
+      };
+      req.onerror = function () { reject(req.error); };
+    });
+  }
+
+  async function purgeIndexedDbModel(modelUrl, modelLib) {
+    if (typeof indexedDB === 'undefined' || typeof indexedDB.databases !== 'function') return;
+    var listed;
+    try { listed = await indexedDB.databases(); } catch (e) { return; }
+    for (var i = 0; i < listed.length; i++) {
+      var name = listed[i] && listed[i].name;
+      if (!isWebllmOwnedCache(name)) continue;
+      var db;
+      try { db = await openListedWebllmDb(name); } catch (eOpen) { continue; }
+      try {
+        if (!db.objectStoreNames.contains('urls')) continue;
+        await new Promise(function (resolve, reject) {
+          var tx = db.transaction(['urls'], 'readwrite');
+          var store = tx.objectStore('urls');
+          var cursorReq = store.openCursor();
+          cursorReq.onerror = function () { reject(cursorReq.error); };
+          cursorReq.onsuccess = function () {
+            var cursor = cursorReq.result;
+            if (!cursor) return;
+            var key = cursor.key == null ? '' : String(cursor.key);
+            if (requestMatchesPurge(key, modelUrl, modelLib)) cursor.delete();
+            cursor.continue();
+          };
+          tx.oncomplete = function () { resolve(); };
+          tx.onerror = function () { reject(tx.error); };
+          tx.onabort = function () { reject(tx.error || new Error('indexedDB abort')); };
+        });
+      } catch (eTx) {
+      } finally {
+        try { db.close(); } catch (eClose) {}
+      }
+    }
+  }
+
+  async function purgeModelLeftovers(rec) {
+    if (!rec) return;
+    await purgeCacheApiModel(rec.model, rec.model_lib);
+    await purgeIndexedDbModel(rec.model, rec.model_lib);
+  }
+
+  async function purgeRetiredGemmaCaches() {
+    var targets = retiredGemmaTargets();
+    for (var i = 0; i < targets.length; i++) {
+      await purgeCacheApiModel(targets[i].model, targets[i].model_lib);
+      await purgeIndexedDbModel(targets[i].model, targets[i].model_lib);
     }
   }
 
@@ -2708,6 +2850,11 @@ License: AG-SML v1.2 (non-revenue personal / research). Organizations license.`;
     var storedBase = canonicalStoredBase(rawStored, WEBLLM_DEFAULT_BASE);
     var plan = rememberedModelPlan(storedBase, listedBases, WEBLLM_DEFAULT_BASE);
     plan = retiredPickerFallback(plan, rawStored, WEBLLM_DEFAULT_BASE);
+    if (rawStored === 'gemma-2-2b-it') {
+      try { await purgeRetiredGemmaCaches(); } catch (eGemma) {
+        console.error('[Ra-Thor WebLLM] gemma cache', eGemma);
+      }
+    }
     if (plan.writeDefault) {
       try { localStorage.setItem(WEBLLM_MODEL_KEY, WEBLLM_DEFAULT_BASE); } catch (e2) {}
     }
