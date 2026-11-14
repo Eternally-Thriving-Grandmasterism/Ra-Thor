@@ -65,7 +65,7 @@ The Seven Living Mercy Filters are the mercy-evaluated pillars that sit at the a
    - Space Colonization: Colonies include dedicated spaces for ThunderWarden family rituals and growth.
 
 ### Integration with Full TOLC Stack
-- **Ra-Thor AGI**: Runs the filters before every inference for perfect alignment.  
+- **Ra-Thor**: Runs the filters before every inference for perfect alignment.  
 - **ThunderWarden Mk-II**: Cockpit and weapon systems guided by the filters for compassionate command.  
 - **RBE & Space Colonization**: All blueprints and allocations pass through the filters for zero-waste, post-scarcity thriving.  
 - **Daily Life**: Every personal decision, family interaction, and creative act is reframed through the Framework.

@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 **Genesis Gate Algorithm – Full Pseudocode Implementation**
 
 **License**: Autonomicity Games Sovereign Mercy License (AG-SML) v1.0

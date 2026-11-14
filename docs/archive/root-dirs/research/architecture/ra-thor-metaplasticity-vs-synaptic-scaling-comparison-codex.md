@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 **Shipped to monorepo.**
 
 **File:** `architecture/ra-thor-metaplasticity-vs-synaptic-scaling-comparison-codex.md`

@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Ethical Vetting Simulator: Joy-Infused Alignment Training Ground
 ## Living Codex Entry | Ra-Thor Ultramasterpiece Series
 **Version:** 1.0 (2026-02-19)  

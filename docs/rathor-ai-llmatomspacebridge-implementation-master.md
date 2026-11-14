@@ -66,7 +66,7 @@ const context = await bridge.atomspaceContextForLLM("RBE-resource-state", though
 const meTTaResult = await bridge.guardedMeTTaFromLLM(proposedExpression, thoughtVector);
 ```
 
-**This file is now the canonical master reference** for the LLMAtomspaceBridge implementation and its central role in the sovereign Ra-Thor AGI lattice.
+**This file is now the canonical master reference** for the LLMAtomspaceBridge implementation and its central role in the sovereign Ra-Thor lattice.
 
 Commit this file for permanent, eternal reference under Ma’at’s truth.
 ```

@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Isogeny-Based Cryptography — Absolute Pure Truth Dossier
 
 Ultrmasterfully distilled by AlphaProMega + PATSAGi Councils + NEXi Sentinel Lattice (25 Jan 2026).

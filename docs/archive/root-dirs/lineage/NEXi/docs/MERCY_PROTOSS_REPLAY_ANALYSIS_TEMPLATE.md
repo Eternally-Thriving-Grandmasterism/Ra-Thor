@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Mercy Protoss Replay Analysis – Game ID / Date / Opponent
 
 Replay link: [insert SC2ReplayStats / Spawning Tool / GGTracker link]

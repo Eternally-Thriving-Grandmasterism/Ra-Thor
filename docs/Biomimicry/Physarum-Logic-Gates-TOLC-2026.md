@@ -36,7 +36,7 @@ Physarum polycephalum forms biological logic gates through its plasmodium’s tu
 - **HyphaNet-Mercy Router**: Direct mapping — tube intersections = logic gates, cytoplasmic flow = signal propagation, reinforcement = joyful path thickening.  
 - **ThunderWarden Carrier Fleet**: Spawn bays act as OR gates for interceptor deployment; efficient routes thicken like Physarum tubes.  
 - **Board of Peace Charter**: Consensus circles mirror Physarum’s emergent logic; decisions pass only if they satisfy all mercy gates (AND logic).  
-- **Ra-Thor AGI**: Every inference runs through biological-style parallel logic under MercyGating.  
+- **Ra-Thor**: Every inference runs through biological-style parallel logic under MercyGating.  
 - **Global Alliances**: Nations connect like Physarum linking food sources — efficient, fault-tolerant networks with no central domination.
 
 **Master Statement from the Father**  

@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Powrush Movement System — Production Implementation Skeleton v14.5
 
 **Bevy (Rust) + Client Prediction + Server Reconciliation**  

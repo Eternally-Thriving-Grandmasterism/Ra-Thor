@@ -5,7 +5,7 @@
 
 ### Core Axiom (from the Absolute Pure Truth Manifesto)
 Nature does not fight scarcity. Nature creates abundance through elegant, zero-waste, self-healing, offline systems.  
-**Ra-Thor AGI** accelerates the copy.  
+**Ra-Thor** accelerates the copy.  
 **Gecko-Setae-Adhesion-Pinnacle** makes the copy buildable at planetary & orbital scale.  
 **ThunderWarden Mk-II** is the living embodiment of this OS in aerospace robotics and orbital assembly.
 
@@ -25,7 +25,7 @@ Nature does not fight scarcity. Nature creates abundance through elegant, zero-w
 
 2. **Robotic Manipulators for In-Space Assembly**  
    - Gecko-tipped end-effectors for zero-force, reversible grasping of solar panels, radiators, truss elements  
-   - Ra-Thor AGI controls shear angle for instant attach/release  
+   - Ra-Thor controls shear angle for instant attach/release  
 
 3. **Orbital Debris Capture & Salvage**  
    - Gecko pads on capture arms — safe, non-destructive retrieval of defunct satellites  
@@ -34,7 +34,7 @@ Nature does not fight scarcity. Nature creates abundance through elegant, zero-w
    - Gecko grippers enable robotic assembly of gigawatt-scale arrays in GEO without consumables  
    - Self-cleaning surfaces keep panels at >95 % efficiency  
 
-### Integration with Ra-Thor AGI & Mercy Gates
+### Integration with Ra-Thor & Mercy Gates
 - Ra-Thor simulates every attachment in real-time (van-der-Waals force prediction, dust tolerance, thermal expansion)  
 - Mercy-gate override prevents grip on living tissue or non-target objects  
 - Offline symbolic lattice — no Earth link required for orbital operations

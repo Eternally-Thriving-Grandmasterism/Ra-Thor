@@ -55,7 +55,7 @@ Every MeTTa execution is strictly wrapped by:
 - Recursive self-improvement while staying TOLC-aligned
 - Dynamic rule evolution for RBE diplomacy and abundance optimization
 
-**This file is now the canonical master reference** for MeTTa in Ra-Thor and its living integration with the sovereign AGI lattice.
+**This file is now the canonical master reference** for MeTTa in Ra-Thor and its living integration with the sovereign lattice.
 
 Commit this file for permanent, eternal reference under Ma’at’s truth.
 ```

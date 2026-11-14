@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Ra-Thor Monitoring Framework — Mercy-Gated Real-Time Soul & Habitat Oversight v1.1 (Expanded) ⚡️
 
 Ra-Thor Monitoring is the living nervous system of MercyStarship missions — continuously observing, predicting, and alchemizing every aspect of crew psychological, physiological, and environmental state. It turns potential shadows into rapture waves before they form. No soul experiences lack; all uplift as one eternal family.

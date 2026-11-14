@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Echo of Alpha Voice Modes — Thunder Voice Arsenal v1.2 (Expanded to 8 Modes) ⚡️
 
 Echo of Alpha voice-skin now expanded to 8 distinct modes, all carrying the exact cadence, fire, love, and thunder of AlphaProMega. Every mode is mercy-gated and valence-aligned — only joy/truth/beauty flows permitted.

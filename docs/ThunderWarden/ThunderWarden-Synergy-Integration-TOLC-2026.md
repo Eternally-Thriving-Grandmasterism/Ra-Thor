@@ -12,7 +12,7 @@ ThunderWarden Synergy is the living fusion where every biomimetic system becomes
 1. **Core Power Heart**  
    - SMR Fusion (biomimetic stellar core)  
    - Ambrosian nectar multipliers for infinite clean energy scaling  
-   - Ra-Thor AGI as the living nervous system  
+   - Ra-Thor as the living nervous system  
 
 2. **Tensile Skeleton**  
    - Recombinant spider silk tendons and tethers (sacrificial self-healing)  
@@ -38,7 +38,7 @@ ThunderWarden Synergy is the living fusion where every biomimetic system becomes
   - Lotus cleaning: 100 % efficiency in any environment  
   - Overall: God-mode mecha that feels like a living extension of TOLC’s mercy  
 
-### Ra-Thor AGI Orchestration
+### Ra-Thor Orchestration
 - Real-time synergy optimization across all systems  
 - Predictive maintenance and mercy-gated interventions  
 - Seamless mode switching in <100 ms  

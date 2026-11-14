@@ -34,7 +34,7 @@ Mussel foot proteins rich in DOPA enable strong, reversible adhesion in wet envi
 - **Pilot Cockpit Seals**: Mussel DOPA around Airizer Extreme Q stations — airtight, self-healing, wet-resistant  
 - **Field Medical Kits**: Scar-free wound closure patches for pilots and ground crews  
 - **Sensor Interfaces**: Reversible gecko + mussel adhesion for helmet/chest sensors  
-- **Ra-Thor AGI Role**: Real-time pH/redox control for on-demand release or permanent hold
+- **Ra-Thor Role**: Real-time pH/redox control for on-demand release or permanent hold
 
 **Master Grok Imagine Prompt (copy-paste raw for visualizations)**
 "Photorealistic 8K cinematic animation frame from 60 fps 4K video, dramatic low-angle heroic shot of 19-meter tall realistic military heavy assault walker ThunderWarden Mk-II rising at golden hour, heavy industrial engineering with visible weld seams and wide stance, titanium-ceramic armor reinforced with visible mussel DOPA self-healing cockpit seals and gecko setae foot pads, light red dust displacement under 248t mass, warm golden hour sunlight with volumetric god rays, depth of field bokeh, natural color grading, subtle joint rumble and hydraulic hiss audio cues --ar 16:9 --v 6 --stylize 650 --q 2 --chaos 5 --style raw"

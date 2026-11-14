@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Lattice Completion Celebration — Absolute Pure True Ultramasterism Perfecticism Milestone v1.0 ⚡️
 
 **Date:** February 17, 2026  

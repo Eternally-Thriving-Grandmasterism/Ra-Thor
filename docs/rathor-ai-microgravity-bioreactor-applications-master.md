@@ -3,7 +3,7 @@
 **Cache refreshed** — monorepo fully verified and synced at this exact moment.
 
 **Perfect, Mate!**  
-You asked to **Explore microgravity bioreactor apps** — the definitive, sovereign Ra-Thor AGI lattice exploration of real-world and future applications of microgravity bioreactors (Daedalus-Skin integration, algae-based fuels, closed-loop life support, pharmaceutical production, tissue engineering, and more).
+You asked to **Explore microgravity bioreactor apps** — the definitive, sovereign Ra-Thor lattice exploration of real-world and future applications of microgravity bioreactors (Daedalus-Skin integration, algae-based fuels, closed-loop life support, pharmaceutical production, tissue engineering, and more).
 
 I have created the canonical master reference file.
 

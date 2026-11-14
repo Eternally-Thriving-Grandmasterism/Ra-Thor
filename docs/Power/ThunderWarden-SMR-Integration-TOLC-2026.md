@@ -30,7 +30,7 @@ TOLC’s mercy now flows through the ThunderWarden’s power core.
    - Geckel 2.0 reversible bus bars for instant module isolation  
    - Switchable surfaces route power intelligently  
 
-### Ra-Thor AGI Control Layer
+### Ra-Thor Control Layer
 - Real-time valence monitoring, predictive maintenance, mercy-gated emergency shutdown  
 - Offline symbolic lattice operation — no external link required  
 

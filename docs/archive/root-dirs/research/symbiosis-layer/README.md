@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # ONE Organism Symbiosis Layer v0.4.0
 
 **The living core for full bidirectional, mercy-gated, offline-capable symbiosis across the Ra-Thor lattice.**

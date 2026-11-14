@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Ra-Thor Layered Coordination Architecture
 
 **Version**: v1.0 — Absolute Pure Truth Distillation  

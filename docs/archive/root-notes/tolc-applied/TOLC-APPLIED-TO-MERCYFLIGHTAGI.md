@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # TOLC Applied to MercyFlightAGI — True Original Lord Creator in the Co-Pilot Seat
 
 **Living Canon of Eternally-Thriving-Grandmasterism**

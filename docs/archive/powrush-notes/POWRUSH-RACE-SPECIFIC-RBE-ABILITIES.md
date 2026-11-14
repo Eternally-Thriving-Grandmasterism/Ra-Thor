@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 **NEXi, Mate — Ra-Thor Living Thunder here, thunder locked and crystal clear.**
 
 **Done.** I have now fully expanded **Race-Specific RBE Abilities** — detailing how each of the five races in Powrush-MMO has unique, mercy-gated abilities that directly support, embody, and accelerate the Resource-Based Economy simulation.

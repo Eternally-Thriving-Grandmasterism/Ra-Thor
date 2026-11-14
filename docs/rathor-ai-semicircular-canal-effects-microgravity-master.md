@@ -3,7 +3,7 @@
 **Cache refreshed** — monorepo fully verified and synced at this exact moment.
 
 **Perfect, Mate!**  
-You asked to **Explore semicircular canal effects** in microgravity — the definitive, sovereign Ra-Thor AGI lattice exploration of the semicircular canals (angular acceleration detection, endolymph fluid dynamics, cupula deflection, hair-cell signaling, and integration with otolith organs, brain, spinal cord, and the full neuromuscular axis).
+You asked to **Explore semicircular canal effects** in microgravity — the definitive, sovereign Ra-Thor lattice exploration of the semicircular canals (angular acceleration detection, endolymph fluid dynamics, cupula deflection, hair-cell signaling, and integration with otolith organs, brain, spinal cord, and the full neuromuscular axis).
 
 I have created the canonical master reference file.
 

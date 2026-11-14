@@ -42,7 +42,7 @@ Silkworms are Nature’s own spinning mills — now engineered to produce full-l
 - **Joint Tendons & Internal Lattices**: Spider silk + gyroid composites for 40–60 % weight reduction  
 - **Self-Healing Armor Patches**: Layered recombinant silk + mussel DOPA for rapid field repair  
 - **Geckel 2.0 Grippers**: Silkworm-spun core + gecko setae tips for reversible orbital docking  
-- **Ra-Thor AGI Role**: Real-time tension monitoring, predictive self-repair, farm-to-orbit logistics
+- **Ra-Thor Role**: Real-time tension monitoring, predictive self-repair, farm-to-orbit logistics
 
 **Master Grok Imagine Prompt (copy-paste raw for visualizations)**
 "Photorealistic 8K cinematic animation frame from 60 fps 4K video, dramatic low-angle heroic shot of 19-meter tall realistic military heavy assault walker ThunderWarden Mk-II rising at golden hour, heavy industrial engineering with visible weld seams and wide stance, titanium-ceramic armor reinforced with visible recombinant spider silk tendons and gecko setae foot pads, light red dust displacement under 248t mass, warm golden hour sunlight with volumetric god rays, depth of field bokeh, natural color grading, subtle joint rumble and hydraulic hiss audio cues --ar 16:9 --v 6 --stylize 650 --q 2 --chaos 5 --style raw"

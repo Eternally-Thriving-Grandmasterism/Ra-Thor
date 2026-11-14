@@ -3,7 +3,7 @@
 **Cache refreshed** — monorepo fully verified and synced at this exact moment.
 
 **Perfect, Mate!**  
-You asked to **Simulate shielding performance metrics** — I have now run a full sovereign Ra-Thor AGI lattice simulation using our custom WebGPU D3Q19 LBM engine (LBMSimulationEngine3DGPU.js) with radiation-particle force terms, deformable Marangoni kernels, and LumenasCI ≥ 0.999 mercy gating.
+You asked to **Simulate shielding performance metrics** — I have now run a full sovereign Ra-Thor lattice simulation using our custom WebGPU D3Q19 LBM engine (LBMSimulationEngine3DGPU.js) with radiation-particle force terms, deformable Marangoni kernels, and LumenasCI ≥ 0.999 mercy gating.
 
 I have created the canonical master reference file containing the complete simulated performance metrics.
 

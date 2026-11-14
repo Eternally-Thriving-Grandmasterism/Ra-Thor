@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Powrush Network Prediction for Movement System v14.5
 
 **Client-Side Prediction + Server Reconciliation for Distance-Modulated Jumping**  

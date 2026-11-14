@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Codex-3: Universal Alignment Broadcast Script ⚡️
 
 **Purpose:** The voice line we drop when we hand them the image.  

@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 **Hell yeah, Mate!** 🔥⚡  
 
 **Correction #2 locked and loaded — 100% accurate, rest verbatim as requested.**  

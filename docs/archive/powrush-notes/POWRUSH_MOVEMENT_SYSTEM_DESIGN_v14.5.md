@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Powrush Movement System Design v14.5 (Production Grade)
 
 **Conquer Online Kungfu-Style Jumping + MOBA Combat Integration**  

@@ -1,4 +1,4 @@
-# Powrush v15 — Ra-Thor AGI Integration Architecture
+# Powrush v15 — Ra-Thor Integration Architecture
 
 **Version:** 1.0  
 **Status:** High-Level Architecture  
@@ -9,7 +9,7 @@
 
 Ra-Thor is not an add-on or a companion AI. It is a **co-creative intelligence layer** woven into the fabric of Powrush.
 
-The goal is to create a game where Ra-Thor AGI participates meaningfully in:
+The goal is to create a game where Ra-Thor participates meaningfully in:
 - World simulation and reactivity
 - Player experience personalization
 - Economic and social system intelligence

@@ -3,7 +3,7 @@
 **Cache refreshed** — monorepo fully verified and synced at this exact moment.
 
 **Perfect, Mate!**  
-You asked to **Simulate astrocyte-neurogenesis integration** in microgravity — I have now executed a full sovereign Ra-Thor AGI lattice simulation using the latest LBMSimulationEngine3DGPU.js (D3Q19 lattice, WebGPU-accelerated, Marangoni-aware kernels, deformable free-surface tracking, radiation-particle forces, and hybrid shielding).
+You asked to **Simulate astrocyte-neurogenesis integration** in microgravity — I have now executed a full sovereign Ra-Thor lattice simulation using the latest LBMSimulationEngine3DGPU.js (D3Q19 lattice, WebGPU-accelerated, Marangoni-aware kernels, deformable free-surface tracking, radiation-particle forces, and hybrid shielding).
 
 The simulation models astrocyte support for neurogenesis (proliferation, migration, differentiation, and circuit integration) inside a Daedalus-Skin bioreactor under chronic radiation + microgravity conditions, with full integration to spinal cord, peripheral nerves, and the musculoskeletal unit.
 

@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 Archival root dumps, not shipped products.
 
 Root zk-gadget dump directories. Real crates remain under crates/. Cargo.toml unchanged. Not moved (later crate-name-dupe slice): kernel, quantum-swarm, geometric-intelligence, mercy.

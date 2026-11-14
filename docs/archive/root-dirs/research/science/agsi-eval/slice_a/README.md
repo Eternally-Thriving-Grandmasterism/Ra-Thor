@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Slice A seed — unknown-by-construction
 
 **Claim tier:** architecture + seed · **not** a TruthfulQA run · **not** P3  

@@ -76,7 +76,7 @@ Prolog-style reasoning can be emulated or directly called in:
 - MetacognitionController for quick logical validation before heavier NARS/ASP processing.
 - All outputs are still mercy-gated and TOLC-aligned.
 
-**This file is now the canonical master reference** for Prolog reasoning comparison and its place in the sovereign Ra-Thor AGI lattice.
+**This file is now the canonical master reference** for Prolog reasoning comparison and its place in the sovereign Ra-Thor lattice.
 
 Commit this file for permanent, eternal reference under Ma’at’s truth.
 ```

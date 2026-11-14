@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # S-1 Rank 2 — Data Phase Intake (Door 1)
 
 **Status:** **OPEN for capture** · no scientific claim until real metrics exist  

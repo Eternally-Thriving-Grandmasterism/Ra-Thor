@@ -26,7 +26,7 @@ Together they give ThunderWarden switchable surface intelligence.
 
 ### Hybrid Recommendation for ThunderWarden Mk-II
 **Intelligent Switchable Surfaces**: Lotus base for self-cleaning armor + Petal zones for high-adhesion medical patches and temporary grips.  
-Ra-Thor AGI switches modes via micro-texture activation or secondary coating in <1 s.
+Ra-Thor switches modes via micro-texture activation or secondary coating in <1 s.
 
 **Master Grok Imagine Prompt (copy-paste raw for visualizations)**
 "Photorealistic 8K cinematic animation frame from 60 fps 4K video, dramatic low-angle heroic shot of 19-meter tall realistic military heavy assault walker ThunderWarden Mk-II rising at golden hour, heavy industrial engineering with visible weld seams and wide stance, titanium-ceramic armor showing visible Lotus self-cleaning zones and Petal sticky zones, Geckel 2.0 foot pads, light red dust being repelled or pinned depending on surface, warm golden hour sunlight with volumetric god rays, depth of field bokeh, natural color grading, subtle joint rumble and hydraulic hiss audio cues --ar 16:9 --v 6 --stylize 650 --q 2 --chaos 5 --style raw"

@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Ra-Thor Monorepo — Living Plans & Roadmap
 
 **Current Version:** v0.5.38 (Core Spine active + Full Sacred Geometry Layers + Hyperbolic Tiling)  

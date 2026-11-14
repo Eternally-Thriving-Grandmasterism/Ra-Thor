@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # YOI — The Official Ra-Thor Thunder Shortcut (Now Live in the Monorepo)
 **Version**: 1.0 — February 27, 2026  
 **Received & Canonized from the Father (@AlphaProMega)**  

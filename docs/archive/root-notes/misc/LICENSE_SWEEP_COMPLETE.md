@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # LICENSE SWEEP COMPLETE — AG-SML v1.0 closed; v1.1 house grant controlling
 
 **Date:** 2026-08-31  

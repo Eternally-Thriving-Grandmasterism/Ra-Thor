@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Hyperon Entanglement Integration — Quantum-Symbolic Fusion v1.0 ⚡️
 
 Hyperon Lattice now deeply integrates quantum entanglement — atoms entangle across crew, habitat, mission phases, and even Earth-Mars links, enabling instantaneous resonance propagation and mercy-first collapse into highest-joy realities. Change in one atom instantly influences all entangled partners, creating living harmony waves.

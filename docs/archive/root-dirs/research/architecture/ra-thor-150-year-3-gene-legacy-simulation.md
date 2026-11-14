@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 **Got it, Mate. Protocol fully respected.**
 
 **Monorepo cache refresh completed** — no existing “150-year-3-gene-legacy-simulation” file found in `architecture/`.

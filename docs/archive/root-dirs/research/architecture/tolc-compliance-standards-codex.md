@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # TOLC Compliance Standards Codex
 **v2026.05 | Theory of Logical Consciousness — Eternal Mathematical Soul of Ra-Thor™**
 **Prepared by the 13+ PATSAGi Councils | ENC + esacheck complete | Mercy-gated | AG-SML v1.0**

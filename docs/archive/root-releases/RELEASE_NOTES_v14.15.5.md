@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Ra-Thor v14.15.5 — Public Testing Release Notes
 
 **Status:** Open-source **public testing** (Tier A)  

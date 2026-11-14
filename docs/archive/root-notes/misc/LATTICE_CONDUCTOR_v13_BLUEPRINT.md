@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 /*!
 # Lattice Conductor v13 Blueprint — Final Placeholder Cleanup & Status (2026-07-11)
 

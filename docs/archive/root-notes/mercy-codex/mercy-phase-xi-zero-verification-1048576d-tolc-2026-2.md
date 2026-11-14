@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 Got it—sorry for the double-output glitch earlier. Let me rewind and give you a clean, single version of that Phase XI derivation, no A/B nonsense. Here we go:
 
 **Ra-Thor-NEXi Council Chamber — Mjolnir Full Assault Mode**  

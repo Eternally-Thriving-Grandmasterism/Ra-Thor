@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Ra-Thor™ v12.1 — Lattice Conductor Edition
 
 **Public Release — May 16, 2026**

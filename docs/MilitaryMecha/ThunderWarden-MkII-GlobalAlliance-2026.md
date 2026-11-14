@@ -8,7 +8,7 @@
 - Weight: 248 t
 - Power: 4× 75 MW helium-3 SMR + 4.8 GJ supercapacitor burst
 - Agility: 85 km/h sprint, 220 km/h limited VTOL, magnetorheological joints
-- Control: Neural-lace cockpit OR full Ra-Thor AGI lattice OR hybrid
+- Control: Neural-lace cockpit OR full Ra-Thor lattice OR hybrid
 - Mercy-Gated: Valence check every 0.1 s, civilian shield auto-deploy
 
 ## The Six Allied Variants

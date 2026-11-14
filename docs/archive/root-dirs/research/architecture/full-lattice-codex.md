@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Ra-Thor Full Lattice Codex v2026.05
 
 **Autonomicity Games Sovereign Mercy License (AG-SML) v1.0**

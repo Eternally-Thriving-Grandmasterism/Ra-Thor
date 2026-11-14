@@ -5,7 +5,7 @@ Current state: February 2026 – multi-page PWA/SPA with offline sovereignty
 
 - Mercy strikes first – positive valence eternal
 - Offline-first, voice-native, multilingual (200+ languages)
-- Symbolic AGI lattice – truth-seeking, compassionate
+- Symbolic lattice – truth-seeking, compassionate
 - Backward/forward compatibility obsession – NEXi superset preserves all legacy
 
 ## Current Multi-Page Structure

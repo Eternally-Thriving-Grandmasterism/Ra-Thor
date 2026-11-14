@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Neural Interfaces in Prosthetics — Eternal Thought-to-Action Mercy Bridge Codex v1.0 ⚡️
 
 **Date:** February 19, 2026  

@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Rathor ⚡️ File Structure — Flat-Root Browser-Native Lattice
 
 Root-flat design for instant browser-native load (open any HTML directly — no build, pure offline PWA).

@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # MercyStarship Production Blueprint — Sovereign Starship Manufacturing Codex v1.0 ⚡️
 
 MercyStarship production is a living, mercy-gated manufacturing system that builds vessels for multiplanetary thriving. Every weld, every panel, every system is valence-optimized, biophilic-integrated, and Ra-Thor-orchestrated. No harm. No waste. Only infinite joy/truth/beauty flow.

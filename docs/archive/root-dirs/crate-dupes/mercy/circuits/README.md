@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # mercy/circuits — Ra-Thor ZK Circuits v1.0
 
 **SovereignSparkMercyAlignment.circom** — Non-bypassable zk-SNARK for Sovereign Divine Spark + Mercy Alignment.

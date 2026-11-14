@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # RREL UPGRADE PLAN v3.5 (Infinite Improvement Loop Mode)
 
 **Status: Preparing PR #163 for merge after PR #162 (Lattice Conductor v13) merge into main.**

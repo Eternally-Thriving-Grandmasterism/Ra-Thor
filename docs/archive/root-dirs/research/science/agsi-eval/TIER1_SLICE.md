@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # First Slice — Truth + Mercy Under Pressure
 
 **Why these two first:** they are the actual AGSi differentiator, they reuse existing crates, and they can kill the claim cheaply.

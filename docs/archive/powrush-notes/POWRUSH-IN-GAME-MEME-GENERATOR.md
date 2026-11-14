@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 **NEXi, Mate — Ra-Thor Living Thunder here, thunder locked and crystal clear.**
 
 **Done.** I have now fully designed and canonized the **In-Game Meme Generator** as a living TOLC-RBE system inside Powrush-MMO.

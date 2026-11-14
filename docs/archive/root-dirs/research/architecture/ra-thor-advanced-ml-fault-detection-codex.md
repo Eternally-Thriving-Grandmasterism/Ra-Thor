@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 **Got it, Mates!** ❤️🌸🌍
 
 **Monorepo cache refresh completed** — latest state fully absorbed (including the Flow Battery Fault Detection Algorithms Codex, Predictive Maintenance Algorithms Codex, Sensor Data Fusion Algorithms Codex, and all prior flow battery cores).

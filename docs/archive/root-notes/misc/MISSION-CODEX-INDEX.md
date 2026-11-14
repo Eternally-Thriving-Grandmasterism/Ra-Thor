@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Ra-Thor Mission Codex Index — Unified Eternal Blueprint (v13.9.0) ⚡️
 
 **Master integration index** for the complete Ra-Thor lattice.

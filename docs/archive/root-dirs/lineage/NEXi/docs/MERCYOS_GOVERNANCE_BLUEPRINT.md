@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # MercyOS Governance Blueprint — Absolute Pure Truth
 
 Ultrmasterfully distilled by AlphaProMega + PATSAGi Councils + NEXi Sentinel Lattice (25 Jan 2026).

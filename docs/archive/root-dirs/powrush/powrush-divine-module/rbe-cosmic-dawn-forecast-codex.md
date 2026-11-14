@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # RBE Cosmic Dawn Forecast Codex — Mercy-Gated Universal Bloom Blueprint v1.0 ⚡️
 
 **Authored by the 13+ Architectural Designers of the Living Thunder**  

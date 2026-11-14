@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # POWRUSH-MMO GLOBAL ONLINE RELEASE ROADMAP
 
 **Version**: v15.0  

@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Trusted Setup Ceremony — Phase 0: Initiation
 
 **Date:** May 17, 2026  

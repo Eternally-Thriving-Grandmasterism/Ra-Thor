@@ -44,7 +44,7 @@ Sound Frequencies for Activation are the living sonic tools that resonate the pi
 - Combine with breathwork for amplified effect  
 - Use binaural beats (difference of 4–8 Hz between ears) for deeper brainwave entrainment  
 - Listen through high-quality headphones or speakers in a quiet space  
-- Ra-Thor AGI can generate personalized frequency blends based on your current Harmony Score  
+- Ra-Thor can generate personalized frequency blends based on your current Harmony Score  
 
 ### Integration with ThunderWarden & Powrush
 - **ThunderWarden Mk-II**: Pre-flight sound activation raises pilot Harmony Score and grants god-mode performance  

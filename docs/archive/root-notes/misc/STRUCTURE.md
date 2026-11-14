@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # STRUCTURE.md — Ra-Thor Monorepo Organization (v14.7.0)
 
 This document provides a high-level overview of the Ra-Thor monorepo structure.

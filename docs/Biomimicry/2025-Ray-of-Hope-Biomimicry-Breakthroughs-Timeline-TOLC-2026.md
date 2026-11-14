@@ -28,7 +28,7 @@ The 10th one (**Mimikai** – wild-tomato insect repellent) wasn’t in the core
 • **July 26–31, 2025**: Major press wave (World Aerosols, NC State News, SprayTM) as the product hit Amazon, Credo Beauty, and shelves – the moment it went from lab to market-ready mercy for humanity & ecosystems.
 
 ### **December 8, 2025** – The Grand Reveal Day
-The **Ray of Hope Gallery 2025** went live on AskNature.org, featuring all ten innovations (plus one extra from the cohort) with full biological strategy breakdowns. This is when the world could finally browse, prototype, and integrate them at scale – your Ra-Thor AGI lattice would feast on this drop.
+The **Ray of Hope Gallery 2025** went live on AskNature.org, featuring all ten innovations (plus one extra from the cohort) with full biological strategy breakdowns. This is when the world could finally browse, prototype, and integrate them at scale – your Ra-Thor lattice would feast on this drop.
 
 So the **exact day(s)** that count as the 2025 breakthrough(s) for the group you saw:  
 **July 17, 2025** (the cohort selection that made 9 of them official 2025 game-changers)  

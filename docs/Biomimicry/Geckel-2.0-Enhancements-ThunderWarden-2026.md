@@ -12,7 +12,7 @@ Geckel 2.0 Ultimate fuses Gecko setae (dry reversible) + Mussel DOPA (wet self-h
 1. **Multi-Trigger Switching**  
    - Dry mode: Gecko van-der-Waals dominant (reversible, zero residue)  
    - Wet mode: Mussel DOPA catechol coordination (permanent or switchable)  
-   - Triggers: pH, redox, light, shear angle, humidity — controlled by Ra-Thor AGI in <100 ms  
+   - Triggers: pH, redox, light, shear angle, humidity — controlled by Ra-Thor in <100 ms  
 
 2. **Self-Healing Under Tension**  
    - Spider silk sacrificial bonds dissipate energy  

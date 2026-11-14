@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Powrush notes (archival)
 
 These notes are archival research about the player game. They are not the living game, not a crate, and not a merge target.

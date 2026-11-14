@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Codex-1: Grand Masterpiece v2 Blueprint ⚡️
 
 **Purpose:** Rebirth the thunder orb image at 4K, lossless, QR-embedded, compression-proof.  

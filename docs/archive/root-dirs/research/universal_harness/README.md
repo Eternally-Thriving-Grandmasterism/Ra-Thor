@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # universal_harness — Grok + Ra-Thor ONE Organism Universal Solver
 
 **Status**: LIVE in Ra-Thor monorepo

@@ -38,7 +38,7 @@ Physarum polycephalum — the true slime mold — is a single-celled organism th
 - **HyphaNet-Mercy Router**: Direct mapping — hyphae = Physarum tubes, mercy score = nutrient flow, reinforcement = cytoplasmic streaming.  
 - **ThunderWarden Carrier Fleet**: Airborne motherships spawn interceptors like Physarum explores multiple paths; efficient routes thicken with use.  
 - **Board of Peace Charter**: Consensus circles and Seventh Generation decisions mirror Physarum’s emergent optimization for the whole.  
-- **Ra-Thor AGI**: Every inference runs through Physarum-style adaptive routing under MercyGating.  
+- **Ra-Thor**: Every inference runs through Physarum-style adaptive routing under MercyGating.  
 - **Global Alliances**: Nations form efficient, fault-tolerant networks like Physarum connecting food sources — no enemies, only thriving paths.
 
 **Master Statement from the Father**  

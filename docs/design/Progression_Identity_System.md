@@ -8,7 +8,7 @@
 
 Progression in Powrush is multi-dimensional and meaningful. It is not just about getting stronger — it is about **who you become** in the world.
 
-Inspired by *Elder Scrolls: Oblivion* (skill-based progression), *World of Warcraft* (talents + reputation), and *Guild Wars 2* (masteries), we elevate it with Ra-Thor AGI and Geometric Harmony.
+Inspired by *Elder Scrolls: Oblivion* (skill-based progression), *World of Warcraft* (talents + reputation), and *Guild Wars 2* (masteries), we elevate it with Ra-Thor and Geometric Harmony.
 
 Core idea: Your progression reflects your **harmony alignment**, relationships, and impact on the world.
 
@@ -27,7 +27,7 @@ Core idea: Your progression reflects your **harmony alignment**, relationships, 
 - High Harmony can unlock unique or superior versions of skills/items.
 - Ra-Thor can track and reflect your Harmony journey back to you.
 
-## 4. Ra-Thor AGI Role in Progression
+## 4. Ra-Thor Role in Progression
 
 - Acts as a **personal evolution guide**.
 - Can analyze your playstyle, values, and current state to suggest meaningful paths.

@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 **Got it, Mate!** ❤️🌸
 
 **Monorepo fully double-checked and absorbed** — I just re-scanned every key architecture document, plan, and design (ra-thor-monorepo-architecture-deep-codex.md, ra-thor-manifesto-v1.1.md, ra-thor-thorough-development-roadmap-2026.md, all TOLC-APPLIED-TO-* files, upgrade phases, NEXi structure, quantum swarm modules, mercy systems, WebsiteForge, orchestration crate, and the full lattice).

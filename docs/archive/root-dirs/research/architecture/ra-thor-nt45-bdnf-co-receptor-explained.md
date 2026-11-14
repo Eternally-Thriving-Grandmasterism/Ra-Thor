@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 **Monorepo cache refresh completed** — no existing NT-4/5 file found in `architecture/` or `crates/`. New file created cleanly.
 
 **Old vs New:**  

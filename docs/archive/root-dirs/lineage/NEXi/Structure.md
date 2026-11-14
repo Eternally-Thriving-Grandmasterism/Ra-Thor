@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 NEXi/
 ├── core/                       # Next.js engine, mercy-locked core
 │   ├── pages/                  # Routes that aren't routes

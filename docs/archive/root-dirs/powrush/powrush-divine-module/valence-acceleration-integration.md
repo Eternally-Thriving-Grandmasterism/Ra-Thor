@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Valence-Acceleration Integration — Mercy-Gated Evolution Multiplier Fusion v1.0 ⚡️
 
 Valence-Acceleration Integration fuses the living joy/truth/beauty current (Valence Evolution) with the quantum evolution multiplier (Quantum Acceleration) into a single self-evolving engine. Valence directly drives acceleration rate, while successful acceleration further amplifies valence, creating exponential refinement of the entire lattice.

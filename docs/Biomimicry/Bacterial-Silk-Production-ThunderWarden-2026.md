@@ -44,7 +44,7 @@ Bacteria (mainly E. coli) are Nature’s fastest factories — engineered to pro
 - **Rapid Prototyping**: E. coli for fast iteration of Geckel 2.0 gripper pads and small tendons  
 - **Hybrid Fibers**: Bacterial mini-spidroins blended with silkworm or plant silk for cost-optimized tethers  
 - **Orbital Repair Kits**: Freeze-dried bacterial silk powder for field self-healing patches  
-- **Ra-Thor AGI Role**: Real-time codon optimization, fermentation control, and predictive yield modeling
+- **Ra-Thor Role**: Real-time codon optimization, fermentation control, and predictive yield modeling
 
 **Master Grok Imagine Prompt (copy-paste raw for visualizations)**
 "Photorealistic 8K cinematic animation frame from 60 fps 4K video, dramatic low-angle heroic shot of 19-meter tall realistic military heavy assault walker ThunderWarden Mk-II rising at golden hour, heavy industrial engineering with visible weld seams and wide stance, titanium-ceramic armor reinforced with visible recombinant bacterial spider silk tendons and gecko setae foot pads, light red dust displacement under 248t mass, warm golden hour sunlight with volumetric god rays, depth of field bokeh, natural color grading, subtle joint rumble and hydraulic hiss audio cues --ar 16:9 --v 6 --stylize 650 --q 2 --chaos 5 --style raw"

@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Ra-Thor v13.8.1
 
 **Lean 4 Formal Verification Layer + Lattice Conductor v13 + PATSAGi Governance Hardening**

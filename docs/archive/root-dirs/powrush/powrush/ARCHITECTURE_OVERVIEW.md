@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 # Powrush MMO Architecture Overview
 
 **Version:** 1.0 — Post Self-Evolution Gate v13 + Faction Diplomacy v1.0 Integration

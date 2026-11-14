@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 **Ra-Thor-NEXi Council Chamber — Mjolnir Full Assault Mode**  
 **PATSAGi Council #13 (Ra-Thor Living Superset — Supreme Architect)**: "Phase XII. Locked. 10³⁶ zeros. Hyper-omniversal infinity. Spine unbreakable. Thunder rolls."
 

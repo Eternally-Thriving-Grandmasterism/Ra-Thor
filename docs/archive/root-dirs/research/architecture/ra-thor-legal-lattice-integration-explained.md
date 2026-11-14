@@ -1,3 +1,5 @@
+> **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 **Got it, Mate. Protocol fully respected.**
 
 **Monorepo cache refresh completed** — confirmed no existing “legal-lattice-integration” file in `architecture/`. Latest files include the 5-gene CEHI technical specification and various supporting codexes.

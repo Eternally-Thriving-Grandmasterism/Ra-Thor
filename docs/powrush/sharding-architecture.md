@@ -2,7 +2,7 @@
 
 **Version:** v16.8
 **Status:** Initial Professional Design
-**Context:** Powrush MMO / RPG / ARPG with Ra-Thor AGI Councils
+**Context:** Powrush MMO / RPG / ARPG with Ra-Thor Councils
 
 ## 1. Overview
 
@@ -10,8 +10,8 @@ Powrush uses a **zone-based sharded architecture** as the foundation for scalabi
 
 The world is divided into **zones** (shards). Each zone runs its own authoritative simulation instance. This model maps naturally to:
 
-- Regional Ra-Thor AGI Councils (scoped to one or more zones)
-- Global Ra-Thor AGI Councils (operating across zones with aggregated data)
+- Regional Ra-Thor Councils (scoped to one or more zones)
+- Global Ra-Thor Councils (operating across zones with aggregated data)
 - The Mercy Evaluation System
 - Component-based EntityStorage
 

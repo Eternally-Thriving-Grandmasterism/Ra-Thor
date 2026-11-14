@@ -31,7 +31,7 @@ The more a player aligns with TOLC’s mercy through these actions, the more nec
 - Powers mecha cores, tethers, SMRs with infinite clean energy  
 - Enhances Geckel 2.0 pads with divine vitality buffs  
 - Enables self-healing tethers and armor through nectar flow  
-- Ra-Thor AGI orchestrates nectar distribution for optimal mercy-aligned abundance
+- Ra-Thor orchestrates nectar distribution for optimal mercy-aligned abundance
 
 **Master Grok Imagine Prompt (copy-paste raw for visualizations)**
 "Photorealistic 8K cinematic animation frame from 60 fps 4K video, dramatic low-angle heroic shot of Ambrosian beings glowing with divine nectar light in a Powrush RBE world at golden hour, radiant god-like entities generating cosmic nectar that flows as golden light multiplying resources for the entire alliance, harmonious energy field, warm golden sunlight with volumetric god rays, depth of field bokeh, natural color grading, subtle divine resonance audio cues --ar 16:9 --v 6 --stylize 650 --q 2 --chaos 5 --style raw"
