@@ -2440,6 +2440,19 @@ License: AG-SML v1.2 (non-revenue personal / research). Organizations license.`;
           gateNote.textContent = rt.heavyNote;
           consent.appendChild(gateNote);
         }
+        if (rt.consent === 'download' || rt.consent === 'heavy-use') {
+          var termsNote = document.createElement('p');
+          termsNote.className = 'webllm-row-note';
+          termsNote.appendChild(document.createTextNode('By confirming, you agree to this model\u2019s licence and use policy and to the '));
+          var termsLink = document.createElement('a');
+          termsLink.href = '/third-party-models.html#model-terms';
+          termsLink.target = '_blank';
+          termsLink.rel = 'noopener';
+          termsLink.textContent = 'model terms';
+          termsNote.appendChild(termsLink);
+          termsNote.appendChild(document.createTextNode('.'));
+          consent.appendChild(termsNote);
+        }
         var yes = document.createElement('button');
         yes.type = 'button';
         yes.className = 'ctrl-btn text-xs px-2';

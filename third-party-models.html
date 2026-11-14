@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Third-party models and software — Ra-Thor</title>
+  <meta name="description" content="Licences, notices and terms for the third-party AI models and software that Lattice Chat can download and run in your browser.">
+  <meta name="theme-color" content="#050505">
+  <meta name="color-scheme" content="dark light">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://rathor.ai/third-party-models.html">
+  <meta property="og:title" content="Third-party models and software — Ra-Thor">
+  <meta property="og:description" content="Licences, notices and terms for third-party models in Lattice Chat.">
+  <meta property="og:image" content="https://rathor.ai/icons/ra-thor-og-1200x630.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://rathor.ai/icons/ra-thor-og-1200x630.png">
+  <link rel="canonical" href="https://rathor.ai/third-party-models.html">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/icons/ra-thor-icon-192.png" type="image/png">
+  <link rel="apple-touch-icon" href="/icons/ra-thor-icon-192.png">
+  <link rel="stylesheet" href="/css/rathor-theme.css">
+  <script>
+    (function () {
+      try { document.documentElement.setAttribute('data-theme', localStorage.getItem('rathor-theme') || 'dark');
+      } catch (e) { document.documentElement.setAttribute('data-theme', 'dark'); }
+    })();
+  </script>
+  <style>
+    body { font-family: Inter, system-ui, sans-serif; }
+    .title-font { font-family: Inter, system-ui, sans-serif; }
+    .thunder-glow { text-shadow: 0 0 40px #ffd700, 0 0 80px #ffaa00; }
+    .tp-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .tp-table th, .tp-table td { text-align: left; vertical-align: top; padding: 0.45rem 0.4rem; border-top: 1px solid rgba(252, 211, 77, 0.15); }
+    .tp-table th { color: #fcd34d; font-weight: 600; }
+  </style>
+</head>
+<body class="bg-black text-white overflow-x-hidden">
+  <main class="max-w-3xl mx-auto px-4 sm:px-6 py-12 sm:py-16" id="rt-family-main" dir="ltr" lang="en" data-rt-prose>
+    <div class="text-center mb-12">
+      <h1 class="title-font text-4xl sm:text-5xl font-black tracking-tighter thunder-glow mb-3">Third-party models and software</h1>
+      <p class="text-lg sm:text-xl text-amber-300">Licences, notices and terms for the AI models Lattice Chat can download and run in your browser.</p>
+      <p class="text-sm text-white/50 mt-4">Last updated: 2026-11-14</p>
+    </div>
+
+    <section class="rt-card-uniform bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8">
+      <h2 class="text-xl font-semibold text-amber-300 mb-4">Who licenses these models</h2>
+      <p class="text-white/80 leading-relaxed mb-3">Lattice Chat can download third-party AI models and run them in your browser. Ra-Thor did not make these models. Each model, and each model code file, is licensed to you by its maker or publisher under its own terms. It is not licensed by Autonomicity Games Inc.</p>
+      <p class="text-white/80 leading-relaxed mb-3">These models, their model code files, the software listed below, and their outputs are not part of Ra-Thor. They are not covered by the Autonomicity Games Sovereign Mercy License (AG-SML) or by any Ra-Thor commercial licence (COMMERCIAL_LICENSE.md). Autonomicity Games Inc. does not license, sublicense or claim ownership of them.</p>
+      <p class="text-white/80 leading-relaxed mb-3">Meta, Google, Alibaba Cloud (Qwen), Hugging Face, Microsoft, MLC (mlc-ai), the Apache Software Foundation and the other authors named on this page have not reviewed or endorsed Ra-Thor or Autonomicity Games Inc. Their names are used only to identify their work and its licences.</p>
+      <p class="text-white/80 leading-relaxed">Your browser downloads the model files directly from Hugging Face (mlc-ai repositories). It downloads the model code files (.wasm) directly from GitHub (raw.githubusercontent.com, repository mlc-ai/binary-mlc-llm-libs). The files are stored on your device. You can delete them in Lattice Chat.</p>
+    </section>
+
+    <section class="rt-card-uniform bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8" id="models">
+      <h2 class="text-xl font-semibold text-amber-300 mb-4">Models in the Lattice Chat picker</h2>
+      <p class="text-white/70 text-sm leading-relaxed mb-4">Each model is offered as an MLC (mlc-ai) quantized build, q4f16_1 or q4f32_1, made from the original model named below. Quantized builds are modified from the original model files. MLC (mlc-ai) made the modifications, not Ra-Thor.</p>
+      <div class="overflow-x-auto">
+      <table class="tp-table">
+        <thead><tr><th>Model</th><th>Original model</th><th>Licence</th></tr></thead>
+        <tbody>
+          <tr><td>SmolLM2-360M-Instruct</td><td><a class="text-amber-300 underline" href="https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct" target="_blank" rel="noopener">HuggingFaceTB/SmolLM2-360M-Instruct</a></td><td>Apache License 2.0 (<a class="text-amber-300 underline" href="/third-party/apache-2.0/LICENSE.txt">full text</a>)</td></tr>
+          <tr><td>Qwen2.5-0.5B-Instruct</td><td><a class="text-amber-300 underline" href="https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct" target="_blank" rel="noopener">Qwen/Qwen2.5-0.5B-Instruct</a></td><td>Apache License 2.0 (<a class="text-amber-300 underline" href="/third-party/qwen2.5/LICENSE.txt">full text</a>)</td></tr>
+          <tr><td>Llama-3.2-1B-Instruct</td><td><a class="text-amber-300 underline" href="https://huggingface.co/meta-llama/Llama-3.2-1B-Instruct" target="_blank" rel="noopener">meta-llama/Llama-3.2-1B-Instruct</a></td><td>Llama 3.2 Community License Agreement (<a class="text-amber-300 underline" href="/third-party/llama-3.2/LICENSE.txt">full text</a>) and Llama 3.2 Acceptable Use Policy (<a class="text-amber-300 underline" href="/third-party/llama-3.2/USE_POLICY.md">full text</a>). Built with Llama.</td></tr>
+          <tr><td>Qwen2.5-1.5B-Instruct</td><td><a class="text-amber-300 underline" href="https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct" target="_blank" rel="noopener">Qwen/Qwen2.5-1.5B-Instruct</a></td><td>Apache License 2.0 (<a class="text-amber-300 underline" href="/third-party/qwen2.5/LICENSE.txt">full text</a>)</td></tr>
+          <tr><td>Llama-3.2-3B-Instruct</td><td><a class="text-amber-300 underline" href="https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct" target="_blank" rel="noopener">meta-llama/Llama-3.2-3B-Instruct</a></td><td>Llama 3.2 Community License Agreement (<a class="text-amber-300 underline" href="/third-party/llama-3.2/LICENSE.txt">full text</a>) and Llama 3.2 Acceptable Use Policy (<a class="text-amber-300 underline" href="/third-party/llama-3.2/USE_POLICY.md">full text</a>). Built with Llama.</td></tr>
+          <tr><td>Phi-3.5-mini-instruct</td><td><a class="text-amber-300 underline" href="https://huggingface.co/microsoft/Phi-3.5-mini-instruct" target="_blank" rel="noopener">microsoft/Phi-3.5-mini-instruct</a></td><td>MIT License, Copyright (c) Microsoft Corporation (<a class="text-amber-300 underline" href="/third-party/phi-3.5/LICENSE.txt">full text</a>; publisher's <a class="text-amber-300 underline" href="/third-party/phi-3.5/NOTICE.md">NOTICE.md</a>)</td></tr>
+          <tr><td>Qwen2.5-7B-Instruct</td><td><a class="text-amber-300 underline" href="https://huggingface.co/Qwen/Qwen2.5-7B-Instruct" target="_blank" rel="noopener">Qwen/Qwen2.5-7B-Instruct</a></td><td>Apache License 2.0 (<a class="text-amber-300 underline" href="/third-party/qwen2.5/LICENSE.txt">full text</a>)</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p class="text-white/60 text-xs leading-relaxed mt-3">Quantized builds: Hugging Face repositories mlc-ai/&lt;model&gt;-q4f16_1-MLC and mlc-ai/&lt;model&gt;-q4f32_1-MLC. The mlc-ai repositories do not include their own licence files. The licence of the original model applies.</p>
+    </section>
+
+    <section class="rt-card-uniform bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8" id="llama">
+      <h2 class="text-xl font-semibold text-amber-300 mb-4">Llama 3.2</h2>
+      <p class="text-white/90 font-semibold mb-3">Built with Llama</p>
+      <p class="text-white/80 leading-relaxed mb-3">Llama 3.2 is licensed under the Llama 3.2 Community License, Copyright © Meta Platforms, Inc. All Rights Reserved.</p>
+      <p class="text-white/70 text-sm leading-relaxed">Llama 3.2 Community License Agreement: <a class="text-amber-300 underline" href="/third-party/llama-3.2/LICENSE.txt">full text</a> (source: <a class="text-amber-300 underline" href="https://www.llama.com/llama3_2/license/" target="_blank" rel="noopener">llama.com/llama3_2/license</a>). Acceptable Use Policy: <a class="text-amber-300 underline" href="/third-party/llama-3.2/USE_POLICY.md">full text</a> (source: <a class="text-amber-300 underline" href="https://www.llama.com/llama3_2/use-policy" target="_blank" rel="noopener">llama.com/llama3_2/use-policy</a>).</p>
+    </section>
+
+    <section class="rt-card-uniform bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8" id="gemma">
+      <h2 class="text-xl font-semibold text-amber-300 mb-4">Gemma</h2>
+      <p class="text-white/80 leading-relaxed mb-3">Gemma is provided under and subject to the Gemma Terms of Use found at ai.google.dev/gemma/terms.</p>
+      <p class="text-white/80 leading-relaxed mb-3">Lattice Chat does not currently offer Gemma. The gemma-2-2b-it files it offered earlier were quantized (modified) by MLC (mlc-ai) from google/gemma-2-2b-it. They are modified files.</p>
+      <p class="text-white/80 leading-relaxed mb-3">Gemma and any model derived from it are subject to the use restrictions in Section 3.2 of the Gemma Terms of Use, including the Gemma Prohibited Use Policy. See the terms below.</p>
+      <p class="text-white/70 text-sm leading-relaxed">Gemma Terms of Use: <a class="text-amber-300 underline" href="/third-party/gemma/GEMMA_TERMS_OF_USE.txt">full text</a> (source: <a class="text-amber-300 underline" href="https://ai.google.dev/gemma/terms" target="_blank" rel="noopener">ai.google.dev/gemma/terms</a>). Gemma Prohibited Use Policy: <a class="text-amber-300 underline" href="/third-party/gemma/GEMMA_PROHIBITED_USE_POLICY.txt">full text</a> (source: <a class="text-amber-300 underline" href="https://ai.google.dev/gemma/prohibited_use_policy" target="_blank" rel="noopener">ai.google.dev/gemma/prohibited_use_policy</a>).</p>
+    </section>
+
+    <section class="rt-card-uniform bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8" id="software">
+      <h2 class="text-xl font-semibold text-amber-300 mb-4">Software and model code</h2>
+      <p class="text-white/80 leading-relaxed mb-3"><strong>WebLLM</strong> (mlc-ai/web-llm, version 0.2.85) is licensed under the Apache License 2.0. A copy of the licence is served with it at <a class="text-amber-300 underline" href="/js/vendor/web-llm/0.2.85/LICENSE">/js/vendor/web-llm/0.2.85/LICENSE</a>.</p>
+      <p class="text-white/80 leading-relaxed mb-3"><strong>Apache TVM</strong> (runtime included in WebLLM): Apache TVM. Copyright 2019-2023 The Apache Software Foundation. This product includes software developed at The Apache Software Foundation (http://www.apache.org/). (<a class="text-amber-300 underline" href="/third-party/tvm/NOTICE.txt">NOTICE</a>)</p>
+      <p class="text-white/80 leading-relaxed"><strong>Model code files (.wasm)</strong> are fetched by your browser from mlc-ai's GitHub repository mlc-ai/binary-mlc-llm-libs. That repository carries no licence statement from its publisher. Ra-Thor does not host, license or sublicense these files.</p>
+    </section>
+
+    <section class="rt-card-uniform bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8" id="model-terms">
+      <h2 class="text-xl font-semibold text-amber-300 mb-4">Terms for using third-party models in Lattice Chat</h2>
+      <ol class="list-decimal pl-5 space-y-3 text-white/80 leading-relaxed">
+        <li><strong>Agreement.</strong> These terms apply when you download or use any third-party model in Lattice Chat on rathor.ai. By confirming a model download or use, or by using a third-party model in Lattice Chat, you agree to these terms. If you do not agree, do not download or use third-party models. You confirm that you are old enough, and have the legal capacity, to agree to these terms and to each model's licence. If you act for an organization, you confirm that you have authority to bind it.</li>
+        <li><strong>Each model's licence.</strong> You must comply with the licence and use policy of each model you download or use, as listed on this page. That includes the Llama 3.2 Community License Agreement and the Llama 3.2 Acceptable Use Policy for Llama models, the Gemma Terms of Use and the Gemma Prohibited Use Policy for Gemma models, the Apache License 2.0 for Qwen2.5 and SmolLM2 models, and the MIT License for Phi-3.5 models. Those licences are between you and each model's maker.</li>
+        <li><strong>Llama Acceptable Use Policy.</strong> You must not use, or allow others to use, any Llama model, or its outputs or results, in any way the Llama 3.2 Acceptable Use Policy (<a class="text-amber-300 underline" href="https://www.llama.com/llama3_2/use-policy" target="_blank" rel="noopener">llama.com/llama3_2/use-policy</a>) prohibits. That policy is part of these terms and is enforceable under them.</li>
+        <li><strong>Gemma use restrictions.</strong> You must not use Gemma or any Model Derivative of Gemma (as defined in the Gemma Terms of Use), or any of their outputs, for any restricted use in the Gemma Prohibited Use Policy (<a class="text-amber-300 underline" href="https://ai.google.dev/gemma/prohibited_use_policy" target="_blank" rel="noopener">ai.google.dev/gemma/prohibited_use_policy</a>), or in violation of applicable laws and regulations. These use restrictions, from Section 3.2 of the Gemma Terms of Use, are an enforceable provision of these terms. Gemma and Model Derivatives of Gemma are subject to these use restrictions. If you share or distribute Gemma or a Model Derivative, you must pass these use restrictions on to your recipients and meet the other conditions of the Gemma Terms of Use.</li>
+        <li><strong>Outputs and other models.</strong> You must not use the outputs of any third-party model in breach of that model's licence or use policy. If you use Llama outputs to create, train, fine-tune or otherwise improve an AI model that you distribute or make available, you must follow the Llama 3.2 Community License Agreement, including its naming and attribution requirements. If you use Gemma outputs to create a Model Derivative, the Gemma Terms of Use apply to it.</li>
+        <li><strong>No licence from us.</strong> Autonomicity Games Inc. does not license, sublicense or grant you any right in any third-party model, model code file, or their outputs. Your rights in them come only from their makers' licences. Nothing in the Autonomicity Games Sovereign Mercy License (AG-SML) or any Ra-Thor commercial licence covers them.</li>
+        <li><strong>No endorsement; no marks.</strong> Do not suggest that Meta, Google or any other model maker, or Autonomicity Games Inc., endorses your use or your outputs. Use their names and marks only as their licences allow.</li>
+        <li><strong>Breach and termination.</strong> If you breach these terms or a model's licence or use policy, your permission to use the third-party model features of Lattice Chat on rathor.ai ends automatically, without notice. You must then stop using, and delete from your devices, the affected models downloaded through Lattice Chat. Autonomicity Games Inc. may also suspend or block access to those features for anyone it reasonably believes is in breach. A model maker may separately end your licence under its own terms.</li>
+        <li><strong>No warranty; your responsibility.</strong> Third-party models and model code are provided by their makers "as is", and by Autonomicity Games Inc. without any warranty. You are responsible for your use of them and of their outputs, and for checking that your use complies with law and with each licence. To the extent the law allows, Autonomicity Games Inc. is not liable for third-party models, model code or their outputs, and you will indemnify Autonomicity Games Inc. against claims arising from your breach of these terms or of a model's licence.</li>
+        <li><strong>Changes.</strong> We may update these terms by posting a new version on this page with a new "Last updated" date. Continued use of third-party models in Lattice Chat after an update means you accept it.</li>
+        <li><strong>Contact.</strong> Questions: <a class="text-amber-300 underline" href="mailto:info@Rathor.ai">info@Rathor.ai</a>.</li>
+      </ol>
+    </section>
+
+    <p class="text-white/50 text-sm text-center">These notices are informational and do not change any licence. If this page and a maker's licence differ, the maker's licence controls for that model or software. This page makes no capability or safety claims.</p>
+  </main>
+  <script src="/i18n/en.js?v=20260924a"></script>
+  <script src="/js/i18n-chrome.js?v=20260924a"></script>
+  <script src="/js/i18n-essay.js?v=20260924a"></script>
+  <script src="/js/week-window.js"></script>
+  <script src="/js/rathor-theme.js"></script>
+  <script src="/js/pwa-install.js"></script>
+  <script src="/js/family-nav-2026-08-22.js"></script>
+  <script src="/js/site-lock-2026-08-22.js"></script>
+</body>
+</html>

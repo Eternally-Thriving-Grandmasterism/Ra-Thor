@@ -16,13 +16,13 @@ This is the **single commercial exhibit**. It is not a second public license fam
 
 Under the **Autonomicity Games Sovereign Mercy License (AG-SML v1.2)**, a natural person (the Wanderer) may use, copy, modify, and run the Work for personal, educational, research, and non-commercial creative use without payment.
 
-Any revenue or income from using, running, or outputs of the Software requires a paid commercial licence (see root `LICENSE` §1A). Edge cases and waiver requests: **info@Rathor.ai**.
+Any revenue or income from using, running, or outputs of the Software requires a paid commercial licence (see root `LICENSE` §1A). Edge cases and waiver requests: **info@Rathor.ai**. Outputs of third-party models are excluded as stated in §7A.
 
 ---
 
 ## 2. Commercial use requires a paid written grant
 
-Organization use and the commercial deployments below require a separate paid commercial license from Autonomicity Games Inc. This does **not** apply to a natural person’s non-revenue use under AG-SML v1.2 §1: personal, educational, research, and non-commercial creative work. Any revenue or income from using, running, or outputs requires a paid commercial licence (see §1A).
+Organization use and the commercial deployments below require a separate paid commercial license from Autonomicity Games Inc. This does **not** apply to a natural person’s non-revenue use under AG-SML v1.2 §1: personal, educational, research, and non-commercial creative work. Any revenue or income from using, running, or outputs requires a paid commercial licence (see §1A). Outputs of third-party models are excluded as stated in §7A.
 
 This includes (non-exhaustive):
 
@@ -90,6 +90,15 @@ Agent-security / prompt-injection evaluators start at [`docs/BOARDY_POLINA_AGENT
 - Root `LICENSE` is the canonical free-use instrument.
 - `LICENSE_CLARIFICATION.md` remains in force for residual historical dual-license wording (including Eternal Mercy Flow License v3/v4).
 - Hyphen file `COMMERCIAL-LICENSE.md` is a retired stub pointing here. The `License/COMMERCIAL-LICENSE.md` stub was removed (LIC-2).
+
+---
+
+## 7A. Third-party components and models (excluded)
+
+- Files under `js/vendor/` and `third-party/`, and every third-party AI model, model weights, tokenizer, configuration and model code file (including Llama, Gemma, Qwen, SmolLM2 and Phi models and MLC model libraries) that Ra-Thor downloads, loads or runs, are **not** part of the Work and are **not** licensed under this exhibit or any commercial grant. They are licensed by their own authors under their own terms (see `THIRD_PARTY_NOTICES.md` and https://rathor.ai/third-party-models.html).
+- No commercial grant licenses, sublicenses, or claims ownership of them or of their outputs, and none gives any warranty or indemnity for them.
+- A commercial licensee that uses them must accept and comply with their terms itself, including the Llama 3.2 Community License Agreement and Acceptable Use Policy and the Gemma Terms of Use and Prohibited Use Policy. Where a deployment under a commercial grant includes Gemma or a Gemma Model Derivative, the signed agreement must include the Gemma Terms of Use §3.2 use restrictions as an enforceable provision and a copy of the Gemma Terms of Use.
+- References in this exhibit and in root `LICENSE` §1A to revenue from **outputs** do not include outputs of a third-party model, to the extent that model's licence does not permit such a condition.
 
 ---
 
