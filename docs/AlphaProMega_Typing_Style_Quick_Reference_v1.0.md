@@ -58,7 +58,7 @@
 ```
 Sherif Samy Botros | Founder & CEO                 
 Autonomicity Games Inc. | ACityGames.com
-AlphaProMega Media Inc. | rathor.ai
+Autonomicity Games Inc. | rathor.ai
 REALTOR® | HomeLife Frontier Realty Inc.
 Ontario, Canada | CEO@ACityGames.com
 ```
