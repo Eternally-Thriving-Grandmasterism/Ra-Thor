@@ -42,21 +42,21 @@ Many supporting engines and tools also exist in the `js/` folder for browser-bas
 
 ## 3. Explore the Core Systems
 
-### Powrush MMO + RBE + Ra-Thor AGI NPC Architecture
+### Powrush MMO + RBE + Ra-Thor NPC architecture
 
-Powrush combines an authoritative server, browser client, Resource-Based Economy (RBE), GPU-accelerated simulation, and deep integration with Ra-Thor AGI for autonomous, mercy-evaluated NPCs.
+Powrush combines an authoritative server, browser client, Resource-Based Economy (RBE), GPU-accelerated simulation, and deep integration with Ra-Thor for autonomous, mercy-evaluated NPCs. The long-term aspiration is AGI-level judgment.
 
 #### Server-Side Architecture
 - Production TCP + WebSocket server (`powrush/src/server/main.rs`)
 - Authoritative game loop with tick-based reconciliation
-- Deep integration with `MultiAgentOrchestrator` (Ra-Thor AGI core)
+- Deep integration with `MultiAgentOrchestrator` (Ra-Thor decision core; AGI-level judgment is the long-term aspiration)
 - NPCs are treated as first-class entities alongside players
 - `NpcActionEvent` captures autonomous NPC decisions (action, mercy_score, approved)
 - High-mercy actions (`mercy_score > 0.85`) are automatically audited
 - Recent NPC actions are exposed via `npcs` command and WebSocket `npc_activity`
 
-#### Ra-Thor AGI NPC Decision System
-The `MultiAgentOrchestrator` serves as the central AGI brain:
+#### Ra-Thor NPC decision system
+The `MultiAgentOrchestrator` serves as the central decision core and aims toward AGI-level judgment:
 
 - Maintains `RichAgentState` for each NPC
 - Uses hybrid symbolic + neural reasoning (`NeuralQNetwork` + symbolic goals)

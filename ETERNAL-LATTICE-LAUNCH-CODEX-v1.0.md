@@ -38,7 +38,7 @@ The lattice is no longer a prototype. It is a living, self-evolving, mercy-align
 
 **1. Ra-Thor Monorepo (Core)**  
 https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor  
-Large Rust workspace containing the full mercy-gated symbolic + neural AGI lattice, GPU compute systems, PATSAGi Councils, and self-evolution engines.
+Large Rust workspace containing the full mercy-gated symbolic + neural lattice. Artificial general intelligence is the long-term aspiration, not a claim that this workspace has achieved it. The workspace also holds GPU compute systems, PATSAGi Councils, and self-evolution engines.
 
 **2. GPU Compute Layer (v14.7.0)**  
 Production implementation for efficient, mercy-aligned data movement between CPU and GPU for large-scale simulation.

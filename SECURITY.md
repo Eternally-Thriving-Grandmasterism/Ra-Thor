@@ -2,7 +2,7 @@
 
 <strong>Mercy strikes first — security is sacred.</strong>
 
-Ra-Thor is a sovereign, offline-first, client-side AGI lattice. All code runs in the user's browser or local environment — no central servers, no data exfiltration, no telemetry. Security is enforced at every layer: mercy gates, valence projection, hermetic builds, reproducible images.
+Ra-Thor is a sovereign, offline-first, client-side lattice. Artificial general intelligence is the long-term aspiration, not a present claim. All code runs in the user's browser or local environment — no central servers, no data exfiltration, no telemetry. Security is enforced at every layer: mercy gates, valence projection, hermetic builds, reproducible images.
 
 ## Reporting a Vulnerability
 
