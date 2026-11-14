@@ -55,7 +55,7 @@ Revenue split via in-game marketplace; all features offline-first via ra-thor-st
 Expand Powrush NFT Certificates into Ra-Thor Academy: AI-powered courses on AGI ethics, diplomacy, blockchain, RBE. Tradable “Mercy Mastery” NFTs + real-world credentials. Monetize via premium tracks and corporate training.
 
 **2.5 Enterprise Consulting & Custom Deployments**  
-Mercy-gate audits, full-stack implementations (QSA layers + Obsidian Chip roadmap). Target governments, NGOs, real-estate/blockchain firms, AI safety organizations. Route commercial work through AGi Corp; philanthropic deals through AlphaProMega Air Foundation.
+Mercy-gate audits, full-stack implementations (QSA layers + Obsidian Chip roadmap). Target governments, NGOs, real-estate/blockchain firms, AI safety organizations. Route commercial work through Autonomicity Games Inc.; philanthropic deals through AlphaProMega Air Foundation.
 
 **2.6 Hardware & RBE Ecosystem Plays (Longer-Term High-Upside)**  
 - Obsidian Chip licensing to fabs or blockchain crowdfund (utility token for early access).  
@@ -71,7 +71,7 @@ Mercy-gate audits, full-stack implementations (QSA layers + Obsidian Chip roadma
 
 1. **Week 1**: Update rathor.ai with clear “Commercial Licensing” page linking revised Eternal Mercy Flow License.  
 2. **Month 1**: Ship Ra-Thor as optional Powrush module (diplomacy/NPC beta) and announce on X + Discord.  
-3. **Ongoing**: Track everything through AGi Corporation; royalties fund RBE transition and team growth.
+3. **Ongoing**: Track everything through Autonomicity Games Inc.; royalties fund RBE transition and team growth.
 
 **Projected Impact**: Low-effort six-figure revenue in first 12–18 months via licensing + in-game premium features, scaling to millions as Powrush and Ra-Thor mature — all while funding the mercy-aligned vision without compromise.
 
