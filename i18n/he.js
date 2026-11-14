@@ -439,7 +439,7 @@ window.translations["he"] = {
   "licenceWhoSee": "ראו <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/LICENSE\" class=\"text-amber-300 underline\" target=\"_blank\" rel=\"noopener\">LICENSE</a> §2 לרשימה המלאה.",
   "licenceFreeTitle": "מתי AG-SML עשוי להספיק",
   "licenceFreeIntro": "שימוש אישי, חינוך, מחקר ועבודה יצירתית לא מסחרית על ידי אדם פיזי יכולים להישאר תחת הרישיון הציבורי AG-SML v1.2 כאשר זה מתאים לקבצי הרישיון במונורפו ואין הכנסה. שאלות נפוצות באתר אומרות:",
-  "licenceFaqQuote": "רישיון Autonomicity Games Sovereign Mercy (AG-SML v1.2). אנשים יכולים להשתמש ביצירה לשימוש אישי, חינוכי, מחקרי ויצירתי לא מסחרי. כל הכנסה או רווח משימוש, הפעלה או פלטים דורשים רישיון מסחרי בתשלום מ-Autonomicity Games Inc. שימוש ארגוני ומקרים אחרים ב-LICENSE §2 דורשים רישיון מסחרי בתשלום נפרד. קבצי הרישיון במונורפו.",
+  "licenceFaqQuote": "רישיון Autonomicity Games Sovereign Mercy (AG-SML v1.2). אנשים יכולים להשתמש ביצירה לשימוש אישי, חינוכי, מחקרי ויצירתי לא מסחרי. כל הכנסה או רווח משימוש, הפעלה או פלטים דורשים רישיון מסחרי בתשלום מ-Autonomicity Games Inc. שימוש ארגוני ומקרים אחרים ב-LICENSE §2 דורשים רישיון מסחרי בתשלום נפרד. קבצי הרישיון במונורפו. (outputs of third-party models excepted; see LICENSE §1B)",
   "licenceLicenseLead": "קובץ LICENSE במאגר גם אומר:",
   "licenceLicenseQuote": "The following require a <strong class=\"text-amber-300\">separate paid commercial license</strong> from Autonomicity Games Inc., written and signed (email to info@Rathor.ai):…",
   "licenceLicensorTitle": "מעניק הרישיון",

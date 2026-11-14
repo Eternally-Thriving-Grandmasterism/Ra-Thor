@@ -439,7 +439,7 @@ window.translations["ar"] = {
   "licenceWhoSee": "راجع <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/LICENSE\" class=\"text-amber-300 underline\" target=\"_blank\" rel=\"noopener\">LICENSE</a> §2 للقائمة الكاملة.",
   "licenceFreeTitle": "متى قد يكفي AG-SML",
   "licenceFreeIntro": "يمكن أن يبقى الاستخدام الشخصي والتعليم والبحث والعمل الإبداعي غير التجاري لشخص طبيعي ضمن منحة AG-SML v1.2 العامة عندما يتوافق مع ملفات الرخصة في المستودع الموحّد ولا يوجد إيراد. يقول الأسئلة الشائعة في الموقع:",
-  "licenceFaqQuote": "رخصة Autonomicity Games Sovereign Mercy (AG-SML v1.2). يمكن للأفراد استخدام العمل للاستخدام الشخصي والتعليمي والبحثي والإبداعي غير التجاري. أي إيراد أو دخل من الاستخدام أو التشغيل أو المخرجات يتطلب رخصة تجارية مدفوعة من Autonomicity Games Inc. استخدام المنظمة والحالات الأخرى المدرجة في LICENSE §2 تتطلب رخصة تجارية مدفوعة منفصلة. ملفات الرخصة في المستودع الموحّد.",
+  "licenceFaqQuote": "رخصة Autonomicity Games Sovereign Mercy (AG-SML v1.2). يمكن للأفراد استخدام العمل للاستخدام الشخصي والتعليمي والبحثي والإبداعي غير التجاري. أي إيراد أو دخل من الاستخدام أو التشغيل أو المخرجات يتطلب رخصة تجارية مدفوعة من Autonomicity Games Inc. استخدام المنظمة والحالات الأخرى المدرجة في LICENSE §2 تتطلب رخصة تجارية مدفوعة منفصلة. ملفات الرخصة في المستودع الموحّد. (outputs of third-party models excepted; see LICENSE §1B)",
   "licenceLicenseLead": "يقول LICENSE في المستودع أيضًا:",
   "licenceLicenseQuote": "The following require a <strong class=\"text-amber-300\">separate paid commercial license</strong> from Autonomicity Games Inc., written and signed (email to info@Rathor.ai):…",
   "licenceLicensorTitle": "المرخِّص",

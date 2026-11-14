@@ -439,7 +439,7 @@ window.translations["th"] = {
   "licenceWhoSee": "ดู <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/LICENSE\" class=\"text-amber-300 underline\" target=\"_blank\" rel=\"noopener\">LICENSE</a> §2 สำหรับรายการทั้งหมด",
   "licenceFreeTitle": "เมื่อ AG-SML อาจเพียงพอ",
   "licenceFreeIntro": "การใช้ส่วนตัว การศึกษา การวิจัย และงานสร้างสรรค์ที่ไม่ใช่เชิงพาณิชย์โดยบุคคลธรรมดาอาจอยู่ภายใต้การมอบสิทธิสาธารณะ AG-SML v1.2 เมื่อสอดคล้องกับไฟล์ใบอนุญาตใน monorepo และไม่มีรายได้ FAQ ของเว็บไซต์ระบุว่า:",
-  "licenceFaqQuote": "Autonomicity Games Sovereign Mercy License (AG-SML v1.2) บุคคลสามารถใช้งานผลงานสำหรับการใช้ส่วนตัว การศึกษา การวิจัย และงานสร้างสรรค์ที่ไม่ใช่เชิงพาณิชย์ รายได้หรือรายรับจากการใช้ การรัน หรือเอาต์พุตต้องมีใบอนุญาตเชิงพาณิชย์แบบชำระเงินจาก Autonomicity Games Inc การใช้ขององค์กรและกรณีอื่นใน LICENSE §2 ต้องมีใบอนุญาตเชิงพาณิชย์แบบชำระเงินแยกต่างหาก ไฟล์ใบอนุญาตอยู่ใน monorepo",
+  "licenceFaqQuote": "Autonomicity Games Sovereign Mercy License (AG-SML v1.2) บุคคลสามารถใช้งานผลงานสำหรับการใช้ส่วนตัว การศึกษา การวิจัย และงานสร้างสรรค์ที่ไม่ใช่เชิงพาณิชย์ รายได้หรือรายรับจากการใช้ การรัน หรือเอาต์พุตต้องมีใบอนุญาตเชิงพาณิชย์แบบชำระเงินจาก Autonomicity Games Inc การใช้ขององค์กรและกรณีอื่นใน LICENSE §2 ต้องมีใบอนุญาตเชิงพาณิชย์แบบชำระเงินแยกต่างหาก ไฟล์ใบอนุญาตอยู่ใน monorepo (outputs of third-party models excepted; see LICENSE §1B)",
   "licenceLicenseLead": "LICENSE ในที่เก็บโค้ดก็ระบุว่า:",
   "licenceLicenseQuote": "The following require a <strong class=\"text-amber-300\">separate paid commercial license</strong> from Autonomicity Games Inc., written and signed (email to info@Rathor.ai):…",
   "licenceLicensorTitle": "ผู้ออกใบอนุญาต",

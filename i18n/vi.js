@@ -439,7 +439,7 @@ window.translations["vi"] = {
   "licenceWhoSee": "Xem <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/LICENSE\" class=\"text-amber-300 underline\" target=\"_blank\" rel=\"noopener\">LICENSE</a> §2 để biết danh sách đầy đủ.",
   "licenceFreeTitle": "Khi AG-SML có thể đủ",
   "licenceFreeIntro": "Dùng cá nhân, giáo dục, nghiên cứu và công việc sáng tạo phi thương mại của cá nhân có thể ở trong cấp phép công AG-SML v1.2 khi phù hợp tệp giấy phép trong monorepo và không có doanh thu. FAQ trang web nêu:",
-  "licenceFaqQuote": "Autonomicity Games Sovereign Mercy License (AG-SML v1.2). Cá nhân có thể dùng tác phẩm cho dùng cá nhân, giáo dục, nghiên cứu và sáng tạo phi thương mại. Doanh thu hoặc thu nhập từ sử dụng, chạy hoặc đầu ra cần giấy phép thương mại trả phí từ Autonomicity Games Inc. Dùng cho tổ chức và các trường hợp khác trong LICENSE §2 cần giấy phép thương mại trả phí riêng. Tệp giấy phép ở monorepo.",
+  "licenceFaqQuote": "Autonomicity Games Sovereign Mercy License (AG-SML v1.2). Cá nhân có thể dùng tác phẩm cho dùng cá nhân, giáo dục, nghiên cứu và sáng tạo phi thương mại. Doanh thu hoặc thu nhập từ sử dụng, chạy hoặc đầu ra cần giấy phép thương mại trả phí từ Autonomicity Games Inc. Dùng cho tổ chức và các trường hợp khác trong LICENSE §2 cần giấy phép thương mại trả phí riêng. Tệp giấy phép ở monorepo. (outputs of third-party models excepted; see LICENSE §1B)",
   "licenceLicenseLead": "LICENSE trong kho cũng nói:",
   "licenceLicenseQuote": "The following require a <strong class=\"text-amber-300\">separate paid commercial license</strong> from Autonomicity Games Inc., written and signed (email to info@Rathor.ai):…",
   "licenceLicensorTitle": "Bên cấp phép",

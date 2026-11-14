@@ -439,7 +439,7 @@ window.translations["zh"] = {
   "licenceWhoSee": "完整列表见 <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/LICENSE\" class=\"text-amber-300 underline\" target=\"_blank\" rel=\"noopener\">LICENSE</a> §2。",
   "licenceFreeTitle": "何时 AG-SML 可能足够",
   "licenceFreeIntro": "自然人的个人使用、教育、研究和非商业创作，在符合 monorepo 许可文件且无营收时，可继续适用公开 AG-SML v1.2 许可。网站常见问题写明：",
-  "licenceFaqQuote": "Autonomicity Games 主权慈悲许可（AG-SML v1.2）。个人可将作品用于个人、教育、研究和非商业创作。使用、运行或输出产生的任何收入或收益均需 Autonomicity Games Inc. 的付费商业许可。组织使用及 LICENSE §2 列出的其他情况需另行付费商业许可。许可文件位于 monorepo。",
+  "licenceFaqQuote": "Autonomicity Games 主权慈悲许可（AG-SML v1.2）。个人可将作品用于个人、教育、研究和非商业创作。使用、运行或输出产生的任何收入或收益均需 Autonomicity Games Inc. 的付费商业许可。组织使用及 LICENSE §2 列出的其他情况需另行付费商业许可。许可文件位于 monorepo。 (outputs of third-party models excepted; see LICENSE §1B)",
   "licenceLicenseLead": "仓库中的 LICENSE 亦写明：",
   "licenceLicenseQuote": "The following require a <strong class=\"text-amber-300\">separate paid commercial license</strong> from Autonomicity Games Inc., written and signed (email to info@Rathor.ai):…",
   "licenceLicensorTitle": "许可方",

@@ -439,7 +439,7 @@ window.translations["ja"] = {
   "licenceWhoSee": "全文は <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/LICENSE\" class=\"text-amber-300 underline\" target=\"_blank\" rel=\"noopener\">LICENSE</a> §2 を参照してください。",
   "licenceFreeTitle": "AG-SML で足りる場合",
   "licenceFreeIntro": "自然人の個人利用、教育、研究、非商用の創作は、モノレポのライセンスファイルに適合し収益がない場合、公開 AG-SML v1.2 の許諾の下に留まれます。サイトの FAQ は次のとおりです：",
-  "licenceFaqQuote": "Autonomicity Games Sovereign Mercy License（AG-SML v1.2）。個人は、個人・教育・研究・非商用の創作利用のために本作品を使用できます。利用・実行・出力からの収益や所得には Autonomicity Games Inc. の有償商業ライセンスが必要です。組織の利用および LICENSE §2 に列挙されるその他の場合には別途有償の商業ライセンスが必要です。ライセンスファイルはモノレポにあります。",
+  "licenceFaqQuote": "Autonomicity Games Sovereign Mercy License（AG-SML v1.2）。個人は、個人・教育・研究・非商用の創作利用のために本作品を使用できます。利用・実行・出力からの収益や所得には Autonomicity Games Inc. の有償商業ライセンスが必要です。組織の利用および LICENSE §2 に列挙されるその他の場合には別途有償の商業ライセンスが必要です。ライセンスファイルはモノレポにあります。 (outputs of third-party models excepted; see LICENSE §1B)",
   "licenceLicenseLead": "リポジトリの LICENSE も次のとおりです:",
   "licenceLicenseQuote": "The following require a <strong class=\"text-amber-300\">separate paid commercial license</strong> from Autonomicity Games Inc., written and signed (email to info@Rathor.ai):…",
   "licenceLicensorTitle": "ライセンサー",

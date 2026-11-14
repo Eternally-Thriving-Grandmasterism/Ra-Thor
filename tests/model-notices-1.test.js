@@ -2,6 +2,7 @@
  * The adopted picker table lists seven curated bases. Gemma is not a picker row. */
 var fs = require('fs');
 var path = require('path');
+var vm = require('vm');
 
 var root = path.join(__dirname, '..');
 
@@ -53,6 +54,27 @@ assert(read('sitemap.xml').indexOf('<loc>https://rathor.ai/third-party-models.ht
 var excepted = '(outputs of third-party models excepted; see LICENSE §1B)';
 assert(read('licence.html').indexOf(excepted) !== -1, 'licence.html outputs-revenue rule must name the §1B exception');
 assert(read('docs/LICENSE-COMMERCIAL.md').indexOf(excepted) !== -1, 'docs/LICENSE-COMMERCIAL.md must name the §1B exception');
+
+var packFiles = fs.readdirSync(path.join(root, 'i18n')).filter(function (name) {
+  return /^[a-z]{2}\.js$/.test(name);
+}).sort();
+assert(packFiles.length === 23, 'expected 23 locale packs');
+packFiles.forEach(function (name) {
+  var sb = { window: { translations: {} } };
+  vm.createContext(sb);
+  vm.runInContext(read('i18n/' + name), sb, { filename: name });
+  var lang = name.slice(0, 2);
+  var quote = sb.window.translations[lang] && sb.window.translations[lang].licenceFaqQuote;
+  assert(typeof quote === 'string' && quote.indexOf('see LICENSE §1B') !== -1, lang + ' licenceFaqQuote must contain see LICENSE §1B');
+  assert(quote.indexOf(excepted) !== -1, lang + ' licenceFaqQuote must keep the English parenthetical');
+});
+var enQuote = (function () {
+  var sb = { window: { translations: {} } };
+  vm.createContext(sb);
+  vm.runInContext(read('i18n/en.js'), sb, { filename: 'en.js' });
+  return sb.window.translations.en.licenceFaqQuote;
+})();
+assert(enQuote.indexOf('or outputs ' + excepted + ' requires') !== -1, 'English pack must place the parenthetical at outputs');
 
 [
   'third-party/llama-3.2/LICENSE.txt',

@@ -439,7 +439,7 @@ window.translations["ko"] = {
   "licenceWhoSee": "전체 목록은 <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/LICENSE\" class=\"text-amber-300 underline\" target=\"_blank\" rel=\"noopener\">LICENSE</a> §2를 참고하세요.",
   "licenceFreeTitle": "AG-SML로 충분한 경우",
   "licenceFreeIntro": "자연인의 개인 이용, 교육, 연구, 비상업적 창작 활동은 모노레포 라이선스 파일에 맞고 수익이 없을 때 공개 AG-SML v1.2 부여 범위에 머물 수 있습니다. 사이트 FAQ는 다음과 같습니다:",
-  "licenceFaqQuote": "Autonomicity Games Sovereign Mercy License(AG-SML v1.2). 개인은 개인·교육·연구·비상업적 창작 이용을 위해 저작물을 사용할 수 있습니다. 사용·실행·출력에서의 수익이나 소득은 Autonomicity Games Inc.의 유료 상업 라이선스가 필요합니다. 조직 이용 및 LICENSE §2에 열거된 다른 경우는 별도의 유료 상업 라이선스가 필요합니다. 라이선스 파일은 모노레포에 있습니다.",
+  "licenceFaqQuote": "Autonomicity Games Sovereign Mercy License(AG-SML v1.2). 개인은 개인·교육·연구·비상업적 창작 이용을 위해 저작물을 사용할 수 있습니다. 사용·실행·출력에서의 수익이나 소득은 Autonomicity Games Inc.의 유료 상업 라이선스가 필요합니다. 조직 이용 및 LICENSE §2에 열거된 다른 경우는 별도의 유료 상업 라이선스가 필요합니다. 라이선스 파일은 모노레포에 있습니다. (outputs of third-party models excepted; see LICENSE §1B)",
   "licenceLicenseLead": "저장소 LICENSE도 다음과 같이 말합니다:",
   "licenceLicenseQuote": "The following require a <strong class=\"text-amber-300\">separate paid commercial license</strong> from Autonomicity Games Inc., written and signed (email to info@Rathor.ai):…",
   "licenceLicensorTitle": "라이선스 제공자",

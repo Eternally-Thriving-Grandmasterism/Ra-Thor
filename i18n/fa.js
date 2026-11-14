@@ -439,7 +439,7 @@ window.translations["fa"] = {
   "licenceWhoSee": "برای فهرست کامل، <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/LICENSE\" class=\"text-amber-300 underline\" target=\"_blank\" rel=\"noopener\">LICENSE</a> §2 را ببینید.",
   "licenceFreeTitle": "چه زمانی AG-SML ممکن است کافی باشد",
   "licenceFreeIntro": "استفاده شخصی، آموزش، پژوهش و کار خلاقانه غیرتجاری توسط شخص حقیقی می‌تواند تحت اعطای عمومی AG-SML v1.2 بماند وقتی با فایل‌های مجوز در monorepo همخوان است و درآمدی نیست. پرسش‌های رایج سایت می‌گوید:",
-  "licenceFaqQuote": "مجوز Autonomicity Games Sovereign Mercy (AG-SML v1.2). افراد می‌توانند اثر را برای استفاده شخصی، آموزشی، پژوهشی و خلاقانه غیرتجاری به‌کار ببرند. هر درآمد یا عاید از استفاده، اجرا یا خروجی‌ها به مجوز تجاری پولی از Autonomicity Games Inc نیاز دارد. استفاده سازمانی و سایر موارد فهرست‌شده در LICENSE §2 به مجوز تجاری پولی جداگانه نیاز دارند. فایل‌های مجوز در monorepo هستند.",
+  "licenceFaqQuote": "مجوز Autonomicity Games Sovereign Mercy (AG-SML v1.2). افراد می‌توانند اثر را برای استفاده شخصی، آموزشی، پژوهشی و خلاقانه غیرتجاری به‌کار ببرند. هر درآمد یا عاید از استفاده، اجرا یا خروجی‌ها به مجوز تجاری پولی از Autonomicity Games Inc نیاز دارد. استفاده سازمانی و سایر موارد فهرست‌شده در LICENSE §2 به مجوز تجاری پولی جداگانه نیاز دارند. فایل‌های مجوز در monorepo هستند. (outputs of third-party models excepted; see LICENSE §1B)",
   "licenceLicenseLead": "LICENSE مخزن نیز می‌گوید:",
   "licenceLicenseQuote": "The following require a <strong class=\"text-amber-300\">separate paid commercial license</strong> from Autonomicity Games Inc., written and signed (email to info@Rathor.ai):…",
   "licenceLicensorTitle": "صادرکننده مجوز",
