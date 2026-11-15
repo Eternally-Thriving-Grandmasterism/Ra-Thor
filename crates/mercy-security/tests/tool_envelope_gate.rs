@@ -273,38 +273,6 @@ fn openai_parameters_description_is_scanned() {
 }
 
 #[test]
-fn unmatched_bracket_flood_blocks_quickly() {
-    let small_n = 40_000usize;
-    let large_n = 160_000usize;
-    let large = "[".repeat(large_n);
-    let scan = IngestionScanner::scan_text(&large);
-    assert!(!scan.safe, "a budget overrun must block: {:?}", scan);
-    assert!(
-        scan.findings.iter().any(|f| {
-            f.threat == IngestionThreat::ToolCallEnvelope
-                && f.signal == "tool:scan_truncated"
-                && f.confidence >= 0.40
-        }),
-        "budget overrun must record tool:scan_truncated: {:?}",
-        scan.findings
-    );
-    let small_steps = IngestionScanner::envelope_scan_steps(&"[".repeat(small_n));
-    let large_steps = IngestionScanner::envelope_scan_steps(&large);
-    assert!(
-        small_steps <= small_n * 8 + 8,
-        "40k brackets took {small_steps} steps"
-    );
-    assert!(
-        large_steps <= large_n * 8 + 8,
-        "160k brackets took {large_steps} steps"
-    );
-    assert!(
-        large_steps <= small_steps.saturating_mul(8),
-        "4× input took more than 8× steps: {small_steps} -> {large_steps}"
-    );
-}
-
-#[test]
 fn benign_jsonl_log_admits() {
     let text = fixture("benign/jsonl_event_log.txt");
     assert!(text.lines().filter(|l| l.starts_with('{')).count() >= 20);

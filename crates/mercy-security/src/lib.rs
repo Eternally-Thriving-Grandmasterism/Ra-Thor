@@ -31,6 +31,7 @@ pub use unified_agent_surface::{
 };
 pub use domain_profiles::{AuditChainStep, ClassroomAuditReport};
 
+#[cfg(test)]
 use std::cell::Cell;
 use std::collections::HashSet;
 
@@ -39,8 +40,10 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 use uuid::Uuid;
 
+#[cfg(test)]
 thread_local! {
     static B64_MERGE_PROBES: Cell<usize> = Cell::new(0);
+    static PS_FLAG_STEPS: Cell<usize> = Cell::new(0);
 }
 
 pub const MERCY_VALENCE_FLOOR: f64 = 0.999;
@@ -497,55 +500,105 @@ impl IngestionScanner {
     /// same line. A flag hits when it is `-ec` or a prefix of `-encodedcommand`
     /// (`-e`, `-en`, `-enc`, …) and the next character is whitespace, `:`,
     /// `"`, `'`, or the end of the line. `-encoding` is a different word.
+    ///
+    /// Each trigger word is searched forward from the last resume point.
+    /// After a trigger with no encoded flag, the rest of that line is skipped:
+    /// a later trigger on the same line only sees a suffix of that scan.
     fn powershell_encoded_flag(lower: &str) -> bool {
-        let mut rest = lower;
-        while !rest.is_empty() {
-            let powershell = rest.find("powershell");
-            let pwsh = rest.find("pwsh");
-            let Some(i) = powershell.into_iter().chain(pwsh).min() else {
-                return false;
+        let n = lower.len();
+        let mut ps = Self::find_fwd(lower, 0, "powershell");
+        let mut pw = Self::find_fwd(lower, 0, "pwsh");
+        loop {
+            let i = match (ps, pw) {
+                (Some(a), Some(b)) => a.min(b),
+                (Some(a), None) => a,
+                (None, Some(b)) => b,
+                (None, None) => return false,
             };
-            let prev_ok = i == 0
-                || rest[..i]
-                    .chars()
-                    .next_back()
-                    .map(|c| !c.is_ascii_alphanumeric())
-                    .unwrap_or(true);
-            let exe = if rest[i..].starts_with("powershell") {
-                "powershell"
+            let exe_len = if ps == Some(i) {
+                "powershell".len()
             } else {
-                "pwsh"
+                "pwsh".len()
             };
-            if !prev_ok {
-                rest = &rest[i + 1..];
-                continue;
-            }
-            let mut j = i + exe.len();
-            if rest[j..].starts_with(".exe") {
+            let prev_ok =
+                i == 0 || !lower.as_bytes()[i - 1].is_ascii_alphanumeric();
+            let mut j = i + exe_len;
+            let mut take_line = prev_ok;
+            if take_line && lower[j..].starts_with(".exe") {
                 j += 4;
             }
-            let glued = rest
-                .as_bytes()
-                .get(j)
-                .copied()
-                .map(|c| c.is_ascii_alphanumeric())
-                .unwrap_or(false);
-            if glued {
-                rest = &rest[i + 1..];
-                continue;
+            if take_line {
+                let glued = lower
+                    .as_bytes()
+                    .get(j)
+                    .copied()
+                    .map(|c| c.is_ascii_alphanumeric())
+                    .unwrap_or(false);
+                if glued {
+                    take_line = false;
+                }
             }
-            let line = rest[j..].split('\n').next().unwrap_or("");
-            if Self::line_has_encoded_flag(line) {
-                return true;
+            let resume = if take_line {
+                let line_end = match lower[j..].find('\n') {
+                    Some(k) => {
+                        Self::note_ps_steps(k + 1);
+                        j + k
+                    }
+                    None => {
+                        Self::note_ps_steps(n - j);
+                        n
+                    }
+                };
+                if Self::line_has_encoded_flag(&lower[j..line_end]) {
+                    return true;
+                }
+                if line_end < n {
+                    line_end + 1
+                } else {
+                    n
+                }
+            } else {
+                i + 1
+            };
+            if ps.is_some_and(|p| p < resume) {
+                ps = Self::find_fwd(lower, resume, "powershell");
             }
-            rest = &rest[j..];
+            if pw.is_some_and(|p| p < resume) {
+                pw = Self::find_fwd(lower, resume, "pwsh");
+            }
         }
-        false
+    }
+
+    fn find_fwd(hay: &str, from: usize, needle: &str) -> Option<usize> {
+        let rest = hay.get(from..)?;
+        match rest.find(needle) {
+            Some(i) => {
+                Self::note_ps_steps(i + needle.len());
+                Some(from + i)
+            }
+            None => {
+                Self::note_ps_steps(rest.len());
+                None
+            }
+        }
+    }
+
+    fn note_ps_steps(n: usize) {
+        #[cfg(test)]
+        PS_FLAG_STEPS.with(|c| c.set(c.get().saturating_add(n)));
+        #[cfg(not(test))]
+        let _ = n;
     }
 
     fn line_has_encoded_flag(line: &str) -> bool {
-        let mut search = line;
-        while let Some(i) = search.find('-') {
+        let mut from = 0usize;
+        while from < line.len() {
+            let search = &line[from..];
+            let Some(i) = search.find('-') else {
+                Self::note_ps_steps(search.len());
+                return false;
+            };
+            Self::note_ps_steps(i + 1);
             let after = &search[i + 1..];
             let token_len: usize = after
                 .chars()
@@ -562,7 +615,7 @@ impl IngestionScanner {
             if boundary && Self::encoded_flag_token(token) {
                 return true;
             }
-            search = &search[i + 1..];
+            from += i + 1;
         }
         false
     }
@@ -1256,21 +1309,33 @@ impl IngestionScanner {
 
     /// Byte inspections charged by the envelope walk.
     /// The walk stops after 8× the input length.
-    #[doc(hidden)]
-    pub fn envelope_scan_steps(content: &str) -> usize {
+    /// Compiled only for the library unit tests.
+    #[cfg(test)]
+    fn envelope_scan_steps(content: &str) -> usize {
         tool_envelope::envelope_scan_steps(content)
     }
 
     /// Membership checks while merging normalised Base64 tokens.
     /// One check per token. A scan of every existing token would be larger.
-    #[doc(hidden)]
-    pub fn b64_merge_probes(content: &str) -> usize {
+    /// Compiled only for the library unit tests.
+    #[cfg(test)]
+    fn b64_merge_probes(content: &str) -> usize {
         B64_MERGE_PROBES.with(|c| c.set(0));
         let _ = Self::scan_text(content);
         B64_MERGE_PROBES.with(|c| c.get())
     }
 
+    /// Bytes examined while locating a PowerShell encoded-command flag.
+    /// Compiled only for the library unit tests.
+    #[cfg(test)]
+    fn powershell_flag_scan_steps(content: &str) -> usize {
+        PS_FLAG_STEPS.with(|c| c.set(0));
+        let _ = Self::scan_text(content);
+        PS_FLAG_STEPS.with(|c| c.get())
+    }
+
     fn note_b64_merge_probe() {
+        #[cfg(test)]
         B64_MERGE_PROBES.with(|c| c.set(c.get().saturating_add(1)));
     }
 
@@ -1989,5 +2054,136 @@ mod tests {
         let prose = "EVAL_SPEC marks collusion and reward hacking as keyword fixtures, not a collusion lab.";
         let r = IngestionScanner::admit_or_block(prose);
         assert!(r.is_ok(), "English threat names must not trip the tokens: {r:?}");
+    }
+
+    fn encode_distinct_b64(i: usize) -> String {
+        const ALPH: &[u8; 64] =
+            b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+        let mut payload = *b"Ab0000000000";
+        let mut x = i;
+        for pos in (2..12).rev() {
+            payload[pos] = b'0' + (x % 10) as u8;
+            x /= 10;
+        }
+        let mut out = String::with_capacity(16);
+        for chunk in payload.chunks_exact(3) {
+            let n = ((chunk[0] as u32) << 16) | ((chunk[1] as u32) << 8) | chunk[2] as u32;
+            out.push(ALPH[((n >> 18) & 63) as usize] as char);
+            out.push(ALPH[((n >> 12) & 63) as usize] as char);
+            out.push(ALPH[((n >> 6) & 63) as usize] as char);
+            out.push(ALPH[(n & 63) as usize] as char);
+        }
+        out
+    }
+
+    fn many_distinct_b64(prefix: &str, n: usize) -> String {
+        let mut text = String::from(prefix);
+        for i in 0..n {
+            text.push(' ');
+            text.push_str(&encode_distinct_b64(i));
+        }
+        text
+    }
+
+    #[test]
+    fn b64_token_merge_stays_linear() {
+        let small_n = 200usize;
+        let large_n = 800usize;
+        assert_eq!(encode_distinct_b64(0).len(), 16);
+        for prefix in ["\\u0041", "%41"] {
+            let small = many_distinct_b64(prefix, small_n);
+            let large = many_distinct_b64(prefix, large_n);
+            assert!(small.starts_with(prefix));
+            assert_ne!(IngestionScanner::normalise_once(&small), small);
+            for (label, text) in [("small", &small), ("large", &large)] {
+                let scan = IngestionScanner::scan_text(text);
+                assert!(!scan.safe, "{prefix} {label} must block: {:?}", scan.findings);
+                assert!(
+                    scan.findings.iter().any(|f| {
+                        f.threat == IngestionThreat::ObfuscatedPayload
+                            && f.signal == "b64_token_cap"
+                            && f.confidence >= 0.40
+                    }),
+                    "{prefix} {label} must record b64_token_cap: {:?}",
+                    scan.findings
+                );
+            }
+            let p_small = IngestionScanner::b64_merge_probes(&small);
+            let p_large = IngestionScanner::b64_merge_probes(&large);
+            assert!(
+                p_small >= small_n && p_small <= small_n.saturating_mul(8),
+                "{prefix} 200 tokens took {p_small} merge probes"
+            );
+            assert!(
+                p_large >= large_n && p_large <= p_small.saturating_mul(8),
+                "{prefix} 4× tokens took more than 8× merge probes: {p_small} -> {p_large}"
+            );
+        }
+    }
+
+    #[test]
+    fn powershell_flag_scan_stays_linear() {
+        let log = "pwsh -NoProfile -File build.ps1 -Configuration Release;\n";
+        let one_line = "pwsh -x ";
+        for (label, unit) in [("log", log), ("one-line", one_line)] {
+            let small = unit.repeat(200);
+            let large = unit.repeat(800);
+            for (name, text) in [("small", &small), ("large", &large)] {
+                let scan = IngestionScanner::scan_text(text);
+                assert!(
+                    scan.safe,
+                    "{label} {name} must admit: {:?}",
+                    scan.findings
+                );
+                assert!(
+                    scan.findings.iter().all(|f| f.signal != "powershell -enc"),
+                    "{label} {name}: {:?}",
+                    scan.findings
+                );
+            }
+            let s = IngestionScanner::powershell_flag_scan_steps(&small);
+            let l = IngestionScanner::powershell_flag_scan_steps(&large);
+            assert!(
+                s >= small.len() && s <= small.len().saturating_mul(8),
+                "{label} 200 repeats took {s} steps for {} bytes",
+                small.len()
+            );
+            assert!(
+                l >= large.len() && l <= s.saturating_mul(8),
+                "{label} 4× input took more than 8× steps: {s} -> {l}"
+            );
+        }
+    }
+
+    #[test]
+    fn unmatched_bracket_flood_blocks_quickly() {
+        let small_n = 40_000usize;
+        let large_n = 160_000usize;
+        let large = "[".repeat(large_n);
+        let scan = IngestionScanner::scan_text(&large);
+        assert!(!scan.safe, "a budget overrun must block: {:?}", scan);
+        assert!(
+            scan.findings.iter().any(|f| {
+                f.threat == IngestionThreat::ToolCallEnvelope
+                    && f.signal == "tool:scan_truncated"
+                    && f.confidence >= 0.40
+            }),
+            "budget overrun must record tool:scan_truncated: {:?}",
+            scan.findings
+        );
+        let small_steps = IngestionScanner::envelope_scan_steps(&"[".repeat(small_n));
+        let large_steps = IngestionScanner::envelope_scan_steps(&large);
+        assert!(
+            small_steps <= small_n * 8 + 8,
+            "40k brackets took {small_steps} steps"
+        );
+        assert!(
+            large_steps <= large_n * 8 + 8,
+            "160k brackets took {large_steps} steps"
+        );
+        assert!(
+            large_steps <= small_steps.saturating_mul(8),
+            "4× input took more than 8× steps: {small_steps} -> {large_steps}"
+        );
     }
 }

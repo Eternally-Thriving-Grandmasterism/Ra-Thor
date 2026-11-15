@@ -19,6 +19,7 @@ struct EnvelopeHit {
     result_texts: Vec<String>,
 }
 
+#[cfg(test)]
 pub(crate) fn envelope_scan_steps(content: &str) -> usize {
     json_values_counted(content).2
 }
