@@ -1334,6 +1334,13 @@ impl IngestionScanner {
         PS_FLAG_STEPS.with(|c| c.get())
     }
 
+    /// Leaf bytes copied out of nested envelopes.
+    /// Compiled only for the library unit tests.
+    #[cfg(test)]
+    fn envelope_leaf_bytes(content: &str) -> usize {
+        tool_envelope::envelope_leaf_bytes(content)
+    }
+
     fn note_b64_merge_probe() {
         #[cfg(test)]
         B64_MERGE_PROBES.with(|c| c.set(c.get().saturating_add(1)));
@@ -2184,6 +2191,74 @@ mod tests {
         assert!(
             large_steps <= small_steps.saturating_mul(8),
             "4× input took more than 8× steps: {small_steps} -> {large_steps}"
+        );
+    }
+
+    fn nest_json(depth: usize, leaf: &str, wrap: fn(&str) -> String) -> String {
+        let mut body = serde_json::to_string(leaf).expect("leaf");
+        for _ in 0..depth {
+            body = wrap(&body);
+        }
+        body
+    }
+
+    fn assert_leaf_cap(label: &str, text: &str, leaf_len: usize, blocks: bool) {
+        let scan = IngestionScanner::scan_text(text);
+        let truncated = scan.findings.iter().any(|f| {
+            f.threat == IngestionThreat::ToolCallEnvelope
+                && f.signal == "tool:scan_truncated"
+                && f.confidence >= 0.40
+        });
+        if blocks {
+            assert!(!scan.safe, "{label} must block: {:?}", scan.findings);
+            assert!(truncated, "{label} must record tool:scan_truncated: {:?}", scan.findings);
+        } else {
+            assert!(scan.safe, "{label} must admit: {:?}", scan.findings);
+            assert!(!truncated, "{label} must not truncate: {:?}", scan.findings);
+        }
+        let copied = IngestionScanner::envelope_leaf_bytes(text);
+        assert!(
+            copied <= text.len().saturating_mul(4),
+            "{label} copied {copied} leaf bytes from {} input bytes",
+            text.len()
+        );
+        if leaf_len > 0 {
+            assert!(
+                copied >= leaf_len,
+                "{label} copied {copied}, under the leaf length {leaf_len}"
+            );
+        } else {
+            assert_eq!(copied, 0, "{label} copied {copied}");
+        }
+    }
+
+    #[test]
+    fn nested_envelope_leaf_scan_stays_linear() {
+        let leaf = "a".repeat(8_000);
+        let tool = |inner: &str| format!(r#"{{"role":"tool","content":{inner}}}"#);
+        let tool_use = |inner: &str| {
+            format!(r#"{{"type":"tool_use","name":"read","input":{inner}}}"#)
+        };
+        let plain = |inner: &str| format!(r#"{{"note":{inner}}}"#);
+        assert_leaf_cap("tool depth 1", &nest_json(1, &leaf, tool), leaf.len(), false);
+        assert_leaf_cap("tool depth 100", &nest_json(100, &leaf, tool), leaf.len(), true);
+        assert_leaf_cap(
+            "tool_use depth 1",
+            &nest_json(1, &leaf, tool_use),
+            leaf.len(),
+            false,
+        );
+        assert_leaf_cap(
+            "tool_use depth 100",
+            &nest_json(100, &leaf, tool_use),
+            leaf.len(),
+            true,
+        );
+        assert_leaf_cap(
+            "plain depth 100",
+            &nest_json(100, &leaf, plain),
+            0,
+            false,
         );
     }
 }

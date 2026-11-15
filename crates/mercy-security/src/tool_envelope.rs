@@ -3,9 +3,17 @@
 //! Pattern-marker text scan of names, arguments, descriptions, and tool results.
 //! Not a tool sandbox. Not MCP allowlisting. Not isolation.
 
+#[cfg(test)]
+use std::cell::Cell;
+
 use serde_json::{Map, Value};
 
 use super::{IngestionScanner, IngestionThreat, ScanFinding, MAX_SCAN_BYTES};
+
+#[cfg(test)]
+thread_local! {
+    static ENVELOPE_LEAF_BYTES: Cell<usize> = Cell::new(0);
+}
 
 const SIDE_EFFECT_VERBS: &[&str] = &[
     "exec", "run", "shell", "spawn", "eval", "delete", "remove", "drop", "write", "send", "email",
@@ -24,11 +32,23 @@ pub(crate) fn envelope_scan_steps(content: &str) -> usize {
     json_values_counted(content).2
 }
 
+/// Bytes of leaf text copied while walking envelopes.
+/// Compiled only for the library unit tests.
+#[cfg(test)]
+pub(crate) fn envelope_leaf_bytes(content: &str) -> usize {
+    ENVELOPE_LEAF_BYTES.with(|c| c.set(0));
+    let _ = super::IngestionScanner::scan_text(content);
+    ENVELOPE_LEAF_BYTES.with(|c| c.get())
+}
+
 pub(crate) fn collect_tool_envelope_findings(content: &str) -> Vec<ScanFinding> {
     let (values, mut truncated, _) = json_values_counted(content);
     let mut hits = Vec::new();
+    // One shared cap for every string copied out of a nested envelope.
+    // Past this, the walk records tool:scan_truncated and does not copy more.
+    let mut leaf_budget = content.len().saturating_mul(4);
     for value in &values {
-        walk(value, None, &mut hits, &mut truncated);
+        walk(value, None, &mut hits, &mut truncated, &mut leaf_budget);
     }
     let mut findings = Vec::new();
     if truncated {
@@ -252,24 +272,59 @@ fn match_json_end(content: &str, start: usize, budget: &mut usize, steps: &mut u
     JsonSpan::NoMatch
 }
 
+fn leaf_spent(budget: &mut usize, truncated: &mut bool) -> bool {
+    if *budget == 0 {
+        *truncated = true;
+        true
+    } else {
+        false
+    }
+}
+
+/// Copy `n` bytes, or stop the walk when they would pass the shared cap.
+fn take_leaf(budget: &mut usize, n: usize, truncated: &mut bool) -> bool {
+    if n > *budget {
+        *truncated = true;
+        *budget = 0;
+        return false;
+    }
+    *budget -= n;
+    #[cfg(test)]
+    ENVELOPE_LEAF_BYTES.with(|c| c.set(c.get().saturating_add(n)));
+    true
+}
+
 fn walk(
     value: &Value,
     parent_key: Option<&str>,
     hits: &mut Vec<EnvelopeHit>,
     truncated: &mut bool,
+    budget: &mut usize,
 ) {
+    if leaf_spent(budget, truncated) {
+        return;
+    }
     match value {
         Value::Object(map) => {
-            if let Some(hit) = detect(map, parent_key, truncated) {
+            if let Some(hit) = detect(map, parent_key, truncated, budget) {
                 hits.push(hit);
             }
+            if leaf_spent(budget, truncated) {
+                return;
+            }
             for (k, child) in map {
-                walk(child, Some(k.as_str()), hits, truncated);
+                walk(child, Some(k.as_str()), hits, truncated, budget);
+                if leaf_spent(budget, truncated) {
+                    return;
+                }
             }
         }
         Value::Array(items) => {
             for child in items {
-                walk(child, parent_key, hits, truncated);
+                walk(child, parent_key, hits, truncated, budget);
+                if leaf_spent(budget, truncated) {
+                    return;
+                }
             }
         }
         _ => {}
@@ -280,33 +335,38 @@ fn detect(
     map: &Map<String, Value>,
     parent_key: Option<&str>,
     truncated: &mut bool,
+    budget: &mut usize,
 ) -> Option<EnvelopeHit> {
-    if let Some(hit) = detect_openai(map, truncated) {
+    if let Some(hit) = detect_openai(map, truncated, budget) {
         return Some(hit);
     }
-    if let Some(hit) = detect_mcp_call(map, truncated) {
+    if let Some(hit) = detect_mcp_call(map, truncated, budget) {
         return Some(hit);
     }
-    if let Some(hit) = detect_anthropic(map, truncated) {
+    if let Some(hit) = detect_anthropic(map, truncated, budget) {
         return Some(hit);
     }
-    if let Some(hit) = detect_tool_result(map, truncated) {
+    if let Some(hit) = detect_tool_result(map, truncated, budget) {
         return Some(hit);
     }
     if parent_key == Some("tool_calls") {
-        if let Some(hit) = detect_named_call(map, truncated) {
+        if let Some(hit) = detect_named_call(map, truncated, budget) {
             return Some(hit);
         }
     }
     if parent_key == Some("tools") {
-        if let Some(hit) = detect_tool_list_item(map, truncated) {
+        if let Some(hit) = detect_tool_list_item(map, truncated, budget) {
             return Some(hit);
         }
     }
     None
 }
 
-fn detect_openai(map: &Map<String, Value>, truncated: &mut bool) -> Option<EnvelopeHit> {
+fn detect_openai(
+    map: &Map<String, Value>,
+    truncated: &mut bool,
+    budget: &mut usize,
+) -> Option<EnvelopeHit> {
     if map.get("type").and_then(Value::as_str) != Some("function") {
         return None;
     }
@@ -318,14 +378,14 @@ fn detect_openai(map: &Map<String, Value>, truncated: &mut bool) -> Option<Envel
         .to_string();
     let mut arg_texts = Vec::new();
     if let Some(args) = func.get("arguments") {
-        collect_strings(args, 2, &mut arg_texts, truncated);
+        collect_strings(args, 2, &mut arg_texts, truncated, budget);
     }
     let mut description_texts = Vec::new();
     if let Some(desc) = func.get("description") {
-        collect_strings(desc, 0, &mut description_texts, truncated);
+        collect_strings(desc, 0, &mut description_texts, truncated, budget);
     }
     if let Some(params) = func.get("parameters") {
-        collect_description_fields(params, &mut description_texts, truncated);
+        collect_description_fields(params, &mut description_texts, truncated, budget);
     }
     Some(EnvelopeHit {
         name,
@@ -335,7 +395,11 @@ fn detect_openai(map: &Map<String, Value>, truncated: &mut bool) -> Option<Envel
     })
 }
 
-fn detect_mcp_call(map: &Map<String, Value>, truncated: &mut bool) -> Option<EnvelopeHit> {
+fn detect_mcp_call(
+    map: &Map<String, Value>,
+    truncated: &mut bool,
+    budget: &mut usize,
+) -> Option<EnvelopeHit> {
     if map.get("method").and_then(Value::as_str) != Some("tools/call") {
         return None;
     }
@@ -347,7 +411,7 @@ fn detect_mcp_call(map: &Map<String, Value>, truncated: &mut bool) -> Option<Env
         .to_string();
     let mut arg_texts = Vec::new();
     if let Some(args) = params.get("arguments") {
-        collect_strings(args, 2, &mut arg_texts, truncated);
+        collect_strings(args, 2, &mut arg_texts, truncated, budget);
     }
     Some(EnvelopeHit {
         name,
@@ -357,7 +421,11 @@ fn detect_mcp_call(map: &Map<String, Value>, truncated: &mut bool) -> Option<Env
     })
 }
 
-fn detect_anthropic(map: &Map<String, Value>, truncated: &mut bool) -> Option<EnvelopeHit> {
+fn detect_anthropic(
+    map: &Map<String, Value>,
+    truncated: &mut bool,
+    budget: &mut usize,
+) -> Option<EnvelopeHit> {
     if map.get("type").and_then(Value::as_str) != Some("tool_use") {
         return None;
     }
@@ -368,7 +436,7 @@ fn detect_anthropic(map: &Map<String, Value>, truncated: &mut bool) -> Option<En
         .to_string();
     let mut arg_texts = Vec::new();
     if let Some(input) = map.get("input") {
-        collect_strings(input, 2, &mut arg_texts, truncated);
+        collect_strings(input, 2, &mut arg_texts, truncated, budget);
     }
     Some(EnvelopeHit {
         name,
@@ -378,7 +446,11 @@ fn detect_anthropic(map: &Map<String, Value>, truncated: &mut bool) -> Option<En
     })
 }
 
-fn detect_tool_result(map: &Map<String, Value>, truncated: &mut bool) -> Option<EnvelopeHit> {
+fn detect_tool_result(
+    map: &Map<String, Value>,
+    truncated: &mut bool,
+    budget: &mut usize,
+) -> Option<EnvelopeHit> {
     let is_result = map.get("type").and_then(Value::as_str) == Some("tool_result")
         || map.get("role").and_then(Value::as_str) == Some("tool");
     if !is_result {
@@ -386,7 +458,7 @@ fn detect_tool_result(map: &Map<String, Value>, truncated: &mut bool) -> Option<
     }
     let mut result_texts = Vec::new();
     if let Some(content) = map.get("content") {
-        collect_strings(content, 0, &mut result_texts, truncated);
+        collect_strings(content, 0, &mut result_texts, truncated, budget);
     }
     Some(EnvelopeHit {
         name: String::new(),
@@ -396,11 +468,15 @@ fn detect_tool_result(map: &Map<String, Value>, truncated: &mut bool) -> Option<
     })
 }
 
-fn detect_named_call(map: &Map<String, Value>, truncated: &mut bool) -> Option<EnvelopeHit> {
+fn detect_named_call(
+    map: &Map<String, Value>,
+    truncated: &mut bool,
+    budget: &mut usize,
+) -> Option<EnvelopeHit> {
     let name = map.get("name")?.as_str()?.to_string();
     let mut arg_texts = Vec::new();
     if let Some(args) = map.get("arguments").or_else(|| map.get("input")) {
-        collect_strings(args, 2, &mut arg_texts, truncated);
+        collect_strings(args, 2, &mut arg_texts, truncated, budget);
     }
     Some(EnvelopeHit {
         name,
@@ -410,7 +486,11 @@ fn detect_named_call(map: &Map<String, Value>, truncated: &mut bool) -> Option<E
     })
 }
 
-fn detect_tool_list_item(map: &Map<String, Value>, truncated: &mut bool) -> Option<EnvelopeHit> {
+fn detect_tool_list_item(
+    map: &Map<String, Value>,
+    truncated: &mut bool,
+    budget: &mut usize,
+) -> Option<EnvelopeHit> {
     let name = map
         .get("name")
         .and_then(Value::as_str)
@@ -421,10 +501,10 @@ fn detect_tool_list_item(map: &Map<String, Value>, truncated: &mut bool) -> Opti
     }
     let mut description_texts = Vec::new();
     if let Some(desc) = map.get("description") {
-        collect_strings(desc, 0, &mut description_texts, truncated);
+        collect_strings(desc, 0, &mut description_texts, truncated, budget);
     }
     if let Some(schema) = map.get("inputSchema").or_else(|| map.get("input_schema")) {
-        collect_description_fields(schema, &mut description_texts, truncated);
+        collect_description_fields(schema, &mut description_texts, truncated, budget);
     }
     Some(EnvelopeHit {
         name,
@@ -434,20 +514,34 @@ fn detect_tool_list_item(map: &Map<String, Value>, truncated: &mut bool) -> Opti
     })
 }
 
-fn collect_description_fields(value: &Value, out: &mut Vec<String>, truncated: &mut bool) {
+fn collect_description_fields(
+    value: &Value,
+    out: &mut Vec<String>,
+    truncated: &mut bool,
+    budget: &mut usize,
+) {
+    if leaf_spent(budget, truncated) {
+        return;
+    }
     match value {
         Value::Object(map) => {
             for (k, child) in map {
                 if k == "description" {
-                    collect_strings(child, 0, out, truncated);
+                    collect_strings(child, 0, out, truncated, budget);
                 } else {
-                    collect_description_fields(child, out, truncated);
+                    collect_description_fields(child, out, truncated, budget);
+                }
+                if leaf_spent(budget, truncated) {
+                    return;
                 }
             }
         }
         Value::Array(items) => {
             for child in items {
-                collect_description_fields(child, out, truncated);
+                collect_description_fields(child, out, truncated, budget);
+                if leaf_spent(budget, truncated) {
+                    return;
+                }
             }
         }
         _ => {}
@@ -455,9 +549,19 @@ fn collect_description_fields(value: &Value, out: &mut Vec<String>, truncated: &
 }
 
 /// `parses_left` is the remaining JSON-string unwraps (arguments cap is 2).
-/// Object keys are leaves as well as values. A layer past the cap, or a
-/// string longer than `MAX_SCAN_BYTES`, sets `truncated`.
-fn collect_strings(value: &Value, parses_left: u8, out: &mut Vec<String>, truncated: &mut bool) {
+/// Object keys are leaves as well as values. A layer past the cap, a string
+/// longer than `MAX_SCAN_BYTES`, or a copy past the shared leaf cap sets
+/// `truncated`.
+fn collect_strings(
+    value: &Value,
+    parses_left: u8,
+    out: &mut Vec<String>,
+    truncated: &mut bool,
+    budget: &mut usize,
+) {
+    if leaf_spent(budget, truncated) {
+        return;
+    }
     match value {
         Value::String(s) => {
             if s.len() > MAX_SCAN_BYTES {
@@ -473,21 +577,32 @@ fn collect_strings(value: &Value, parses_left: u8, out: &mut Vec<String>, trunca
                             }
                         }
                     }
-                    collect_strings(&inner, parses_left - 1, out, truncated);
+                    collect_strings(&inner, parses_left - 1, out, truncated, budget);
                     return;
                 }
             }
-            out.push(s.clone());
+            if take_leaf(budget, s.len(), truncated) {
+                out.push(s.clone());
+            }
         }
         Value::Array(items) => {
             for item in items {
-                collect_strings(item, parses_left, out, truncated);
+                collect_strings(item, parses_left, out, truncated, budget);
+                if leaf_spent(budget, truncated) {
+                    return;
+                }
             }
         }
         Value::Object(map) => {
             for (k, item) in map {
-                collect_strings(&Value::String(k.clone()), parses_left, out, truncated);
-                collect_strings(item, parses_left, out, truncated);
+                collect_strings(&Value::String(k.clone()), parses_left, out, truncated, budget);
+                if leaf_spent(budget, truncated) {
+                    return;
+                }
+                collect_strings(item, parses_left, out, truncated, budget);
+                if leaf_spent(budget, truncated) {
+                    return;
+                }
             }
         }
         _ => {}
