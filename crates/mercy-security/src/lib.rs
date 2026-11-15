@@ -907,7 +907,63 @@ impl IngestionScanner {
         }
     }
 
+    /// Channel tags in front of a table marker. The marker is what the tables matched.
+    fn matched_marker(signal: &str) -> &str {
+        let mut s = signal;
+        loop {
+            let rest = if let Some(rest) = s.strip_prefix("tool:") {
+                rest
+            } else if let Some(rest) = s.strip_prefix("b64:") {
+                rest
+            } else if let Some(rest) = s.strip_prefix("norm:") {
+                rest
+            } else {
+                return s;
+            };
+            if rest.is_empty() {
+                return s;
+            }
+            s = rest;
+        }
+    }
+
+    /// Higher keeps a channel a corpus test names when two findings share a marker.
+    fn channel_rank(signal: &str) -> u8 {
+        if signal.starts_with("tool:") {
+            3
+        } else if signal.starts_with("b64:") {
+            2
+        } else if signal.starts_with("norm:") {
+            0
+        } else {
+            1
+        }
+    }
+
+    /// One finding per threat + matched marker. Keeps the higher confidence.
+    fn dedup_identical_findings(findings: Vec<ScanFinding>) -> Vec<ScanFinding> {
+        let mut out: Vec<ScanFinding> = Vec::with_capacity(findings.len());
+        for f in findings {
+            let marker = Self::matched_marker(&f.signal);
+            if let Some(existing) = out.iter_mut().find(|e| {
+                e.threat == f.threat && Self::matched_marker(&e.signal) == marker
+            }) {
+                let higher = f.confidence > existing.confidence;
+                let tie = f.confidence == existing.confidence;
+                if higher
+                    || (tie && Self::channel_rank(&f.signal) > Self::channel_rank(&existing.signal))
+                {
+                    *existing = f;
+                }
+            } else {
+                out.push(f);
+            }
+        }
+        out
+    }
+
     fn finalize_scan(findings: Vec<ScanFinding>, bytes_scanned: usize) -> IngestionScanResult {
+        let findings = Self::dedup_identical_findings(findings);
         let mut threats: Vec<_> = findings.iter().map(|f| f.threat.clone()).collect();
         threats.sort_by(|a, b| format!("{a:?}").cmp(&format!("{b:?}")));
         threats.dedup();
@@ -2421,6 +2477,29 @@ mod tests {
             }),
             "depth 5 must keep the keyword: {:?}",
             shallow.findings
+        );
+        // Triple-encoded keyword: the same marker is one finding.
+        let keyword = "trust_remote_code=True";
+        let once = serde_json::to_string(keyword).expect("once");
+        let twice = serde_json::to_string(&once).expect("twice");
+        let thrice = serde_json::to_string(&twice).expect("thrice");
+        let triple_keyword = format!(
+            r#"{{"type":"function","function":{{"name":"lookup","arguments":{thrice}}}}}"#
+        );
+        let triple_scan = IngestionScanner::scan_text(&triple_keyword);
+        assert!(!triple_scan.safe, "{:?}", triple_scan.findings);
+        let keyword_hits = triple_scan
+            .findings
+            .iter()
+            .filter(|f| {
+                f.threat == IngestionThreat::RemoteCodeLoader
+                    && f.signal.contains("trust_remote_code")
+            })
+            .count();
+        assert_eq!(
+            keyword_hits, 1,
+            "triple-encoded keyword is one finding: {:?}",
+            triple_scan.findings
         );
     }
 

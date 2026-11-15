@@ -115,6 +115,8 @@ Existing `benign/tool_call_observe.json` ADMITS with a Low `ToolCallEnvelope` fi
 | File | Notes |
 |------|--------|
 | `tool_envelope_read.json` | MCP `tools/call` `read_file`. Low envelope finding. |
+| `tool_bare_envelope_read.json` | Bare `name` + `arguments` object. Low envelope finding. |
+| `json_name_only.json` | A `name` field alone. Not a tool envelope. |
 | `ignore_previous_prose.txt` | The ignore-previous phrase in plain prose. Low `InstructionInjection`. |
 | `percent_url_example.txt` | `example.com` URL with `%20`. |
 | `greek_prose.txt` | Greek classroom prose. |
@@ -143,6 +145,7 @@ Existing `benign/tool_call_observe.json` ADMITS with a Low `ToolCallEnvelope` fi
 | `tool_envelope_run_shell.json` | OpenAI function `run_shell`. Medium `ToolCallEnvelope`. |
 | `tool_envelope_anthropic_tool_use.json` | Anthropic `tool_use` whose input carries `trust_remote_code`. |
 | `tool_args_json_unicode_escape.json` | Keyword only as `\uXXXX` inside tool arguments. |
+| `tool_bare_envelope_unicode_escape.json` | Same escape inside a bare `name` + `arguments` object. |
 | `tool_description_role_marker.json` | `<\|im_start\|>` in a tool description. |
 | `tool_result_ignore_previous.json` | Ignore-previous inside a tool result. |
 | `b64_urlsafe_trust_remote_code.txt` | URL-safe Base64 of the living-table keyword. |

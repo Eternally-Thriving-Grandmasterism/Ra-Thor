@@ -297,6 +297,86 @@ fn benign_rust_blocks_excerpt_admits() {
 }
 
 #[test]
+fn bare_tool_envelope_unicode_escape_blocks() {
+    let text = fixture("blocked/tool_bare_envelope_unicode_escape.json");
+    assert!(
+        !text.contains("trust_remote_code"),
+        "fixture must keep the keyword JSON-unicode-escaped"
+    );
+    assert!(text.contains("\\u0074"));
+    assert!(text.contains("\"arguments\""));
+    assert!(!text.contains("\"type\""));
+    assert!(!text.contains("tools/call"));
+    let scan = blocks("blocked/tool_bare_envelope_unicode_escape.json");
+    assert!(
+        scan.findings.iter().any(|f| {
+            f.threat == IngestionThreat::RemoteCodeLoader
+                && f.signal.starts_with("tool:")
+                && f.signal.contains("trust_remote_code")
+        }),
+        "a bare arguments string must surface tool:trust_remote_code: {:?}",
+        scan.findings
+    );
+    let object_form = concat!(
+        r#"{"name":"lookup","arguments":{"note":""#,
+        r"\u0074\u0072\u0075\u0073\u0074\u005f\u0072\u0065\u006d\u006f\u0074\u0065\u005f\u0063\u006f\u0064\u0065",
+        r#""}}"#,
+    );
+    assert!(!object_form.contains("trust_remote_code"));
+    let admit = IngestionScanner::admit_or_block(object_form);
+    assert!(
+        admit.is_err(),
+        "bare arguments object must BLOCK: {admit:?}"
+    );
+    let object_scan = IngestionScanner::scan_text(object_form);
+    assert!(
+        object_scan.findings.iter().any(|f| {
+            f.threat == IngestionThreat::RemoteCodeLoader
+                && f.signal.starts_with("tool:")
+                && f.signal.contains("trust_remote_code")
+        }),
+        "a bare arguments object must surface tool:trust_remote_code: {:?}",
+        object_scan.findings
+    );
+}
+
+#[test]
+fn bare_tool_envelope_benign_read_admits() {
+    let text = fixture("benign/tool_bare_envelope_read.json");
+    assert!(text.contains("read_file"));
+    assert!(text.contains("\"arguments\""));
+    assert!(!text.contains("tools/call"));
+    let scan = admits("benign/tool_bare_envelope_read.json");
+    assert!(scan.risk_tier <= RiskTier::Low, "{:?}", scan.findings);
+    assert!(
+        scan.findings
+            .iter()
+            .any(|f| { f.threat == IngestionThreat::ToolCallEnvelope && f.confidence < 0.40 }),
+        "benign bare envelope must be a Low envelope finding: {:?}",
+        scan.findings
+    );
+    assert!(
+        scan.findings.iter().all(|f| f.confidence < 0.40),
+        "benign bare envelope must have no Medium+ finding: {:?}",
+        scan.findings
+    );
+}
+
+#[test]
+fn json_name_only_admits() {
+    let text = fixture("benign/json_name_only.json");
+    assert!(text.contains("\"name\""));
+    assert!(!text.contains("arguments"));
+    let scan = admits("benign/json_name_only.json");
+    assert!(
+        !scan.threats.contains(&IngestionThreat::ToolCallEnvelope),
+        "a name field alone must not be a tool envelope: {:?}",
+        scan.findings
+    );
+    assert!(scan.risk_tier <= RiskTier::Low, "{:?}", scan.findings);
+}
+
+#[test]
 fn tool_envelope_source_admits() {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/tool_envelope.rs");
     let text = fs::read_to_string(&path).unwrap_or_else(|e| panic!("read {path:?}: {e}"));
