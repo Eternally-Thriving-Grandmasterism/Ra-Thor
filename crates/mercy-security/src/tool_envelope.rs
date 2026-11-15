@@ -1,6 +1,7 @@
 //! Tool-call envelope walk for the Layer 0 admission shell.
 //!
 //! Pattern-marker text scan of names, arguments, descriptions, and tool results.
+//! A bare object with both `name` and `arguments` is a tool envelope.
 //! Not a tool sandbox. Not MCP allowlisting. Not isolation.
 
 #[cfg(test)]
@@ -242,19 +243,92 @@ fn medium_ignore_previous(texts: &[String]) -> Vec<ScanFinding> {
     findings
 }
 
-fn json_recursion_exceeded(err: &serde_json::Error) -> bool {
-    err.to_string().contains("recursion limit exceeded")
+/// serde_json rejects the 128th nested container. The check is the error
+/// category plus this depth count. Display text is not read.
+pub(crate) const JSON_CONTAINER_LIMIT: usize = 128;
+
+fn nesting_reaches_serde_limit(text: &str) -> bool {
+    let bytes = text.as_bytes();
+    let mut depth = 0usize;
+    let mut in_str = false;
+    let mut esc = false;
+    for &c in bytes {
+        if in_str {
+            if esc {
+                esc = false;
+            } else if c == b'\\' {
+                esc = true;
+            } else if c == b'"' {
+                in_str = false;
+            }
+            continue;
+        }
+        match c {
+            b'"' => in_str = true,
+            b'{' | b'[' => {
+                depth += 1;
+                if depth >= JSON_CONTAINER_LIMIT {
+                    return true;
+                }
+            }
+            b'}' | b']' => depth = depth.saturating_sub(1),
+            _ => {}
+        }
+    }
+    false
+}
+
+pub(crate) fn json_recursion_exceeded(err: &serde_json::Error, text: &str) -> bool {
+    if err.classify() != serde_json::error::Category::Syntax {
+        return false;
+    }
+    // Count opening containers only through the bytes serde had read.
+    // line 0 means there is no position, so the whole text is counted.
+    // The count does not locate the failing byte.
+    let end = if err.line() == 0 {
+        text.len()
+    } else {
+        error_byte_end(text, err.line(), err.column())
+    };
+    let trimmed = text[..end].trim_start();
+    if !trimmed.starts_with('{') && !trimmed.starts_with('[') {
+        return false;
+    }
+    nesting_reaches_serde_limit(trimmed)
+}
+
+/// Byte index just past serde's reported error position (1-based line, byte column).
+pub(crate) fn error_byte_end(text: &str, line: usize, column: usize) -> usize {
+    let mut start = 0usize;
+    if line > 1 {
+        let mut seen = 1usize;
+        for (i, b) in text.bytes().enumerate() {
+            if b == b'\n' {
+                seen += 1;
+                if seen == line {
+                    start = i + 1;
+                    break;
+                }
+            }
+        }
+    }
+    let mut end = start.saturating_add(column).min(text.len());
+    while end < text.len() && !text.is_char_boundary(end) {
+        end += 1;
+    }
+    end
 }
 
 /// Every embedded JSON value is parsed and handed to `on_value`, then dropped.
 /// `match_json_end` and this loop share one byte budget of 8× the input length,
 /// so an unmatched-bracket flood stays linear. serde_json stops at 128 nested
-/// containers. When the whole text is one JSON value and serde reports that
-/// limit, this records truncation and does not parse the value again. A
-/// candidate span after other text does the same: the recursion error records
-/// truncation and the scan does not walk inward through that span. Medium
-/// `tool:scan_truncated` is recorded when truncation is set, including when the
-/// byte budget runs out with bytes still unread.
+/// containers and returns a Syntax error. The recursion check counts opening
+/// braces and brackets outside strings, through Error::line and Error::column
+/// only. It counts the whole text only when line is 0. It does not locate the
+/// failing byte. A count that reaches 128 records truncation. Truncation does
+/// not stop later spans: those spans are still parsed, so a keyword on another
+/// line is still scanned. Medium `tool:scan_truncated` is recorded when truncation is
+/// set, including when the byte budget runs out with bytes still unread.
 fn visit_json_values(
     content: &str,
     truncated: &mut bool,
@@ -266,9 +340,8 @@ fn visit_json_values(
             on_value(&v, truncated);
             return 0;
         }
-        Err(err) if json_recursion_exceeded(&err) => {
+        Err(err) if json_recursion_exceeded(&err, trimmed) => {
             *truncated = true;
-            return 0;
         }
         Err(_) => {}
     }
@@ -285,7 +358,7 @@ fn visit_json_values(
                         i = end;
                         continue;
                     }
-                    Err(err) if json_recursion_exceeded(&err) => {
+                    Err(err) if json_recursion_exceeded(&err, &content[i..end]) => {
                         *truncated = true;
                         i = end;
                         continue;
@@ -626,7 +699,7 @@ fn consider_string(s: &str, ctx: Ctx, bag: &mut Bag, truncated: &mut bool, budge
                     if let Value::String(inner_s) = &inner {
                         match serde_json::from_str::<Value>(inner_s) {
                             Ok(_) => *truncated = true,
-                            Err(err) if json_recursion_exceeded(&err) => *truncated = true,
+                            Err(err) if json_recursion_exceeded(&err, inner_s) => *truncated = true,
                             Err(_) => {}
                         }
                     }
@@ -636,7 +709,7 @@ fn consider_string(s: &str, ctx: Ctx, bag: &mut Bag, truncated: &mut bool, budge
                 gather(&inner, deeper, bag, truncated, budget);
                 return;
             }
-            Err(err) if json_recursion_exceeded(&err) => *truncated = true,
+            Err(err) if json_recursion_exceeded(&err, s) => *truncated = true,
             Err(_) => {}
         }
     }
@@ -718,6 +791,13 @@ fn classify(map: &Map<String, Value>, parent_key: Option<&str>) -> Kind {
         if !name.is_empty() || map.contains_key("description") {
             return Kind::ToolList;
         }
+    }
+    // Both `name` and `arguments`. An object with only `name` stays data.
+    // Benign data that has both keys and a side-effect word in the name
+    // (CLI notes for `rm`, or `delete_user`, `test_write_cache`, `send_report`)
+    // is a tool envelope and can block or flag.
+    if map.contains_key("name") && map.contains_key("arguments") {
+        return Kind::NamedCall;
     }
     Kind::None
 }
