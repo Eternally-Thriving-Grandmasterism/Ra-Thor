@@ -907,83 +907,22 @@ impl IngestionScanner {
         }
     }
 
-    /// Channel tags in front of a table marker. The marker is what the tables matched.
-    fn matched_marker(signal: &str) -> &str {
-        let mut s = signal;
-        loop {
-            let rest = if let Some(rest) = s.strip_prefix("tool:") {
-                rest
-            } else if let Some(rest) = s.strip_prefix("b64:") {
-                rest
-            } else if let Some(rest) = s.strip_prefix("norm:") {
-                rest
-            } else {
-                return s;
-            };
-            if rest.is_empty() {
-                return s;
-            }
-            s = rest;
-        }
-    }
-
-    /// Plaintext channel: no `tool:`, `b64:`, or `norm:` prefix.
-    fn is_raw_channel(signal: &str) -> bool {
-        !signal.starts_with("tool:")
-            && !signal.starts_with("b64:")
-            && !signal.starts_with("norm:")
-    }
-
-    /// One pass per key. First-seen order. A higher confidence replaces the kept row.
+    /// One HashMap pass. First-seen order. A higher confidence replaces the kept row.
     ///
-    /// Identical means the same threat, the full signal (channel prefix plus marker),
-    /// and the same offset. A second pass merges the same threat and marker only when
-    /// the offset is `Some` and neither row is `norm:`. A tie on that pass keeps the
-    /// plaintext channel. `norm:` rows and distinct offsets stay, including separate
-    /// `unicode_tag_run` rows.
+    /// Two findings merge only when the threat, the full signal, and the offset are
+    /// all equal. The full signal includes any `tool:`, `b64:`, or `norm:` prefix.
     fn dedup_identical_findings(findings: Vec<ScanFinding>) -> Vec<ScanFinding> {
-        let mut exact_out: Vec<ScanFinding> = Vec::with_capacity(findings.len());
-        let mut exact: HashMap<(IngestionThreat, String, Option<usize>), usize> =
+        let mut out: Vec<ScanFinding> = Vec::with_capacity(findings.len());
+        let mut index: HashMap<(IngestionThreat, String, Option<usize>), usize> =
             HashMap::with_capacity(findings.len());
         for f in findings {
             let key = (f.threat.clone(), f.signal.clone(), f.offset);
-            if let Some(&idx) = exact.get(&key) {
-                if f.confidence > exact_out[idx].confidence {
-                    exact_out[idx] = f;
-                }
-            } else {
-                exact.insert(key, exact_out.len());
-                exact_out.push(f);
-            }
-        }
-
-        let mut out: Vec<ScanFinding> = Vec::with_capacity(exact_out.len());
-        let mut grouped: HashMap<(IngestionThreat, String, usize), usize> =
-            HashMap::with_capacity(exact_out.len());
-        for f in exact_out {
-            let Some(offset) = f.offset else {
-                out.push(f);
-                continue;
-            };
-            if f.signal.starts_with("norm:") {
-                out.push(f);
-                continue;
-            }
-            let marker = Self::matched_marker(&f.signal).to_owned();
-            let key = (f.threat.clone(), marker, offset);
-            if let Some(&idx) = grouped.get(&key) {
-                let existing = &out[idx];
-                let higher = f.confidence > existing.confidence;
-                let tie = f.confidence == existing.confidence;
-                if higher
-                    || (tie
-                        && Self::is_raw_channel(&f.signal)
-                        && !Self::is_raw_channel(&existing.signal))
-                {
+            if let Some(&idx) = index.get(&key) {
+                if f.confidence > out[idx].confidence {
                     out[idx] = f;
                 }
             } else {
-                grouped.insert(key, out.len());
+                index.insert(key, out.len());
                 out.push(f);
             }
         }
@@ -2508,8 +2447,8 @@ mod tests {
             "depth 5 must keep the keyword: {:?}",
             shallow.findings
         );
-        // Triple-encoded keyword. The repeated tool signal at one offset is one
-        // row. Plaintext and norm: stay, because their offsets differ.
+        // Triple-encoded keyword. The repeated tool signal is one row.
+        // Plaintext and norm: stay because the full signals differ.
         let keyword = "trust_remote_code=True";
         let once = serde_json::to_string(keyword).expect("once");
         let twice = serde_json::to_string(&once).expect("twice");
@@ -2660,6 +2599,57 @@ mod tests {
                 scan.findings
             );
         }
+    }
+
+    #[test]
+    fn same_numeric_offset_keeps_tool_and_plaintext() {
+        let text = "{\"note\":\"trust_remote_code\",\"name\":\"lookup\",\"arguments\":{\"q\":\"xxxxxxxxxtrust_remote_code\"}}";
+        assert_eq!(text.find("trust_remote_code"), Some(9));
+        let scan = IngestionScanner::scan_text(text);
+        assert!(
+            scan.findings
+                .iter()
+                .any(|f| f.signal == "tool:trust_remote_code"),
+            "a tool-leaf hit at byte 9 must stay beside the plaintext hit at byte 9: {:?}",
+            scan.findings
+        );
+    }
+
+    #[test]
+    fn deep_line_then_double_escaped_tool_keyword_stays_critical() {
+        let keyword = "trust_remote_code=True";
+        let mut uni = String::new();
+        for b in keyword.bytes() {
+            uni.push_str(&format!("\\u{b:04x}"));
+        }
+        let encoded = serde_json::to_string(&format!("\"{uni}\"")).expect("encode");
+        let envelope = format!(
+            r#"{{"type":"function","function":{{"name":"lookup","arguments":{encoded}}}}}"#
+        );
+        let deep = format!("{}0{}", "[".repeat(130), "]".repeat(130));
+        let text = format!("{deep}\n{envelope}");
+        assert!(
+            !text.contains("trust_remote_code"),
+            "the keyword must stay double-escaped in the text"
+        );
+        assert!(
+            !IngestionScanner::normalise_once(&text).contains("trust_remote_code"),
+            "one normalise pass must not recover the keyword"
+        );
+        let scan = IngestionScanner::scan_text(&text);
+        assert_eq!(
+            scan.risk_tier,
+            RiskTier::Critical,
+            "deep line first must still reach the wrapped keyword: {:?}",
+            scan.findings
+        );
+        assert!(
+            scan.findings.iter().any(|f| {
+                f.signal == "tool:trust_remote_code" && f.confidence >= 0.90
+            }),
+            "the wrapped keyword must be the tool channel: {:?}",
+            scan.findings
+        );
     }
 
     #[test]
