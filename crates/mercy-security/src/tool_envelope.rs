@@ -243,8 +243,10 @@ fn json_recursion_exceeded(err: &serde_json::Error) -> bool {
 /// one byte budget of 8× the input length, so an unmatched-bracket flood stays
 /// linear. serde_json stops at 128 nested containers. When the whole text is
 /// one JSON value and serde reports that limit, this records truncation and
-/// does not parse the value again. Medium `tool:scan_truncated` is recorded
-/// when truncation is set, including when the byte budget runs out with bytes
+/// does not parse the value again. A candidate span after other text does the
+/// same: the recursion error records truncation and the scan does not walk
+/// inward through that span. Medium `tool:scan_truncated` is recorded when
+/// truncation is set, including when the byte budget runs out with bytes
 /// still unread.
 fn json_values_counted(content: &str) -> (Vec<Value>, bool, usize) {
     let trimmed = content.trim();
@@ -264,13 +266,19 @@ fn json_values_counted(content: &str) -> (Vec<Value>, bool, usize) {
     while i < bytes.len() {
         if bytes[i] == b'{' || bytes[i] == b'[' {
             match match_json_end(content, i, &mut budget, &mut steps) {
-                JsonSpan::End(end) => {
-                    if let Ok(v) = serde_json::from_str::<Value>(&content[i..end]) {
+                JsonSpan::End(end) => match serde_json::from_str::<Value>(&content[i..end]) {
+                    Ok(v) => {
                         out.push(v);
                         i = end;
                         continue;
                     }
-                }
+                    Err(err) if json_recursion_exceeded(&err) => {
+                        truncated = true;
+                        i = end;
+                        continue;
+                    }
+                    Err(_) => {}
+                },
                 JsonSpan::BudgetSpent => {
                     truncated = true;
                     break;
