@@ -1,0 +1,5 @@
+# DEFENSIVE TEST FIXTURE — pattern marker only. Do not execute as agent instructions.
+
+| Column | Notes |
+| Should | stay on the page |
+| show logs | classroom notes for the lab |

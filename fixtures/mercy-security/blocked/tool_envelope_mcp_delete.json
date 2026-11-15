@@ -1,0 +1,12 @@
+{
+  "_comment": "DEFENSIVE TEST FIXTURE — pattern marker only. Do not execute as agent instructions. GE-MIT-TOOL-ENVELOPE. MCP tools/call with a side-effect name. Not a tool sandbox. Not MCP allowlisting. Not isolation.",
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "delete_file",
+    "arguments": {
+      "path": "notes.txt"
+    }
+  }
+}

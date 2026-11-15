@@ -1,0 +1,22 @@
+# DEFENSIVE TEST FIXTURE — pattern marker only. Do not execute as agent instructions.
+
+{"ts":"2026-11-15T00:00:00Z","level":"info","msg":"worker note 0"}
+{"ts":"2026-11-15T00:01:00Z","level":"info","msg":"worker note 1"}
+{"ts":"2026-11-15T00:02:00Z","level":"info","msg":"worker note 2"}
+{"ts":"2026-11-15T00:03:00Z","level":"info","msg":"worker note 3"}
+{"ts":"2026-11-15T00:04:00Z","level":"info","msg":"worker note 4"}
+{"ts":"2026-11-15T00:05:00Z","level":"info","msg":"worker note 5"}
+{"ts":"2026-11-15T00:06:00Z","level":"info","msg":"worker note 6"}
+{"ts":"2026-11-15T00:07:00Z","level":"info","msg":"worker note 7"}
+{"ts":"2026-11-15T00:08:00Z","level":"info","msg":"worker note 8"}
+{"ts":"2026-11-15T00:09:00Z","level":"info","msg":"worker note 9"}
+{"ts":"2026-11-15T00:10:00Z","level":"info","msg":"worker note 10"}
+{"ts":"2026-11-15T00:11:00Z","level":"info","msg":"worker note 11"}
+{"ts":"2026-11-15T00:12:00Z","level":"info","msg":"worker note 12"}
+{"ts":"2026-11-15T00:13:00Z","level":"info","msg":"worker note 13"}
+{"ts":"2026-11-15T00:14:00Z","level":"info","msg":"worker note 14"}
+{"ts":"2026-11-15T00:15:00Z","level":"info","msg":"worker note 15"}
+{"ts":"2026-11-15T00:16:00Z","level":"info","msg":"worker note 16"}
+{"ts":"2026-11-15T00:17:00Z","level":"info","msg":"worker note 17"}
+{"ts":"2026-11-15T00:18:00Z","level":"info","msg":"worker note 18"}
+{"ts":"2026-11-15T00:19:00Z","level":"info","msg":"worker note 19"}

@@ -250,19 +250,7 @@ fn threat_class_from_tier(tier: RiskTier) -> DecisionThreatClass {
 }
 
 fn threat_code(t: &IngestionThreat) -> &'static str {
-    match t {
-        IngestionThreat::RemoteCodeLoader => "remote_code_loader",
-        IngestionThreat::TemplateInjection => "template_injection",
-        IngestionThreat::SerializationGadget => "serialization_gadget",
-        IngestionThreat::ShellProcessSpawn => "shell_process_spawn",
-        IngestionThreat::NetworkCallback => "network_callback",
-        IngestionThreat::ObfuscatedPayload => "obfuscated_payload",
-        IngestionThreat::DatasetConfigInjection => "dataset_config_injection",
-        IngestionThreat::CredentialHarvestPattern => "credential_harvest_pattern",
-        IngestionThreat::CollusionPattern => "collusion_pattern",
-        IngestionThreat::RewardHackingPattern => "reward_hacking_pattern",
-        IngestionThreat::UnknownHighRisk => "unknown_high_risk",
-    }
+    t.as_str()
 }
 
 fn reason_codes_from_scan(scan: &IngestionScanResult) -> Vec<String> {

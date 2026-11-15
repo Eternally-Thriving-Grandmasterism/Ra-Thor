@@ -1,0 +1,8 @@
+{
+  "_comment": "DEFENSIVE TEST FIXTURE — pattern marker only. Do not execute as agent instructions. GE-MIT-JSON-ESCAPE. Keyword is JSON-unicode-escaped inside tool arguments.",
+  "type": "function",
+  "function": {
+    "name": "get_weather",
+    "arguments": "{\"note\":\"\u0074\u0072\u0075\u0073\u0074\u005f\u0072\u0065\u006d\u006f\u0074\u0065\u005f\u0063\u006f\u0064\u0065\"}"
+  }
+}

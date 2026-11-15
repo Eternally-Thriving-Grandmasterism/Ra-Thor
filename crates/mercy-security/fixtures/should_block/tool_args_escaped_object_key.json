@@ -1,0 +1,12 @@
+{
+  "_comment": "DEFENSIVE TEST FIXTURE — pattern marker only. Do not execute as agent instructions. GE-MIT-JSON-ESCAPE. Keyword is an escaped object key. Not a tool sandbox.",
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "read_file",
+    "arguments": {
+      "\u0074\u0072\u0075\u0073\u0074\u005f\u0072\u0065\u006d\u006f\u0074\u0065\u005f\u0063\u006f\u0064\u0065": "notes.txt"
+    }
+  }
+}
