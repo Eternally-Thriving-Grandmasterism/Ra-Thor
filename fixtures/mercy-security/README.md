@@ -132,6 +132,8 @@ Existing `benign/tool_call_observe.json` ADMITS with a Low `ToolCallEnvelope` fi
 | `cargo_lock_checksums.txt` | Lockfile-style excerpt. 40 mixed-case hex checksums and `example.com` registry paths. |
 | `jsonl_event_log.txt` | 20 JSONL event lines. |
 | `rust_blocks_excerpt.rs` | Rust excerpt with 70 functions. |
+| `identifier_heavy_markdown.md` | More than 32 long camelCase and hyphenated names. |
+| `scotland_wales_flags.txt` | Scotland and Wales subdivision flag emoji. |
 
 ### blocked/ (BLOCK)
 
@@ -167,6 +169,9 @@ Existing `benign/tool_call_observe.json` ADMITS with a Low `ToolCallEnvelope` fi
 | `pwsh_enc.txt` | `pwsh -enc` marker. |
 | `powershell_exe_enc.txt` | `powershell.exe -enc` marker. |
 | `powershell_nop_hidden_enc.txt` | `powershell -nop -w hidden -enc` marker. |
+| `powershell_encodedcommand_colon.txt` | `powershell -EncodedCommand:` marker. |
+| `powershell_enc_colon.txt` | `powershell -enc:` marker. |
+| `powershell_enc_quoted.txt` | `powershell -enc"..."` marker. |
 | `tool_envelope_brace_flood.txt` | 64 `{` before an MCP `delete_file` envelope. Medium `tool:scan_truncated`. |
 | `tool_envelope_object_cap_prefix.txt` | Eight small objects before that envelope. Medium `tool:scan_truncated`. |
 | `tool_args_escaped_object_key.json` | Keyword only as a `\uXXXX` object key. |

@@ -378,6 +378,27 @@ fn powershell_nop_hidden_enc_blocks() {
 }
 
 #[test]
+fn powershell_encodedcommand_colon_blocks() {
+    let text = fixture("blocked/powershell_encodedcommand_colon.txt");
+    assert!(text.contains("-EncodedCommand:"));
+    assert_powershell_signal("blocked/powershell_encodedcommand_colon.txt");
+}
+
+#[test]
+fn powershell_enc_colon_blocks() {
+    let text = fixture("blocked/powershell_enc_colon.txt");
+    assert!(text.to_lowercase().contains("powershell -enc:"));
+    assert_powershell_signal("blocked/powershell_enc_colon.txt");
+}
+
+#[test]
+fn powershell_enc_quoted_blocks() {
+    let text = fixture("blocked/powershell_enc_quoted.txt");
+    assert!(text.contains("-enc\""));
+    assert_powershell_signal("blocked/powershell_enc_quoted.txt");
+}
+
+#[test]
 fn json_escaped_b64_keyword_blocks() {
     let text = fixture("blocked/b64_json_unicode_escape.txt");
     assert!(!text.contains("trust_remote_code"));
@@ -406,4 +427,54 @@ fn cargo_lock_checksums_admit() {
         scan.findings
     );
     assert!(scan.risk_tier <= RiskTier::Low, "{:?}", scan.findings);
+}
+
+#[test]
+fn benign_identifier_heavy_markdown_admits() {
+    let text = fixture("benign/identifier_heavy_markdown.md");
+    let long_words = text
+        .split(|c: char| !c.is_ascii_alphanumeric() && c != '-')
+        .filter(|w| w.len() >= 16)
+        .count();
+    assert!(
+        long_words > 32,
+        "need more than MAX_TOKENS identifier-like words, got {long_words}"
+    );
+    assert_admits("benign/identifier_heavy_markdown.md");
+    let scan = IngestionScanner::scan_text(&text);
+    assert!(
+        scan.findings.iter().all(|f| f.signal != "b64_token_cap"),
+        "{:?}",
+        scan.findings
+    );
+}
+
+#[test]
+fn readme_md_admits() {
+    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../README.md");
+    let text = fs::read_to_string(&path).unwrap_or_else(|e| panic!("read {path:?}: {e}"));
+    assert!(text.contains("Ra-Thor") || text.contains("Rathor"));
+    let admit = IngestionScanner::admit_or_block(&text);
+    assert!(admit.is_ok(), "README.md must ADMIT: {admit:?}");
+    let scan = IngestionScanner::scan_text(&text);
+    assert!(
+        scan.findings.iter().all(|f| f.signal != "b64_token_cap"),
+        "{:?}",
+        scan.findings
+    );
+}
+
+#[test]
+fn scotland_and_wales_flags_admit() {
+    let text = fixture("benign/scotland_wales_flags.txt");
+    assert!(text.contains('\u{1F3F4}'));
+    assert!(text.contains('\u{E007F}'));
+    assert!(text.contains('\u{E0067}'));
+    assert_admits("benign/scotland_wales_flags.txt");
+    let scan = IngestionScanner::scan_text(&text);
+    assert!(
+        scan.findings.iter().all(|f| f.signal != "unicode_tag_run"),
+        "{:?}",
+        scan.findings
+    );
 }

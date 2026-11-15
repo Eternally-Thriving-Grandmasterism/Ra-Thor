@@ -488,8 +488,8 @@ impl IngestionScanner {
 
     /// `pwsh` or `powershell` with an optional `.exe`, then any flags on that
     /// same line. A flag hits when it is `-ec` or a prefix of `-encodedcommand`
-    /// (`-e`, `-en`, `-enc`, …) and the next character is whitespace or the
-    /// end of the line. `-encoding` is a different word.
+    /// (`-e`, `-en`, `-enc`, …) and the next character is whitespace, `:`,
+    /// `"`, `'`, or the end of the line. `-encoding` is a different word.
     fn powershell_encoded_flag(lower: &str) -> bool {
         let mut rest = lower;
         while !rest.is_empty() {
@@ -549,7 +549,7 @@ impl IngestionScanner {
             let next = after[token_len..].chars().next();
             let boundary = match next {
                 None => true,
-                Some(c) if c.is_whitespace() => true,
+                Some(c) if c.is_whitespace() || matches!(c, ':' | '"' | '\'') => true,
                 Some(_) => false,
             };
             if boundary && Self::encoded_flag_token(token) {
@@ -799,8 +799,10 @@ impl IngestionScanner {
         tokens
     }
 
-    /// Obvious standalone tokens. `overflow` is true when more than `MAX_TOKENS`
-    /// candidates exist (fail-closed; the first `MAX_TOKENS` are still returned).
+    /// Obvious standalone tokens that decode to plausible text.
+    /// `overflow` is true when more than `MAX_TOKENS` of those exist
+    /// (the first `MAX_TOKENS` are still returned). Identifiers that do not
+    /// decode to text do not count.
     fn candidate_base64_tokens(content: &str) -> (Vec<String>, bool) {
         const MAX_TOKENS: usize = 32;
         let mut tokens = Self::joined_pure_line_tokens(content);
@@ -812,11 +814,29 @@ impl IngestionScanner {
             }
             tokens.extend(Self::inline_base64_tokens(line));
         }
+        tokens.retain(|token| Self::decodes_to_plausible_text(token));
         let overflow = tokens.len() > MAX_TOKENS;
         if overflow {
             tokens.truncate(MAX_TOKENS);
         }
         (tokens, overflow)
+    }
+
+    /// Valid UTF-8 whose characters are mostly printable. Ordinary words that
+    /// sit in the Base64 alphabet but decode to bytes are not text.
+    fn decodes_to_plausible_text(token: &str) -> bool {
+        let Some(text) = Self::decode_b64_utf8_capped(token) else {
+            return false;
+        };
+        let total = text.chars().count();
+        if total == 0 {
+            return false;
+        }
+        let printable = text
+            .chars()
+            .filter(|c| c.is_whitespace() || (!c.is_control() && *c != '\u{FFFD}'))
+            .count();
+        printable * 5 >= total * 4
     }
 
     fn decode_b64_utf8_capped(token: &str) -> Option<String> {
@@ -1188,11 +1208,21 @@ impl IngestionScanner {
     }
 
     /// A run of 4+ Unicode tags (U+E0020–U+E007F) before Cf-format stripping.
+    /// A subdivision flag (U+1F3F4, tag letters or digits, U+E007F) is not a run.
     fn unicode_tag_findings(content: &str) -> Vec<ScanFinding> {
-        let mut run = 0usize;
+        let chars: Vec<char> = content.chars().collect();
         let mut findings = Vec::new();
-        for c in content.chars() {
-            if ('\u{E0020}'..='\u{E007F}').contains(&c) {
+        let mut run = 0usize;
+        let mut i = 0;
+        while i < chars.len() {
+            if chars[i] == '\u{1F3F4}' {
+                if let Some(end) = Self::subdivision_flag_len(&chars[i..]) {
+                    i += end;
+                    run = 0;
+                    continue;
+                }
+            }
+            if ('\u{E0020}'..='\u{E007F}').contains(&chars[i]) {
                 run += 1;
                 if run == 4 {
                     findings.push(ScanFinding {
@@ -1205,8 +1235,32 @@ impl IngestionScanner {
             } else {
                 run = 0;
             }
+            i += 1;
         }
         findings
+    }
+
+    /// Length in chars of a flag emoji tag sequence, when `chars` starts with one.
+    fn subdivision_flag_len(chars: &[char]) -> Option<usize> {
+        if chars.first().copied() != Some('\u{1F3F4}') {
+            return None;
+        }
+        let mut j = 1usize;
+        let mut tags = 0usize;
+        while j < chars.len() {
+            let c = chars[j];
+            if ('\u{E0030}'..='\u{E0039}').contains(&c) || ('\u{E0061}'..='\u{E007A}').contains(&c)
+            {
+                tags += 1;
+                j += 1;
+                continue;
+            }
+            if c == '\u{E007F}' && tags >= 2 {
+                return Some(j + 1);
+            }
+            return None;
+        }
+        None
     }
 
     pub fn scan_text(content: &str) -> IngestionScanResult {
