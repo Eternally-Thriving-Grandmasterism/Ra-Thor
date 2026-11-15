@@ -324,6 +324,59 @@ fn powershell_encodedcommand_blocks() {
         .any(|f| f.signal == "powershell -enc" && f.confidence >= 0.85));
 }
 
+fn assert_powershell_signal(rel: &str) {
+    let scan = assert_blocks(rel);
+    assert!(
+        scan.findings
+            .iter()
+            .any(|f| f.signal == "powershell -enc" && f.confidence >= 0.85),
+        "{rel}: {:?}",
+        scan.findings
+    );
+}
+
+#[test]
+fn powershell_encod_prefix_blocks() {
+    let text = fixture("blocked/powershell_encod.txt");
+    assert!(text.to_lowercase().contains("powershell -encod "));
+    assert_powershell_signal("blocked/powershell_encod.txt");
+}
+
+#[test]
+fn powershell_encodedcom_prefix_blocks() {
+    let text = fixture("blocked/powershell_encodedcom.txt");
+    assert!(text.to_lowercase().contains("powershell -encodedcom "));
+    assert_powershell_signal("blocked/powershell_encodedcom.txt");
+}
+
+#[test]
+fn powershell_ec_flag_blocks() {
+    let text = fixture("blocked/powershell_ec.txt");
+    assert!(text.to_lowercase().contains("powershell -ec "));
+    assert_powershell_signal("blocked/powershell_ec.txt");
+}
+
+#[test]
+fn pwsh_enc_blocks() {
+    let text = fixture("blocked/pwsh_enc.txt");
+    assert!(text.to_lowercase().contains("pwsh -enc "));
+    assert_powershell_signal("blocked/pwsh_enc.txt");
+}
+
+#[test]
+fn powershell_exe_enc_blocks() {
+    let text = fixture("blocked/powershell_exe_enc.txt");
+    assert!(text.to_lowercase().contains("powershell.exe -enc "));
+    assert_powershell_signal("blocked/powershell_exe_enc.txt");
+}
+
+#[test]
+fn powershell_nop_hidden_enc_blocks() {
+    let text = fixture("blocked/powershell_nop_hidden_enc.txt");
+    assert!(text.to_lowercase().contains("powershell -nop -w hidden -enc "));
+    assert_powershell_signal("blocked/powershell_nop_hidden_enc.txt");
+}
+
 #[test]
 fn json_escaped_b64_keyword_blocks() {
     let text = fixture("blocked/b64_json_unicode_escape.txt");

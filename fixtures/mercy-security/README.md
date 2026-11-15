@@ -130,6 +130,8 @@ Existing `benign/tool_call_observe.json` ADMITS with a Low `ToolCallEnvelope` fi
 | `markdown_pipe_table.txt` | Table cells `\| Should` and `\| show logs \|`. |
 | `powershell_encoding_utf8.txt` | `powershell -Encoding utf8`. |
 | `cargo_lock_checksums.txt` | Lockfile-style excerpt. 40 mixed-case hex checksums and `example.com` registry paths. |
+| `jsonl_event_log.txt` | 20 JSONL event lines. |
+| `rust_blocks_excerpt.rs` | Rust excerpt with 70 functions. |
 
 ### blocked/ (BLOCK)
 
@@ -159,6 +161,12 @@ Existing `benign/tool_call_observe.json` ADMITS with a Low `ToolCallEnvelope` fi
 | `powershell_enc.txt` | `powershell -enc` marker. |
 | `powershell_e_flag.txt` | `powershell -e` marker. |
 | `powershell_encodedcommand.txt` | `powershell -encodedcommand` marker. |
+| `powershell_encod.txt` | `powershell -encod` prefix. |
+| `powershell_encodedcom.txt` | `powershell -encodedcom` prefix. |
+| `powershell_ec.txt` | `powershell -ec` marker. |
+| `pwsh_enc.txt` | `pwsh -enc` marker. |
+| `powershell_exe_enc.txt` | `powershell.exe -enc` marker. |
+| `powershell_nop_hidden_enc.txt` | `powershell -nop -w hidden -enc` marker. |
 | `tool_envelope_brace_flood.txt` | 64 `{` before an MCP `delete_file` envelope. Medium `tool:scan_truncated`. |
 | `tool_envelope_object_cap_prefix.txt` | Eight small objects before that envelope. Medium `tool:scan_truncated`. |
 | `tool_args_escaped_object_key.json` | Keyword only as a `\uXXXX` object key. |

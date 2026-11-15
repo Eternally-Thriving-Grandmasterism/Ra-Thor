@@ -197,10 +197,10 @@ fn tool_envelope_brace_flood_blocks() {
     assert!(
         scan.findings.iter().any(|f| {
             f.threat == IngestionThreat::ToolCallEnvelope
-                && f.signal == "tool:scan_truncated"
                 && f.confidence >= 0.40
+                && (f.signal.contains("delete_file") || f.signal == "tool:scan_truncated")
         }),
-        "a brace flood before the envelope must be a Medium truncation finding: {:?}",
+        "the later envelope is scanned, or the shared budget records truncation: {:?}",
         scan.findings
     );
 }
@@ -214,10 +214,10 @@ fn tool_envelope_object_cap_prefix_blocks() {
     assert!(
         scan.findings.iter().any(|f| {
             f.threat == IngestionThreat::ToolCallEnvelope
-                && f.signal == "tool:scan_truncated"
+                && f.signal.contains("delete_file")
                 && f.confidence >= 0.40
         }),
-        "eight objects before the envelope must be a Medium truncation finding: {:?}",
+        "the envelope after the small objects must still be scanned: {:?}",
         scan.findings
     );
 }
@@ -268,6 +268,64 @@ fn openai_parameters_description_is_scanned() {
                 && f.signal.contains("trust_remote_code")
         }),
         "parameters description must be scanned with a tool: prefix: {:?}",
+        scan.findings
+    );
+}
+
+#[test]
+fn unmatched_bracket_flood_blocks_quickly() {
+    let text = "[".repeat(160_000);
+    let started = std::time::Instant::now();
+    let scan = IngestionScanner::scan_text(&text);
+    let elapsed = started.elapsed();
+    assert!(
+        elapsed.as_millis() < 500,
+        "160k unmatched brackets took {} ms",
+        elapsed.as_millis()
+    );
+    assert!(!scan.safe, "a budget overrun must block: {:?}", scan);
+    assert!(
+        scan.findings.iter().any(|f| {
+            f.threat == IngestionThreat::ToolCallEnvelope
+                && f.signal == "tool:scan_truncated"
+                && f.confidence >= 0.40
+        }),
+        "budget overrun must record tool:scan_truncated: {:?}",
+        scan.findings
+    );
+}
+
+#[test]
+fn benign_jsonl_log_admits() {
+    let text = fixture("benign/jsonl_event_log.txt");
+    assert!(text.lines().filter(|l| l.starts_with('{')).count() >= 20);
+    let scan = admits("benign/jsonl_event_log.txt");
+    assert!(scan.risk_tier <= RiskTier::Low, "{:?}", scan.findings);
+    assert!(scan.findings.iter().all(|f| f.signal != "tool:scan_truncated"));
+}
+
+#[test]
+fn benign_rust_blocks_excerpt_admits() {
+    let text = fixture("benign/rust_blocks_excerpt.rs");
+    assert!(text.matches('{').count() >= 70);
+    let scan = admits("benign/rust_blocks_excerpt.rs");
+    assert!(scan.risk_tier <= RiskTier::Low, "{:?}", scan.findings);
+    assert!(scan.findings.iter().all(|f| f.signal != "tool:scan_truncated"));
+}
+
+#[test]
+fn tool_envelope_source_admits() {
+    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/tool_envelope.rs");
+    let text = fs::read_to_string(&path).unwrap_or_else(|e| panic!("read {path:?}: {e}"));
+    assert!(text.contains("fn json_values"));
+    assert!(text.matches('{').count() >= 70, "source should be a real block-heavy file");
+    let admit = IngestionScanner::admit_or_block(&text);
+    assert!(admit.is_ok(), "tool_envelope.rs must ADMIT: {admit:?}");
+    let scan = IngestionScanner::scan_text(&text);
+    assert!(scan.risk_tier <= RiskTier::Low, "{:?}", scan.findings);
+    assert!(
+        scan.findings.iter().all(|f| f.signal != "tool:scan_truncated"),
+        "the source scan must not raise truncation: {:?}",
         scan.findings
     );
 }

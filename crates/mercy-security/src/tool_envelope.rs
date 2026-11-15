@@ -150,50 +150,68 @@ fn medium_ignore_previous(texts: &[String]) -> Vec<ScanFinding> {
     findings
 }
 
-/// Embedded JSON values, capped at 8 parsed values and 64 unmatched `{`.
-/// Hitting either cap with a later `{` or `[` still unscanned is truncated.
-/// Unmatched `[` (TOML tables) do not spend the cap.
+/// Every embedded JSON value is parsed. `match_json_end` and this loop share
+/// one byte budget of 8× the input length, so an unmatched-bracket flood stays
+/// linear. Medium `tool:scan_truncated` is recorded only when that budget
+/// runs out with bytes still unread.
 fn json_values(content: &str) -> (Vec<Value>, bool) {
     let trimmed = content.trim();
     if let Ok(v) = serde_json::from_str::<Value>(trimmed) {
         return (vec![v], false);
     }
     let bytes = content.as_bytes();
+    let mut budget = content.len().saturating_mul(8);
     let mut out = Vec::new();
     let mut i = 0;
-    let mut failed_braces = 0usize;
     let mut truncated = false;
     while i < bytes.len() {
-        if out.len() >= 8 || failed_braces >= 64 {
-            if bytes[i..].iter().any(|&c| c == b'{' || c == b'[') {
-                truncated = true;
-            }
+        if budget == 0 {
+            truncated = true;
             break;
         }
         if bytes[i] == b'{' || bytes[i] == b'[' {
-            if let Some(end) = match_json_end(content, i) {
-                if let Ok(v) = serde_json::from_str::<Value>(&content[i..end]) {
-                    out.push(v);
-                    i = end;
-                    continue;
+            match match_json_end(content, i, &mut budget) {
+                JsonSpan::End(end) => {
+                    if let Ok(v) = serde_json::from_str::<Value>(&content[i..end]) {
+                        out.push(v);
+                        i = end;
+                        continue;
+                    }
                 }
-            }
-            if bytes[i] == b'{' {
-                failed_braces += 1;
+                JsonSpan::BudgetSpent => {
+                    truncated = true;
+                    break;
+                }
+                JsonSpan::NoMatch => {}
             }
         }
+        if budget == 0 {
+            truncated = true;
+            break;
+        }
+        budget -= 1;
         i += 1;
     }
     (out, truncated)
 }
 
-fn match_json_end(content: &str, start: usize) -> Option<usize> {
+enum JsonSpan {
+    End(usize),
+    NoMatch,
+    BudgetSpent,
+}
+
+fn match_json_end(content: &str, start: usize, budget: &mut usize) -> JsonSpan {
     let bytes = content.as_bytes();
     let mut depth = 0i32;
     let mut i = start;
     let mut in_str = false;
     let mut esc = false;
     while i < bytes.len() {
+        if *budget == 0 {
+            return JsonSpan::BudgetSpent;
+        }
+        *budget -= 1;
         let c = bytes[i];
         if in_str {
             if esc {
@@ -212,14 +230,14 @@ fn match_json_end(content: &str, start: usize) -> Option<usize> {
             b'}' | b']' => {
                 depth -= 1;
                 if depth == 0 {
-                    return Some(i + 1);
+                    return JsonSpan::End(i + 1);
                 }
             }
             _ => {}
         }
         i += 1;
     }
-    None
+    JsonSpan::NoMatch
 }
 
 fn walk(

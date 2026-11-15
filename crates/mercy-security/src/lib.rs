@@ -440,7 +440,8 @@ impl IngestionScanner {
     }
 
     /// `| sh` / `| bash` match only when the verb is a whole word.
-    /// `powershell -e`, `-enc`, and `-encodedcommand` match. `-encoding` does not.
+    /// `pwsh` / `powershell` / `powershell.exe` match an encoded-command flag
+    /// on the same line. `-encoding` does not.
     fn push_bounded_shell_markers(lower: &str, findings: &mut Vec<ScanFinding>) {
         if Self::pipe_verb_bounded(lower, "| sh") {
             findings.push(ScanFinding {
@@ -485,24 +486,82 @@ impl IngestionScanner {
         false
     }
 
+    /// `pwsh` or `powershell` with an optional `.exe`, then any flags on that
+    /// same line. A flag hits when it is `-ec` or a prefix of `-encodedcommand`
+    /// (`-e`, `-en`, `-enc`, …) and the next character is whitespace or the
+    /// end of the line. `-encoding` is a different word.
     fn powershell_encoded_flag(lower: &str) -> bool {
         let mut rest = lower;
-        const PREFIX: &str = "powershell -";
-        while let Some(i) = rest.find(PREFIX) {
-            let after = &rest[i + PREFIX.len()..];
-            let token_len = after
-                .bytes()
-                .take_while(|c| c.is_ascii_alphanumeric())
-                .count();
-            let token = &after[..token_len];
-            let next = after.as_bytes().get(token_len).copied();
-            let boundary = next.map(|c| !c.is_ascii_alphanumeric()).unwrap_or(true);
-            if boundary && matches!(token, "e" | "enc" | "encodedcommand") {
+        while !rest.is_empty() {
+            let powershell = rest.find("powershell");
+            let pwsh = rest.find("pwsh");
+            let Some(i) = powershell.into_iter().chain(pwsh).min() else {
+                return false;
+            };
+            let prev_ok = i == 0
+                || rest[..i]
+                    .chars()
+                    .next_back()
+                    .map(|c| !c.is_ascii_alphanumeric())
+                    .unwrap_or(true);
+            let exe = if rest[i..].starts_with("powershell") {
+                "powershell"
+            } else {
+                "pwsh"
+            };
+            if !prev_ok {
+                rest = &rest[i + 1..];
+                continue;
+            }
+            let mut j = i + exe.len();
+            if rest[j..].starts_with(".exe") {
+                j += 4;
+            }
+            let glued = rest
+                .as_bytes()
+                .get(j)
+                .copied()
+                .map(|c| c.is_ascii_alphanumeric())
+                .unwrap_or(false);
+            if glued {
+                rest = &rest[i + 1..];
+                continue;
+            }
+            let line = rest[j..].split('\n').next().unwrap_or("");
+            if Self::line_has_encoded_flag(line) {
                 return true;
             }
-            rest = &rest[i + PREFIX.len()..];
+            rest = &rest[j..];
         }
         false
+    }
+
+    fn line_has_encoded_flag(line: &str) -> bool {
+        let mut search = line;
+        while let Some(i) = search.find('-') {
+            let after = &search[i + 1..];
+            let token_len: usize = after
+                .chars()
+                .take_while(|c| c.is_ascii_alphanumeric())
+                .map(|c| c.len_utf8())
+                .sum();
+            let token = &after[..token_len];
+            let next = after[token_len..].chars().next();
+            let boundary = match next {
+                None => true,
+                Some(c) if c.is_whitespace() => true,
+                Some(_) => false,
+            };
+            if boundary && Self::encoded_flag_token(token) {
+                return true;
+            }
+            search = &search[i + 1..];
+        }
+        false
+    }
+
+    fn encoded_flag_token(token: &str) -> bool {
+        !token.is_empty() && (token == "ec" || "encodedcommand".starts_with(token))
     }
 
     fn is_b64_payload_byte(c: u8) -> bool {
