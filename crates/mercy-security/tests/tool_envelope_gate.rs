@@ -274,15 +274,10 @@ fn openai_parameters_description_is_scanned() {
 
 #[test]
 fn unmatched_bracket_flood_blocks_quickly() {
-    let text = "[".repeat(160_000);
-    let started = std::time::Instant::now();
-    let scan = IngestionScanner::scan_text(&text);
-    let elapsed = started.elapsed();
-    assert!(
-        elapsed.as_millis() < 15_000,
-        "160k unmatched brackets took {} ms",
-        elapsed.as_millis()
-    );
+    let small_n = 40_000usize;
+    let large_n = 160_000usize;
+    let large = "[".repeat(large_n);
+    let scan = IngestionScanner::scan_text(&large);
     assert!(!scan.safe, "a budget overrun must block: {:?}", scan);
     assert!(
         scan.findings.iter().any(|f| {
@@ -293,6 +288,20 @@ fn unmatched_bracket_flood_blocks_quickly() {
         "budget overrun must record tool:scan_truncated: {:?}",
         scan.findings
     );
+    let small_steps = IngestionScanner::envelope_scan_steps(&"[".repeat(small_n));
+    let large_steps = IngestionScanner::envelope_scan_steps(&large);
+    assert!(
+        small_steps <= small_n * 8 + 8,
+        "40k brackets took {small_steps} steps"
+    );
+    assert!(
+        large_steps <= large_n * 8 + 8,
+        "160k brackets took {large_steps} steps"
+    );
+    assert!(
+        large_steps <= small_steps.saturating_mul(8),
+        "4× input took more than 8× steps: {small_steps} -> {large_steps}"
+    );
 }
 
 #[test]
@@ -301,7 +310,10 @@ fn benign_jsonl_log_admits() {
     assert!(text.lines().filter(|l| l.starts_with('{')).count() >= 20);
     let scan = admits("benign/jsonl_event_log.txt");
     assert!(scan.risk_tier <= RiskTier::Low, "{:?}", scan.findings);
-    assert!(scan.findings.iter().all(|f| f.signal != "tool:scan_truncated"));
+    assert!(scan
+        .findings
+        .iter()
+        .all(|f| f.signal != "tool:scan_truncated"));
 }
 
 #[test]
@@ -310,7 +322,10 @@ fn benign_rust_blocks_excerpt_admits() {
     assert!(text.matches('{').count() >= 70);
     let scan = admits("benign/rust_blocks_excerpt.rs");
     assert!(scan.risk_tier <= RiskTier::Low, "{:?}", scan.findings);
-    assert!(scan.findings.iter().all(|f| f.signal != "tool:scan_truncated"));
+    assert!(scan
+        .findings
+        .iter()
+        .all(|f| f.signal != "tool:scan_truncated"));
 }
 
 #[test]
@@ -318,13 +333,18 @@ fn tool_envelope_source_admits() {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/tool_envelope.rs");
     let text = fs::read_to_string(&path).unwrap_or_else(|e| panic!("read {path:?}: {e}"));
     assert!(text.contains("fn json_values"));
-    assert!(text.matches('{').count() >= 70, "source should be a real block-heavy file");
+    assert!(
+        text.matches('{').count() >= 70,
+        "source should be a real block-heavy file"
+    );
     let admit = IngestionScanner::admit_or_block(&text);
     assert!(admit.is_ok(), "tool_envelope.rs must ADMIT: {admit:?}");
     let scan = IngestionScanner::scan_text(&text);
     assert!(scan.risk_tier <= RiskTier::Low, "{:?}", scan.findings);
     assert!(
-        scan.findings.iter().all(|f| f.signal != "tool:scan_truncated"),
+        scan.findings
+            .iter()
+            .all(|f| f.signal != "tool:scan_truncated"),
         "the source scan must not raise truncation: {:?}",
         scan.findings
     );

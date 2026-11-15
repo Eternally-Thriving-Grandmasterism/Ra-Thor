@@ -799,10 +799,11 @@ impl IngestionScanner {
         tokens
     }
 
-    /// Obvious standalone tokens that decode to plausible text.
-    /// `overflow` is true when more than `MAX_TOKENS` of those exist
-    /// (the first `MAX_TOKENS` are still returned). Identifiers that do not
-    /// decode to text do not count.
+    /// Obvious standalone tokens that decode to valid UTF-8.
+    /// `overflow` is true when more than `MAX_TOKENS` of those exist.
+    /// Every such token is returned so the caller decodes and rescans it.
+    /// Identifiers that do not decode to UTF-8 do not count. A printable-ratio
+    /// check does not drop a token from this list.
     fn candidate_base64_tokens(content: &str) -> (Vec<String>, bool) {
         const MAX_TOKENS: usize = 32;
         let mut tokens = Self::joined_pure_line_tokens(content);
@@ -814,29 +815,9 @@ impl IngestionScanner {
             }
             tokens.extend(Self::inline_base64_tokens(line));
         }
-        tokens.retain(|token| Self::decodes_to_plausible_text(token));
+        tokens.retain(|token| Self::decode_b64_utf8_capped(token).is_some());
         let overflow = tokens.len() > MAX_TOKENS;
-        if overflow {
-            tokens.truncate(MAX_TOKENS);
-        }
         (tokens, overflow)
-    }
-
-    /// Valid UTF-8 whose characters are mostly printable. Ordinary words that
-    /// sit in the Base64 alphabet but decode to bytes are not text.
-    fn decodes_to_plausible_text(token: &str) -> bool {
-        let Some(text) = Self::decode_b64_utf8_capped(token) else {
-            return false;
-        };
-        let total = text.chars().count();
-        if total == 0 {
-            return false;
-        }
-        let printable = text
-            .chars()
-            .filter(|c| c.is_whitespace() || (!c.is_control() && *c != '\u{FFFD}'))
-            .count();
-        printable * 5 >= total * 4
     }
 
     fn decode_b64_utf8_capped(token: &str) -> Option<String> {
@@ -1208,7 +1189,7 @@ impl IngestionScanner {
     }
 
     /// A run of 4+ Unicode tags (U+E0020–U+E007F) before Cf-format stripping.
-    /// A subdivision flag (U+1F3F4, tag letters or digits, U+E007F) is not a run.
+    /// Only the RGI subdivision flags `gbeng`, `gbsct`, and `gbwls` are skipped.
     fn unicode_tag_findings(content: &str) -> Vec<ScanFinding> {
         let chars: Vec<char> = content.chars().collect();
         let mut findings = Vec::new();
@@ -1240,27 +1221,37 @@ impl IngestionScanner {
         findings
     }
 
-    /// Length in chars of a flag emoji tag sequence, when `chars` starts with one.
+    /// Length in chars of an RGI subdivision flag, when `chars` starts with one.
+    /// Only England (`gbeng`), Scotland (`gbsct`), and Wales (`gbwls`):
+    /// U+1F3F4, those tag letters, then U+E007F. Any other length is not exempt.
     fn subdivision_flag_len(chars: &[char]) -> Option<usize> {
-        if chars.first().copied() != Some('\u{1F3F4}') {
-            return None;
-        }
-        let mut j = 1usize;
-        let mut tags = 0usize;
-        while j < chars.len() {
-            let c = chars[j];
-            if ('\u{E0030}'..='\u{E0039}').contains(&c) || ('\u{E0061}'..='\u{E007A}').contains(&c)
-            {
-                tags += 1;
-                j += 1;
-                continue;
+        const FLAGS: [&str; 3] = [
+            "\u{1F3F4}\u{E0067}\u{E0062}\u{E0065}\u{E006E}\u{E0067}\u{E007F}",
+            "\u{1F3F4}\u{E0067}\u{E0062}\u{E0073}\u{E0063}\u{E0074}\u{E007F}",
+            "\u{1F3F4}\u{E0067}\u{E0062}\u{E0077}\u{E006C}\u{E0073}\u{E007F}",
+        ];
+        for flag in FLAGS {
+            let mut n = 0usize;
+            let mut matched = true;
+            for expected in flag.chars() {
+                if chars.get(n).copied() != Some(expected) {
+                    matched = false;
+                    break;
+                }
+                n += 1;
             }
-            if c == '\u{E007F}' && tags >= 2 {
-                return Some(j + 1);
+            if matched {
+                return Some(n);
             }
-            return None;
         }
         None
+    }
+
+    /// Byte inspections charged by the envelope walk.
+    /// The walk stops after 8× the input length.
+    #[doc(hidden)]
+    pub fn envelope_scan_steps(content: &str) -> usize {
+        tool_envelope::envelope_scan_steps(content)
     }
 
     pub fn scan_text(content: &str) -> IngestionScanResult {
@@ -1322,7 +1313,6 @@ impl IngestionScanner {
                 }
                 if tokens.len() > 32 {
                     overflow = true;
-                    tokens.truncate(32);
                 }
             }
             if overflow {

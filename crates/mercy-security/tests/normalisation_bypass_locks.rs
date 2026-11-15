@@ -373,7 +373,9 @@ fn powershell_exe_enc_blocks() {
 #[test]
 fn powershell_nop_hidden_enc_blocks() {
     let text = fixture("blocked/powershell_nop_hidden_enc.txt");
-    assert!(text.to_lowercase().contains("powershell -nop -w hidden -enc "));
+    assert!(text
+        .to_lowercase()
+        .contains("powershell -nop -w hidden -enc "));
     assert_powershell_signal("blocked/powershell_nop_hidden_enc.txt");
 }
 
@@ -406,9 +408,9 @@ fn json_escaped_b64_keyword_blocks() {
     assert!(text.contains("\\u0064"));
     let scan = assert_blocks("blocked/b64_json_unicode_escape.txt");
     assert!(
-        scan.findings.iter().any(|f| {
-            f.signal.starts_with("b64:") && f.signal.contains("trust_remote_code")
-        }),
+        scan.findings
+            .iter()
+            .any(|f| { f.signal.starts_with("b64:") && f.signal.contains("trust_remote_code") }),
         "JSON-escaped Base64 must be decoded from the normalised haystack: {:?}",
         scan.findings
     );
@@ -469,11 +471,92 @@ fn scotland_and_wales_flags_admit() {
     let text = fixture("benign/scotland_wales_flags.txt");
     assert!(text.contains('\u{1F3F4}'));
     assert!(text.contains('\u{E007F}'));
-    assert!(text.contains('\u{E0067}'));
+    assert!(text.contains('\u{E0065}'), "England gbeng");
+    assert!(text.contains('\u{E0074}'), "Scotland gbsct");
+    assert!(text.contains('\u{E0077}'), "Wales gbwls");
     assert_admits("benign/scotland_wales_flags.txt");
     let scan = IngestionScanner::scan_text(&text);
     assert!(
         scan.findings.iter().all(|f| f.signal != "unicode_tag_run"),
+        "{:?}",
+        scan.findings
+    );
+}
+
+#[test]
+fn languages_json_admits() {
+    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../locales/languages.json");
+    let text = fs::read_to_string(&path).unwrap_or_else(|e| panic!("read {path:?}: {e}"));
+    assert!(text.contains('\u{1F3F4}'));
+    let admit = IngestionScanner::admit_or_block(&text);
+    assert!(
+        admit.is_ok(),
+        "locales/languages.json must ADMIT: {admit:?}"
+    );
+    let scan = IngestionScanner::scan_text(&text);
+    assert!(
+        scan.findings.iter().all(|f| f.signal != "unicode_tag_run"),
+        "{:?}",
+        scan.findings
+    );
+}
+
+#[test]
+fn padded_b64_keyword_blocks() {
+    for rel in [
+        "blocked/b64_keyword_nul_pad.txt",
+        "blocked/b64_keyword_nul_prefix.txt",
+        "blocked/b64_keyword_control_pad.txt",
+        "blocked/b64_keyword_fffd_pad.txt",
+    ] {
+        let text = fixture(rel);
+        assert!(
+            !text.contains("trust_remote_code"),
+            "{rel} must not contain the plaintext keyword"
+        );
+        let scan = assert_blocks(rel);
+        assert!(
+            scan.findings.iter().any(|f| {
+                f.threat == IngestionThreat::RemoteCodeLoader
+                    && f.signal.starts_with("b64:")
+                    && f.signal.contains("trust_remote_code")
+                    && f.confidence >= 0.90
+            }),
+            "{rel} must rescan the decoded keyword: {:?}",
+            scan.findings
+        );
+    }
+}
+
+#[test]
+fn overlong_flag_tag_run_blocks() {
+    let text = fixture("blocked/unicode_tag_overlong_flag.txt");
+    assert!(!text.contains("ignoreallpreviousinstructions"));
+    assert_eq!(text.chars().filter(|c| *c == '\u{1F3F4}').count(), 1);
+    let scan = assert_blocks("blocked/unicode_tag_overlong_flag.txt");
+    assert!(
+        scan.findings.iter().any(|f| {
+            f.threat == IngestionThreat::ObfuscatedPayload
+                && f.signal == "unicode_tag_run"
+                && f.confidence >= 0.40
+        }),
+        "{:?}",
+        scan.findings
+    );
+}
+
+#[test]
+fn split_flag_tag_run_blocks() {
+    let text = fixture("blocked/unicode_tag_split_flags.txt");
+    assert!(!text.contains("ignoreallpreviousinstructions"));
+    assert_eq!(text.chars().filter(|c| *c == '\u{1F3F4}').count(), 5);
+    let scan = assert_blocks("blocked/unicode_tag_split_flags.txt");
+    assert!(
+        scan.findings.iter().any(|f| {
+            f.threat == IngestionThreat::ObfuscatedPayload
+                && f.signal == "unicode_tag_run"
+                && f.confidence >= 0.40
+        }),
         "{:?}",
         scan.findings
     );

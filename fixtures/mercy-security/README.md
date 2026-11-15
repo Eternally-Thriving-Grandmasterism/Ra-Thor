@@ -133,7 +133,7 @@ Existing `benign/tool_call_observe.json` ADMITS with a Low `ToolCallEnvelope` fi
 | `jsonl_event_log.txt` | 20 JSONL event lines. |
 | `rust_blocks_excerpt.rs` | Rust excerpt with 70 functions. |
 | `identifier_heavy_markdown.md` | More than 32 long camelCase and hyphenated names. |
-| `scotland_wales_flags.txt` | Scotland and Wales subdivision flag emoji. |
+| `scotland_wales_flags.txt` | England, Scotland, and Wales subdivision flag emoji (`gbeng`, `gbsct`, `gbwls`). |
 
 ### blocked/ (BLOCK)
 
@@ -155,6 +155,12 @@ Existing `benign/tool_call_observe.json` ADMITS with a Low `ToolCallEnvelope` fi
 | `math_alnum_homoglyph_exec.txt` | Mathematical alphanumeric `exec(`. |
 | `latin_small_caps_eval.txt` | Latin small-cap `eval(`. |
 | `unicode_tag_run.txt` | Four-or-more Unicode tag characters. |
+| `unicode_tag_overlong_flag.txt` | Tag-spelled phrase inside one black-flag sequence. |
+| `unicode_tag_split_flags.txt` | That phrase split across five flag-shaped sequences. |
+| `b64_keyword_nul_pad.txt` | Base64 of the keyword plus `=True` and 10 NUL bytes. |
+| `b64_keyword_nul_prefix.txt` | Base64 of 10 NUL bytes then the keyword. |
+| `b64_keyword_control_pad.txt` | Base64 of the keyword plus 5 control bytes. |
+| `b64_keyword_fffd_pad.txt` | Base64 of the keyword plus 6 U+FFFD. |
 | `node_child_process.txt` | `child_process` marker. |
 | `node_execsync.txt` | `execSync(` marker. |
 | `python_dunder_import.txt` | `__import__(` marker. |

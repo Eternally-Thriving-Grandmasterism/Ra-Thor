@@ -19,8 +19,12 @@ struct EnvelopeHit {
     result_texts: Vec<String>,
 }
 
+pub(crate) fn envelope_scan_steps(content: &str) -> usize {
+    json_values_counted(content).2
+}
+
 pub(crate) fn collect_tool_envelope_findings(content: &str) -> Vec<ScanFinding> {
-    let (values, mut truncated) = json_values(content);
+    let (values, mut truncated, _) = json_values_counted(content);
     let mut hits = Vec::new();
     for value in &values {
         walk(value, None, &mut hits, &mut truncated);
@@ -154,23 +158,20 @@ fn medium_ignore_previous(texts: &[String]) -> Vec<ScanFinding> {
 /// one byte budget of 8× the input length, so an unmatched-bracket flood stays
 /// linear. Medium `tool:scan_truncated` is recorded only when that budget
 /// runs out with bytes still unread.
-fn json_values(content: &str) -> (Vec<Value>, bool) {
+fn json_values_counted(content: &str) -> (Vec<Value>, bool, usize) {
     let trimmed = content.trim();
     if let Ok(v) = serde_json::from_str::<Value>(trimmed) {
-        return (vec![v], false);
+        return (vec![v], false, 0);
     }
     let bytes = content.as_bytes();
     let mut budget = content.len().saturating_mul(8);
+    let mut steps = 0usize;
     let mut out = Vec::new();
     let mut i = 0;
     let mut truncated = false;
     while i < bytes.len() {
-        if budget == 0 {
-            truncated = true;
-            break;
-        }
         if bytes[i] == b'{' || bytes[i] == b'[' {
-            match match_json_end(content, i, &mut budget) {
+            match match_json_end(content, i, &mut budget, &mut steps) {
                 JsonSpan::End(end) => {
                     if let Ok(v) = serde_json::from_str::<Value>(&content[i..end]) {
                         out.push(v);
@@ -185,14 +186,25 @@ fn json_values(content: &str) -> (Vec<Value>, bool) {
                 JsonSpan::NoMatch => {}
             }
         }
-        if budget == 0 {
+        if !charge(&mut budget, &mut steps) {
             truncated = true;
             break;
         }
-        budget -= 1;
         i += 1;
     }
-    (out, truncated)
+    (out, truncated, steps)
+}
+
+/// One byte inspection. `false` means the shared budget is already spent.
+/// The step count still rises when a later edit removes the budget check,
+/// so a quadratic walk fails the linear-step test.
+fn charge(budget: &mut usize, steps: &mut usize) -> bool {
+    *steps += 1;
+    if *budget == 0 {
+        return false;
+    }
+    *budget -= 1;
+    true
 }
 
 enum JsonSpan {
@@ -201,17 +213,16 @@ enum JsonSpan {
     BudgetSpent,
 }
 
-fn match_json_end(content: &str, start: usize, budget: &mut usize) -> JsonSpan {
+fn match_json_end(content: &str, start: usize, budget: &mut usize, steps: &mut usize) -> JsonSpan {
     let bytes = content.as_bytes();
     let mut depth = 0i32;
     let mut i = start;
     let mut in_str = false;
     let mut esc = false;
     while i < bytes.len() {
-        if *budget == 0 {
+        if !charge(budget, steps) {
             return JsonSpan::BudgetSpent;
         }
-        *budget -= 1;
         let c = bytes[i];
         if in_str {
             if esc {
