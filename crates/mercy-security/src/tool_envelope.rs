@@ -6,7 +6,14 @@
 #[cfg(test)]
 use std::cell::Cell;
 
+use serde::Deserialize;
 use serde_json::{Map, Value};
+
+/// serde_json stops at 128 nested containers. A tools/call chain is two
+/// objects per level, so depth 120 does not fit. At or under this depth, parse
+/// one more time with that cap lifted. Past it, record tool:scan_truncated
+/// instead of scanning every nested brace again.
+const MAX_JSON_DEPTH: usize = 256;
 
 use super::{IngestionScanner, IngestionThreat, ScanFinding, MAX_SCAN_BYTES};
 
@@ -20,11 +27,57 @@ const SIDE_EFFECT_VERBS: &[&str] = &[
     "transfer", "pay", "deploy", "push", "publish", "rm", "kill", "sudo",
 ];
 
-struct EnvelopeHit {
-    name: String,
-    arg_texts: Vec<String>,
-    description_texts: Vec<String>,
-    result_texts: Vec<String>,
+struct Bag {
+    envelopes: Vec<String>,
+    names: Vec<String>,
+    args: Vec<String>,
+    descriptions: Vec<String>,
+    results: Vec<String>,
+}
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum WalkMode {
+    Normal,
+    FunctionBody,
+    McpParams,
+}
+
+#[derive(Clone, Copy)]
+struct Ctx {
+    result: bool,
+    description: bool,
+    args: bool,
+    schema: bool,
+    parses: u8,
+    mode: WalkMode,
+}
+
+impl Ctx {
+    fn root() -> Self {
+        Self {
+            result: false,
+            description: false,
+            args: false,
+            schema: false,
+            parses: 0,
+            mode: WalkMode::Normal,
+        }
+    }
+
+    fn wants_text(self) -> bool {
+        !self.schema && (self.result || self.description || self.args)
+    }
+}
+
+#[derive(Clone, Copy)]
+enum Kind {
+    OpenAi,
+    Mcp,
+    ToolUse,
+    ToolResult,
+    NamedCall,
+    ToolList,
+    None,
 }
 
 #[cfg(test)]
@@ -43,12 +96,26 @@ pub(crate) fn envelope_leaf_bytes(content: &str) -> usize {
 
 pub(crate) fn collect_tool_envelope_findings(content: &str) -> Vec<ScanFinding> {
     let (values, mut truncated, _) = json_values_counted(content);
-    let mut hits = Vec::new();
-    // One shared cap for every string copied out of a nested envelope.
-    // Past this, the walk records tool:scan_truncated and does not copy more.
+    let mut bag = Bag {
+        envelopes: Vec::new(),
+        names: Vec::new(),
+        args: Vec::new(),
+        descriptions: Vec::new(),
+        results: Vec::new(),
+    };
+    // One shared cap for every string, key, and inner JSON parse this walk copies.
+    // A leaf is copied once. Ancestor envelopes pass context flags down instead
+    // of copying that leaf again. Past the cap, the walk records tool:scan_truncated.
     let mut leaf_budget = content.len().saturating_mul(4);
     for value in &values {
-        walk(value, None, &mut hits, &mut truncated, &mut leaf_budget);
+        walk(
+            value,
+            None,
+            Ctx::root(),
+            &mut bag,
+            &mut truncated,
+            &mut leaf_budget,
+        );
     }
     let mut findings = Vec::new();
     if truncated {
@@ -59,17 +126,17 @@ pub(crate) fn collect_tool_envelope_findings(content: &str) -> Vec<ScanFinding> 
             offset: None,
         });
     }
-    for hit in hits {
-        findings.push(envelope_finding(&hit.name));
-        if !hit.name.is_empty() {
-            findings.extend(keyword_leaves(&[hit.name]));
-        }
-        findings.extend(keyword_leaves(&hit.arg_texts));
-        findings.extend(keyword_leaves(&hit.description_texts));
-        findings.extend(keyword_leaves(&hit.result_texts));
-        findings.extend(medium_ignore_previous(&hit.description_texts));
-        findings.extend(medium_ignore_previous(&hit.result_texts));
+    for name in &bag.envelopes {
+        findings.push(envelope_finding(name));
     }
+    if !bag.names.is_empty() {
+        findings.extend(keyword_leaves(&bag.names));
+    }
+    findings.extend(keyword_leaves(&bag.args));
+    findings.extend(keyword_leaves(&bag.descriptions));
+    findings.extend(keyword_leaves(&bag.results));
+    findings.extend(medium_ignore_previous(&bag.descriptions));
+    findings.extend(medium_ignore_previous(&bag.results));
     findings
 }
 
@@ -175,14 +242,70 @@ fn medium_ignore_previous(texts: &[String]) -> Vec<ScanFinding> {
     findings
 }
 
+fn json_recursion_exceeded(err: &serde_json::Error) -> bool {
+    err.to_string().contains("recursion limit exceeded")
+}
+
+/// Nested `{` / `[` depth, ignoring braces inside strings. One pass.
+fn json_nesting_depth(content: &str) -> usize {
+    let mut depth = 0usize;
+    let mut max = 0usize;
+    let mut in_str = false;
+    let mut esc = false;
+    for &c in content.as_bytes() {
+        if in_str {
+            if esc {
+                esc = false;
+            } else if c == b'\\' {
+                esc = true;
+            } else if c == b'"' {
+                in_str = false;
+            }
+            continue;
+        }
+        match c {
+            b'"' => in_str = true,
+            b'{' | b'[' => {
+                depth += 1;
+                if depth > max {
+                    max = depth;
+                }
+            }
+            b'}' | b']' => depth = depth.saturating_sub(1),
+            _ => {}
+        }
+    }
+    max
+}
+
+fn parse_one_json_value(content: &str) -> Option<Value> {
+    let mut de = serde_json::Deserializer::from_str(content);
+    de.disable_recursion_limit();
+    let value = Value::deserialize(&mut de).ok()?;
+    de.end().ok()?;
+    Some(value)
+}
+
 /// Every embedded JSON value is parsed. `match_json_end` and this loop share
 /// one byte budget of 8× the input length, so an unmatched-bracket flood stays
 /// linear. Medium `tool:scan_truncated` is recorded only when that budget
 /// runs out with bytes still unread.
 fn json_values_counted(content: &str) -> (Vec<Value>, bool, usize) {
     let trimmed = content.trim();
-    if let Ok(v) = serde_json::from_str::<Value>(trimmed) {
-        return (vec![v], false, 0);
+    match serde_json::from_str::<Value>(trimmed) {
+        Ok(v) => return (vec![v], false, 0),
+        Err(err) if json_recursion_exceeded(&err) => {
+            let depth = json_nesting_depth(trimmed);
+            if depth > MAX_JSON_DEPTH {
+                return (Vec::new(), true, 0);
+            }
+            if depth > 0 {
+                if let Some(v) = parse_one_json_value(trimmed) {
+                    return (vec![v], false, 0);
+                }
+            }
+        }
+        Err(_) => {}
     }
     let bytes = content.as_bytes();
     let mut budget = content.len().saturating_mul(8);
@@ -297,7 +420,8 @@ fn take_leaf(budget: &mut usize, n: usize, truncated: &mut bool) -> bool {
 fn walk(
     value: &Value,
     parent_key: Option<&str>,
-    hits: &mut Vec<EnvelopeHit>,
+    ctx: Ctx,
+    bag: &mut Bag,
     truncated: &mut bool,
     budget: &mut usize,
 ) {
@@ -305,289 +429,256 @@ fn walk(
         return;
     }
     match value {
-        Value::Object(map) => {
-            if let Some(hit) = detect(map, parent_key, truncated, budget) {
-                hits.push(hit);
+        Value::Object(map) => match ctx.mode {
+            WalkMode::FunctionBody => function_body(map, ctx, bag, truncated, budget),
+            WalkMode::McpParams => mcp_params(map, ctx, bag, truncated, budget),
+            WalkMode::Normal => object(map, parent_key, ctx, bag, truncated, budget),
+        },
+        Value::Array(items) => {
+            for child in items {
+                walk(child, parent_key, ctx, bag, truncated, budget);
+                if leaf_spent(budget, truncated) {
+                    return;
+                }
             }
+        }
+        Value::String(s) => {
+            if ctx.wants_text() {
+                consider_string(s, ctx, bag, truncated, budget);
+            }
+        }
+        _ => {}
+    }
+}
+
+fn object(
+    map: &Map<String, Value>,
+    parent_key: Option<&str>,
+    ctx: Ctx,
+    bag: &mut Bag,
+    truncated: &mut bool,
+    budget: &mut usize,
+) {
+    let kind = classify(map, parent_key);
+    match kind {
+        Kind::ToolUse | Kind::NamedCall | Kind::ToolList => {
+            let name = map
+                .get("name")
+                .and_then(Value::as_str)
+                .unwrap_or("")
+                .to_string();
+            note_name(&name, bag, truncated, budget);
+        }
+        Kind::ToolResult => note_name("", bag, truncated, budget),
+        Kind::OpenAi | Kind::Mcp | Kind::None => {}
+    }
+    if leaf_spent(budget, truncated) {
+        return;
+    }
+    for (k, child) in map {
+        if ctx.wants_text() {
+            consider_string(k, ctx, bag, truncated, budget);
             if leaf_spent(budget, truncated) {
                 return;
             }
-            for (k, child) in map {
-                walk(child, Some(k.as_str()), hits, truncated, budget);
-                if leaf_spent(budget, truncated) {
-                    return;
-                }
+        }
+        let child_ctx = child_ctx(ctx, kind, k);
+        walk(child, Some(k.as_str()), child_ctx, bag, truncated, budget);
+        if leaf_spent(budget, truncated) {
+            return;
+        }
+    }
+}
+
+fn child_ctx(ctx: Ctx, kind: Kind, key: &str) -> Ctx {
+    let mut child = ctx;
+    child.mode = WalkMode::Normal;
+    match kind {
+        Kind::OpenAi if key == "function" => child.mode = WalkMode::FunctionBody,
+        Kind::Mcp if key == "params" => child.mode = WalkMode::McpParams,
+        Kind::ToolUse if key == "input" => mark_args(&mut child),
+        Kind::ToolResult if key == "content" => mark_result(&mut child),
+        Kind::NamedCall if key == "arguments" || key == "input" => mark_args(&mut child),
+        Kind::ToolList if key == "description" => mark_description(&mut child),
+        Kind::ToolList if key == "inputSchema" || key == "input_schema" => {
+            if !ctx.wants_text() {
+                child.schema = true;
             }
         }
-        Value::Array(items) => {
-            for child in items {
-                walk(child, parent_key, hits, truncated, budget);
-                if leaf_spent(budget, truncated) {
-                    return;
-                }
-            }
-        }
+        _ if ctx.schema && key == "description" => mark_description(&mut child),
         _ => {}
     }
+    child
 }
 
-fn detect(
-    map: &Map<String, Value>,
-    parent_key: Option<&str>,
-    truncated: &mut bool,
-    budget: &mut usize,
-) -> Option<EnvelopeHit> {
-    if let Some(hit) = detect_openai(map, truncated, budget) {
-        return Some(hit);
-    }
-    if let Some(hit) = detect_mcp_call(map, truncated, budget) {
-        return Some(hit);
-    }
-    if let Some(hit) = detect_anthropic(map, truncated, budget) {
-        return Some(hit);
-    }
-    if let Some(hit) = detect_tool_result(map, truncated, budget) {
-        return Some(hit);
-    }
-    if parent_key == Some("tool_calls") {
-        if let Some(hit) = detect_named_call(map, truncated, budget) {
-            return Some(hit);
-        }
-    }
-    if parent_key == Some("tools") {
-        if let Some(hit) = detect_tool_list_item(map, truncated, budget) {
-            return Some(hit);
-        }
-    }
-    None
+fn mark_args(ctx: &mut Ctx) {
+    ctx.args = true;
+    ctx.schema = false;
+    ctx.parses = ctx.parses.max(2);
 }
 
-fn detect_openai(
-    map: &Map<String, Value>,
-    truncated: &mut bool,
-    budget: &mut usize,
-) -> Option<EnvelopeHit> {
-    if map.get("type").and_then(Value::as_str) != Some("function") {
-        return None;
-    }
-    let func = map.get("function")?.as_object()?;
-    let name = func
-        .get("name")
-        .and_then(Value::as_str)
-        .unwrap_or("")
-        .to_string();
-    let mut arg_texts = Vec::new();
-    if let Some(args) = func.get("arguments") {
-        collect_strings(args, 2, &mut arg_texts, truncated, budget);
-    }
-    let mut description_texts = Vec::new();
-    if let Some(desc) = func.get("description") {
-        collect_strings(desc, 0, &mut description_texts, truncated, budget);
-    }
-    if let Some(params) = func.get("parameters") {
-        collect_description_fields(params, &mut description_texts, truncated, budget);
-    }
-    Some(EnvelopeHit {
-        name,
-        arg_texts,
-        description_texts,
-        result_texts: Vec::new(),
-    })
+fn mark_result(ctx: &mut Ctx) {
+    ctx.result = true;
+    ctx.schema = false;
 }
 
-fn detect_mcp_call(
-    map: &Map<String, Value>,
-    truncated: &mut bool,
-    budget: &mut usize,
-) -> Option<EnvelopeHit> {
-    if map.get("method").and_then(Value::as_str) != Some("tools/call") {
-        return None;
+fn mark_description(ctx: &mut Ctx) {
+    let keep_parses = ctx.wants_text();
+    ctx.description = true;
+    ctx.schema = false;
+    if !keep_parses {
+        ctx.parses = 0;
     }
-    let params = map.get("params")?.as_object()?;
-    let name = params
-        .get("name")
-        .and_then(Value::as_str)
-        .unwrap_or("")
-        .to_string();
-    let mut arg_texts = Vec::new();
-    if let Some(args) = params.get("arguments") {
-        collect_strings(args, 2, &mut arg_texts, truncated, budget);
-    }
-    Some(EnvelopeHit {
-        name,
-        arg_texts,
-        description_texts: Vec::new(),
-        result_texts: Vec::new(),
-    })
 }
 
-fn detect_anthropic(
+fn function_body(
     map: &Map<String, Value>,
+    ctx: Ctx,
+    bag: &mut Bag,
     truncated: &mut bool,
     budget: &mut usize,
-) -> Option<EnvelopeHit> {
-    if map.get("type").and_then(Value::as_str) != Some("tool_use") {
-        return None;
-    }
+) {
     let name = map
         .get("name")
         .and_then(Value::as_str)
         .unwrap_or("")
         .to_string();
-    let mut arg_texts = Vec::new();
-    if let Some(input) = map.get("input") {
-        collect_strings(input, 2, &mut arg_texts, truncated, budget);
-    }
-    Some(EnvelopeHit {
-        name,
-        arg_texts,
-        description_texts: Vec::new(),
-        result_texts: Vec::new(),
-    })
-}
-
-fn detect_tool_result(
-    map: &Map<String, Value>,
-    truncated: &mut bool,
-    budget: &mut usize,
-) -> Option<EnvelopeHit> {
-    let is_result = map.get("type").and_then(Value::as_str) == Some("tool_result")
-        || map.get("role").and_then(Value::as_str) == Some("tool");
-    if !is_result {
-        return None;
-    }
-    let mut result_texts = Vec::new();
-    if let Some(content) = map.get("content") {
-        collect_strings(content, 0, &mut result_texts, truncated, budget);
-    }
-    Some(EnvelopeHit {
-        name: String::new(),
-        arg_texts: Vec::new(),
-        description_texts: Vec::new(),
-        result_texts,
-    })
-}
-
-fn detect_named_call(
-    map: &Map<String, Value>,
-    truncated: &mut bool,
-    budget: &mut usize,
-) -> Option<EnvelopeHit> {
-    let name = map.get("name")?.as_str()?.to_string();
-    let mut arg_texts = Vec::new();
-    if let Some(args) = map.get("arguments").or_else(|| map.get("input")) {
-        collect_strings(args, 2, &mut arg_texts, truncated, budget);
-    }
-    Some(EnvelopeHit {
-        name,
-        arg_texts,
-        description_texts: Vec::new(),
-        result_texts: Vec::new(),
-    })
-}
-
-fn detect_tool_list_item(
-    map: &Map<String, Value>,
-    truncated: &mut bool,
-    budget: &mut usize,
-) -> Option<EnvelopeHit> {
-    let name = map
-        .get("name")
-        .and_then(Value::as_str)
-        .unwrap_or("")
-        .to_string();
-    if name.is_empty() && map.get("description").is_none() {
-        return None;
-    }
-    let mut description_texts = Vec::new();
-    if let Some(desc) = map.get("description") {
-        collect_strings(desc, 0, &mut description_texts, truncated, budget);
-    }
-    if let Some(schema) = map.get("inputSchema").or_else(|| map.get("input_schema")) {
-        collect_description_fields(schema, &mut description_texts, truncated, budget);
-    }
-    Some(EnvelopeHit {
-        name,
-        arg_texts: Vec::new(),
-        description_texts,
-        result_texts: Vec::new(),
-    })
-}
-
-fn collect_description_fields(
-    value: &Value,
-    out: &mut Vec<String>,
-    truncated: &mut bool,
-    budget: &mut usize,
-) {
+    note_name(&name, bag, truncated, budget);
     if leaf_spent(budget, truncated) {
         return;
     }
-    match value {
-        Value::Object(map) => {
-            for (k, child) in map {
-                if k == "description" {
-                    collect_strings(child, 0, out, truncated, budget);
-                } else {
-                    collect_description_fields(child, out, truncated, budget);
-                }
-                if leaf_spent(budget, truncated) {
-                    return;
-                }
-            }
-        }
-        Value::Array(items) => {
-            for child in items {
-                collect_description_fields(child, out, truncated, budget);
-                if leaf_spent(budget, truncated) {
-                    return;
-                }
-            }
-        }
-        _ => {}
-    }
-}
-
-/// `parses_left` is the remaining JSON-string unwraps (arguments cap is 2).
-/// Object keys are leaves as well as values. A layer past the cap, a string
-/// longer than `MAX_SCAN_BYTES`, or a copy past the shared leaf cap sets
-/// `truncated`.
-fn collect_strings(
-    value: &Value,
-    parses_left: u8,
-    out: &mut Vec<String>,
-    truncated: &mut bool,
-    budget: &mut usize,
-) {
-    if leaf_spent(budget, truncated) {
-        return;
-    }
-    match value {
-        Value::String(s) => {
-            if s.len() > MAX_SCAN_BYTES {
-                *truncated = true;
+    for (k, child) in map {
+        if ctx.wants_text() && k != "name" {
+            consider_string(k, ctx, bag, truncated, budget);
+            if leaf_spent(budget, truncated) {
                 return;
             }
-            if parses_left > 0 {
-                if let Ok(inner) = serde_json::from_str::<Value>(s) {
-                    if parses_left == 1 {
-                        if let Value::String(inner_s) = &inner {
-                            if serde_json::from_str::<Value>(inner_s).is_ok() {
-                                *truncated = true;
-                            }
-                        }
-                    }
-                    collect_strings(&inner, parses_left - 1, out, truncated, budget);
-                    return;
+        }
+        let mut child_ctx = ctx;
+        child_ctx.mode = WalkMode::Normal;
+        match k.as_str() {
+            "name" => {
+                if ctx.wants_text() {
+                    let mut name_ctx = ctx;
+                    name_ctx.mode = WalkMode::Normal;
+                    walk(child, Some("name"), name_ctx, bag, truncated, budget);
                 }
+                continue;
             }
-            if take_leaf(budget, s.len(), truncated) {
-                out.push(s.clone());
+            "arguments" => mark_args(&mut child_ctx),
+            "description" => mark_description(&mut child_ctx),
+            "parameters" if !ctx.wants_text() => child_ctx.schema = true,
+            _ => {}
+        }
+        walk(child, Some(k.as_str()), child_ctx, bag, truncated, budget);
+        if leaf_spent(budget, truncated) {
+            return;
+        }
+    }
+}
+
+fn mcp_params(
+    map: &Map<String, Value>,
+    ctx: Ctx,
+    bag: &mut Bag,
+    truncated: &mut bool,
+    budget: &mut usize,
+) {
+    let name = map
+        .get("name")
+        .and_then(Value::as_str)
+        .unwrap_or("")
+        .to_string();
+    note_name(&name, bag, truncated, budget);
+    if leaf_spent(budget, truncated) {
+        return;
+    }
+    for (k, child) in map {
+        if ctx.wants_text() && k != "name" {
+            consider_string(k, ctx, bag, truncated, budget);
+            if leaf_spent(budget, truncated) {
+                return;
             }
         }
+        let mut child_ctx = ctx;
+        child_ctx.mode = WalkMode::Normal;
+        match k.as_str() {
+            "name" => {
+                if ctx.wants_text() {
+                    let mut name_ctx = ctx;
+                    name_ctx.mode = WalkMode::Normal;
+                    walk(child, Some("name"), name_ctx, bag, truncated, budget);
+                }
+                continue;
+            }
+            "arguments" => mark_args(&mut child_ctx),
+            _ => {}
+        }
+        walk(child, Some(k.as_str()), child_ctx, bag, truncated, budget);
+        if leaf_spent(budget, truncated) {
+            return;
+        }
+    }
+}
+
+fn note_name(name: &str, bag: &mut Bag, truncated: &mut bool, budget: &mut usize) {
+    bag.envelopes.push(name.to_string());
+    if name.is_empty() {
+        return;
+    }
+    if take_leaf(budget, name.len(), truncated) {
+        bag.names.push(name.to_string());
+    }
+}
+
+fn consider_string(s: &str, ctx: Ctx, bag: &mut Bag, truncated: &mut bool, budget: &mut usize) {
+    if leaf_spent(budget, truncated) || !ctx.wants_text() {
+        return;
+    }
+    if s.len() > MAX_SCAN_BYTES {
+        *truncated = true;
+        return;
+    }
+    if ctx.parses > 0 {
+        if let Ok(inner) = serde_json::from_str::<Value>(s) {
+            if !take_leaf(budget, s.len(), truncated) {
+                return;
+            }
+            if ctx.parses == 1 {
+                if let Value::String(inner_s) = &inner {
+                    if serde_json::from_str::<Value>(inner_s).is_ok() {
+                        *truncated = true;
+                    }
+                }
+            }
+            let mut deeper = ctx;
+            deeper.parses -= 1;
+            gather(&inner, deeper, bag, truncated, budget);
+            return;
+        }
+    }
+    if take_leaf(budget, s.len(), truncated) {
+        let owned = s.to_string();
+        if ctx.result {
+            bag.results.push(owned);
+        } else if ctx.description {
+            bag.descriptions.push(owned);
+        } else {
+            bag.args.push(owned);
+        }
+    }
+}
+
+/// Strings inside an already-parsed argument blob. Not a second envelope walk.
+fn gather(value: &Value, ctx: Ctx, bag: &mut Bag, truncated: &mut bool, budget: &mut usize) {
+    if leaf_spent(budget, truncated) {
+        return;
+    }
+    match value {
+        Value::String(s) => consider_string(s, ctx, bag, truncated, budget),
         Value::Array(items) => {
             for item in items {
-                collect_strings(item, parses_left, out, truncated, budget);
+                gather(item, ctx, bag, truncated, budget);
                 if leaf_spent(budget, truncated) {
                     return;
                 }
@@ -595,11 +686,11 @@ fn collect_strings(
         }
         Value::Object(map) => {
             for (k, item) in map {
-                collect_strings(&Value::String(k.clone()), parses_left, out, truncated, budget);
+                consider_string(k, ctx, bag, truncated, budget);
                 if leaf_spent(budget, truncated) {
                     return;
                 }
-                collect_strings(item, parses_left, out, truncated, budget);
+                gather(item, ctx, bag, truncated, budget);
                 if leaf_spent(budget, truncated) {
                     return;
                 }
@@ -607,4 +698,35 @@ fn collect_strings(
         }
         _ => {}
     }
+}
+
+fn classify(map: &Map<String, Value>, parent_key: Option<&str>) -> Kind {
+    if map.get("type").and_then(Value::as_str) == Some("function")
+        && map.get("function").and_then(Value::as_object).is_some()
+    {
+        return Kind::OpenAi;
+    }
+    if map.get("method").and_then(Value::as_str) == Some("tools/call")
+        && map.get("params").and_then(Value::as_object).is_some()
+    {
+        return Kind::Mcp;
+    }
+    if map.get("type").and_then(Value::as_str) == Some("tool_use") {
+        return Kind::ToolUse;
+    }
+    if map.get("type").and_then(Value::as_str) == Some("tool_result")
+        || map.get("role").and_then(Value::as_str) == Some("tool")
+    {
+        return Kind::ToolResult;
+    }
+    if parent_key == Some("tool_calls") && map.get("name").and_then(Value::as_str).is_some() {
+        return Kind::NamedCall;
+    }
+    if parent_key == Some("tools") {
+        let name = map.get("name").and_then(Value::as_str).unwrap_or("");
+        if !name.is_empty() || map.contains_key("description") {
+            return Kind::ToolList;
+        }
+    }
+    Kind::None
 }
