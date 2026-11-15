@@ -673,7 +673,15 @@ fn gather(value: &Value, ctx: Ctx, bag: &mut Bag, truncated: &mut bool, budget: 
                 if leaf_spent(budget, truncated) {
                     return;
                 }
-                gather(item, ctx, bag, truncated, budget);
+                // A JSON-string argument is one blob. Schema keys inside it still
+                // mark a nested description, including OpenAI's string `arguments`.
+                let mut child = ctx;
+                if matches!(k.as_str(), "parameters" | "inputSchema" | "input_schema") {
+                    child.in_schema = true;
+                } else if k == "description" && ctx.in_schema {
+                    child.description = true;
+                }
+                gather(item, child, bag, truncated, budget);
                 if leaf_spent(budget, truncated) {
                     return;
                 }

@@ -2392,10 +2392,24 @@ mod tests {
             let twice = serde_json::to_string(&once).expect("outer");
             format!(r#"{{"type":"function","function":{{"name":"lookup","arguments":{twice}}}}}"#)
         };
+        // Three encodings: the outer parse yields a string at parses == 2, and the
+        // next parse yields a string at parses == 1, so only the inner peek sees
+        // the deep object.
+        let innermost = |depth: usize| {
+            let deep = nested_escaped_keyword(depth);
+            let once = serde_json::to_string(&deep).expect("once");
+            let twice = serde_json::to_string(&once).expect("twice");
+            let thrice = serde_json::to_string(&twice).expect("thrice");
+            format!(r#"{{"type":"function","function":{{"name":"lookup","arguments":{thrice}}}}}"#)
+        };
         for depth in [128usize, 200] {
             assert_scan_truncated(&format!("openai arguments {depth}"), &openai(depth));
             assert_scan_truncated(&format!("tools/call arguments {depth}"), &tools_call(depth));
             assert_scan_truncated(&format!("inner arguments parse {depth}"), &inner(depth));
+            assert_scan_truncated(
+                &format!("innermost arguments parse {depth}"),
+                &innermost(depth),
+            );
         }
         let shallow = IngestionScanner::scan_text(&openai(5));
         assert!(!shallow.safe, "depth 5 must block: {:?}", shallow.findings);
@@ -2466,6 +2480,27 @@ mod tests {
             (
                 "tool_use.input input_schema",
                 format!(r#"{{"type":"tool_use","name":"lookup","input":{snake_list}}}"#),
+            ),
+            (
+                "function.arguments string parameters",
+                format!(
+                    r#"{{"type":"function","function":{{"name":"lookup","arguments":{}}}}}"#,
+                    serde_json::to_string(&openai).expect("encode")
+                ),
+            ),
+            (
+                "tools/call arguments string inputSchema",
+                format!(
+                    r#"{{"method":"tools/call","params":{{"name":"lookup","arguments":{}}}}}"#,
+                    serde_json::to_string(&input_schema_list).expect("encode")
+                ),
+            ),
+            (
+                "tool_use.input string parameters",
+                format!(
+                    r#"{{"type":"tool_use","name":"lookup","input":{}}}"#,
+                    serde_json::to_string(&openai).expect("encode")
+                ),
             ),
         ];
         for (label, text) in cases {
