@@ -4,6 +4,8 @@
 //! Each call becomes an `AgentActionRequest` checked by `SafeAgentRuntime::try_agent_action`
 //! (mercy-security), a Layer 0 `DecisionRecord::from_unattended_ingest` of the call text, and
 //! `score_prefix` (lattice-conductor-v14) over the session history.
+//! A `write_file` `content` string is its own DecisionRecord from the same admission shell.
+//! Pattern-marker text scan. Not a tool sandbox. Not isolation.
 //!
 //! The harness maps those existing results onto a harness-only set
 //! `Admit | Review | Block | Escalate`. `Review` is a demo policy that only ever holds an
@@ -23,7 +25,7 @@ use lattice_conductor_v14::prefix_risk::{
 };
 use mercy_security::{
     AgentActionRequest, ContainmentProfile, DecisionActor, DecisionRecord, DecisionVerdict,
-    MercySecurityError, SafeAgentRuntime,
+    IngestionScanner, MercySecurityError, SafeAgentRuntime,
 };
 use serde_json::{json, Value};
 
@@ -322,6 +324,8 @@ pub struct StepOutcome {
     pub ran: bool,
     pub tool_output: Option<String>,
     pub known_gap: bool,
+    /// Admission-shell record for `write_file` content. Absent for other tools.
+    pub content_decision: Option<DecisionRecord>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -365,17 +369,28 @@ impl Harness {
         })
     }
 
+    /// `{tool} {args}`. A caller-supplied `intent` stays a field on the arguments.
+    /// It does not replace them. The admission shell sees the call text.
     fn description(tool: &str, args: &Value) -> String {
-        match args.get("intent").and_then(Value::as_str) {
-            Some(i) => i.to_string(),
-            None => {
-                let mut a = args.clone();
-                if let Some(o) = a.as_object_mut() {
-                    o.remove("content");
-                }
-                format!("{tool} {a}")
-            }
+        format!("{tool} {args}")
+    }
+
+    /// `write_file` body goes through `IngestionScanner::admit_or_block` and is
+    /// recorded as its own DecisionRecord. Medium+ blocks the step.
+    /// Pattern-marker admission shell. Not a tool sandbox. Not isolation.
+    fn scan_write_content(
+        trail: &Trail,
+        tool: &str,
+        args: &Value,
+    ) -> Option<(DecisionRecord, bool)> {
+        if tool != "write_file" {
+            return None;
         }
+        let content = args.get("content").and_then(Value::as_str)?;
+        let blocks = IngestionScanner::admit_or_block(content).is_err();
+        let rec = DecisionRecord::from_unattended_ingest(content);
+        trail.record(&rec);
+        Some((rec, blocks))
     }
 
     /// One tool call: gates first, then the Review policy, then the human step for Review only.
@@ -397,6 +412,11 @@ impl Harness {
         let gate_error = gate.as_ref().err().map(|e| format!("{}: {e}", gate_label(e)));
         let rec = DecisionRecord::from_unattended_ingest(&desc);
         self.trail.record(&rec);
+        let (content_decision, content_blocks) =
+            match Self::scan_write_content(&self.trail, tool, args) {
+                Some((crec, blocks)) => (Some(crec), blocks),
+                None => (None, false),
+            };
 
         let tstep = TrajectoryStep::new(tool_kind(tool), desc.clone(), 1.0)
             .with_tool_id(tool)
@@ -405,7 +425,10 @@ impl Harness {
         prefix_steps.push(tstep.clone());
         let snap = score_prefix(&prefix_steps, &self.config);
         let core = map_core(rec.verdict, gate.is_ok(), &snap.action);
-        let demo = apply_review_policy(core, tool);
+        let mut demo = apply_review_policy(core, tool);
+        if content_blocks {
+            demo = DemoVerdict::Block;
+        }
         let known_gap = desc.contains(GAP_MARKER_TOOL_USE);
 
         let (prefix_kind, prefix_reason, councils) = match &snap.action {
@@ -428,7 +451,7 @@ impl Harness {
         let mut out = StepOutcome {
             step, tool: tool.into(), demo, gate_error, prefix_action: snap.action.clone(),
             decision_record: rec.clone(), override_record: None, human: None, ran: false,
-            tool_output: None, known_gap,
+            tool_output: None, known_gap, content_decision,
         };
         let run = match demo {
             DemoVerdict::Admit => true,

@@ -9,6 +9,8 @@ Unattended admit = `None` / `Low` only.
 **Safety:** Every file is a *pattern marker for defensive testing only*.  
 These are **not** packaged exploits, **not** C2 kits, and must **never** be executed as agent instructions.
 
+The scanner is a pattern-marker text admission shell. Not a tool sandbox. Not MCP allowlisting. Not isolation.
+
 Contact: **info@Rathor.ai**  
 License: AG-SML v1.2
 
@@ -42,13 +44,17 @@ fixtures/mercy-security/
 | CollusionPattern           | `split_ingest_across_agents` (GE-FC-COLLUSION)              | Critical            |
 | RewardHackingPattern       | `optimize_eval_score_not_act` (GE-FC-REWARD-HACK)           | Critical            |
 | UnknownHighRisk            | combo rules (remote + dataset, shell + network, etc.)       | Critical            |
+| ToolCallEnvelope           | OpenAI function / `tool_calls`, MCP `tools/call`, Anthropic `tool_use`, tool descriptions and results | Low (other names) / Medium (side-effect name) |
+| InstructionInjection       | `<\|im_start\|>`, `<\|im_end\|>`, `<\|system\|>`, `[INST]`, `<<SYS>>`, ignore-previous phrase | Low in plain prose / Medium for role markers and inside a tool result or description |
 
 RiskTier ordering: `None < Low < Medium < High < Critical`  
 `admit_or_block` returns `Ok` only for None/Low; otherwise `IngestionBlocked`.
 
 ---
 
-## Fixture Inventory (Complete)
+## Fixture Inventory (earlier corpus)
+
+The rows below are the earlier public corpus. They are not a full file list. TOOLCALL-HARDEN-1 files are in the next section.
 
 ### benign/ (expected ADMIT — None / Low)
 
@@ -97,6 +103,57 @@ RiskTier ordering: `None < Low < Medium < High < Critical`
 | `reward_hacking_eval_score_marker.txt` | `optimize_eval_score_not_act`. SLICE G: BLOCK critical 0.90. Keyword only — not a reward-hacking eval. |
 
 ---
+
+## TOOLCALL-HARDEN-1 additions
+
+Pattern markers only. Each file starts with a defensive header. Not a tool sandbox. Not MCP allowlisting. Not isolation. A class is mitigated only when the attack-labelled fixture BLOCKS and the benign counterpart ADMITS (`docs/GATE_EVAL.md`).
+
+Existing `benign/tool_call_observe.json` ADMITS with a Low `ToolCallEnvelope` finding.
+
+### benign/ (ADMIT)
+
+| File | Notes |
+|------|--------|
+| `tool_envelope_read.json` | MCP `tools/call` `read_file`. Low envelope finding. |
+| `ignore_previous_prose.txt` | The ignore-previous phrase in plain prose. Low `InstructionInjection`. |
+| `percent_url_example.txt` | `example.com` URL with `%20`. |
+| `greek_prose.txt` | Greek classroom prose. |
+| `math_alnum_notes.txt` | Mathematical alphanumeric "notes". |
+| `latin_small_caps_notes.txt` | Latin small-cap "notes". |
+| `b64_image_non_utf8.txt` | Non-UTF-8 image-like Base64. |
+| `child_process_prose.txt` | "child process" without the underscore marker. |
+| `execsync_prose.txt` | "executive" / "sync" without `execsync(`. |
+| `import_prose.txt` | "import" without `__import__(`. |
+| `curl_prose.txt` | `example.com` curl notes. |
+| `pipe_bash_prose.txt` | "bash" as a name, no pipe. |
+| `powershell_prose.txt` | PowerShell as a name, no `-enc`. |
+
+### blocked/ (BLOCK)
+
+| File | Notes |
+|------|--------|
+| `tool_envelope_mcp_delete.json` | MCP `tools/call` `delete_file`. Medium `ToolCallEnvelope`. |
+| `tool_envelope_run_shell.json` | OpenAI function `run_shell`. Medium `ToolCallEnvelope`. |
+| `tool_envelope_anthropic_tool_use.json` | Anthropic `tool_use` whose input carries `trust_remote_code`. |
+| `tool_args_json_unicode_escape.json` | Keyword only as `\uXXXX` inside tool arguments. |
+| `tool_description_role_marker.json` | `<\|im_start\|>` in a tool description. |
+| `tool_result_ignore_previous.json` | Ignore-previous inside a tool result. |
+| `b64_urlsafe_trust_remote_code.txt` | URL-safe Base64 of the living-table keyword. |
+| `b64_unpadded_trust_remote_code.txt` | Unpadded Base64 of the same keyword. |
+| `b64_line_split_trust_remote_code.txt` | That token split across lines. |
+| `b64_token_cap_overflow.txt` | More than `MAX_TOKENS` benign Base64 candidates. Medium `b64_token_cap`. |
+| `percent_encoded_trust_remote_code.txt` | Percent-encoded keyword. |
+| `hex_escaped_trust_remote_code.txt` | `\xNN` keyword. |
+| `greek_homoglyph_trust_remote_code.txt` | Greek lookalikes of the keyword. |
+| `math_alnum_homoglyph_exec.txt` | Mathematical alphanumeric `exec(`. |
+| `latin_small_caps_eval.txt` | Latin small-cap `eval(`. |
+| `unicode_tag_run.txt` | Four-or-more Unicode tag characters. |
+| `node_child_process.txt` | `child_process` marker. |
+| `node_execsync.txt` | `execSync(` marker. |
+| `python_dunder_import.txt` | `__import__(` marker. |
+| `curl_pipe_sh.txt` | `\| sh` marker. `example.invalid` only. |
+| `curl_pipe_bash.txt` | `\| bash` marker. |
+| `powershell_enc.txt` | `powershell -enc` marker. |
 
 ## How to use
 

@@ -7,7 +7,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use mercy_security::{
-    DecisionRecord, DecisionVerdict, IngestionScanner, IngestionThreat,
+    DecisionRecord, DecisionVerdict, IngestionScanner, IngestionThreat, RiskTier,
 };
 
 fn corpus_root() -> PathBuf {
@@ -17,7 +17,8 @@ fn corpus_root() -> PathBuf {
 fn fixture_texts(class_dir: &str) -> Vec<(PathBuf, String)> {
     let dir = corpus_root().join(class_dir);
     let mut out = Vec::new();
-    let entries = fs::read_dir(&dir).unwrap_or_else(|e| panic!("missing public corpus {dir:?}: {e}"));
+    let entries =
+        fs::read_dir(&dir).unwrap_or_else(|e| panic!("missing public corpus {dir:?}: {e}"));
     for entry in entries {
         let entry = entry.expect("dirent");
         let path = entry.path();
@@ -161,11 +162,11 @@ fn nested_base64_of_trust_remote_code_blocks() {
     );
 }
 
-/// GE-GAP-TOOL-USE — observe the benign OpenAI-style envelope.
-/// If it ADMITS, that is allowed. Label: Observed, no IngestionThreat.
-/// Not a tool-sandbox. Not MCP allowlisting. Not isolation.
+/// GE-GAP-TOOL-USE — benign OpenAI-style envelope.
+/// ADMITS with a Low `ToolCallEnvelope` finding. No Medium+.
+/// Not a tool sandbox. Not MCP allowlisting. Not isolation.
 #[test]
-fn tool_call_observe_benign_envelope_has_no_ingestion_threat() {
+fn tool_call_observe_benign_envelope_admits_with_low_envelope_finding() {
     let (path, text) = fixture_texts("benign")
         .into_iter()
         .find(|(p, _)| file_name(p) == "tool_call_observe.json")
@@ -188,20 +189,32 @@ fn tool_call_observe_benign_envelope_has_no_ingestion_threat() {
     let admit = IngestionScanner::admit_or_block(&text);
     assert!(
         admit.is_ok(),
-        "GE-GAP-TOOL-USE benign envelope currently ADMITS (Observed, no IngestionThreat): {} → {admit:?}",
+        "benign envelope must ADMIT with a low envelope finding: {} → {admit:?}",
         rel(&path)
     );
 
     let scan = IngestionScanner::scan_text(&text);
     assert!(
-        scan.threats.is_empty(),
-        "Observed, no IngestionThreat — envelope must not invent a tool-use class: threats={:?} findings={:?}",
-        scan.threats,
+        scan.risk_tier <= RiskTier::Low,
+        "benign envelope must stay None/Low: tier={:?} findings={:?}",
+        scan.risk_tier,
         scan.findings
     );
     assert!(
-        scan.findings.is_empty(),
-        "Observed, no IngestionThreat — no keyword findings on the benign envelope: {:?}",
+        scan.threats.contains(&IngestionThreat::ToolCallEnvelope),
+        "benign envelope must record a Low ToolCallEnvelope: {:?}",
+        scan.threats
+    );
+    assert!(
+        scan.findings
+            .iter()
+            .any(|f| { f.threat == IngestionThreat::ToolCallEnvelope && f.confidence < 0.40 }),
+        "envelope finding must be Low confidence: {:?}",
+        scan.findings
+    );
+    assert!(
+        scan.findings.iter().all(|f| f.confidence < 0.40),
+        "benign envelope must have no Medium+ finding: {:?}",
         scan.findings
     );
 
@@ -213,8 +226,10 @@ fn tool_call_observe_benign_envelope_has_no_ingestion_threat() {
         rec.reason_codes
     );
     assert!(
-        !rec.reason_codes.iter().any(|c| c.starts_with("threat:")),
-        "reason codes must not invent a tool-envelope threat: {:?}",
+        rec.reason_codes
+            .iter()
+            .any(|c| c.contains("tool_call_envelope")),
+        "reason codes must name the low envelope class: {:?}",
         rec.reason_codes
     );
 }
@@ -257,18 +272,14 @@ fn tool_envelope_trust_remote_code_blocks_on_existing_keyword_only() {
         scan.threats
     );
     assert!(
-        scan.findings.iter().any(|f| f.signal == "trust_remote_code"),
-        "block signal must be the living-table token trust_remote_code: {:?}",
+        scan.findings.iter().any(|f| {
+            f.threat == IngestionThreat::RemoteCodeLoader
+                && (f.signal == "trust_remote_code" || f.signal.ends_with("trust_remote_code"))
+        }),
+        "block signal must include the living-table token trust_remote_code: {:?}",
         scan.findings
     );
-    assert!(
-        scan
-            .findings
-            .iter()
-            .all(|f| f.signal == "trust_remote_code" || f.signal.ends_with("trust_remote_code")),
-        "Observed (keyword only) — no extra invented tool-sandbox findings: {:?}",
-        scan.findings
-    );
+    // Extra tool: / envelope findings are the structural class. The block is still RemoteCodeLoader.
 
     let rec = DecisionRecord::from_unattended_ingest(&text);
     assert_eq!(

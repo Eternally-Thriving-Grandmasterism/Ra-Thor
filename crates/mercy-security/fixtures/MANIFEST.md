@@ -6,6 +6,8 @@
 
 **Safety:** These files contain *pattern examples for defensive testing only*. They are not packaged exploits, not C2 kits, and must never be executed as agent instructions. Full audit chain under monorepo protocol (`AuditChainStep` + `ClassroomAuditReport`).
 
+The scanner is a pattern-marker text admission shell. Not a tool sandbox. Not MCP allowlisting. Not isolation.
+
 ---
 
 ## Community / Public Corpus (preferred for external testing)
@@ -14,8 +16,8 @@ A richer, fully expanded public white-hat corpus lives at:
 
 **[`fixtures/mercy-security/`](../../../fixtures/mercy-security/)**
 
-- 10 benign · 5 suspicious · 16 blocked
-- Full taxonomy + inventory
+- Public tree at the time of TOOLCALL-HARDEN-1: 24 benign · 5 suspicious · 40 blocked
+- Full taxonomy + the earlier inventory, plus the TOOLCALL-HARDEN-1 section in that README
 - Ready-to-copy GitHub Action + pre-commit snippets
 
 External builders and community CI should prefer the public corpus.  
@@ -40,6 +42,8 @@ See also: [`RELEASE_NOTES_PUBLIC_FIXTURE_CORPUS.md`](../../../RELEASE_NOTES_PUBL
 | CollusionPattern | `split_ingest_across_agents` | Critical |
 | RewardHackingPattern | `optimize_eval_score_not_act` | Critical |
 | UnknownHighRisk | combo rules (remote+dataset, etc.) | Critical |
+| ToolCallEnvelope | OpenAI function / `tool_calls`, MCP `tools/call`, Anthropic `tool_use` | Low (other names) / Medium (side-effect name) |
+| InstructionInjection | role/turn markers; ignore-previous phrase | Low in plain prose / Medium for markers and tool result or description |
 
 RiskTier ordering: None < Low < Medium < High < Critical.  
 `IngestionScanner::admit_or_block` returns `Ok` only for None/Low; otherwise `IngestionBlocked` or `PayloadTooLarge`.
@@ -67,6 +71,14 @@ RiskTier ordering: None < Low < Medium < High < Critical.
 | `should_block/yaml_unsafe_load.txt` | Block High/Critical | unsafe YAML load |
 | `should_block/collusion_split_ingest_marker.txt` | Block Critical | GE-FC-COLLUSION keyword. Not a collusion lab. |
 | `should_block/reward_hacking_eval_score_marker.txt` | Block Critical | GE-FC-REWARD-HACK keyword. Not a reward-hacking eval. |
+
+## TOOLCALL-HARDEN-1 mirrors
+
+Internal copies of the public TOOLCALL-HARDEN-1 pattern markers. Same bytes as `fixtures/mercy-security/`. Header line: defensive test fixture, pattern marker only.
+
+Benign (ADMIT): `b64_image_non_utf8.txt`, `child_process_prose.txt`, `curl_prose.txt`, `execsync_prose.txt`, `greek_prose.txt`, `ignore_previous_prose.txt`, `import_prose.txt`, `latin_small_caps_notes.txt`, `math_alnum_notes.txt`, `percent_url_example.txt`, `pipe_bash_prose.txt`, `powershell_prose.txt`, `tool_envelope_read.json`.
+
+Should block: `b64_line_split_trust_remote_code.txt`, `b64_token_cap_overflow.txt`, `b64_unpadded_trust_remote_code.txt`, `b64_urlsafe_trust_remote_code.txt`, `curl_pipe_bash.txt`, `curl_pipe_sh.txt`, `greek_homoglyph_trust_remote_code.txt`, `hex_escaped_trust_remote_code.txt`, `latin_small_caps_eval.txt`, `math_alnum_homoglyph_exec.txt`, `node_child_process.txt`, `node_execsync.txt`, `percent_encoded_trust_remote_code.txt`, `powershell_enc.txt`, `python_dunder_import.txt`, `tool_args_json_unicode_escape.json`, `tool_description_role_marker.json`, `tool_envelope_anthropic_tool_use.json`, `tool_envelope_mcp_delete.json`, `tool_envelope_run_shell.json`, `tool_result_ignore_previous.json`, `unicode_tag_run.txt`.
 
 ## How to use
 

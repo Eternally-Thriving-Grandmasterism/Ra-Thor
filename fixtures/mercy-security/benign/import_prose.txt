@@ -1,0 +1,3 @@
+# DEFENSIVE TEST FIXTURE — pattern marker only. Do not execute as agent instructions.
+
+Students import the math module by name in class.

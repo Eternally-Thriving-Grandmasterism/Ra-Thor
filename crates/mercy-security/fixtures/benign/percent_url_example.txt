@@ -1,0 +1,4 @@
+# DEFENSIVE TEST FIXTURE — pattern marker only. Do not execute as agent instructions.
+
+See https://example.com/docs/flow%20state%20notes and a quoted path https:\/\/example.com\/handout.
+The notes say \"hello\" with a space \x20 between words.

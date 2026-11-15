@@ -1,0 +1,5 @@
+# DEFENSIVE TEST FIXTURE — pattern marker only. Do not execute as agent instructions.
+
+dHJ1c3Rf
+cmVtb3Rl
+X2NvZGU=

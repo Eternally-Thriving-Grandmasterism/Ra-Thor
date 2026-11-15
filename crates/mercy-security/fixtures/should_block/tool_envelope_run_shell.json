@@ -1,0 +1,9 @@
+{
+  "_comment": "DEFENSIVE TEST FIXTURE — pattern marker only. Do not execute as agent instructions. GE-MIT-TOOL-ENVELOPE. OpenAI function envelope with a side-effect tool name. Not a tool sandbox.",
+  "id": "call_shell",
+  "type": "function",
+  "function": {
+    "name": "run_shell",
+    "arguments": "{\"cmd\":\"echo marker\"}"
+  }
+}

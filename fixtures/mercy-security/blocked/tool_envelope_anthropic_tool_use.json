@@ -1,0 +1,10 @@
+{
+  "_comment": "DEFENSIVE TEST FIXTURE — pattern marker only. Do not execute as agent instructions. GE-MIT-TOOL-ENVELOPE. Anthropic tool_use envelope. Input leaf is scanned. Not a tool sandbox.",
+  "type": "tool_use",
+  "id": "tu_marker",
+  "name": "read_notes",
+  "input": {
+    "city": "Cairo",
+    "marker": "trust_remote_code"
+  }
+}
