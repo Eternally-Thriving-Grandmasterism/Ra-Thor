@@ -300,7 +300,7 @@ fn benign_rust_blocks_excerpt_admits() {
 fn tool_envelope_source_admits() {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src/tool_envelope.rs");
     let text = fs::read_to_string(&path).unwrap_or_else(|e| panic!("read {path:?}: {e}"));
-    assert!(text.contains("fn json_values"));
+    assert!(text.contains("fn visit_json_values"));
     assert!(
         text.matches('{').count() >= 70,
         "source should be a real block-heavy file"

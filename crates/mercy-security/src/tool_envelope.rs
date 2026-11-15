@@ -40,7 +40,10 @@ struct Ctx {
     result: bool,
     description: bool,
     args: bool,
+    /// Suppresses text collection inside a schema that is not already an argument.
     schema: bool,
+    /// A nested `description` under this flag is a description even inside arguments.
+    in_schema: bool,
     parses: u8,
     mode: WalkMode,
 }
@@ -52,6 +55,7 @@ impl Ctx {
             description: false,
             args: false,
             schema: false,
+            in_schema: false,
             parses: 0,
             mode: WalkMode::Normal,
         }
@@ -75,7 +79,8 @@ enum Kind {
 
 #[cfg(test)]
 pub(crate) fn envelope_scan_steps(content: &str) -> usize {
-    json_values_counted(content).2
+    let mut truncated = false;
+    visit_json_values(content, &mut truncated, |_, _| {})
 }
 
 /// Bytes of leaf text copied while walking envelopes.
@@ -88,7 +93,6 @@ pub(crate) fn envelope_leaf_bytes(content: &str) -> usize {
 }
 
 pub(crate) fn collect_tool_envelope_findings(content: &str) -> Vec<ScanFinding> {
-    let (values, mut truncated, _) = json_values_counted(content);
     let mut bag = Bag {
         envelopes: Vec::new(),
         names: Vec::new(),
@@ -99,17 +103,20 @@ pub(crate) fn collect_tool_envelope_findings(content: &str) -> Vec<ScanFinding> 
     // One shared cap for every string, key, and inner JSON parse this walk copies.
     // A leaf is copied once. Ancestor envelopes pass context flags down instead
     // of copying that leaf again. Past the cap, the walk records tool:scan_truncated.
+    // Each parsed value is walked and dropped so a long run of small objects does
+    // not retain every value at once.
     let mut leaf_budget = content.len().saturating_mul(4);
-    for value in &values {
+    let mut truncated = false;
+    visit_json_values(content, &mut truncated, |value, truncated| {
         walk(
             value,
             None,
             Ctx::root(),
             &mut bag,
-            &mut truncated,
+            truncated,
             &mut leaf_budget,
         );
-    }
+    });
     let mut findings = Vec::new();
     if truncated {
         findings.push(ScanFinding {
@@ -239,60 +246,66 @@ fn json_recursion_exceeded(err: &serde_json::Error) -> bool {
     err.to_string().contains("recursion limit exceeded")
 }
 
-/// Every embedded JSON value is parsed. `match_json_end` and this loop share
-/// one byte budget of 8× the input length, so an unmatched-bracket flood stays
-/// linear. serde_json stops at 128 nested containers. When the whole text is
-/// one JSON value and serde reports that limit, this records truncation and
-/// does not parse the value again. A candidate span after other text does the
-/// same: the recursion error records truncation and the scan does not walk
-/// inward through that span. Medium `tool:scan_truncated` is recorded when
-/// truncation is set, including when the byte budget runs out with bytes
-/// still unread.
-fn json_values_counted(content: &str) -> (Vec<Value>, bool, usize) {
+/// Every embedded JSON value is parsed and handed to `on_value`, then dropped.
+/// `match_json_end` and this loop share one byte budget of 8× the input length,
+/// so an unmatched-bracket flood stays linear. serde_json stops at 128 nested
+/// containers. When the whole text is one JSON value and serde reports that
+/// limit, this records truncation and does not parse the value again. A
+/// candidate span after other text does the same: the recursion error records
+/// truncation and the scan does not walk inward through that span. Medium
+/// `tool:scan_truncated` is recorded when truncation is set, including when the
+/// byte budget runs out with bytes still unread.
+fn visit_json_values(
+    content: &str,
+    truncated: &mut bool,
+    mut on_value: impl FnMut(&Value, &mut bool),
+) -> usize {
     let trimmed = content.trim();
     match serde_json::from_str::<Value>(trimmed) {
-        Ok(v) => return (vec![v], false, 0),
+        Ok(v) => {
+            on_value(&v, truncated);
+            return 0;
+        }
         Err(err) if json_recursion_exceeded(&err) => {
-            return (Vec::new(), true, 0);
+            *truncated = true;
+            return 0;
         }
         Err(_) => {}
     }
     let bytes = content.as_bytes();
     let mut budget = content.len().saturating_mul(8);
     let mut steps = 0usize;
-    let mut out = Vec::new();
     let mut i = 0;
-    let mut truncated = false;
     while i < bytes.len() {
         if bytes[i] == b'{' || bytes[i] == b'[' {
             match match_json_end(content, i, &mut budget, &mut steps) {
                 JsonSpan::End(end) => match serde_json::from_str::<Value>(&content[i..end]) {
                     Ok(v) => {
-                        out.push(v);
+                        on_value(&v, truncated);
                         i = end;
                         continue;
                     }
                     Err(err) if json_recursion_exceeded(&err) => {
-                        truncated = true;
+                        *truncated = true;
                         i = end;
                         continue;
                     }
                     Err(_) => {}
                 },
                 JsonSpan::BudgetSpent => {
-                    truncated = true;
+                    *truncated = true;
                     break;
                 }
                 JsonSpan::NoMatch => {}
             }
         }
         if !charge(&mut budget, &mut steps) {
-            truncated = true;
+            *truncated = true;
             break;
         }
         i += 1;
     }
-    (out, truncated, steps)
+    steps
 }
 
 /// One byte inspection. `false` means the shared budget is already spent.
@@ -457,11 +470,14 @@ fn child_ctx(ctx: Ctx, kind: Kind, key: &str) -> Ctx {
         Kind::NamedCall if key == "arguments" || key == "input" => mark_args(&mut child),
         Kind::ToolList if key == "description" => mark_description(&mut child),
         Kind::ToolList if key == "inputSchema" || key == "input_schema" => {
+            child.in_schema = true;
             if !ctx.wants_text() {
                 child.schema = true;
             }
         }
-        _ if ctx.schema && key == "description" => mark_description(&mut child),
+        _ if key == "description" && (ctx.schema || ctx.in_schema) => {
+            mark_description(&mut child);
+        }
         _ => {}
     }
     child
@@ -523,7 +539,12 @@ fn function_body(
             }
             "arguments" => mark_args(&mut child_ctx),
             "description" => mark_description(&mut child_ctx),
-            "parameters" if !ctx.wants_text() => child_ctx.schema = true,
+            "parameters" => {
+                child_ctx.in_schema = true;
+                if !ctx.wants_text() {
+                    child_ctx.schema = true;
+                }
+            }
             _ => {}
         }
         walk(child, Some(k.as_str()), child_ctx, bag, truncated, budget);
@@ -596,21 +617,27 @@ fn consider_string(s: &str, ctx: Ctx, bag: &mut Bag, truncated: &mut bool, budge
         return;
     }
     if ctx.parses > 0 {
-        if let Ok(inner) = serde_json::from_str::<Value>(s) {
-            if !take_leaf(budget, s.len(), truncated) {
-                return;
-            }
-            if ctx.parses == 1 {
-                if let Value::String(inner_s) = &inner {
-                    if serde_json::from_str::<Value>(inner_s).is_ok() {
-                        *truncated = true;
+        match serde_json::from_str::<Value>(s) {
+            Ok(inner) => {
+                if !take_leaf(budget, s.len(), truncated) {
+                    return;
+                }
+                if ctx.parses == 1 {
+                    if let Value::String(inner_s) = &inner {
+                        match serde_json::from_str::<Value>(inner_s) {
+                            Ok(_) => *truncated = true,
+                            Err(err) if json_recursion_exceeded(&err) => *truncated = true,
+                            Err(_) => {}
+                        }
                     }
                 }
+                let mut deeper = ctx;
+                deeper.parses -= 1;
+                gather(&inner, deeper, bag, truncated, budget);
+                return;
             }
-            let mut deeper = ctx;
-            deeper.parses -= 1;
-            gather(&inner, deeper, bag, truncated, budget);
-            return;
+            Err(err) if json_recursion_exceeded(&err) => *truncated = true,
+            Err(_) => {}
         }
     }
     if take_leaf(budget, s.len(), truncated) {
