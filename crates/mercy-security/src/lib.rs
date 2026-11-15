@@ -31,10 +31,17 @@ pub use unified_agent_surface::{
 };
 pub use domain_profiles::{AuditChainStep, ClassroomAuditReport};
 
+use std::cell::Cell;
+use std::collections::HashSet;
+
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 use uuid::Uuid;
+
+thread_local! {
+    static B64_MERGE_PROBES: Cell<usize> = Cell::new(0);
+}
 
 pub const MERCY_VALENCE_FLOOR: f64 = 0.999;
 pub const MAX_SCAN_BYTES: usize = 4 * 1024 * 1024;
@@ -1254,6 +1261,19 @@ impl IngestionScanner {
         tool_envelope::envelope_scan_steps(content)
     }
 
+    /// Membership checks while merging normalised Base64 tokens.
+    /// One check per token. A scan of every existing token would be larger.
+    #[doc(hidden)]
+    pub fn b64_merge_probes(content: &str) -> usize {
+        B64_MERGE_PROBES.with(|c| c.set(0));
+        let _ = Self::scan_text(content);
+        B64_MERGE_PROBES.with(|c| c.get())
+    }
+
+    fn note_b64_merge_probe() {
+        B64_MERGE_PROBES.with(|c| c.set(c.get().saturating_add(1)));
+    }
+
     pub fn scan_text(content: &str) -> IngestionScanResult {
         Self::scan_text_depth(content, 0)
     }
@@ -1306,8 +1326,15 @@ impl IngestionScanner {
             if norm != content {
                 let (ntokens, noverflow) = Self::candidate_base64_tokens(&norm);
                 overflow |= noverflow;
+                let mut seen: HashSet<String> =
+                    HashSet::with_capacity(tokens.len().saturating_add(ntokens.len()));
+                for existing in &tokens {
+                    Self::note_b64_merge_probe();
+                    seen.insert(existing.clone());
+                }
                 for token in ntokens {
-                    if !tokens.iter().any(|existing| existing == &token) {
+                    Self::note_b64_merge_probe();
+                    if seen.insert(token.clone()) {
                         tokens.push(token);
                     }
                 }
