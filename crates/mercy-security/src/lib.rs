@@ -33,7 +33,7 @@ pub use domain_profiles::{AuditChainStep, ClassroomAuditReport};
 
 #[cfg(test)]
 use std::cell::Cell;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
@@ -927,35 +927,63 @@ impl IngestionScanner {
         }
     }
 
-    /// Higher keeps a channel a corpus test names when two findings share a marker.
-    fn channel_rank(signal: &str) -> u8 {
-        if signal.starts_with("tool:") {
-            3
-        } else if signal.starts_with("b64:") {
-            2
-        } else if signal.starts_with("norm:") {
-            0
-        } else {
-            1
-        }
+    /// Plaintext channel: no `tool:`, `b64:`, or `norm:` prefix.
+    fn is_raw_channel(signal: &str) -> bool {
+        !signal.starts_with("tool:")
+            && !signal.starts_with("b64:")
+            && !signal.starts_with("norm:")
     }
 
-    /// One finding per threat + matched marker. Keeps the higher confidence.
+    /// One pass per key. First-seen order. A higher confidence replaces the kept row.
+    ///
+    /// Identical means the same threat, the full signal (channel prefix plus marker),
+    /// and the same offset. A second pass merges the same threat and marker only when
+    /// the offset is `Some` and neither row is `norm:`. A tie on that pass keeps the
+    /// plaintext channel. `norm:` rows and distinct offsets stay, including separate
+    /// `unicode_tag_run` rows.
     fn dedup_identical_findings(findings: Vec<ScanFinding>) -> Vec<ScanFinding> {
-        let mut out: Vec<ScanFinding> = Vec::with_capacity(findings.len());
+        let mut exact_out: Vec<ScanFinding> = Vec::with_capacity(findings.len());
+        let mut exact: HashMap<(IngestionThreat, String, Option<usize>), usize> =
+            HashMap::with_capacity(findings.len());
         for f in findings {
-            let marker = Self::matched_marker(&f.signal);
-            if let Some(existing) = out.iter_mut().find(|e| {
-                e.threat == f.threat && Self::matched_marker(&e.signal) == marker
-            }) {
+            let key = (f.threat.clone(), f.signal.clone(), f.offset);
+            if let Some(&idx) = exact.get(&key) {
+                if f.confidence > exact_out[idx].confidence {
+                    exact_out[idx] = f;
+                }
+            } else {
+                exact.insert(key, exact_out.len());
+                exact_out.push(f);
+            }
+        }
+
+        let mut out: Vec<ScanFinding> = Vec::with_capacity(exact_out.len());
+        let mut grouped: HashMap<(IngestionThreat, String, usize), usize> =
+            HashMap::with_capacity(exact_out.len());
+        for f in exact_out {
+            let Some(offset) = f.offset else {
+                out.push(f);
+                continue;
+            };
+            if f.signal.starts_with("norm:") {
+                out.push(f);
+                continue;
+            }
+            let marker = Self::matched_marker(&f.signal).to_owned();
+            let key = (f.threat.clone(), marker, offset);
+            if let Some(&idx) = grouped.get(&key) {
+                let existing = &out[idx];
                 let higher = f.confidence > existing.confidence;
                 let tie = f.confidence == existing.confidence;
                 if higher
-                    || (tie && Self::channel_rank(&f.signal) > Self::channel_rank(&existing.signal))
+                    || (tie
+                        && Self::is_raw_channel(&f.signal)
+                        && !Self::is_raw_channel(&existing.signal))
                 {
-                    *existing = f;
+                    out[idx] = f;
                 }
             } else {
+                grouped.insert(key, out.len());
                 out.push(f);
             }
         }
@@ -1307,7 +1335,8 @@ impl IngestionScanner {
     /// A run of 4+ Unicode tags (U+E0020–U+E007F) before Cf-format stripping.
     /// Only the RGI subdivision flags `gbeng`, `gbsct`, and `gbwls` are skipped.
     fn unicode_tag_findings(content: &str) -> Vec<ScanFinding> {
-        let chars: Vec<char> = content.chars().collect();
+        let indexed: Vec<(usize, char)> = content.char_indices().collect();
+        let chars: Vec<char> = indexed.iter().map(|(_, c)| *c).collect();
         let mut findings = Vec::new();
         let mut run = 0usize;
         let mut i = 0;
@@ -1322,11 +1351,12 @@ impl IngestionScanner {
             if ('\u{E0020}'..='\u{E007F}').contains(&chars[i]) {
                 run += 1;
                 if run == 4 {
+                    // Byte offset is the run identity. Separate runs stay separate.
                     findings.push(ScanFinding {
                         threat: IngestionThreat::ObfuscatedPayload,
                         signal: "unicode_tag_run".into(),
                         confidence: 0.55,
-                        offset: None,
+                        offset: Some(indexed[i].0),
                     });
                 }
             } else {
@@ -2318,7 +2348,7 @@ mod tests {
         }
         // tools/call is two containers per level. 63 levels are 126 containers,
         // inside serde_json's 128-container parse. 120 levels are 240, so the
-        // scan records tool:scan_truncated and does not parse again.
+        // scan records tool:scan_truncated and does not copy the leaf.
         for depth in [16usize, 60, 63] {
             assert_leaf_cap(
                 &format!("tools/call depth {depth}"),
@@ -2478,7 +2508,8 @@ mod tests {
             "depth 5 must keep the keyword: {:?}",
             shallow.findings
         );
-        // Triple-encoded keyword: the same marker is one finding.
+        // Triple-encoded keyword. The repeated tool signal at one offset is one
+        // row. Plaintext and norm: stay, because their offsets differ.
         let keyword = "trust_remote_code=True";
         let once = serde_json::to_string(keyword).expect("once");
         let twice = serde_json::to_string(&once).expect("twice");
@@ -2488,19 +2519,204 @@ mod tests {
         );
         let triple_scan = IngestionScanner::scan_text(&triple_keyword);
         assert!(!triple_scan.safe, "{:?}", triple_scan.findings);
-        let keyword_hits = triple_scan
+        let keyword_hits: Vec<_> = triple_scan
             .findings
             .iter()
             .filter(|f| {
                 f.threat == IngestionThreat::RemoteCodeLoader
                     && f.signal.contains("trust_remote_code")
             })
-            .count();
-        assert_eq!(
-            keyword_hits, 1,
-            "triple-encoded keyword is one finding: {:?}",
-            triple_scan.findings
+            .map(|f| f.signal.as_str())
+            .collect();
+        assert!(
+            keyword_hits.contains(&"tool:trust_remote_code"),
+            "triple-encoded keyword keeps the tool channel: {keyword_hits:?}"
         );
+        assert!(
+            keyword_hits.contains(&"trust_remote_code"),
+            "triple-encoded keyword keeps the plaintext channel: {keyword_hits:?}"
+        );
+        assert!(
+            keyword_hits.contains(&"norm:trust_remote_code"),
+            "triple-encoded keyword keeps the norm channel: {keyword_hits:?}"
+        );
+        assert_eq!(
+            keyword_hits
+                .iter()
+                .filter(|s| **s == "tool:trust_remote_code")
+                .count(),
+            1,
+            "one tool signal at that offset: {keyword_hits:?}"
+        );
+    }
+
+    #[test]
+    fn unique_bare_envelope_name_flood_stays_within_budget() {
+        let mut text = String::new();
+        let mut n = 0usize;
+        while text.len() + 40 < 4_150_000 {
+            text.push_str(&format!("{{\"name\":\"{n:08}\",\"arguments\":0}}\n"));
+            n += 1;
+        }
+        assert!(text.len() > 4_000_000 && text.len() <= 4 * 1024 * 1024, "{}", text.len());
+        let started = std::time::Instant::now();
+        let scan = IngestionScanner::scan_text(&text);
+        let elapsed = started.elapsed();
+        let envelopes = scan
+            .findings
+            .iter()
+            .filter(|f| f.signal.starts_with("tool:envelope:"))
+            .count();
+        assert_eq!(envelopes, n, "{elapsed:?} {:?}", scan.risk_tier);
+        // Debug is the CI profile. 60s is several times this head's debug
+        // measurement and under the quadratic scan. Release uses 8s.
+        let budget_ms: u128 = if cfg!(debug_assertions) { 60_000 } else { 8_000 };
+        assert!(
+            elapsed.as_millis() < budget_ms,
+            "unique-name flood took {elapsed:?}, budget {budget_ms}ms"
+        );
+    }
+
+    #[test]
+    fn classify_syntax_and_column_bound_are_required() {
+        use serde_json::{error::Category, Value};
+        assert_eq!(tool_envelope::JSON_CONTAINER_LIMIT, 128);
+
+        let deep = format!("{}0{}", "[".repeat(128), "]".repeat(128));
+        let err = serde_json::from_str::<Value>(&deep).unwrap_err();
+        assert_eq!(err.classify(), Category::Syntax);
+        assert!(tool_envelope::json_recursion_exceeded(&err, &deep));
+        let end = tool_envelope::error_byte_end(&deep, err.line(), err.column());
+        assert!(end < deep.len(), "the count stops at the reported column");
+        assert!(
+            deep[..end].bytes().filter(|b| *b == b'[').count() >= 128,
+            "the prefix includes the container serde rejected"
+        );
+
+        let under = format!("{}x{}", "[".repeat(127), "]".repeat(127));
+        let err = serde_json::from_str::<Value>(&under).unwrap_err();
+        assert_eq!(err.classify(), Category::Syntax);
+        assert!(
+            !tool_envelope::json_recursion_exceeded(&err, &under),
+            "127 open containers are under the limit"
+        );
+
+        let over = format!("{}0{}", "[".repeat(129), "]".repeat(129));
+        let err = serde_json::from_str::<Value>(&over).unwrap_err();
+        assert!(
+            tool_envelope::json_recursion_exceeded(&err, &over),
+            "129 is past the limit"
+        );
+
+        let eof = format!("{{\"k\":\"{}\"", "[".repeat(200));
+        let err = serde_json::from_str::<Value>(&eof).unwrap_err();
+        assert_eq!(err.classify(), Category::Eof);
+        assert!(
+            !tool_envelope::json_recursion_exceeded(&err, &eof),
+            "brackets inside a string do not count"
+        );
+        // The Eof error's column reaches those brackets. On real brackets, a
+        // non-Syntax category must still return false.
+        let real = "[".repeat(200);
+        assert!(
+            tool_envelope::error_byte_end(&real, err.line(), err.column()) >= 128,
+            "the fixture column has to reach the limit or this pin is vacuous"
+        );
+        assert!(
+            !tool_envelope::json_recursion_exceeded(&err, &real),
+            "Category::Eof must not count as the container limit"
+        );
+
+        let early = format!(
+            r#"{{"a": x, "b": {}1{}}}"#,
+            "[".repeat(200),
+            "]".repeat(200)
+        );
+        let err = serde_json::from_str::<Value>(&early).unwrap_err();
+        assert_eq!(err.classify(), Category::Syntax);
+        assert!(
+            !tool_envelope::json_recursion_exceeded(&err, &early),
+            "brackets after the syntax error do not count"
+        );
+    }
+
+    #[test]
+    fn non_recursion_syntax_error_in_arguments_is_not_truncation() {
+        let openai = |args: &str| {
+            let encoded = serde_json::to_string(args).expect("encode");
+            format!(r#"{{"type":"function","function":{{"name":"lookup","arguments":{encoded}}}}}"#)
+        };
+        // A syntax error at depth 1, with 200 containers after it.
+        let early = format!(r#"{{"a": x, "b": {}1{}}}"#, "[".repeat(200), "]".repeat(200));
+        // Brackets inside a string do not count as nesting.
+        let in_string = format!(r#"["{}", x]"#, "[".repeat(300));
+        for (label, args) in [("early syntax error", early), ("brackets in string", in_string)] {
+            let scan = IngestionScanner::scan_text(&openai(&args));
+            assert!(
+                scan.findings
+                    .iter()
+                    .all(|f| f.signal != "tool:scan_truncated"),
+                "{label} must not record tool:scan_truncated: {:?}",
+                scan.findings
+            );
+        }
+    }
+
+    #[test]
+    fn jsonl_keyword_line_keeps_critical_beside_deep_line() {
+        let escaped = "\\u0074\\u0072\\u0075\\u0073\\u0074\\u005f\\u0072\\u0065\\u006d\\u006f\\u0074\\u0065\\u005f\\u0063\\u006f\\u0064\\u0065=True";
+        let keyword_line = format!(
+            r#"{{"name":"lookup","arguments":{{"note":"{escaped}"}}}}"#
+        );
+        let deep_line = format!("{}0{}", "[".repeat(130), "]".repeat(130));
+        assert!(!keyword_line.contains("trust_remote_code"));
+        for (label, text) in [
+            (
+                "keyword then depth 130",
+                format!("{keyword_line}\n{deep_line}"),
+            ),
+            (
+                "depth 130 then keyword",
+                format!("{deep_line}\n{keyword_line}"),
+            ),
+        ] {
+            let scan = IngestionScanner::scan_text(&text);
+            assert_eq!(
+                scan.risk_tier,
+                RiskTier::Critical,
+                "{label} must stay Critical: {:?}",
+                scan.findings
+            );
+            assert!(
+                scan.findings.iter().any(|f| {
+                    f.threat == IngestionThreat::RemoteCodeLoader
+                        && f.signal.contains("trust_remote_code")
+                        && f.confidence >= 0.90
+                }),
+                "{label} must keep the keyword: {:?}",
+                scan.findings
+            );
+        }
+    }
+
+    #[test]
+    fn separate_unicode_tag_runs_stay_separate() {
+        let run = "\u{E0020}\u{E0021}\u{E0022}\u{E0023}";
+        let text = format!("aa {run} bb {run}");
+        let scan = IngestionScanner::scan_text(&text);
+        let runs = scan
+            .findings
+            .iter()
+            .filter(|f| f.signal == "unicode_tag_run")
+            .count();
+        assert_eq!(runs, 2, "{:?}", scan.findings);
+        let offsets: Vec<_> = scan
+            .findings
+            .iter()
+            .filter(|f| f.signal == "unicode_tag_run")
+            .map(|f| f.offset)
+            .collect();
+        assert_ne!(offsets[0], offsets[1], "{offsets:?}");
     }
 
     #[test]
