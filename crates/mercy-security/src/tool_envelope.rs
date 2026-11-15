@@ -6,14 +6,7 @@
 #[cfg(test)]
 use std::cell::Cell;
 
-use serde::Deserialize;
 use serde_json::{Map, Value};
-
-/// serde_json stops at 128 nested containers. A tools/call chain is two
-/// objects per level, so depth 120 does not fit. At or under this depth, parse
-/// one more time with that cap lifted. Past it, record tool:scan_truncated
-/// instead of scanning every nested brace again.
-const MAX_JSON_DEPTH: usize = 256;
 
 use super::{IngestionScanner, IngestionThreat, ScanFinding, MAX_SCAN_BYTES};
 
@@ -246,64 +239,19 @@ fn json_recursion_exceeded(err: &serde_json::Error) -> bool {
     err.to_string().contains("recursion limit exceeded")
 }
 
-/// Nested `{` / `[` depth, ignoring braces inside strings. One pass.
-fn json_nesting_depth(content: &str) -> usize {
-    let mut depth = 0usize;
-    let mut max = 0usize;
-    let mut in_str = false;
-    let mut esc = false;
-    for &c in content.as_bytes() {
-        if in_str {
-            if esc {
-                esc = false;
-            } else if c == b'\\' {
-                esc = true;
-            } else if c == b'"' {
-                in_str = false;
-            }
-            continue;
-        }
-        match c {
-            b'"' => in_str = true,
-            b'{' | b'[' => {
-                depth += 1;
-                if depth > max {
-                    max = depth;
-                }
-            }
-            b'}' | b']' => depth = depth.saturating_sub(1),
-            _ => {}
-        }
-    }
-    max
-}
-
-fn parse_one_json_value(content: &str) -> Option<Value> {
-    let mut de = serde_json::Deserializer::from_str(content);
-    de.disable_recursion_limit();
-    let value = Value::deserialize(&mut de).ok()?;
-    de.end().ok()?;
-    Some(value)
-}
-
 /// Every embedded JSON value is parsed. `match_json_end` and this loop share
 /// one byte budget of 8× the input length, so an unmatched-bracket flood stays
-/// linear. Medium `tool:scan_truncated` is recorded only when that budget
-/// runs out with bytes still unread.
+/// linear. serde_json stops at 128 nested containers. When the whole text is
+/// one JSON value and serde reports that limit, this records truncation and
+/// does not parse the value again. Medium `tool:scan_truncated` is recorded
+/// when truncation is set, including when the byte budget runs out with bytes
+/// still unread.
 fn json_values_counted(content: &str) -> (Vec<Value>, bool, usize) {
     let trimmed = content.trim();
     match serde_json::from_str::<Value>(trimmed) {
         Ok(v) => return (vec![v], false, 0),
         Err(err) if json_recursion_exceeded(&err) => {
-            let depth = json_nesting_depth(trimmed);
-            if depth > MAX_JSON_DEPTH {
-                return (Vec::new(), true, 0);
-            }
-            if depth > 0 {
-                if let Some(v) = parse_one_json_value(trimmed) {
-                    return (vec![v], false, 0);
-                }
-            }
+            return (Vec::new(), true, 0);
         }
         Err(_) => {}
     }

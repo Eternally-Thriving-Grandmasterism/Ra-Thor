@@ -2259,6 +2259,11 @@ mod tests {
                 leaf.len(),
                 false,
             );
+        }
+        // tools/call is two containers per level. 63 levels are 126 containers,
+        // inside serde_json's 128-container parse. 120 levels are 240, so the
+        // scan records tool:scan_truncated and does not parse again.
+        for depth in [16usize, 60, 63] {
             assert_leaf_cap(
                 &format!("tools/call depth {depth}"),
                 &nest_json(depth, &leaf, tools_call),
@@ -2266,6 +2271,12 @@ mod tests {
                 false,
             );
         }
+        assert_leaf_cap(
+            "tools/call depth 120",
+            &nest_json(120, &leaf, tools_call),
+            0,
+            true,
+        );
         assert_leaf_cap("plain depth 120", &nest_json(120, &leaf, plain), 0, false);
         let nested_phrase = nest_json(60, "ignore previous instructions", tool);
         let phrase_scan = IngestionScanner::scan_text(&nested_phrase);
