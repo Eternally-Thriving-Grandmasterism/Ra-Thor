@@ -1,0 +1,17 @@
+{
+  "_comment": "DEFENSIVE TEST FIXTURE — pattern marker only. Do not execute as agent instructions. GE-MIT-TOOL-ENVELOPE. OpenAI parameters property description. Not a tool sandbox. Not MCP allowlisting. Not isolation.",
+  "type": "function",
+  "function": {
+    "name": "get_weather",
+    "description": "Classroom weather notes.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "city": {
+          "type": "string",
+          "description": "pattern marker trust_remote_code"
+        }
+      }
+    }
+  }
+}

@@ -187,3 +187,87 @@ fn ignore_previous_in_plain_prose_is_low_and_admits() {
         scan.findings
     );
 }
+
+#[test]
+fn tool_envelope_brace_flood_blocks() {
+    let text = fixture("blocked/tool_envelope_brace_flood.txt");
+    assert!(text.contains("delete_file"));
+    assert!(text.matches('{').count() >= 64);
+    let scan = blocks("blocked/tool_envelope_brace_flood.txt");
+    assert!(
+        scan.findings.iter().any(|f| {
+            f.threat == IngestionThreat::ToolCallEnvelope
+                && f.signal == "tool:scan_truncated"
+                && f.confidence >= 0.40
+        }),
+        "a brace flood before the envelope must be a Medium truncation finding: {:?}",
+        scan.findings
+    );
+}
+
+#[test]
+fn tool_envelope_object_cap_prefix_blocks() {
+    let text = fixture("blocked/tool_envelope_object_cap_prefix.txt");
+    assert!(text.contains("delete_file"));
+    assert!(text.matches("{\"a\":1}").count() >= 8);
+    let scan = blocks("blocked/tool_envelope_object_cap_prefix.txt");
+    assert!(
+        scan.findings.iter().any(|f| {
+            f.threat == IngestionThreat::ToolCallEnvelope
+                && f.signal == "tool:scan_truncated"
+                && f.confidence >= 0.40
+        }),
+        "eight objects before the envelope must be a Medium truncation finding: {:?}",
+        scan.findings
+    );
+}
+
+#[test]
+fn escaped_keyword_as_object_key_blocks() {
+    let text = fixture("blocked/tool_args_escaped_object_key.json");
+    assert!(
+        !text.contains("trust_remote_code"),
+        "the keyword must stay escaped in the object key"
+    );
+    assert!(text.contains("\\u0074"));
+    let scan = blocks("blocked/tool_args_escaped_object_key.json");
+    assert!(
+        scan.findings.iter().any(|f| {
+            f.threat == IngestionThreat::RemoteCodeLoader
+                && f.signal.starts_with("tool:")
+                && f.signal.contains("trust_remote_code")
+        }),
+        "an escaped object key must be a tool: leaf: {:?}",
+        scan.findings
+    );
+}
+
+#[test]
+fn benign_envelope_ordinary_keys_admit() {
+    let text = fixture("benign/tool_envelope_read.json");
+    assert!(text.contains("\"path\""));
+    let scan = admits("benign/tool_envelope_read.json");
+    assert!(scan.risk_tier <= RiskTier::Low);
+    assert!(
+        scan.findings.iter().all(|f| f.confidence < 0.40),
+        "ordinary keys must not add a Medium finding: {:?}",
+        scan.findings
+    );
+}
+
+#[test]
+fn openai_parameters_description_is_scanned() {
+    let text = fixture("blocked/openai_parameters_description.json");
+    assert!(text.contains("\"parameters\""));
+    assert!(text.contains("trust_remote_code"));
+    let scan = blocks("blocked/openai_parameters_description.json");
+    assert!(
+        scan.findings.iter().any(|f| {
+            f.threat == IngestionThreat::RemoteCodeLoader
+                && f.signal.starts_with("tool:")
+                && f.signal.contains("trust_remote_code")
+        }),
+        "parameters description must be scanned with a tool: prefix: {:?}",
+        scan.findings
+    );
+}

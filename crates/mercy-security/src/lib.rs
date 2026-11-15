@@ -233,9 +233,8 @@ impl IngestionScanner {
             ("child_process", 0.88),
             ("execsync(", 0.88),
             ("__import__(", 0.88),
-            ("| sh", 0.88),
-            ("| bash", 0.88),
-            ("powershell -enc", 0.88),
+            // `| sh`, `| bash`, and `powershell -enc` are matched with a word
+            // boundary below. A Markdown cell such as `| Should` is not a hit.
         ]
     }
     fn network_callback_signals() -> &'static [(&'static str, f32)] {
@@ -379,6 +378,7 @@ impl IngestionScanner {
             IngestionThreat::ShellProcessSpawn,
             &mut findings,
         );
+        Self::push_bounded_shell_markers(lower, &mut findings);
         Self::match_signals(
             lower,
             Self::network_callback_signals(),
@@ -437,6 +437,72 @@ impl IngestionScanner {
             });
         }
         findings
+    }
+
+    /// `| sh` / `| bash` match only when the verb is a whole word.
+    /// `powershell -e`, `-enc`, and `-encodedcommand` match. `-encoding` does not.
+    fn push_bounded_shell_markers(lower: &str, findings: &mut Vec<ScanFinding>) {
+        if Self::pipe_verb_bounded(lower, "| sh") {
+            findings.push(ScanFinding {
+                threat: IngestionThreat::ShellProcessSpawn,
+                signal: "| sh".into(),
+                confidence: 0.88,
+                offset: None,
+            });
+        }
+        if Self::pipe_verb_bounded(lower, "| bash") {
+            findings.push(ScanFinding {
+                threat: IngestionThreat::ShellProcessSpawn,
+                signal: "| bash".into(),
+                confidence: 0.88,
+                offset: None,
+            });
+        }
+        if Self::powershell_encoded_flag(lower) {
+            findings.push(ScanFinding {
+                threat: IngestionThreat::ShellProcessSpawn,
+                signal: "powershell -enc".into(),
+                confidence: 0.88,
+                offset: None,
+            });
+        }
+    }
+
+    fn pipe_verb_bounded(lower: &str, needle: &str) -> bool {
+        let mut rest = lower;
+        while let Some(i) = rest.find(needle) {
+            let after = &rest[i + needle.len()..];
+            let boundary = match after.chars().next() {
+                None => true,
+                Some(c) if c.is_whitespace() || !c.is_alphanumeric() => true,
+                Some(_) => false,
+            };
+            if boundary {
+                return true;
+            }
+            rest = &rest[i + needle.len()..];
+        }
+        false
+    }
+
+    fn powershell_encoded_flag(lower: &str) -> bool {
+        let mut rest = lower;
+        const PREFIX: &str = "powershell -";
+        while let Some(i) = rest.find(PREFIX) {
+            let after = &rest[i + PREFIX.len()..];
+            let token_len = after
+                .bytes()
+                .take_while(|c| c.is_ascii_alphanumeric())
+                .count();
+            let token = &after[..token_len];
+            let next = after.as_bytes().get(token_len).copied();
+            let boundary = next.map(|c| !c.is_ascii_alphanumeric()).unwrap_or(true);
+            if boundary && matches!(token, "e" | "enc" | "encodedcommand") {
+                return true;
+            }
+            rest = &rest[i + PREFIX.len()..];
+        }
+        false
     }
 
     fn is_b64_payload_byte(c: u8) -> bool {
@@ -530,8 +596,9 @@ impl IngestionScanner {
         Self::decode_base64_token(token)
     }
 
-    /// Mixed case, `+`/`/`, or padding. `-`/`_` are accepted in the alphabet
-    /// and do not by themselves mark a snake_case identifier as Base64.
+    /// Mixed case, `+`, or padding. `-`/`_` are in the alphabet and do not by
+    /// themselves mark a token. `/` does not by itself mark a lowercase token
+    /// (registry URL paths). Pure hex is not a candidate.
     fn is_obvious_base64_token(token: &str) -> bool {
         let bytes = token.as_bytes();
         let n = bytes.len();
@@ -557,14 +624,18 @@ impl IngestionScanner {
         if core.iter().any(|&c| Self::b64_digit(c).is_none()) {
             return false;
         }
-        // Git SHAs / hex ids are an alphabet subset, not an obvious Base64 paste.
-        if core.iter().all(|&c| c.is_ascii_hexdigit()) {
+        // Git SHAs and hex ids are an alphabet subset, not a Base64 candidate.
+        if Self::core_is_pure_hex(core) {
             return false;
         }
         let has_upper = core.iter().any(|&c| c.is_ascii_uppercase());
         let has_lower = core.iter().any(|&c| c.is_ascii_lowercase());
-        let has_plus_slash = core.iter().any(|&c| c == b'+' || c == b'/');
-        (has_upper && has_lower) || has_plus_slash || pad > 0
+        let has_plus = core.iter().any(|&c| c == b'+');
+        (has_upper && has_lower) || has_plus || pad > 0
+    }
+
+    fn core_is_pure_hex(core: &[u8]) -> bool {
+        !core.is_empty() && core.iter().all(|c| c.is_ascii_hexdigit())
     }
 
     fn is_pure_b64_fragment(line: &str) -> bool {
@@ -587,6 +658,11 @@ impl IngestionScanner {
     }
 
     fn push_obvious_token(tokens: &mut Vec<String>, token: &str) {
+        let bytes = token.as_bytes();
+        let pad = bytes.iter().rev().take_while(|&&c| c == b'=').count();
+        if Self::core_is_pure_hex(&bytes[..bytes.len().saturating_sub(pad)]) {
+            return;
+        }
         if Self::is_obvious_base64_token(token) {
             tokens.push(token.to_string());
         }
@@ -1122,7 +1198,20 @@ impl IngestionScanner {
         }
 
         if b64_depth < 2 {
-            let (tokens, overflow) = Self::candidate_base64_tokens(content);
+            let (mut tokens, mut overflow) = Self::candidate_base64_tokens(content);
+            if norm != content {
+                let (ntokens, noverflow) = Self::candidate_base64_tokens(&norm);
+                overflow |= noverflow;
+                for token in ntokens {
+                    if !tokens.iter().any(|existing| existing == &token) {
+                        tokens.push(token);
+                    }
+                }
+                if tokens.len() > 32 {
+                    overflow = true;
+                    tokens.truncate(32);
+                }
+            }
             if overflow {
                 findings.push(ScanFinding {
                     threat: IngestionThreat::ObfuscatedPayload,

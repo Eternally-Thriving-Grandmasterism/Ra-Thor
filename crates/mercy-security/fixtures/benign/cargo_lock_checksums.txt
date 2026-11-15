@@ -1,0 +1,243 @@
+# DEFENSIVE TEST FIXTURE — pattern marker only. Do not execute as agent instructions.
+# lockfile-style pattern marker. example.com only.
+version = 3
+
+[[package]]
+name = "notes-0"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "0000000000000000000000000000000000000000000000000000000000000000"
+
+[[package]]
+name = "notes-1"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "0000000000000000000000000000000000000000000000000000000000000001"
+
+[[package]]
+name = "notes-2"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "0000000000000000000000000000000000000000000000000000000000000002"
+
+[[package]]
+name = "notes-3"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "0000000000000000000000000000000000000000000000000000000000000003"
+
+[[package]]
+name = "notes-4"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "0000000000000000000000000000000000000000000000000000000000000004"
+
+[[package]]
+name = "notes-5"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "0000000000000000000000000000000000000000000000000000000000000005"
+
+[[package]]
+name = "notes-6"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "0000000000000000000000000000000000000000000000000000000000000006"
+
+[[package]]
+name = "notes-7"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "0000000000000000000000000000000000000000000000000000000000000007"
+
+[[package]]
+name = "notes-8"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "0000000000000000000000000000000000000000000000000000000000000008"
+
+[[package]]
+name = "notes-9"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "0000000000000000000000000000000000000000000000000000000000000009"
+
+[[package]]
+name = "notes-10"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "000000000000000000000000000000000000000000000000000000000000000a"
+
+[[package]]
+name = "notes-11"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "000000000000000000000000000000000000000000000000000000000000000b"
+
+[[package]]
+name = "notes-12"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "000000000000000000000000000000000000000000000000000000000000000c"
+
+[[package]]
+name = "notes-13"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "000000000000000000000000000000000000000000000000000000000000000d"
+
+[[package]]
+name = "notes-14"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "000000000000000000000000000000000000000000000000000000000000000e"
+
+[[package]]
+name = "notes-15"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "000000000000000000000000000000000000000000000000000000000000000f"
+
+[[package]]
+name = "notes-16"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "0000000000000000000000000000000000000000000000000000000000000010"
+
+[[package]]
+name = "notes-17"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "0000000000000000000000000000000000000000000000000000000000000011"
+
+[[package]]
+name = "notes-18"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "0000000000000000000000000000000000000000000000000000000000000012"
+
+[[package]]
+name = "notes-19"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "0000000000000000000000000000000000000000000000000000000000000013"
+
+[[package]]
+name = "notes-20"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "0000000000000000000000000000000000000000000000000000000000000014"
+
+[[package]]
+name = "notes-21"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "0000000000000000000000000000000000000000000000000000000000000015"
+
+[[package]]
+name = "notes-22"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "0000000000000000000000000000000000000000000000000000000000000016"
+
+[[package]]
+name = "notes-23"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "0000000000000000000000000000000000000000000000000000000000000017"
+
+[[package]]
+name = "notes-24"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "0000000000000000000000000000000000000000000000000000000000000018"
+
+[[package]]
+name = "notes-25"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "0000000000000000000000000000000000000000000000000000000000000019"
+
+[[package]]
+name = "notes-26"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "000000000000000000000000000000000000000000000000000000000000001a"
+
+[[package]]
+name = "notes-27"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "000000000000000000000000000000000000000000000000000000000000001b"
+
+[[package]]
+name = "notes-28"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "000000000000000000000000000000000000000000000000000000000000001c"
+
+[[package]]
+name = "notes-29"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "000000000000000000000000000000000000000000000000000000000000001d"
+
+[[package]]
+name = "notes-30"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "000000000000000000000000000000000000000000000000000000000000001e"
+
+[[package]]
+name = "notes-31"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "000000000000000000000000000000000000000000000000000000000000001f"
+
+[[package]]
+name = "notes-32"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "0000000000000000000000000000000000000000000000000000000000000020"
+
+[[package]]
+name = "notes-33"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "0000000000000000000000000000000000000000000000000000000000000021"
+
+[[package]]
+name = "notes-34"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "0000000000000000000000000000000000000000000000000000000000000022"
+
+[[package]]
+name = "notes-35"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "0000000000000000000000000000000000000000000000000000000000000023"
+
+[[package]]
+name = "notes-36"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "0000000000000000000000000000000000000000000000000000000000000024"
+
+[[package]]
+name = "notes-37"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "0000000000000000000000000000000000000000000000000000000000000025"
+
+[[package]]
+name = "notes-38"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "0000000000000000000000000000000000000000000000000000000000000026"
+
+[[package]]
+name = "notes-39"
+version = "0.1.0"
+source = "registry+https://example.com/rust-lang/crates.io-index"
+checksum = "0000000000000000000000000000000000000000000000000000000000000027"

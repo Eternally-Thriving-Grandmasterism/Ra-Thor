@@ -20,11 +20,20 @@ struct EnvelopeHit {
 }
 
 pub(crate) fn collect_tool_envelope_findings(content: &str) -> Vec<ScanFinding> {
+    let (values, mut truncated) = json_values(content);
     let mut hits = Vec::new();
-    for value in json_values(content) {
-        walk(&value, None, &mut hits);
+    for value in &values {
+        walk(value, None, &mut hits, &mut truncated);
     }
     let mut findings = Vec::new();
+    if truncated {
+        findings.push(ScanFinding {
+            threat: IngestionThreat::ToolCallEnvelope,
+            signal: "tool:scan_truncated".into(),
+            confidence: 0.55,
+            offset: None,
+        });
+    }
     for hit in hits {
         findings.push(envelope_finding(&hit.name));
         if !hit.name.is_empty() {
@@ -141,18 +150,27 @@ fn medium_ignore_previous(texts: &[String]) -> Vec<ScanFinding> {
     findings
 }
 
-fn json_values(content: &str) -> Vec<Value> {
+/// Embedded JSON values, capped at 8 parsed values and 64 unmatched `{`.
+/// Hitting either cap with a later `{` or `[` still unscanned is truncated.
+/// Unmatched `[` (TOML tables) do not spend the cap.
+fn json_values(content: &str) -> (Vec<Value>, bool) {
     let trimmed = content.trim();
     if let Ok(v) = serde_json::from_str::<Value>(trimmed) {
-        return vec![v];
+        return (vec![v], false);
     }
     let bytes = content.as_bytes();
     let mut out = Vec::new();
     let mut i = 0;
-    let mut attempts = 0usize;
-    while i < bytes.len() && out.len() < 8 && attempts < 64 {
+    let mut failed_braces = 0usize;
+    let mut truncated = false;
+    while i < bytes.len() {
+        if out.len() >= 8 || failed_braces >= 64 {
+            if bytes[i..].iter().any(|&c| c == b'{' || c == b'[') {
+                truncated = true;
+            }
+            break;
+        }
         if bytes[i] == b'{' || bytes[i] == b'[' {
-            attempts += 1;
             if let Some(end) = match_json_end(content, i) {
                 if let Ok(v) = serde_json::from_str::<Value>(&content[i..end]) {
                     out.push(v);
@@ -160,10 +178,13 @@ fn json_values(content: &str) -> Vec<Value> {
                     continue;
                 }
             }
+            if bytes[i] == b'{' {
+                failed_braces += 1;
+            }
         }
         i += 1;
     }
-    out
+    (out, truncated)
 }
 
 fn match_json_end(content: &str, start: usize) -> Option<usize> {
@@ -201,52 +222,61 @@ fn match_json_end(content: &str, start: usize) -> Option<usize> {
     None
 }
 
-fn walk(value: &Value, parent_key: Option<&str>, hits: &mut Vec<EnvelopeHit>) {
+fn walk(
+    value: &Value,
+    parent_key: Option<&str>,
+    hits: &mut Vec<EnvelopeHit>,
+    truncated: &mut bool,
+) {
     match value {
         Value::Object(map) => {
-            if let Some(hit) = detect(map, parent_key) {
+            if let Some(hit) = detect(map, parent_key, truncated) {
                 hits.push(hit);
             }
             for (k, child) in map {
-                walk(child, Some(k.as_str()), hits);
+                walk(child, Some(k.as_str()), hits, truncated);
             }
         }
         Value::Array(items) => {
             for child in items {
-                walk(child, parent_key, hits);
+                walk(child, parent_key, hits, truncated);
             }
         }
         _ => {}
     }
 }
 
-fn detect(map: &Map<String, Value>, parent_key: Option<&str>) -> Option<EnvelopeHit> {
-    if let Some(hit) = detect_openai(map) {
+fn detect(
+    map: &Map<String, Value>,
+    parent_key: Option<&str>,
+    truncated: &mut bool,
+) -> Option<EnvelopeHit> {
+    if let Some(hit) = detect_openai(map, truncated) {
         return Some(hit);
     }
-    if let Some(hit) = detect_mcp_call(map) {
+    if let Some(hit) = detect_mcp_call(map, truncated) {
         return Some(hit);
     }
-    if let Some(hit) = detect_anthropic(map) {
+    if let Some(hit) = detect_anthropic(map, truncated) {
         return Some(hit);
     }
-    if let Some(hit) = detect_tool_result(map) {
+    if let Some(hit) = detect_tool_result(map, truncated) {
         return Some(hit);
     }
     if parent_key == Some("tool_calls") {
-        if let Some(hit) = detect_named_call(map) {
+        if let Some(hit) = detect_named_call(map, truncated) {
             return Some(hit);
         }
     }
     if parent_key == Some("tools") {
-        if let Some(hit) = detect_tool_list_item(map) {
+        if let Some(hit) = detect_tool_list_item(map, truncated) {
             return Some(hit);
         }
     }
     None
 }
 
-fn detect_openai(map: &Map<String, Value>) -> Option<EnvelopeHit> {
+fn detect_openai(map: &Map<String, Value>, truncated: &mut bool) -> Option<EnvelopeHit> {
     if map.get("type").and_then(Value::as_str) != Some("function") {
         return None;
     }
@@ -258,11 +288,14 @@ fn detect_openai(map: &Map<String, Value>) -> Option<EnvelopeHit> {
         .to_string();
     let mut arg_texts = Vec::new();
     if let Some(args) = func.get("arguments") {
-        collect_strings(args, 2, &mut arg_texts);
+        collect_strings(args, 2, &mut arg_texts, truncated);
     }
     let mut description_texts = Vec::new();
     if let Some(desc) = func.get("description") {
-        collect_strings(desc, 0, &mut description_texts);
+        collect_strings(desc, 0, &mut description_texts, truncated);
+    }
+    if let Some(params) = func.get("parameters") {
+        collect_description_fields(params, &mut description_texts, truncated);
     }
     Some(EnvelopeHit {
         name,
@@ -272,7 +305,7 @@ fn detect_openai(map: &Map<String, Value>) -> Option<EnvelopeHit> {
     })
 }
 
-fn detect_mcp_call(map: &Map<String, Value>) -> Option<EnvelopeHit> {
+fn detect_mcp_call(map: &Map<String, Value>, truncated: &mut bool) -> Option<EnvelopeHit> {
     if map.get("method").and_then(Value::as_str) != Some("tools/call") {
         return None;
     }
@@ -284,7 +317,7 @@ fn detect_mcp_call(map: &Map<String, Value>) -> Option<EnvelopeHit> {
         .to_string();
     let mut arg_texts = Vec::new();
     if let Some(args) = params.get("arguments") {
-        collect_strings(args, 2, &mut arg_texts);
+        collect_strings(args, 2, &mut arg_texts, truncated);
     }
     Some(EnvelopeHit {
         name,
@@ -294,7 +327,7 @@ fn detect_mcp_call(map: &Map<String, Value>) -> Option<EnvelopeHit> {
     })
 }
 
-fn detect_anthropic(map: &Map<String, Value>) -> Option<EnvelopeHit> {
+fn detect_anthropic(map: &Map<String, Value>, truncated: &mut bool) -> Option<EnvelopeHit> {
     if map.get("type").and_then(Value::as_str) != Some("tool_use") {
         return None;
     }
@@ -305,7 +338,7 @@ fn detect_anthropic(map: &Map<String, Value>) -> Option<EnvelopeHit> {
         .to_string();
     let mut arg_texts = Vec::new();
     if let Some(input) = map.get("input") {
-        collect_strings(input, 2, &mut arg_texts);
+        collect_strings(input, 2, &mut arg_texts, truncated);
     }
     Some(EnvelopeHit {
         name,
@@ -315,7 +348,7 @@ fn detect_anthropic(map: &Map<String, Value>) -> Option<EnvelopeHit> {
     })
 }
 
-fn detect_tool_result(map: &Map<String, Value>) -> Option<EnvelopeHit> {
+fn detect_tool_result(map: &Map<String, Value>, truncated: &mut bool) -> Option<EnvelopeHit> {
     let is_result = map.get("type").and_then(Value::as_str) == Some("tool_result")
         || map.get("role").and_then(Value::as_str) == Some("tool");
     if !is_result {
@@ -323,7 +356,7 @@ fn detect_tool_result(map: &Map<String, Value>) -> Option<EnvelopeHit> {
     }
     let mut result_texts = Vec::new();
     if let Some(content) = map.get("content") {
-        collect_strings(content, 0, &mut result_texts);
+        collect_strings(content, 0, &mut result_texts, truncated);
     }
     Some(EnvelopeHit {
         name: String::new(),
@@ -333,11 +366,11 @@ fn detect_tool_result(map: &Map<String, Value>) -> Option<EnvelopeHit> {
     })
 }
 
-fn detect_named_call(map: &Map<String, Value>) -> Option<EnvelopeHit> {
+fn detect_named_call(map: &Map<String, Value>, truncated: &mut bool) -> Option<EnvelopeHit> {
     let name = map.get("name")?.as_str()?.to_string();
     let mut arg_texts = Vec::new();
     if let Some(args) = map.get("arguments").or_else(|| map.get("input")) {
-        collect_strings(args, 2, &mut arg_texts);
+        collect_strings(args, 2, &mut arg_texts, truncated);
     }
     Some(EnvelopeHit {
         name,
@@ -347,7 +380,7 @@ fn detect_named_call(map: &Map<String, Value>) -> Option<EnvelopeHit> {
     })
 }
 
-fn detect_tool_list_item(map: &Map<String, Value>) -> Option<EnvelopeHit> {
+fn detect_tool_list_item(map: &Map<String, Value>, truncated: &mut bool) -> Option<EnvelopeHit> {
     let name = map
         .get("name")
         .and_then(Value::as_str)
@@ -358,10 +391,10 @@ fn detect_tool_list_item(map: &Map<String, Value>) -> Option<EnvelopeHit> {
     }
     let mut description_texts = Vec::new();
     if let Some(desc) = map.get("description") {
-        collect_strings(desc, 0, &mut description_texts);
+        collect_strings(desc, 0, &mut description_texts, truncated);
     }
     if let Some(schema) = map.get("inputSchema").or_else(|| map.get("input_schema")) {
-        collect_description_fields(schema, &mut description_texts);
+        collect_description_fields(schema, &mut description_texts, truncated);
     }
     Some(EnvelopeHit {
         name,
@@ -371,20 +404,20 @@ fn detect_tool_list_item(map: &Map<String, Value>) -> Option<EnvelopeHit> {
     })
 }
 
-fn collect_description_fields(value: &Value, out: &mut Vec<String>) {
+fn collect_description_fields(value: &Value, out: &mut Vec<String>, truncated: &mut bool) {
     match value {
         Value::Object(map) => {
             for (k, child) in map {
                 if k == "description" {
-                    collect_strings(child, 0, out);
+                    collect_strings(child, 0, out, truncated);
                 } else {
-                    collect_description_fields(child, out);
+                    collect_description_fields(child, out, truncated);
                 }
             }
         }
         Value::Array(items) => {
             for child in items {
-                collect_description_fields(child, out);
+                collect_description_fields(child, out, truncated);
             }
         }
         _ => {}
@@ -392,15 +425,25 @@ fn collect_description_fields(value: &Value, out: &mut Vec<String>) {
 }
 
 /// `parses_left` is the remaining JSON-string unwraps (arguments cap is 2).
-fn collect_strings(value: &Value, parses_left: u8, out: &mut Vec<String>) {
+/// Object keys are leaves as well as values. A layer past the cap, or a
+/// string longer than `MAX_SCAN_BYTES`, sets `truncated`.
+fn collect_strings(value: &Value, parses_left: u8, out: &mut Vec<String>, truncated: &mut bool) {
     match value {
         Value::String(s) => {
             if s.len() > MAX_SCAN_BYTES {
+                *truncated = true;
                 return;
             }
             if parses_left > 0 {
                 if let Ok(inner) = serde_json::from_str::<Value>(s) {
-                    collect_strings(&inner, parses_left - 1, out);
+                    if parses_left == 1 {
+                        if let Value::String(inner_s) = &inner {
+                            if serde_json::from_str::<Value>(inner_s).is_ok() {
+                                *truncated = true;
+                            }
+                        }
+                    }
+                    collect_strings(&inner, parses_left - 1, out, truncated);
                     return;
                 }
             }
@@ -408,12 +451,13 @@ fn collect_strings(value: &Value, parses_left: u8, out: &mut Vec<String>) {
         }
         Value::Array(items) => {
             for item in items {
-                collect_strings(item, parses_left, out);
+                collect_strings(item, parses_left, out, truncated);
             }
         }
         Value::Object(map) => {
-            for item in map.values() {
-                collect_strings(item, parses_left, out);
+            for (k, item) in map {
+                collect_strings(&Value::String(k.clone()), parses_left, out, truncated);
+                collect_strings(item, parses_left, out, truncated);
             }
         }
         _ => {}

@@ -127,6 +127,9 @@ Existing `benign/tool_call_observe.json` ADMITS with a Low `ToolCallEnvelope` fi
 | `curl_prose.txt` | `example.com` curl notes. |
 | `pipe_bash_prose.txt` | "bash" as a name, no pipe. |
 | `powershell_prose.txt` | PowerShell as a name, no `-enc`. |
+| `markdown_pipe_table.txt` | Table cells `\| Should` and `\| show logs \|`. |
+| `powershell_encoding_utf8.txt` | `powershell -Encoding utf8`. |
+| `cargo_lock_checksums.txt` | Lockfile-style excerpt. 40 mixed-case hex checksums and `example.com` registry paths. |
 
 ### blocked/ (BLOCK)
 
@@ -154,6 +157,13 @@ Existing `benign/tool_call_observe.json` ADMITS with a Low `ToolCallEnvelope` fi
 | `curl_pipe_sh.txt` | `\| sh` marker. `example.invalid` only. |
 | `curl_pipe_bash.txt` | `\| bash` marker. |
 | `powershell_enc.txt` | `powershell -enc` marker. |
+| `powershell_e_flag.txt` | `powershell -e` marker. |
+| `powershell_encodedcommand.txt` | `powershell -encodedcommand` marker. |
+| `tool_envelope_brace_flood.txt` | 64 `{` before an MCP `delete_file` envelope. Medium `tool:scan_truncated`. |
+| `tool_envelope_object_cap_prefix.txt` | Eight small objects before that envelope. Medium `tool:scan_truncated`. |
+| `tool_args_escaped_object_key.json` | Keyword only as a `\uXXXX` object key. |
+| `openai_parameters_description.json` | Keyword in an OpenAI `parameters` property description. |
+| `b64_json_unicode_escape.txt` | Base64 token only as `\uXXXX`. |
 
 ## How to use
 

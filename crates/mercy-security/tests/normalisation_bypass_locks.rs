@@ -283,3 +283,74 @@ fn pipe_bash_marker_blocks() {
         "| bash",
     );
 }
+
+#[test]
+fn markdown_table_pipe_cells_admit() {
+    let text = fixture("benign/markdown_pipe_table.txt");
+    assert!(text.contains("| Should"));
+    assert!(text.contains("| show logs |"));
+    assert_admits("benign/markdown_pipe_table.txt");
+    let scan = IngestionScanner::scan_text(&text);
+    assert!(scan.risk_tier <= RiskTier::Low, "{:?}", scan.findings);
+    assert!(scan.findings.iter().all(|f| f.confidence < 0.40));
+}
+
+#[test]
+fn powershell_encoding_utf8_admits() {
+    let text = fixture("benign/powershell_encoding_utf8.txt");
+    assert!(text.to_lowercase().contains("powershell -encoding utf8"));
+    assert_admits("benign/powershell_encoding_utf8.txt");
+}
+
+#[test]
+fn powershell_e_flag_blocks() {
+    let text = fixture("blocked/powershell_e_flag.txt");
+    assert!(text.to_lowercase().contains("powershell -e "));
+    let scan = assert_blocks("blocked/powershell_e_flag.txt");
+    assert!(scan
+        .findings
+        .iter()
+        .any(|f| f.signal == "powershell -enc" && f.confidence >= 0.85));
+}
+
+#[test]
+fn powershell_encodedcommand_blocks() {
+    let text = fixture("blocked/powershell_encodedcommand.txt");
+    assert!(text.to_lowercase().contains("powershell -encodedcommand "));
+    let scan = assert_blocks("blocked/powershell_encodedcommand.txt");
+    assert!(scan
+        .findings
+        .iter()
+        .any(|f| f.signal == "powershell -enc" && f.confidence >= 0.85));
+}
+
+#[test]
+fn json_escaped_b64_keyword_blocks() {
+    let text = fixture("blocked/b64_json_unicode_escape.txt");
+    assert!(!text.contains("trust_remote_code"));
+    assert!(!text.contains("dHJ1c3RfcmVtb3RlX2NvZGU"));
+    assert!(text.contains("\\u0064"));
+    let scan = assert_blocks("blocked/b64_json_unicode_escape.txt");
+    assert!(
+        scan.findings.iter().any(|f| {
+            f.signal.starts_with("b64:") && f.signal.contains("trust_remote_code")
+        }),
+        "JSON-escaped Base64 must be decoded from the normalised haystack: {:?}",
+        scan.findings
+    );
+}
+
+#[test]
+fn cargo_lock_checksums_admit() {
+    let text = fixture("benign/cargo_lock_checksums.txt");
+    assert!(text.matches("checksum = ").count() >= 40);
+    assert!(text.matches("example.com/rust-lang/crates").count() >= 40);
+    assert_admits("benign/cargo_lock_checksums.txt");
+    let scan = IngestionScanner::scan_text(&text);
+    assert!(
+        scan.findings.iter().all(|f| f.signal != "b64_token_cap"),
+        "hex checksums and registry paths must not trip the token cap: {:?}",
+        scan.findings
+    );
+    assert!(scan.risk_tier <= RiskTier::Low, "{:?}", scan.findings);
+}
