@@ -129,7 +129,7 @@ Until that declaration exists, commercial use remains a written-grant path.
 **Project:** https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor  
 **Site:** https://rathor.ai
 
-**Companies:** rathor.ai is operated by Autonomicity Games Inc. (acitygames.com), the licensor under this exhibit, which sells Ra-Thor commercial licences and games. AlphaProMega Media Inc. publishes the Ra-Thor comic books and animated web series. AlphaProMega Air Foundation is a not-for-profit.
+**Companies:** rathor.ai is operated by Autonomicity Games Inc. (acitygames.com), the licensor under this exhibit, which sells Ra-Thor commercial licences and games. Autonomicity Games Inc. publishes and sells the Ra-Thor: Living Thunder comics (copyright Sherif Botros). AlphaProMega Air Foundation is a not-for-profit.
 
 **One Organism. Mercy first. One grant. One exhibit. One contact.**  
 Yoi ⚡

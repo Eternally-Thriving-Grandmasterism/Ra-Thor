@@ -122,7 +122,7 @@
     },
     de: {
       back: "Zurück zu Ra-Thor",
-      headline: "Ra-Thor kontaktieren™",
+      headline: "Ra-Thor™ kontaktieren",
       subtitle: "Schreiben Sie an info@Rathor.ai",
       intro: "Einzelner offizieller Kontakt unter alleiniger Verwaltung von <span class=\"font-semibold text-amber-300\">Sherif Samy Botros (@AlphaProMega)</span>",
       mainSubtitle: "Die einzige ewige offizielle E-Mail-Adresse für alle Entitäten",

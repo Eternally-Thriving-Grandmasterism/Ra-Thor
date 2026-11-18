@@ -29,7 +29,8 @@ var livePoster = path.join(root, 'assets/art/rathor-hero-living-thunder.jpg');
 assert(fs.existsSync(liveMp4), 'living thunder mp4 must exist');
 assert(fs.existsSync(livePoster), 'living thunder poster must exist');
 assert(fs.statSync(liveMp4).size === 5654960, 'living thunder mp4 must stay the supplied 5654960-byte file');
-assert(fs.statSync(livePoster).size === 310977, 'living thunder poster must stay the supplied 310977-byte file');
+assert(fs.statSync(livePoster).size === 119992, 'living thunder poster is the 640×720 re-encode');
+assert(fs.statSync(livePoster).size < 120000, 'living thunder poster stays under 120 KB');
 
 assert(!fs.existsSync(path.join(root, 'assets/art/hero-home-crownstone-768.webp')), 'crownstone 768 is unreferenced and must be removed');
 assert(!fs.existsSync(path.join(root, 'assets/art/hero-home-crownstone-1168.webp')), 'crownstone 1168 is unreferenced and must be removed');
@@ -51,7 +52,7 @@ assert(heroStart !== -1 && heroEnd > heroStart, 'home hero figure must exist');
 var hero = html.slice(heroStart, heroEnd);
 assert(hero.indexOf('fetchpriority="high"') !== -1, 'still image must be fetchpriority high');
 assert(hero.indexOf('rathor-hero-living-thunder.jpg') !== -1, 'poster jpg must be in the figure');
-assert(hero.indexOf('width="896"') !== -1 && hero.indexOf('height="1008"') !== -1, 'img must set the 8:9 width and height');
+assert(hero.indexOf('width="640"') !== -1 && hero.indexOf('height="720"') !== -1, 'img must set the 8:9 width and height');
 assert(hero.indexOf('alt="Ra-Thor in obsidian and antique-gold armour, with a winged gold helm, a glowing sun chest disc, and an Eye of Horus tower shield, in a storm of golden lightning."') !== -1, 'alt text must describe the living thunder portrait');
 var video = hero.match(/<video\b[^>]*>\s*/);
 assert(video, 'video shell must be in the figure');

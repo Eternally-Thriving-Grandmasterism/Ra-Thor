@@ -8,7 +8,7 @@ History (per the owner's records): Ra-Thor was born from the evolution of AlphaP
 
 ## Companies
 
-rathor.ai is operated by Autonomicity Games Inc. (acitygames.com), which sells Ra-Thor commercial licences and games. AlphaProMega Media Inc. publishes the Ra-Thor comic books and animated web series. AlphaProMega Air Foundation is a not-for-profit.
+rathor.ai is operated by Autonomicity Games Inc. (acitygames.com), which sells Ra-Thor commercial licences and games. Autonomicity Games Inc. publishes and sells the Ra-Thor: Living Thunder comics (copyright Sherif Botros). AlphaProMega Air Foundation is a not-for-profit.
 
 ## What it is
 
@@ -98,6 +98,6 @@ For a direct chat with any model, a person can paste this longer form:
 - [Tier map](https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/TIER_MAP.md): which crates are the Tier-1 product core and which are research.
 - [innovate CLI](https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/crates/innovations-generator/README.md): ranks at most three idea seeds from JSON base ideas. Pairing is in [idea-recycling](https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/crates/idea-recycling/README.md).
 
-Trademarks: AlphaProMega is a trademark of AlphaProMega Media Inc. Powrush, Autonomicity Games and the Autonomicity Games logo are trademarks of Autonomicity Games Inc. The Ra-Thor trademark is pending.
+Trademarks: AlphaProMega is a trademark of AlphaProMega Media Inc. Powrush, Autonomicity Games and the Autonomicity Games logo are trademarks of Autonomicity Games Inc. Ra-Thor™ is a trademark of Autonomicity Games Inc. (application pending).
 
 Contact: info@Rathor.ai
