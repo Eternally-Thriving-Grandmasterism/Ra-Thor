@@ -339,7 +339,7 @@
         '<div class="grid grid-cols-1 md:grid-cols-12 gap-8">' +
           '<div class="md:col-span-3">' +
             '<h4' + fk('footerTrademarksTitle') + '>Trademarks</h4>' +
-            '<p class="rt-legal"' + fk('footerTrademarksText') + '>AlphaProMega is a trademark of AlphaProMega Media Inc. Powrush, Autonomicity Games and the Autonomicity Games logo are trademarks of Autonomicity Games Inc. The Ra-Thor trademark is pending.<br>Grok is a trademark of xAI. X is a trademark of X Corp.</p>' +
+            '<p class="rt-legal"' + fk('footerTrademarksText') + '>AlphaProMega is a trademark of AlphaProMega Media Inc. Powrush, Autonomicity Games and the Autonomicity Games logo are trademarks of Autonomicity Games Inc. Ra-Thor™ is a trademark of Autonomicity Games Inc. (application pending). <br>Grok is a trademark of xAI. X is a trademark of X Corp.</p>' +
           '</div>' +
           '<div class="md:col-span-3">' +
             '<h4' + fk('footerPrivacyTitle') + '>Privacy</h4>' +
@@ -374,7 +374,7 @@
         '<div class="pt-8 mt-8 border-t border-amber-300/20 text-xs flex flex-col md:flex-row justify-between items-center gap-4">' +
           '<div>© 2026 Sherif Samy Botros — sole steward of Autonomicity Games Inc. & AlphaProMega Air Foundation. TOLC 8.' +
             '<p class="rt-acity-line"><a href="https://acitygames.com">Company website · acitygames.com</a> · <a href="https://powrush.com">Game website · powrush.com</a></p>' +
-            '<p class="rt-companies-line text-xs text-white/40 mt-2">rathor.ai is operated by Autonomicity Games Inc. (<a href="https://acitygames.com" class="hover:text-amber-200">acitygames.com</a>), which sells Ra-Thor commercial licences and games. AlphaProMega Media Inc. publishes the Ra-Thor comic books and animated web series. AlphaProMega Air Foundation is a not-for-profit.</p>' +
+            '<p class="rt-companies-line text-xs text-white/60 mt-2">rathor.ai is operated by Autonomicity Games Inc. (<a href="https://acitygames.com" class="hover:text-amber-200">acitygames.com</a>), which sells Ra-Thor commercial licences and games. Autonomicity Games Inc. publishes and sells the Ra-Thor: Living Thunder comics (copyright Sherif Botros). AlphaProMega Air Foundation is a not-for-profit.</p>' +
           '</div>' +
           '<a href="mailto:info@Rathor.ai">info@Rathor.ai</a>' +
         '</div>' +

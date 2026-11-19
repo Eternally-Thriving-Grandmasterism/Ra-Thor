@@ -101,7 +101,8 @@ assert(en.employCta === 'Open how to employ →', 'English employ CTA must say h
 assert(en.employCta.indexOf('employment guide') === -1, 'English employ CTA must not say employment guide');
 assert(en.weekTitle === 'Recent Updates', 'English recent-updates title stays undated');
 assert(en.pathPlayTitle === 'Play', 'English play card title');
-assert(en.pathPlayBody.indexOf('Title Online grey') !== -1, 'English play card keeps Title Online grey');
+assert(en.pathPlayBody.indexOf('Online play is not available yet.') !== -1, 'English play card says online play is not available yet');
+assert(en.pathPlayBody.indexOf('Title Online') === -1, 'English play card drops the unclear Title Online wording');
 assert(en.pathLicenseBody.indexOf('info@Rathor.ai') !== -1, 'English license card keeps the contact');
 assert(en.pathWrapTitle === 'WRAP-EW2', 'WRAP card title stays the repo name');
 assert(en.pathWrapBody.indexOf('EW2 solved = False') !== -1, 'English WRAP card keeps EW2 solved = False');
@@ -150,7 +151,7 @@ files.forEach(function (file) {
     assert(pack.navLineage !== 'Lineage', lang + ' navLineage must not stay the English label');
   }
   assert(pack.pathWrapTitle === 'WRAP-EW2', lang + ' WRAP title stays the repo name');
-  assert(pack.pathPlayBody.indexOf('Title Online') !== -1, lang + ' play card must keep Title Online');
+  assert(pack.pathPlayBody.indexOf('Title Online') === -1, lang + ' play card drops the unclear Title Online wording');
   assert(pack.pathWrapBody.indexOf('EW2 solved = False') !== -1, lang + ' WRAP card must keep EW2 solved = False');
   assert(pack.pathWrapBody.indexOf('COMMERCIAL_LICENSE') !== -1, lang + ' WRAP card must keep COMMERCIAL_LICENSE');
   assert(pack.pathWrapBody.indexOf('solved = True') === -1, lang + ' WRAP card must not solve EW2');
@@ -265,9 +266,15 @@ var ESSAY_UNHOOKED_SITORDER1 = [
 var ESSAY_UNHOOKED_COPYHUMAN1 = [
   'launchKickerWs'
 ];
+// SITE-COPY-1: the private AlphaProMega-Air card is gone, so these labels have no visitor node.
+// They remain in js/i18n-essay.js and locale packs.
+var ESSAY_UNHOOKED_SITECOPY1 = [
+  'launchAirTitle', 'launchAirNote'
+];
 ESSAY.forEach(function (key) {
   if (ESSAY_UNHOOKED_SITORDER1.indexOf(key) !== -1) return;
   if (ESSAY_UNHOOKED_COPYHUMAN1.indexOf(key) !== -1) return;
+  if (ESSAY_UNHOOKED_SITECOPY1.indexOf(key) !== -1) return;
   assert(wired[key], 'essay key ' + key + ' must be marked data-i18n on a visitor page');
 });
 assert(read('employ.html').indexOf('article class="rt-prose"') !== -1, 'employ essay must stay a prose article');

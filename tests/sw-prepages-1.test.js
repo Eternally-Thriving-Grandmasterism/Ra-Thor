@@ -23,8 +23,8 @@ function isFile(rel) {
 
 var sw = read('sw.js');
 
-assert(sw.indexOf('LOCK 20261105a') !== -1, 'header LOCK must be 20261105a');
-assert(sw.indexOf("var LOCK = '20261105a';") !== -1, 'worker cache LOCK must be 20261105a');
+assert(sw.indexOf('LOCK 20261118a') !== -1, 'header LOCK must be 20261118a');
+assert(sw.indexOf("var LOCK = '20261118a';") !== -1, 'worker cache LOCK must be 20261118a');
 assert(sw.indexOf("var LOCK = '20261022f';") === -1, 'previous worker cache LOCK must not stay assigned');
 assert(sw.indexOf("var CACHE = 'rathor-core-' + LOCK;") !== -1, 'CACHE name must stay rathor-core- plus LOCK');
 assert(sw.indexOf('i18n pack token 20260924a') !== -1, 'i18n pack token stays 20260924a');
@@ -127,8 +127,8 @@ var sandbox = {
 vm.createContext(sandbox);
 vm.runInContext(sw, sandbox, { filename: 'sw.js' });
 
-assert(sandbox.LOCK === '20261105a', 'evaluated LOCK must be 20261105a');
-assert(sandbox.CACHE === 'rathor-core-20261105a', 'evaluated cache name must include the new LOCK');
+assert(sandbox.LOCK === '20261118a', 'evaluated LOCK must be 20261118a');
+assert(sandbox.CACHE === 'rathor-core-20261118a', 'evaluated cache name must include the new LOCK');
 ['/examples.html', '/lineage.html'].forEach(function (page) {
   assert(sandbox.PRECACHE.indexOf(page) !== -1, 'evaluated PRECACHE must list ' + page);
 });
@@ -136,10 +136,10 @@ assert(sandbox.CACHE === 'rathor-core-20261105a', 'evaluated cache name must inc
 var installWait;
 handlers.install({ waitUntil: function (p) { installWait = p; } });
 installWait.then(function () {
-  assert(added.indexOf('rathor-core-20261105a /examples.html') !== -1, 'install must precache /examples.html');
-  assert(added.indexOf('rathor-core-20261105a /lineage.html') !== -1, 'install must precache /lineage.html');
-  assert(added.indexOf('rathor-core-20261105a /icons/ra-thor-icon-192.png') !== -1, 'install must precache the 192 icon');
-  assert(added.indexOf('rathor-core-20261105a /icons/ra-thor-icon-512.png') !== -1, 'install must precache the 512 icon');
+  assert(added.indexOf('rathor-core-20261118a /examples.html') !== -1, 'install must precache /examples.html');
+  assert(added.indexOf('rathor-core-20261118a /lineage.html') !== -1, 'install must precache /lineage.html');
+  assert(added.indexOf('rathor-core-20261118a /icons/ra-thor-icon-192.png') !== -1, 'install must precache the 192 icon');
+  assert(added.indexOf('rathor-core-20261118a /icons/ra-thor-icon-512.png') !== -1, 'install must precache the 512 icon');
 
   function navigate(url) {
     var responded;
@@ -160,7 +160,7 @@ installWait.then(function () {
   }).then(function (res) {
     assert(res.from === 'cache', 'offline navigation must fall back to the cache');
     assert(matchCalls[0] === 'https://rathor.ai/lineage.html', 'offline fallback must match the requested document first');
-    console.log('sw-prepages-1: LOCK 20261105a; PRECACHE lists /examples.html and /lineage.html; ' + icons.length + ' icon paths exist; install adds ' + added.length + ' urls');
+    console.log('sw-prepages-1: LOCK 20261118a; PRECACHE lists /examples.html and /lineage.html; ' + icons.length + ' icon paths exist; install adds ' + added.length + ' urls');
   });
 }).catch(function (err) {
   console.error(err && err.stack ? err.stack : err);
