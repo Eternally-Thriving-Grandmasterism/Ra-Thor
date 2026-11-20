@@ -457,3 +457,113 @@ html[data-theme] .card-link:has(.stretched-link:focus-visible) {
 html[data-theme="light"] .card-link:has(.stretched-link:focus-visible) {
   outline-color: var(--rt-gold-deep);
 }
+
+/* CARD-POLISH-1 ---------------------------------------------------------------
+   1. Card titles use the site accent (same tokens as the headings above):
+      gold in dark, deep gold-brown in light. Body text keeps --text-calm.
+   2. Card grids: equal-width, equal-height cards per row, even gaps, and a lone
+      last card centres at the sibling width instead of stretching. A 2-per-card-width
+      grid with auto equal rows is used so any card count balances. Cards stay whole-card links (no markup moved).
+   3. Body text 15px+, balanced padding, text top-aligned, arrow cue pinned bottom. */
+:where(#product-paths, #living-surfaces .grid, #public-works .grid, #science-lattices .grid, #science-watches .grid, .rt-card-grid) {
+  --rt-g: 1rem;
+  --rt-cols: 1;
+}
+html :is(#product-paths, #living-surfaces .grid, #public-works .grid, #science-lattices .grid, #science-watches .grid, .rt-card-grid) {
+  display: grid !important;
+  grid-template-columns: repeat(calc(var(--rt-cols) * 2), minmax(0, 1fr));
+  grid-auto-rows: 1fr;
+  align-items: stretch;
+  gap: var(--rt-g) !important;
+}
+html :is(#product-paths, #living-surfaces .grid, #public-works .grid, #science-lattices .grid, #science-watches .grid, .rt-card-grid) > * {
+  grid-column: span 2 !important;
+  min-width: 0;
+  box-sizing: border-box;
+  display: flex !important;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  min-height: 0 !important;
+  padding: 1.15rem 1.25rem !important;
+}
+@media (min-width: 640px) {
+  :where(#product-paths, #living-surfaces .grid, #public-works .grid, #science-lattices .grid, #science-watches .grid, .rt-card-grid:not(.rt-card-grid--md)) { --rt-cols: 2; }
+}
+@media (min-width: 768px) {
+  .rt-card-grid--md { --rt-cols: 2; }
+}
+@media (min-width: 960px) {
+  #product-paths#product-paths { --rt-cols: 3; }
+}
+/* A lone last card (or last pair of three columns) centres at the sibling width. */
+@media (min-width: 640px) {
+  html :is(#product-paths, #living-surfaces .grid, #public-works .grid, #science-lattices .grid, #science-watches .grid, .rt-card-grid:not(.rt-card-grid--md)) > *:last-child:nth-child(odd) { grid-column: 2 / span 2 !important; }
+}
+@media (min-width: 768px) {
+  html .rt-card-grid--md > *:last-child:nth-child(odd) { grid-column: 2 / span 2 !important; }
+}
+@media (min-width: 960px) {
+  html #product-paths#product-paths > *:last-child:nth-child(odd) { grid-column: span 2 !important; }
+  html #product-paths#product-paths > *:last-child:nth-child(3n+1) { grid-column: 3 / span 2 !important; }
+  html #product-paths#product-paths > *:last-child:nth-child(3n+2) { grid-column: 4 / span 2 !important; }
+  html #product-paths#product-paths > *:nth-last-child(2):nth-child(3n+1) { grid-column: 2 / span 2 !important; }
+}
+/* Titles. Specificity (1,3,3) beats the calm-paragraph and light-desert rules. */
+html[data-theme] :is(#product-paths a, #living-surfaces a, #public-works a, #science-lattices a, #science-watches a, a.rt-card-uniform, a.card-hover)[href] > p:first-child {
+  font-size: 1.0625rem !important;
+  line-height: 1.3;
+  font-weight: 650;
+  margin: 0 !important;
+}
+html[data-theme="dark"] :is(#product-paths a, #living-surfaces a, #public-works a, #science-lattices a, #science-watches a, a.rt-card-uniform, a.card-hover)[href] > p:first-child,
+html[data-theme="dark"] .rt-card-grid > * > div.font-semibold {
+  color: var(--rt-gold) !important;
+}
+html[data-theme="light"] :is(#product-paths a, #living-surfaces a, #public-works a, #science-lattices a, #science-watches a, a.rt-card-uniform, a.card-hover)[href] > p:first-child,
+html[data-theme="light"] .rt-card-grid > * > div.font-semibold {
+  color: var(--rt-gold-deep) !important;
+}
+/* Body text under a card title. */
+html[data-theme] :is(#product-paths a, #living-surfaces a, #public-works a, #science-lattices a, #science-watches a, .rt-card-grid > a)[href] > p:not(:first-child) {
+  font-size: 0.9375rem !important;
+  line-height: 1.5 !important;
+  margin: 0.45rem 0 0 !important;
+}
+html[data-theme] .rt-card-grid > a > p.mt-3 { font-size: 1rem !important; line-height: 1.55 !important; }
+/* Arrow cue, bottom-right, decorative only. Cards that already have a button keep it. */
+html[data-theme] :is(#product-paths a, #living-surfaces a, #public-works a, #science-lattices a, #science-watches a, .rt-card-grid > a):not(:has(.rt-card-action))[href]::after {
+  content: "\2192" / "";
+  margin-top: auto;
+  padding-top: 0.6rem;
+  align-self: flex-end;
+  line-height: 1;
+  font-size: 1.1rem;
+  color: var(--rt-gold-hot);
+  transition: transform 0.2s ease;
+}
+html[data-theme="light"] :is(#product-paths a, #living-surfaces a, #public-works a, #science-lattices a, #science-watches a, .rt-card-grid > a):not(:has(.rt-card-action))[href]::after {
+  color: var(--rt-gold-deep);
+}
+html[data-theme] :is(#product-paths a, #living-surfaces a, #public-works a, #science-lattices a, #science-watches a, .rt-card-grid > a):hover::after {
+  transform: translateX(4px);
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-theme] :is(#product-paths a, #living-surfaces a, #public-works a, #science-lattices a, #science-watches a, .rt-card-grid > a):hover::after { transform: none; }
+}
+
+/* CARD-POLISH-1 follow-up: per-row equal height from 640px (1fr stays on mobile),
+   centre the lone last Launch-map card from 768px, keep the original Launch main
+   padding and full-width CTA bars. The :is(#ct-x, ...) id only raises specificity. */
+@media (min-width: 640px) {
+  html :is(#product-paths, #living-surfaces .grid, #public-works .grid, #science-lattices .grid, #science-watches .grid, .rt-card-grid) { grid-auto-rows: auto !important; }
+}
+@media (min-width: 768px) {
+  html :is(#ct-x, .rt-card-grid--md).rt-card-grid--md > :last-child:nth-child(odd) { grid-column: 2 / span 2 !important; }
+}
+html :is(#ct-x, .rt-card-grid--md).rt-card-grid--md > * { padding: 1.75rem !important; }
+@media (min-width: 640px) {
+  html :is(#ct-x, .rt-card-grid--md).rt-card-grid--md > * { padding: 2rem !important; }
+}
+html .rt-card-grid--md .rt-card-action { align-self: stretch; }
+html .rt-card-grid--md .rt-card-action > :is(a, span) { width: 100%; box-sizing: border-box; }
