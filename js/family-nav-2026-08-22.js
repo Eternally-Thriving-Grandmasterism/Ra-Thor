@@ -343,7 +343,7 @@
           '</div>' +
           '<div class="md:col-span-3">' +
             '<h4' + fk('footerPrivacyTitle') + '>Privacy</h4>' +
-            '<p class="rt-legal"' + fk('homeFooterPrivacy') + '>This website collects no personal data. Computations stay in your browser. No cookies, tracking, or analytics we control.</p>' +
+            '<p class="rt-legal"' + fk('homeFooterPrivacy') + '>Browsing this website collects no personal data; payments are processed by Stripe. Computations stay in your browser. No cookies, tracking, or analytics we control.</p>' +
           '</div>' +
           '<div class="md:col-span-3">' +
             '<h4' + fk('footerWorkspaceTitle') + '>Workspace</h4>' +

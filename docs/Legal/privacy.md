@@ -1,6 +1,6 @@
 # Ra-Thor Privacy Policy
 
-**Last Updated:** 2026-09-18
+**Last Updated:** 2026-11-20
 
 Aligned public page: [https://rathor.ai/privacy.html](https://rathor.ai/privacy.html)
 
@@ -14,11 +14,11 @@ Workspace identity remains **14.15.6**. Lattice Chat surface string may read v14
 
 ## Data Collection
 
-**This website collects no personal data whatsoever.**
+**Payments on this website are processed by Stripe, which handles card and payment details; we receive the payer’s name, email and payment status. Browsing this website and the offline chat still collect no personal data.**
 
 - No cookies are used.
 - No tracking technologies or analytics are employed.
-- No personal information is requested, stored, or transmitted.
+- Apart from payments processed by Stripe, no personal information is requested, stored, or transmitted.
 - All computations and simulations run locally in your browser.
 - Lattice Chat stores sessions in **localStorage** on the visitor’s device only. Optional passphrase encryption uses Web Crypto (PBKDF2 + AES-GCM) in the browser. Living chat does **not** write IndexedDB. Nothing is uploaded to a Ra-Thor backend — we do not operate one.
 - Optional WebLLM and “Local Server” bridges stay on the visitor’s machine. Connecting a local endpoint (Ollama / LM Studio / OpenAI-compatible) is the visitor’s choice and does not send history to rathor.ai.
@@ -32,7 +32,7 @@ When you use **Sovereign Shard v8** or [Lattice Chat](https://rathor.ai/chat.htm
 
 ## Your Rights
 
-Since no personal data is collected by this website, there is no personal data to access, correct, or delete on our servers. You retain full sovereignty over any local data:
+Browsing this website collects no personal data, so there is no personal data from your visit to access, correct, or delete on our servers. If you pay through Stripe, questions about the name, email and payment status we receive can go to info@Rathor.ai. You retain full sovereignty over any local data:
 
 - **Right of access** — Inspect local chat/session data via Developer Tools → Application → Local Storage for this origin.
 - **Right to erasure** — Clear site data or delete this origin’s localStorage at any time. Nothing is retained off-device.
@@ -50,7 +50,7 @@ Names below are **design-intent references**, not ISO/IEC 42001 certification or
 - **EU AI Act**
 - **Canadian IPC-OHRC Principles** / PIPEDA-aligned minimisation
 
-Because this website collects no personal data, many controller obligations are reduced in practice. That is not a certificate.
+Because browsing this website collects no personal data and Stripe handles card and payment details, many controller obligations are reduced in practice. That is not a certificate.
 
 ## Third-Party Services
 
