@@ -551,3 +551,19 @@ html[data-theme] :is(#product-paths a, #living-surfaces a, #public-works a, #sci
 @media (prefers-reduced-motion: reduce) {
   html[data-theme] :is(#product-paths a, #living-surfaces a, #public-works a, #science-lattices a, #science-watches a, .rt-card-grid > a):hover::after { transform: none; }
 }
+
+/* CARD-POLISH-1 follow-up: per-row equal height from 640px (1fr stays on mobile),
+   centre the lone last Launch-map card from 768px, keep the original Launch main
+   padding and full-width CTA bars. The :is(#ct-x, ...) id only raises specificity. */
+@media (min-width: 640px) {
+  html :is(#product-paths, #living-surfaces .grid, #public-works .grid, #science-lattices .grid, #science-watches .grid, .rt-card-grid) { grid-auto-rows: auto !important; }
+}
+@media (min-width: 768px) {
+  html :is(#ct-x, .rt-card-grid--md).rt-card-grid--md > :last-child:nth-child(odd) { grid-column: 2 / span 2 !important; }
+}
+html :is(#ct-x, .rt-card-grid--md).rt-card-grid--md > * { padding: 1.75rem !important; }
+@media (min-width: 640px) {
+  html :is(#ct-x, .rt-card-grid--md).rt-card-grid--md > * { padding: 2rem !important; }
+}
+html .rt-card-grid--md .rt-card-action { align-self: stretch; }
+html .rt-card-grid--md .rt-card-action > :is(a, span) { width: 100%; box-sizing: border-box; }
