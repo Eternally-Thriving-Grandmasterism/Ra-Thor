@@ -481,7 +481,7 @@ window.translations["en"] = {
   "privacyData5": "Lattice Chat stores sessions in <strong class=\"text-amber-300\">localStorage</strong> on this device only. Optional passphrase encryption uses Web Crypto (PBKDF2 + AES-GCM) in the browser. Living chat does not write IndexedDB. Nothing is uploaded to a Ra-Thor backend — we do not operate one.",
   "privacyData6": "Optional WebLLM and “Local Server” bridges stay on your machine. Connecting a local endpoint (Ollama / LM Studio) is your choice and does not send history to rathor.ai.",
   "privacyDataFoot": "The commercial-inquiry form does not upload to rathor.ai; it opens your mail app.",
-  "privacyDataLead": "This website collects no personal data whatsoever.",
+  "privacyDataLead": "Payments on this website are processed by Stripe, which handles card and payment details; we receive the payer’s name, email and payment status. Browsing this website and the offline chat still collect no personal data.",
   "privacyDataTitle": "Data Collection",
   "privacyHow1": "Ra-Thor is a mercy-checked symbolic lattice. When you use the connected demos (Grok or X integrations), those interactions are governed by the respective platforms’ (xAI / X Corp) privacy policies.",
   "privacyHow2": "When you use <strong class=\"text-amber-300\">the Shard demo</strong> or <a href=\"/chat.html\" class=\"text-amber-300 underline\">Lattice Chat</a>, <strong class=\"text-amber-300\">the session store stays on your device</strong>. Optional encryption never leaves the browser. Bridging to Grok / X / another cloud model is explicit and then follows that provider’s policy.",
