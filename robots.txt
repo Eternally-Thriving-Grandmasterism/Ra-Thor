@@ -1,6 +1,6 @@
 # Ra-Thor — Eternal Mercy Thunder
 # Production robots.txt (v14.15.5)
-# Sole stewardship • Offline-first • AG-SML v1.0
+# Sole stewardship • Offline-first • AG-SML v1.2
 # Contact: info@Rathor.ai
 
 User-agent: *

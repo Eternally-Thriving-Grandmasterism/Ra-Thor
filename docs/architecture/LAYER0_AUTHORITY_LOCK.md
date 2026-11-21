@@ -49,6 +49,8 @@ Canonical Layer 0 remains: TOLC 8 Living Mercy Gates.
 | `docs/cursor-teams/MERGE_AUTHORITY.md` | Layer 0 = TOLC 8 invariants; councils deliberate what *may* merge. |
 | Root `ARCHITECTURE.md` | Same lock. |
 
+> **Historical citations.** The `WHITEPAPER_v4.1.md` citations in this document are historical: v4.1 is the archived July 2026 essay ([`docs/archive/root-releases/WHITEPAPER_v4.1.md`](../archive/root-releases/WHITEPAPER_v4.1.md)). The living cover is [Whitepaper v4.2](/docs/WHITEPAPER_v4.2.html), and `PUBLIC_CLAIM.lock.md` governs current public claims.
+
 Prototype consensus (`MercyWeightedVote`, CRDT shards, opt-in Raft) is a **weaker coordination boundary**. It cannot promote a gate-Rejected action.
 
 **Capable · Bounded · Corrigible.**  

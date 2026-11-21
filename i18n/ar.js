@@ -137,7 +137,7 @@ window.translations["ar"] = {
   "faqQ21": "هل يمكن لمنظمة تقييم را-ثور؟",
   "faqA21": "نعم. اكتبوا إلى <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a> واطلبوا تجريبًا محدود الزمن. أدرجوا الاستخدام المقصود والحجم والجدول. الردود بيانات عمل محدودة: احتواء وتقييم، لا ضمان علم مطلق.",
   "faqQ22": "أين الشفرة والوثيقة والرخصة؟",
-  "faqA22": "الشفرة: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor\" class=\"text-amber-300 hover:underline\">المستودع الأحادي را-ثور</a>. الوثيقة: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/WHITEPAPER_v4.1.md\" class=\"text-amber-300 hover:underline\">الورقة البيضاء v4.1</a>. الرخصة: ملفات AG-SML في ذلك المستودع. الاتصال: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a>.",
+  "faqA22": "الشفرة: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor\" class=\"text-amber-300 hover:underline\">المستودع الأحادي را-ثور</a>. الوثيقة: <a href=\"/docs/WHITEPAPER_v4.2.html\" class=\"text-amber-300 hover:underline\">الورقة البيضاء v4.2</a>. الرخصة: ملفات AG-SML في ذلك المستودع. الاتصال: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a>.",
   "faqQ23": "لماذا ما زالت بعض ملفات README على GitHub تستخدم لغة أقدم؟",
   "faqA23": "كُتبت المستودعات الشقيقة على أشهر كثيرة. نص الصفحة الرئيسة هو الصوت العام الحالي. أسطر README الأقدم تاريخية. لا تعلو على هذا الموقع ولا على AG-SML. حيث يتجاوز README الادّعاء، الصفحة الرئيسة والرخصة هما السجل الحي.",
   "faqQ24": "لماذا يبقى الشريط العلوي أصفر على بعض الهواتف؟",

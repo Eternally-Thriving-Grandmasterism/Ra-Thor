@@ -135,7 +135,7 @@ window.translations["vi"] = {
   "faqQ21": "Một tổ chức có thể đánh giá Ra-Thor không?",
   "faqA21": "Có. Viết tới <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a> và yêu cầu thí điểm có thời hạn. Ghi rõ mục đích dùng, quy mô và mốc thời gian. Phản hồi là các tuyên bố công việc có biên: kiềm chế phạm vi và đánh giá, không phải bảo đảm toàn tri.",
   "faqQ22": "Mã nguồn, bài báo và giấy phép ở đâu?",
-  "faqA22": "Mã nguồn: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor\" class=\"text-amber-300 hover:underline\">monorepo Ra-Thor</a>. Bài báo: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/WHITEPAPER_v4.1.md\" class=\"text-amber-300 hover:underline\">Sách trắng v4.1</a>. Giấy phép: các tệp AG-SML trong kho đó. Liên hệ: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a>.",
+  "faqA22": "Mã nguồn: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor\" class=\"text-amber-300 hover:underline\">monorepo Ra-Thor</a>. Bài báo: <a href=\"/docs/WHITEPAPER_v4.2.html\" class=\"text-amber-300 hover:underline\">Sách trắng v4.2</a>. Giấy phép: các tệp AG-SML trong kho đó. Liên hệ: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a>.",
   "faqQ23": "Vì sao một số README trên GitHub vẫn dùng ngôn ngữ cũ hơn?",
   "faqA23": "Các kho chị em được viết qua nhiều tháng. Văn bản trang chủ là tiếng nói công khai hiện tại. Các dòng README cũ hơn là lịch sử. Chúng không thay thế trang này hay AG-SML. Khi một README tuyên bố quá mức, trang chủ và giấy phép là hồ sơ đang sống.",
   "faqQ24": "Vì sao thanh trên vẫn vàng trên một số điện thoại?",

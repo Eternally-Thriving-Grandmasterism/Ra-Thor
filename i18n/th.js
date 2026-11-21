@@ -135,7 +135,7 @@ window.translations["th"] = {
   "faqQ21": "องค์กรประเมิน Ra-Thor ได้หรือไม่?",
   "faqA21": "ได้ เขียนถึง <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a> และขอโครงการนำร่องที่มีขอบเขตเวลา ระบุการใช้งานที่ตั้งใจ ขนาด และเส้นเวลา คำตอบเป็นข้อความขอบเขตงานที่มีขอบเขต: การจำกัดขอบเขตและการประเมิน ไม่ใช่การรับประกันว่ารู้ทุกสิ่ง",
   "faqQ22": "โค้ด เอกสาร และสัญญาอนุญาตอยู่ที่ไหน?",
-  "faqA22": "โค้ด: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor\" class=\"text-amber-300 hover:underline\">โมโนรีโป Ra-Thor</a> เอกสาร: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/WHITEPAPER_v4.1.md\" class=\"text-amber-300 hover:underline\">สมุดปกขาว v4.1</a> สัญญาอนุญาต: ไฟล์ AG-SML ในรีโปนั้น ติดต่อ: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a>",
+  "faqA22": "โค้ด: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor\" class=\"text-amber-300 hover:underline\">โมโนรีโป Ra-Thor</a> เอกสาร: <a href=\"/docs/WHITEPAPER_v4.2.html\" class=\"text-amber-300 hover:underline\">สมุดปกขาว v4.2</a> สัญญาอนุญาต: ไฟล์ AG-SML ในรีโปนั้น ติดต่อ: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a>",
   "faqQ23": "ทำไม README บน GitHub บางไฟล์ยังใช้ภาษาเก่า?",
   "faqA23": "รีโปพี่น้องถูกเขียนข้ามหลายเดือน ข้อความหน้าแรกคือเสียงสาธารณะปัจจุบัน บรรทัด README ที่เก่ากว่าเป็นประวัติศาสตร์ พวกมันไม่ได้ลบล้างไซต์นี้หรือ AG-SML เมื่อ README อ้างเกินจริง หน้าแรกและสัญญาอนุญาตคือบันทึกที่มีชีวิต",
   "faqQ24": "ทำไมแถบด้านบนยังเป็นสีเหลืองบนโทรศัพท์บางเครื่อง?",

@@ -135,7 +135,7 @@ window.translations["he"] = {
   "faqQ21": "האם ארגון יכול להעריך את Ra-Thor?",
   "faqA21": "כן. כתבו אל <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a> ובקשו פיילוט מוגבל בזמן. כללו שימוש מיועד, היקף ולוח זמנים. התשובות הן הצהרות עבודה תחומות: הכלה והערכה, לא ערבות לידיעת-כול.",
   "faqQ22": "היכן הקוד, המאמר והרישיון?",
-  "faqA22": "קוד: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor\" class=\"text-amber-300 hover:underline\">מונורפו Ra-Thor</a>. מאמר: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/WHITEPAPER_v4.1.md\" class=\"text-amber-300 hover:underline\">מסמך לבן v4.1</a>. רישיון: קובצי AG-SML באותו מאגר. יצירת קשר: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a>.",
+  "faqA22": "קוד: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor\" class=\"text-amber-300 hover:underline\">מונורפו Ra-Thor</a>. מאמר: <a href=\"/docs/WHITEPAPER_v4.2.html\" class=\"text-amber-300 hover:underline\">מסמך לבן v4.2</a>. רישיון: קובצי AG-SML באותו מאגר. יצירת קשר: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a>.",
   "faqQ23": "מדוע חלק מקובצי ה-README ב-GitHub עדיין משתמשים בשפה ישנה יותר?",
   "faqA23": "מאגרי האחות נכתבו לאורך חודשים רבים. נוסח דף הבית הוא הקול הציבורי הנוכחי. שורות README ישנות יותר הן היסטוריות. הן אינן גוברות על האתר הזה או על AG-SML. במקום ש-README טוען יותר מדי, דף הבית והרישיון הם התיעוד החי.",
   "faqQ24": "מדוע הסרגל העליון עדיין צהוב בחלק מהטלפונים?",

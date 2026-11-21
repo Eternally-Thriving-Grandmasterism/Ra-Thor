@@ -135,7 +135,7 @@ window.translations["ko"] = {
   "faqQ21": "조직이 Ra-Thor를 평가할 수 있습니까?",
   "faqA21": "예. <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a>로 쓰고, 기간이 정해진 파일럿을 요청하십시오. 예정 용도, 규모, 일정을 넣으십시오. 회신은 범위가 정해진 작업 기술입니다. 격리와 평가이지, 모든 것을 안다는 보증이 아닙니다.",
   "faqQ22": "코드, 논문, 라이선스는 어디에 있습니까?",
-  "faqA22": "코드: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor\" class=\"text-amber-300 hover:underline\">Ra-Thor 모노레포</a>. 논문: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/WHITEPAPER_v4.1.md\" class=\"text-amber-300 hover:underline\">백서 v4.1</a>. 라이선스: 그 저장소의 AG-SML 파일. 연락: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a>.",
+  "faqA22": "코드: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor\" class=\"text-amber-300 hover:underline\">Ra-Thor 모노레포</a>. 논문: <a href=\"/docs/WHITEPAPER_v4.2.html\" class=\"text-amber-300 hover:underline\">백서 v4.2</a>. 라이선스: 그 저장소의 AG-SML 파일. 연락: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a>.",
   "faqQ23": "일부 GitHub README가 아직 옛말을 쓰는 이유는 무엇입니까?",
   "faqA23": "자매 저장소는 여러 달에 걸쳐 쓰였습니다. 홈페이지 문장이 지금의 공개 목소리입니다. 옛 README 줄은 역사입니다. 이 사이트나 AG-SML을 뒤집지 않습니다. README가 과대 주장하는 곳에서는 홈페이지와 라이선스가 살아 있는 기록입니다.",
   "faqQ24": "일부 전화에서 위 막대가 아직 노란 이유는 무엇입니까?",

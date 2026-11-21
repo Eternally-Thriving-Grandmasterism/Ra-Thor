@@ -8,4 +8,4 @@
 
 **Living public cover (16 September 2026):** [`WHITEPAPER_v4.2.md`](WHITEPAPER_v4.2.md) · [`docs/WHITEPAPER_v4.2.md`](docs/WHITEPAPER_v4.2.md)
 
-v4.1 is the July 2026 architecture essay. It is not the living claim ceiling. Combined AGSi stays SURMISE. AG-SML living grant is v1.1. Workspace identity is 14.15.6. Contact: info@Rathor.ai
+v4.1 is the July 2026 architecture essay. It is not the living claim ceiling. Combined AGSi stays SURMISE. AG-SML living grant is v1.2. Workspace identity is 14.15.6. Contact: info@Rathor.ai
