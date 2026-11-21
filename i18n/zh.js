@@ -135,7 +135,7 @@ window.translations["zh"] = {
   "faqQ21": "组织可以评估 Ra-Thor 吗？",
   "faqA21": "可以。请写信至 <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a>，申请有时限的试点。请写明预期用途、规模与时间表。回复是有边界的工作说明：遏制与评估，不是全知保证。",
   "faqQ22": "代码、论文与许可在哪里？",
-  "faqA22": "代码：<a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor\" class=\"text-amber-300 hover:underline\">Ra-Thor 单体仓库</a>。论文：<a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/WHITEPAPER_v4.1.md\" class=\"text-amber-300 hover:underline\">白皮书 v4.1</a>。许可：该仓库中的 AG-SML 文件。联系：<a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a>。",
+  "faqA22": "代码：<a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor\" class=\"text-amber-300 hover:underline\">Ra-Thor 单体仓库</a>。论文：<a href=\"/docs/WHITEPAPER_v4.2.html\" class=\"text-amber-300 hover:underline\">白皮书 v4.2</a>。许可：该仓库中的 AG-SML 文件。联系：<a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a>。",
   "faqQ23": "为什么有些 GitHub README 仍使用较旧的语言？",
   "faqA23": "姐妹仓库是在许多个月里写成的。首页文案是当前的公开声音。较旧的 README 行是历史。它们不覆盖本站或 AG-SML。凡 README 主张过度之处，首页与许可才是活的记录。",
   "faqQ24": "为什么有些手机上顶栏仍是黄色？",

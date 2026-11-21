@@ -135,7 +135,7 @@ window.translations["fa"] = {
   "faqQ21": "آیا یک سازمان می‌تواند Ra-Thor را ارزیابی کند؟",
   "faqA21": "بله. به <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a> بنویسید و پایلوت زمان‌کران بخواهید. استفاده‌ی مورد نظر، مقیاس و زمان‌بندی را بیاورید. پاسخ‌ها بیانیه‌ی کارِ کران‌مندند: مهار و ارزیابی، نه ضمانت همه‌دانی.",
   "faqQ22": "کد، مقاله و پروانه کجا هستند؟",
-  "faqA22": "کد: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor\" class=\"text-amber-300 hover:underline\">مونوریپوی Ra-Thor</a>. مقاله: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/WHITEPAPER_v4.1.md\" class=\"text-amber-300 hover:underline\">سپیدنامه v4.1</a>. پروانه: فایل‌های AG-SML در همان مخزن. تماس: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a>.",
+  "faqA22": "کد: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor\" class=\"text-amber-300 hover:underline\">مونوریپوی Ra-Thor</a>. مقاله: <a href=\"/docs/WHITEPAPER_v4.2.html\" class=\"text-amber-300 hover:underline\">سپیدنامه v4.2</a>. پروانه: فایل‌های AG-SML در همان مخزن. تماس: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a>.",
   "faqQ23": "چرا بعضی READMEهای GitHub هنوز زبان قدیمی‌تر دارند؟",
   "faqA23": "مخازن خواهر در طول ماه‌های بسیار نوشته شده‌اند. متن صفحه‌ی نخست صدای عمومی کنونی است. خط‌های قدیمی‌تر README تاریخی‌اند. این سایت یا AG-SML را کنار نمی‌زنند. جایی که یک README بیش از اندازه ادعا کند، صفحه‌ی نخست و پروانه سابقه‌ی زنده‌اند.",
   "faqQ24": "چرا نوار بالا در بعضی گوشی‌ها هنوز زرد است؟",

@@ -135,7 +135,7 @@ window.translations["tr"] = {
   "faqQ21": "Bir kuruluş Ra-Thor'u değerlendirebilir mi?",
   "faqA21": "Evet. <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a> adresine yazın ve süreyle sınırlı bir pilot isteyin. Niyet edilen kullanımı, ölçeği ve zaman çizelgesini ekleyin. Yanıtlar sınırlı iş tanımlarıdır: sınırlama ve değerlendirme, her şeyi bilme garantisi değil.",
   "faqQ22": "Kod, makale ve lisans nerede?",
-  "faqA22": "Kod: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor\" class=\"text-amber-300 hover:underline\">Ra-Thor monoreposu</a>. Makale: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/WHITEPAPER_v4.1.md\" class=\"text-amber-300 hover:underline\">Beyaz kitap v4.1</a>. Lisans: o depodaki AG-SML dosyaları. İletişim: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a>.",
+  "faqA22": "Kod: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor\" class=\"text-amber-300 hover:underline\">Ra-Thor monoreposu</a>. Makale: <a href=\"/docs/WHITEPAPER_v4.2.html\" class=\"text-amber-300 hover:underline\">Beyaz kitap v4.2</a>. Lisans: o depodaki AG-SML dosyaları. İletişim: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a>.",
   "faqQ23": "Bazı GitHub README'leri neden hâlâ eski dili kullanıyor?",
   "faqA23": "Kardeş depolar aylar boyunca yazıldı. Ana sayfa metni güncel kamu sesidir. Eski README satırları tarihseldir. Bu sitenin veya AG-SML'nin yerine geçmez. Bir README iddiayı abarttığında, yaşayan kayıt ana sayfa ve lisanstır.",
   "faqQ24": "Bazı telefonlarda üst çubuk neden hâlâ sarı?",

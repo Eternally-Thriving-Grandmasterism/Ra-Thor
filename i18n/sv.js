@@ -135,7 +135,7 @@ window.translations["sv"] = {
   "faqQ21": "Kan en organisation utvärdera Ra-Thor?",
   "faqA21": "Ja. Skriv till <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a> och begär en tidsbegränsad pilot. Ange avsedd användning, skala och tidsplan. Svaren är avgränsade arbetsbeskrivningar: inneslutning och utvärdering, inte en allvetandegaranti.",
   "faqQ22": "Var finns koden, uppsatsen och licensen?",
-  "faqA22": "Kod: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor\" class=\"text-amber-300 hover:underline\">Ra-Thor-monorepot</a>. Uppsats: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/WHITEPAPER_v4.1.md\" class=\"text-amber-300 hover:underline\">Vitbok v4.1</a>. Licens: AG-SML-filer i det arkivet. Kontakt: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a>.",
+  "faqA22": "Kod: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor\" class=\"text-amber-300 hover:underline\">Ra-Thor-monorepot</a>. Uppsats: <a href=\"/docs/WHITEPAPER_v4.2.html\" class=\"text-amber-300 hover:underline\">Vitbok v4.2</a>. Licens: AG-SML-filer i det arkivet. Kontakt: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a>.",
   "faqQ23": "Varför använder vissa GitHub-README:n fortfarande äldre språk?",
   "faqA23": "Systerarkiven skrevs under många månader. Startsidans text är den nuvarande offentliga rösten. Äldre README-rader är historiska. De åsidosätter inte den här webbplatsen eller AG-SML. Där en README överdriver är startsidan och licensen den levande redogörelsen.",
   "faqQ24": "Varför är den övre listen fortfarande gul på vissa telefoner?",

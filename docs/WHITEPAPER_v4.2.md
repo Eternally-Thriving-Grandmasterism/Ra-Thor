@@ -50,7 +50,7 @@ Architecture chapters in v4.1 (TOLC 8, Conductor v14, PATSAGi as *architecture*,
 Keep the July file. Do not quote these as present tense without the cover:
 
 1. **“AGSi demonstrated”** by sole-operator Powrush-MMO completion in ≈30–50 days. Living rule: Combined AGSi stays SURMISE. Powrush-MMO is a separate repo and is not sold as finished from this lattice.
-2. **AG-SML v1.0** as the living grant. Living grant is **v1.1**. The 31 August work pack that cited v1.0 is a **draft** freeze, not the current license stamp.
+2. **AG-SML v1.0** as the living grant. Living grant is **v1.2**. The 31 August work pack that cited v1.0 is a **draft** freeze, not the current license stamp.
 3. **Workspace “14.15.x (July 2026)”** as the public identity string. Public identity is **14.15.6**.
 4. **“Production-grade” self-evolution cascade** as a shipping product. Self-evolution remains research forest, not the public offer.
 5. Any reading of v4.1 that implies an xAI partnership, a METR lab, ISO/IEC 42001, EU AI Act conformance, or a hosted rathor.ai key proxy.

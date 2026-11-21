@@ -135,7 +135,7 @@ window.translations["nl"] = {
   "faqQ21": "Kan een organisatie Ra-Thor evalueren?",
   "faqA21": "Ja. Schrijf naar <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a> en vraag een tijdsbegrensde pilot. Vermeld beoogd gebruik, schaal en tijdlijn. Antwoorden zijn begrensde werkverklaringen: inperking en evaluatie, geen alwetendheidsgarantie.",
   "faqQ22": "Waar zijn de code, het document en de licentie?",
-  "faqA22": "Code: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor\" class=\"text-amber-300 hover:underline\">Ra-Thor-monorepo</a>. Document: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/WHITEPAPER_v4.1.md\" class=\"text-amber-300 hover:underline\">Whitepaper v4.1</a>. Licentie: AG-SML-bestanden in die repository. Contact: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a>.",
+  "faqA22": "Code: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor\" class=\"text-amber-300 hover:underline\">Ra-Thor-monorepo</a>. Document: <a href=\"/docs/WHITEPAPER_v4.2.html\" class=\"text-amber-300 hover:underline\">Whitepaper v4.2</a>. Licentie: AG-SML-bestanden in die repository. Contact: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a>.",
   "faqQ23": "Waarom gebruiken sommige GitHub-README's nog oudere taal?",
   "faqA23": "Zusterrepositories zijn over vele maanden geschreven. De homepage-tekst is de huidige openbare stem. Oudere README-regels zijn historisch. Ze gaan niet boven deze site of AG-SML. Waar een README overclaimt, zijn homepage en licentie het levende register.",
   "faqQ24": "Waarom is de bovenste balk op sommige telefoons nog geel?",

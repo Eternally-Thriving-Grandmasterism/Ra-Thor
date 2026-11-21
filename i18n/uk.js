@@ -135,7 +135,7 @@ window.translations["uk"] = {
   "faqQ21": "Чи може організація оцінити Ra-Thor?",
   "faqA21": "Так. Напишіть на <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a> і запитайте обмежений у часі пілот. Додайте передбачуване використання, масштаб і строки. Відповіді — обмежені формулювання обсягу робіт: стримування й оцінювання, а не гарантія всезнання.",
   "faqQ22": "Де код, праця й ліцензія?",
-  "faqA22": "Код: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor\" class=\"text-amber-300 hover:underline\">монорепозиторій Ra-Thor</a>. Праця: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/WHITEPAPER_v4.1.md\" class=\"text-amber-300 hover:underline\">Біла книга v4.1</a>. Ліцензія: файли AG-SML у тому репозиторії. Контакт: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a>.",
+  "faqA22": "Код: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor\" class=\"text-amber-300 hover:underline\">монорепозиторій Ra-Thor</a>. Праця: <a href=\"/docs/WHITEPAPER_v4.2.html\" class=\"text-amber-300 hover:underline\">Біла книга v4.2</a>. Ліцензія: файли AG-SML у тому репозиторії. Контакт: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a>.",
   "faqQ23": "Чому деякі README на GitHub і далі вживають давніше формулювання?",
   "faqA23": "Сестринські репозиторії писали протягом багатьох місяців. Текст головної сторінки — нинішній публічний голос. Давніші рядки README — історичні. Вони не скасовують цей сайт чи AG-SML. Де README завищує твердження, живим записом є головна сторінка й ліцензія.",
   "faqQ24": "Чому на деяких телефонах верхня смуга й досі жовта?",

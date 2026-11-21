@@ -142,7 +142,7 @@ window.translations["en"] = {
   "faqQ21": "Can an organization evaluate Ra-Thor?",
   "faqA21": "Yes. Write to <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a> and request a time-bounded pilot. Include intended use, scale, and timeline. Replies are bounded statements of work: containment and evaluation, not an omniscience guarantee.",
   "faqQ22": "Where are the code, the paper, and the license?",
-  "faqA22": "Code: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor\" class=\"text-amber-300 hover:underline\">Ra-Thor monorepo</a>. Paper: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/WHITEPAPER_v4.1.md\" class=\"text-amber-300 hover:underline\">Whitepaper v4.1</a>. License: AG-SML files in that repository. Contact: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a>.",
+  "faqA22": "Code: <a href=\"https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor\" class=\"text-amber-300 hover:underline\">Ra-Thor monorepo</a>. Paper: <a href=\"/docs/WHITEPAPER_v4.2.html\" class=\"text-amber-300 hover:underline\">Whitepaper v4.2 (living cover)</a>. License: AG-SML files in that repository. Contact: <a href=\"mailto:info@Rathor.ai\" class=\"text-amber-300 hover:underline\">info@Rathor.ai</a>.",
   "faqQ23": "Why do some GitHub READMEs still use older language?",
   "faqA23": "Sister repositories were written across many months. Homepage copy is the current public voice. Older README lines are historical. They do not override this site or AG-SML. Where a README overclaims, the homepage and the license are the living record.",
   "faqQ24": "Why is the top bar still yellow on some phones?",
