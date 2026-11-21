@@ -1,3 +1,5 @@
+> **Superseded by [Whitepaper v4.2](/docs/WHITEPAPER_v4.2.html).** Its “AGSi demonstrated”, ≈30–50-day and “production-grade” claims are retired per [`PUBLIC_CLAIM.lock.md`](/PUBLIC_CLAIM.lock.md).
+
 > **Historical record.** This archived document reflects earlier wording and is not the living claim ceiling. `PUBLIC_CLAIM.lock.md` governs current public claims.
 
 # Ra-Thor ONE Organism
