@@ -357,7 +357,7 @@ window.translations["hi"] = {
   "homeFooterWorkspace": "v14.15.6 · AG-SML v1.2 · TOLC 8 · सक्षम · सीमित · सुधार योग्य",
   "homeLaunchMap": "प्रक्षेपण मानचित्र",
   "homeMoments": "सूक्ष्म-क्षण",
-  "homeMonorepo": "मोनोरेपो",
+  "homeMonorepo": "Source on GitHub",
   "homeOfflineChat": "ऑफ़लाइन Lattice Chat",
   "homePaperLink": "श्वेतपत्र v4.2 — जीवित सार्वजनिक आवरण →",
   "homePaperNote": "Ra-Thor Autonomicity Games Inc. का जाँच-योग्य शोध सॉफ़्टवेयर है। वैकल्पिक Grok PATSAGi के अधीन एक कार्य सत्र है। Inspect ≠ METR। परत 0 प्रवेश कवच है, सैंपलर भार नहीं। वाणिज्यिक शर्तें मूल्यांकन और अनुज्ञा को कवर करती हैं। पायलट: info@Rathor.ai।",

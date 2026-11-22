@@ -357,7 +357,7 @@ window.translations["pl"] = {
   "homeFooterWorkspace": "v14.15.6 · AG-SML v1.2 · TOLC 8 · Zdolny · Ograniczony · Korygowalny",
   "homeLaunchMap": "Mapa uruchomienia",
   "homeMoments": "Mikromomenty",
-  "homeMonorepo": "Monorepozytorium",
+  "homeMonorepo": "Source on GitHub",
   "homeOfflineChat": "Lattice Chat w trybie offline",
   "homePaperLink": "Biała księga v4.2 — żywa publiczna okładka →",
   "homePaperNote": "Ra-Thor to oprogramowanie badawcze do wglądu od Autonomicity Games Inc. Opcjonalny Grok to sesja robocza pod PATSAGi. Granica Inspect ≠ METR zostaje. Warstwa 0 to powłoka przyjęcia, nie wagi samplera. Warunki komercyjne obejmują ocenę i licencję. Pilotaże: info@Rathor.ai.",

@@ -357,7 +357,7 @@ window.translations["ko"] = {
   "homeFooterWorkspace": "v14.15.6 · AG-SML v1.2 · TOLC 8 · 능력 있음 · 경계 있음 · 교정 가능",
   "homeLaunchMap": "실행 지도",
   "homeMoments": "마이크로 순간",
-  "homeMonorepo": "모노레포",
+  "homeMonorepo": "Source on GitHub",
   "homeOfflineChat": "오프라인 Lattice Chat",
   "homePaperLink": "백서 v4.2 — 살아 있는 공개 표지 →",
   "homePaperNote": "Ra-Thor는 Autonomicity Games Inc.의 검사 가능한 연구 소프트웨어입니다. 선택적 Grok은 PATSAGi 아래의 작업 세션입니다. Inspect ≠ METR. 레이어 0은 접수 쉘이며 샘플러 가중치가 아님. 상업 조건은 평가와 라이선스를 다룹니다. 파일럿: info@Rathor.ai.",

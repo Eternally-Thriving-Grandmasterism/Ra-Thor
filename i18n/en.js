@@ -366,7 +366,7 @@ window.translations["en"] = {
   "homeFooterWorkspace": "Version 14.15.6 · Licence AG-SML v1.2",
   "homeLaunchMap": "Launch map",
   "homeMoments": "Micro-moments",
-  "homeMonorepo": "Monorepo",
+  "homeMonorepo": "Source on GitHub",
   "homeOfflineChat": "Private offline chat",
   "homePaperLink": "Whitepaper v4.2 — living public cover →",
   "homePaperNote": "Ra-Thor is inspectable research software from Autonomicity Games Inc. Optional Grok is a working session under PATSAGi. Inspect ≠ METR. Layer 0 is an admission shell, not sampler weights. Commercial terms cover evaluation and license. Pilots: info@Rathor.ai.",

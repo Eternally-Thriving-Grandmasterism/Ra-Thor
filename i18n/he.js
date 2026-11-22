@@ -357,7 +357,7 @@ window.translations["he"] = {
   "homeFooterWorkspace": "v14.15.6 · AG-SML v1.2 · TOLC 8 · מסוגל · תחום · בר-תיקון",
   "homeLaunchMap": "מפת הפעלה",
   "homeMoments": "רגעי-מיקרו",
-  "homeMonorepo": "מונורפו",
+  "homeMonorepo": "Source on GitHub",
   "homeOfflineChat": "Lattice Chat לא-מקוון",
   "homePaperLink": "מסמך לבן v4.2 — כריכה ציבורית חיה →",
   "homePaperNote": "Ra-Thor הוא תוכנת מחקר הניתנת לבדיקה של Autonomicity Games Inc. Grok אופציונלי הוא מפגש עבודה תחת PATSAGi. Inspect ≠ METR. שכבה 0 היא קליפת קבלה, לא משקלי דגימה. התנאים המסחריים מכסים הערכה ורישיון. פיילוטים: info@Rathor.ai.",

@@ -357,7 +357,7 @@ window.translations["ru"] = {
   "homeFooterWorkspace": "v14.15.6 · AG-SML v1.2 · TOLC 8 · Способен · Ограничен · Исправим",
   "homeLaunchMap": "Карта запуска",
   "homeMoments": "Микромоменты",
-  "homeMonorepo": "Монорепозиторий",
+  "homeMonorepo": "Source on GitHub",
   "homeOfflineChat": "Офлайн Lattice Chat",
   "homePaperLink": "Белая книга v4.2 — живая публичная обложка →",
   "homePaperNote": "Ra-Thor — проверяемое исследовательское ПО Autonomicity Games Inc. Опциональный Grok — рабочая сессия под PATSAGi. Граница Inspect ≠ METR сохраняется. Слой 0 — оболочка допуска, не веса сэмплера. Коммерческие условия охватывают оценку и лицензию. Пилоты: info@Rathor.ai.",

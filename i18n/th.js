@@ -357,7 +357,7 @@ window.translations["th"] = {
   "homeFooterWorkspace": "v14.15.6 · AG-SML v1.2 · TOLC 8 · มีความสามารถ · มีขอบเขต · แก้ไขได้",
   "homeLaunchMap": "แผนที่เปิดใช้",
   "homeMoments": "ช่วงขณะจุลภาค",
-  "homeMonorepo": "โมโนรีโป",
+  "homeMonorepo": "Source on GitHub",
   "homeOfflineChat": "Lattice Chat แบบออฟไลน์",
   "homePaperLink": "สมุดปกขาว v4.2 — ปกสาธารณะที่มีชีวิต →",
   "homePaperNote": "Ra-Thor เป็นซอฟต์แวร์วิจัยที่ตรวจสอบได้จาก Autonomicity Games Inc. Grok ตามเลือกเป็นเซสชันทำงานภายใต้ PATSAGi. Inspect ≠ METR. ชั้น 0 เป็นเปลือกการรับ ไม่ใช่ค่าน้ำหนักของตัวสุ่มตัวอย่าง ข้อกำหนดเชิงพาณิชย์ครอบคลุมการประเมินและสัญญาอนุญาต โครงการนำร่อง: info@Rathor.ai",

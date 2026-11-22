@@ -357,7 +357,7 @@ window.translations["vi"] = {
   "homeFooterWorkspace": "v14.15.6 · AG-SML v1.2 · TOLC 8 · Có năng lực · Có biên · Có thể sửa",
   "homeLaunchMap": "Bản đồ khởi chạy",
   "homeMoments": "Khoảnh khắc vi mô",
-  "homeMonorepo": "Kho hợp nhất",
+  "homeMonorepo": "Source on GitHub",
   "homeOfflineChat": "Lattice Chat ngoại tuyến",
   "homePaperLink": "Sách trắng v4.2 — bìa công khai đang sống →",
   "homePaperNote": "Ra-Thor là phần mềm nghiên cứu có thể kiểm tra của Autonomicity Games Inc. Grok tùy chọn là một phiên làm việc dưới PATSAGi. Inspect ≠ METR. Lớp 0 là vỏ tiếp nhận, không phải trọng số sampler. Điều khoản thương mại bao gồm đánh giá và giấy phép. Chương trình thử: info@Rathor.ai.",

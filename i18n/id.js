@@ -357,7 +357,7 @@ window.translations["id"] = {
   "homeFooterWorkspace": "v14.15.6 · AG-SML v1.2 · TOLC 8 · Mampu · Berbatas · Dapat dikoreksi",
   "homeLaunchMap": "Peta luncur",
   "homeMoments": "Momen mikro",
-  "homeMonorepo": "Repositori tunggal",
+  "homeMonorepo": "Source on GitHub",
   "homeOfflineChat": "Lattice Chat luring",
   "homePaperLink": "Buku putih v4.2 — sampul publik yang hidup →",
   "homePaperNote": "Ra-Thor adalah perangkat lunak riset yang dapat diperiksa dari Autonomicity Games Inc. Grok opsional adalah sesi kerja di bawah PATSAGi. Inspect ≠ METR. Lapisan 0 adalah cangkang penerimaan, bukan bobot sampler. Syarat komersial mencakup evaluasi dan lisensi. Pilot: info@Rathor.ai.",

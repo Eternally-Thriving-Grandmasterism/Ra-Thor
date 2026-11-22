@@ -357,7 +357,7 @@ window.translations["ja"] = {
   "homeFooterWorkspace": "v14.15.6 · AG-SML v1.2 · TOLC 8 · 能力あり · 境界あり · 訂正可能",
   "homeLaunchMap": "起動マップ",
   "homeMoments": "マイクロ瞬間",
-  "homeMonorepo": "モノレポ",
+  "homeMonorepo": "Source on GitHub",
   "homeOfflineChat": "オフライン Lattice Chat",
   "homePaperLink": "ホワイトペーパー v4.2 — 生きた公開の表紙 →",
   "homePaperNote": "Ra-Thor は Autonomicity Games Inc. の検査可能な研究ソフトウェアです。任意の Grok は PATSAGi の下の作業セッションです。Inspect ≠ METR。レイヤー 0 は受付シェルであり、サンプラー重みではありません。商業条件は評価と許諾を扱います。パイロット：info@Rathor.ai。",
