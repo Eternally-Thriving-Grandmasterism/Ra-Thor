@@ -357,7 +357,7 @@ window.translations["el"] = {
   "homeFooterWorkspace": "v14.15.6 · AG-SML v1.2 · TOLC 8 · Ικανό · Οριοθετημένο · Διορθώσιμο",
   "homeLaunchMap": "Χάρτης εκκίνησης",
   "homeMoments": "Μικροστιγμές",
-  "homeMonorepo": "Source on GitHub",
+  "homeMonorepo": "Μονοαποθετήριο",
   "homeOfflineChat": "Lattice Chat εκτός σύνδεσης",
   "homePaperLink": "Λευκή βίβλος v4.2 — ζωντανό δημόσιο εξώφυλλο →",
   "homePaperNote": "Το Ra-Thor είναι επιθεωρήσιμο λογισμικό έρευνας της Autonomicity Games Inc. Το προαιρετικό Grok είναι συνεδρία εργασίας υπό το PATSAGi. Inspect ≠ METR. Το Επίπεδο 0 είναι κέλυφος εισδοχής, όχι βάρη δειγματολήπτη. Οι εμπορικοί όροι καλύπτουν αξιολόγηση και άδεια. Πιλοτικές δοκιμές: info@Rathor.ai.",

@@ -357,7 +357,7 @@ window.translations["zh"] = {
   "homeFooterWorkspace": "v14.15.6 · AG-SML v1.2 · TOLC 8 · 有能力 · 有边界 · 可纠正",
   "homeLaunchMap": "启动地图",
   "homeMoments": "微瞬间",
-  "homeMonorepo": "Source on GitHub",
+  "homeMonorepo": "单体仓库",
   "homeOfflineChat": "离线 Lattice Chat",
   "homePaperLink": "白皮书 v4.2 — 活的公开封面 →",
   "homePaperNote": "Ra-Thor 是来自 Autonomicity Games Inc. 的可检视研究软件。可选 Grok 是 PATSAGi 下的工作会话。Inspect ≠ METR。第 0 层是准入外壳，不是采样权重。商业条款覆盖评估与许可。试点：info@Rathor.ai。",

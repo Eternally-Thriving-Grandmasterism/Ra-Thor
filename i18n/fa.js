@@ -357,7 +357,7 @@ window.translations["fa"] = {
   "homeFooterWorkspace": "v14.15.6 · AG-SML v1.2 · TOLC 8 · توانا · کران‌مند · اصلاح‌پذیر",
   "homeLaunchMap": "نقشه‌ی آغاز",
   "homeMoments": "لحظه‌های خُرد",
-  "homeMonorepo": "Source on GitHub",
+  "homeMonorepo": "مونوریپو",
   "homeOfflineChat": "Lattice Chat آفلاین",
   "homePaperLink": "سپیدنامه v4.2 — جلد عمومی زنده ←",
   "homePaperNote": "Ra-Thor نرم‌افزار پژوهشی قابل وارسی از Autonomicity Games Inc است. Grok اختیاری نشست کاری زیر PATSAGi است. Inspect ≠ METR. لایه ۰ پوسته پذیرش است، نه وزن‌های نمونه‌بردار. شروط تجاری ارزیابی و پروانه را پوشش می‌دهند. پایلوت‌ها: info@Rathor.ai.",

@@ -357,7 +357,7 @@ window.translations["pt"] = {
   "homeFooterWorkspace": "v14.15.6 · AG-SML v1.2 · TOLC 8 · Capaz · Delimitado · Corrigível",
   "homeLaunchMap": "Mapa de lançamento",
   "homeMoments": "Micro-momentos",
-  "homeMonorepo": "Source on GitHub",
+  "homeMonorepo": "O monorepo",
   "homeOfflineChat": "Lattice Chat offline",
   "homePaperLink": "Whitepaper v4.2 — capa pública viva →",
   "homePaperNote": "Ra-Thor é software de investigação inspecionável da Autonomicity Games Inc. O Grok opcional é uma sessão de trabalho sob PATSAGi. Inspect ≠ METR. A Camada 0 é uma casca de admissão, não pesos de amostragem. Os termos comerciais cobrem avaliação e licença. Pilotos: info@Rathor.ai.",

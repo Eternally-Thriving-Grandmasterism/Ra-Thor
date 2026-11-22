@@ -357,7 +357,7 @@ window.translations["nl"] = {
   "homeFooterWorkspace": "v14.15.6 · AG-SML v1.2 · TOLC 8 · Bekwaam · Begrensd · Corrigeerbaar",
   "homeLaunchMap": "Startkaart",
   "homeMoments": "Micromomenten",
-  "homeMonorepo": "Source on GitHub",
+  "homeMonorepo": "Bronmonorepo",
   "homeOfflineChat": "Lattice Chat offline",
   "homePaperLink": "Whitepaper v4.2 — levende openbare omslag →",
   "homePaperNote": "Ra-Thor is inspecteerbare onderzoekssoftware van Autonomicity Games Inc. Optionele Grok is een werksessie onder PATSAGi. Markering Inspect ≠ METR. Laag 0 is een toelatingsomhulsel, geen samplergewichten. Commerciële voorwaarden dekken evaluatie en licentie. Piloten: info@Rathor.ai.",

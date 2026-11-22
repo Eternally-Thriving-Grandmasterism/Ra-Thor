@@ -357,7 +357,7 @@ window.translations["tr"] = {
   "homeFooterWorkspace": "v14.15.6 · AG-SML v1.2 · TOLC 8 · Yetenekli · Sınırlı · Düzeltilebilir",
   "homeLaunchMap": "Başlatma haritası",
   "homeMoments": "Mikro anlar",
-  "homeMonorepo": "Source on GitHub",
+  "homeMonorepo": "Tek depo",
   "homeOfflineChat": "Çevrimdışı Lattice Chat",
   "homePaperLink": "Beyaz kitap v4.2 — yaşayan kamu kapağı →",
   "homePaperNote": "Ra-Thor, Autonomicity Games Inc. kaynaklı incelenebilir araştırma yazılımıdır. İsteğe bağlı Grok, PATSAGi altında bir çalışma oturumudur. Inspect ≠ METR. Katman 0 bir kabul kabuğudur, örnekleyici ağırlıkları değil. Ticari koşullar değerlendirme ve lisansı kapsar. Pilotlar: info@Rathor.ai.",

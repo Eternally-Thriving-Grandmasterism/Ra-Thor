@@ -357,7 +357,7 @@ window.translations["uk"] = {
   "homeFooterWorkspace": "v14.15.6 · AG-SML v1.2 · TOLC 8 · Здатний · Обмежений · Виправлюваний",
   "homeLaunchMap": "Карта запуску",
   "homeMoments": "Мікромоменти",
-  "homeMonorepo": "Source on GitHub",
+  "homeMonorepo": "Монорепозиторій",
   "homeOfflineChat": "Офлайн Lattice Chat",
   "homePaperLink": "Біла книга v4.2 — жива публічна обкладинка →",
   "homePaperNote": "Ra-Thor — програмне забезпечення для досліджень, яке можна оглянути, від Autonomicity Games Inc. Необов'язковий Grok — робочий сеанс під PATSAGi. Межа Inspect ≠ METR зберігається. Шар 0 — оболонка допуску, не ваги семплера. Комерційні умови охоплюють оцінювання і ліцензію. Пілоти: info@Rathor.ai.",

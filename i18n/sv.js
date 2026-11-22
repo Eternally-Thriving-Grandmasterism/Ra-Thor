@@ -357,7 +357,7 @@ window.translations["sv"] = {
   "homeFooterWorkspace": "v14.15.6 · AG-SML v1.2 · TOLC 8 · Kapabel · Avgränsad · Korrigerbar",
   "homeLaunchMap": "Startkarta",
   "homeMoments": "Mikroögonblick",
-  "homeMonorepo": "Source on GitHub",
+  "homeMonorepo": "Källmonorepo",
   "homeOfflineChat": "Lattice Chat offline",
   "homePaperLink": "Vitbok v4.2 — levande offentligt omslag →",
   "homePaperNote": "Ra-Thor är granskningsbar forskningsprogramvara från Autonomicity Games Inc. Valfri Grok är en arbetssession under PATSAGi. Märkning Inspect ≠ METR. Lager 0 är ett antagningsskal, inte sampler-vikter. Kommersiella villkor täcker utvärdering och licens. Piloter: info@Rathor.ai.",

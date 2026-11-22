@@ -357,7 +357,7 @@ window.translations["ar"] = {
   "homeFooterWorkspace": "v14.15.6 · AG-SML v1.2 · TOLC 8 · قادر · محدود · قابل للتصحيح",
   "homeLaunchMap": "خريطة الإطلاق",
   "homeMoments": "اللحظات الدقيقة",
-  "homeMonorepo": "Source on GitHub",
+  "homeMonorepo": "المستودع الأحادي",
   "homeOfflineChat": "Lattice Chat دون اتصال",
   "homePaperLink": "الورقة البيضاء v4.2 — الغلاف العام الحي ←",
   "homePaperNote": "Ra-Thor برمجيات بحث قابلة للمعاينة من Autonomicity Games Inc. جلسة Grok الاختيارية جلسة عمل تحت PATSAGi. Inspect ≠ METR. الطبقة 0 غلاف قبول، ليست أوزان عيّنة. الشروط التجارية تغطي التقييم والرخصة. التجارب: info@Rathor.ai.",
