@@ -367,7 +367,7 @@
               '<a href="/licence.html"' + fk('navLicence') + '>Ra-Thor Commercial Licence</a>' +
               '<a href="/third-party-models.html">Third-party models</a>' +
               '<a href="/lineage.html"' + fk('navLineage') + '>Lineage</a>' +
-              '<a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor" target="_blank" rel="noopener"' + fk('homeMonorepo') + '>Monorepo</a>' +
+              '<a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor" target="_blank" rel="noopener"' + fk('homeMonorepo') + '>Source on GitHub</a>' +
               '<a href="mailto:info@Rathor.ai">info@Rathor.ai</a>' +
             '</div>' +
           '</div>' +
