@@ -42,7 +42,7 @@ var EXPECT = [
   ['navExamples', "'<a href=\"/examples.html\"' + fk('navExamples') + '>Examples</a>'"],
   ['navLicence', "'<a href=\"/licence.html\"' + fk('navLicence') + '>Ra-Thor Commercial Licence</a>'"],
   ['navLineage', "'<a href=\"/lineage.html\"' + fk('navLineage') + '>Lineage</a>'"],
-  ['homeMonorepo', "rel=\"noopener\"' + fk('homeMonorepo') + '>Monorepo</a>'"]
+  ['homeMonorepo', "rel=\"noopener\"' + fk('homeMonorepo') + '>Source on GitHub</a>'"]
 ];
 EXPECT.forEach(function (pair) {
   assert(footer.indexOf(pair[1]) !== -1, 'footer element for ' + pair[0] + ' is missing its hook or its English changed');
@@ -83,11 +83,12 @@ files.forEach(function (f) {
 // Hashes updated by PRIVACY-DATE-1: privacyUpdated → 2026-10-22, employStamp → 22 Oct 2026, swatchStamp date stripped.
 // MODEL-NOTICES-1: licenceFaqQuote and faqA16 carry the same English §1B parenthetical in every pack.
 // WP-FAQ-LINK-1: faqA22 links /docs/WHITEPAPER_v4.2.html (label v4.2) in every pack.
+// LINKS-FIX-1: English homeMonorepo is "Source on GitHub". Other packs keep their existing translations.
 var PACKS = {
   'ar.js': 'c05423a3e2a6bf102baee144ed6732fb1bba11f119935d401b42bdb5dfdebd8e',
   'de.js': '7931f3a7c723d67d6a53c2ee54b438314b3f5b14dd1eb0623c020d23a4c0bed1',
   'el.js': '869ecc44240e2f31fd7a08f420ff43b339d582157dda95b7dc541bc1c79c1278',
-  'en.js': 'e341eb43465c24c8e1f6a95825278f2ec8d5c5d9ceb0813809733cbdba3b6945',
+  'en.js': '8a933351170102b840a39a696c4ca9194793f5703b29275c495512816b658723',
   'es.js': '5811be778a05d5dbf765a6f4d2131de99d851a165a30b922e640bcf085c883da',
   'fa.js': 'ef429e14befd06276af9233523d19ddf95d2363e600ca6a0e81c42902ef572d5',
   'fr.js': 'b4747e7a32653b5e94c36e3001e80bec834b87263474d66fc4f17666d83b1a1f',
