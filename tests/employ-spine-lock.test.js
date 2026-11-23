@@ -123,7 +123,7 @@ assert(indexHtml.indexOf('fonts.googleapis.com') === -1, 'index.html must not lo
 assert(indexHtml.indexOf('ceo@acitygames.com') === -1, 'index.html must not contain ceo@acitygames.com');
 assert(indexHtml.indexOf('id="hero-headline"') !== -1 && indexHtml.indexOf('title-font') !== -1 && indexHtml.indexOf('thunder-glow') !== -1, 'hero must keep title-font + thunder-glow');
 assert(indexHtml.indexOf('Delivered software') === -1, 'index.html must not restore Delivered software');
-assert(indexHtml.indexOf('WHITEPAPER_v4.2') !== -1, 'index.html must point at living cover v4.2');
+assert(indexHtml.indexOf('WHITEPAPER_v4.3') !== -1, 'index.html must point at the current whitepaper v4.3');
 assert(indexHtml.indexOf('WHITEPAPER_v4.1') === -1, 'index.html must not present v4.1 as the living cover');
 assert(indexHtml.indexOf('Whitepaper v4.1') === -1, 'index.html must not advertise v4.1 as the living cover');
 
@@ -193,7 +193,7 @@ assert(briefingHtml.indexOf('fonts.googleapis') === -1, 'briefing.html must not 
 assert(briefingHtml.indexOf('we will house the working class') === -1, 'briefing.html must not promise to house the working class');
 assert(briefingHtml.indexOf('Ra-Thor ships fusion') === -1, 'briefing.html must not claim Ra-Thor ships fusion');
 var familyLinkBlock = familyNav.slice(familyNav.indexOf('var LINKS = ['), familyNav.indexOf('];', familyNav.indexOf('var LINKS = [')) + 2);
-assert((familyLinkBlock.match(/href:/g) || []).length === 9, 'family walk is eight destinations plus Pilot after Employ (NAV-LINEAGE-1)');
+assert((familyLinkBlock.match(/href:/g) || []).length === 10, 'family walk is eight destinations plus Pilot after Employ and Whitepaper after Lineage (WHITEPAPER-V43-1)');
 assert(familyLinkBlock.indexOf("{ href: '/pilot.html', label: 'Pilot' }") !== -1, 'family walk must include Pilot after PILOT-NAV-POLISH');
 assert(familyLinkBlock.indexOf("{ href: '/briefing.html'") === -1, 'family walk must not grow a briefing tab');
 

@@ -10,7 +10,7 @@
 
 This file maps the on-disk `crates/` research forest against the living **12-member** Tier-1 set. It does **not** absorb the forest, add workspace members, bump versions, rewrite the whitepaper, or ship a self-evolution product.
 
-Lock: [`PUBLIC_CLAIM.lock.md`](../PUBLIC_CLAIM.lock.md) · census: [`CRATE_CENSUS.md`](CRATE_CENSUS.md) · tiers: [`TIER_MAP.md`](../TIER_MAP.md) · employ: [`EMPLOY.md`](EMPLOY.md) · wrap: [`ADOPT.md`](ADOPT.md) · cover: [`WHITEPAPER_v4.2.md`](WHITEPAPER_v4.2.md)
+Lock: [`PUBLIC_CLAIM.lock.md`](../PUBLIC_CLAIM.lock.md) · census: [`CRATE_CENSUS.md`](CRATE_CENSUS.md) · tiers: [`TIER_MAP.md`](../TIER_MAP.md) · employ: [`EMPLOY.md`](EMPLOY.md) · wrap: [`ADOPT.md`](ADOPT.md) · whitepaper: [`WHITEPAPER_v4.3.md`](WHITEPAPER_v4.3.md)
 
 Capable · Bounded · Corrigible.
 

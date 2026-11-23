@@ -41,7 +41,7 @@ function htmlWords(html) {
 }
 
 assert(gen.DOCS.length >= 3 && gen.DOCS.length <= 6, 'keep the styled set lean (3–6 docs)');
-assert(gen.DOCS[0].md === 'docs/WHITEPAPER_v4.2.md', 'whitepaper comes first');
+assert(gen.DOCS[0].md === 'docs/WHITEPAPER_v4.3.md', 'whitepaper comes first');
 
 gen.DOCS.forEach(function (doc) {
   assert(fs.existsSync(path.join(root, doc.md)), doc.md + ' must stay at its URL');
@@ -58,7 +58,13 @@ gen.DOCS.forEach(function (doc) {
   }
 
   assert(html.indexOf('href="/' + doc.md + '"') !== -1, doc.html + ' must link the raw markdown');
-  assert(html.indexOf('View raw markdown') !== -1, doc.html + ' must show View raw markdown');
+  if (doc.source === 'github') {
+    /* WHITEPAPER-V43-1: the top-bar button opens the source on GitHub; the raw .md stays linked in the source line. */
+    assert(html.indexOf('<a class="rt-doc-raw" href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/blob/main/' + doc.md + '">Read the source on GitHub</a>') !== -1,
+      doc.html + ' must show Read the source on GitHub');
+  } else {
+    assert(html.indexOf('View raw markdown') !== -1, doc.html + ' must show View raw markdown');
+  }
   assert(html.indexOf('<a class="rt-doc-home" href="/">') !== -1, doc.html + ' must link home');
   assert(html.indexOf('/js/family-nav-2026-08-22.js') !== -1, doc.html + ' must carry the family nav');
   assert(html.indexOf('/js/rathor-theme.js') !== -1, doc.html + ' must carry the theme toggle');
@@ -87,9 +93,9 @@ assert(gen.safeHref('../PUBLIC_CLAIM.lock.md', 'docs/FAQ.md') ===
 
 /* Home page points readers at the styled whitepaper. */
 var index = read('index.html');
-assert(index.indexOf('href="/docs/WHITEPAPER_v4.2.html"') !== -1, 'index.html links the styled whitepaper');
-assert(index.indexOf('href="/docs/WHITEPAPER_v4.2.md"') === -1, 'index.html no longer sends readers to raw markdown');
-assert(read('js/site-lock-2026-08-22.js').indexOf("href=\"/docs/WHITEPAPER_v4.2.html\"") !== -1, 'on-device paper card links the styled whitepaper');
+assert(index.indexOf('href="/docs/WHITEPAPER_v4.3.html"') !== -1, 'index.html links the styled whitepaper');
+assert(index.indexOf('href="/docs/WHITEPAPER_v4.3.md"') === -1, 'index.html no longer sends readers to raw markdown');
+assert(read('js/site-lock-2026-08-22.js').indexOf("href=\"/docs/WHITEPAPER_v4.3.html\"") !== -1, 'on-device paper card links the styled whitepaper');
 
 /* Not in the offline cache. */
 ['sw.js', 'public/sw.js'].forEach(function (rel) {

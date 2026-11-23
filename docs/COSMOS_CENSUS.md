@@ -4,7 +4,7 @@
 **Source:** GitHub repo search `org:Eternally-Thriving-Grandmasterism` (`total_count` = **98**)  
 **Method:** name + `updated_at` + `private` + public description. Forest README bodies were **not** opened.  
 **Contact (living lattice):** info@Rathor.ai  
-**Lock:** [`PUBLIC_CLAIM.lock.md`](../PUBLIC_CLAIM.lock.md) · cover [`WHITEPAPER_v4.2.md`](WHITEPAPER_v4.2.md)
+**Lock:** [`PUBLIC_CLAIM.lock.md`](../PUBLIC_CLAIM.lock.md) · whitepaper [`WHITEPAPER_v4.3.md`](WHITEPAPER_v4.3.md)
 
 This is a map, not a capability catalog. Combined AGSi stays SURMISE. inspect ≠ METR. Powrush-MMO is a separate human-game repo. A count of 98 is not “infinite capability” and not a hallucination warranty.
 

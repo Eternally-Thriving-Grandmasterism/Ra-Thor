@@ -150,7 +150,7 @@ Object.keys(sharedGroup).forEach(function (id) {
 var docsGen = require(path.join(root, 'scripts/docs-pretty/build.js'));
 var docPages = docsGen.DOCS.map(function (d) { return d.html; });
 assert(docPages.slice().sort().join(',') ===
-  ['docs/CONTRIBUTIONS.html', 'docs/FAQ.html', 'docs/LINEAGE.html', 'docs/WHITEPAPER_v4.2.html'].join(','),
+  ['docs/CONTRIBUTIONS.html', 'docs/FAQ.html', 'docs/LINEAGE.html', 'docs/WHITEPAPER_v4.3.html'].join(','),
   'doc cover group is exactly the four styled docs');
 var docCoverId = 'hero-docs-archive-light';
 var docSeen = {};
@@ -167,7 +167,8 @@ docPages.forEach(function (rel) {
   docSeen[cls] = rel;
 });
 textFiles.forEach(function (rel) {
-  if (rel.indexOf('tests/') === 0 || docPages.indexOf(rel) !== -1 || rel === 'scripts/docs-pretty/build.js') return;
+  /* WHITEPAPER-V43-1: docs/WHITEPAPER_v4.2.html is the frozen, byte-identical history page; it keeps the cover it shipped with. */
+  if (rel.indexOf('tests/') === 0 || docPages.indexOf(rel) !== -1 || rel === 'scripts/docs-pretty/build.js' || rel === 'docs/WHITEPAPER_v4.2.html') return;
   assert(read(rel).indexOf(docCoverId) === -1, rel + ' must not reuse the doc cover');
 });
 
@@ -202,7 +203,7 @@ var scenic = {
   'go-x.html': { w: 1280, h: 720, load: 'high', sizes: '(max-width: 720px) 100vw, 640px' },
   'licence.html': { w: 1280, h: 720, load: 'high', sizes: '(max-width: 800px) 100vw, 768px' },
   'third-party-models.html': { w: 1280, h: 720, load: 'high', sizes: '(max-width: 800px) 100vw, 768px' },
-  'docs/WHITEPAPER_v4.2.html': { w: 1280, h: 720, load: 'high', sizes: '(max-width: 840px) 100vw, 800px' },
+  'docs/WHITEPAPER_v4.3.html': { w: 1280, h: 720, load: 'high', sizes: '(max-width: 840px) 100vw, 800px' },
   'docs/FAQ.html': { w: 1280, h: 720, load: 'high', sizes: '(max-width: 840px) 100vw, 800px' },
   'docs/LINEAGE.html': { w: 1280, h: 720, load: 'high', sizes: '(max-width: 840px) 100vw, 800px' },
   'docs/CONTRIBUTIONS.html': { w: 1280, h: 720, load: 'high', sizes: '(max-width: 840px) 100vw, 800px' }
