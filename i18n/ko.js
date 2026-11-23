@@ -17,7 +17,7 @@ window.translations["ko"] = {
   "installTitle": "이 웹사이트에서 Ra-Thor 설치",
   "installStatus": "이 기기에 설치. 스토어 없음. 오프라인 가능.",
   "installCta": "Ra-Thor 설치",
-  "standaloneTitle": "Ra-Thor 단독으로 사용해 보기, 그 외",
+  "standaloneTitle": "Ra-Thor 단독으로 사용해 보기 등",
   "demoNote": "이 웹사이트에서 설치했습니다. 이 기기에서 오프라인으로 쓸 수 있습니다. 우리가 관리하는 스토어 계정은 없습니다.",
   "pathPlayTitle": "플레이",
   "pathPlayBody": "Powrush-MMO — 인간 게임 저장소(별도). lattice crate가 아닙니다. 온라인 플레이는 아직 이용할 수 없습니다.",

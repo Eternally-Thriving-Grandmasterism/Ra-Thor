@@ -17,7 +17,7 @@ window.translations["pl"] = {
   "installTitle": "Zainstaluj Ra-Thor z tej witryny",
   "installStatus": "Zainstaluj na tym urządzeniu. Bez sklepu. Gotowe offline.",
   "installCta": "Zainstaluj Ra-Thor",
-  "standaloneTitle": "Wypróbuj Ra-Thor samodzielnie i więcej",
+  "standaloneTitle": "Wypróbuj Ra-Thor w wersji samodzielnej i nie tylko",
   "demoNote": "Zainstalowano z tej witryny. Gotowe do pracy offline na tym urządzeniu. Brak konta sklepu pod naszą kontrolą.",
   "pathPlayTitle": "Graj",
   "pathPlayBody": "Powrush-MMO — ludzkie repo gry (osobne). To nie jest crate lattice. Gra online nie jest jeszcze dostępna.",
