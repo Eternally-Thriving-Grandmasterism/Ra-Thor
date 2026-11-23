@@ -145,7 +145,7 @@ Full specification: [`docs/SELF_EVOLUTION_INNOVATION_CASCADE.md`](docs/SELF_EVOL
 ## Related Documents
 
 - [`README.md`](README.md)
-- [Whitepaper v4.2 (living cover)](/docs/WHITEPAPER_v4.2.html)
+- [Whitepaper v4.3](/docs/WHITEPAPER_v4.3.html)
 - [`VISION.md`](VISION.md)
 - [`ROADMAP.md`](ROADMAP.md)
 - [`PLAN.md`](PLAN.md)

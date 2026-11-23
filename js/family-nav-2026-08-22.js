@@ -19,6 +19,8 @@
                keeps its footer exactly as before (no hooks, no listener)
    2026-11-05: NAV-I18N-CHROME-1 — navExamples and navLineage in every pack; top-bar
                links carry data-i18n; fallback footer hooks Examples and Lineage
+   2026-11-23: WHITEPAPER-V43-1 — top bar adds Whitepaper after Lineage, linking
+               /docs/WHITEPAPER_v4.3.html (English label; Google Translate covers others)
 */
 (function () {
   /* LANG-HIDE-1: master flag — the ONE line to change on all 21 pages.
@@ -39,6 +41,7 @@
     { href: '/micro-moment.html', label: 'Moments' },
     { href: '/examples.html', label: 'Examples' },
     { href: '/lineage.html', label: 'Lineage' },
+    { href: '/docs/WHITEPAPER_v4.3.html', label: 'Whitepaper' },
     { href: '/contact.html', label: 'Contact' },
     { href: '/privacy.html', label: 'Privacy' }
   ];

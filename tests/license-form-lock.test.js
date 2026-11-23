@@ -117,7 +117,8 @@ assert(linkBlock.indexOf("{ href: '/micro-moment.html', label: 'Moments' }") !==
 assert(linkBlock.indexOf("{ href: '/lineage.html', label: 'Lineage' }") !== -1, 'family walk must keep Lineage');
 assert(linkBlock.indexOf("{ href: '/contact.html', label: 'Contact' }") !== -1, 'family walk must keep Contact');
 assert(linkBlock.indexOf("{ href: '/privacy.html', label: 'Privacy' }") !== -1, 'family walk must keep Privacy');
-assert((linkBlock.match(/href:/g) || []).length === 9, 'family walk is eight destinations plus Pilot (NAV-LINEAGE-1)');
+assert((linkBlock.match(/href:/g) || []).length === 10, 'family walk is eight destinations plus Pilot and Whitepaper (WHITEPAPER-V43-1)');
+assert(linkBlock.indexOf("{ href: '/docs/WHITEPAPER_v4.3.html', label: 'Whitepaper' }") !== -1, 'family walk must include Whitepaper (WHITEPAPER-V43-1)');
 assert(linkBlock.indexOf("{ href: '/pilot.html', label: 'Pilot' }") !== -1, 'family walk must include Pilot');
 assert(linkBlock.indexOf('license') === -1, 'family walk must not grow a license page');
 

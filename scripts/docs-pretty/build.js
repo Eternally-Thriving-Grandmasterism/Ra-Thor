@@ -20,9 +20,13 @@ var SITE = 'https://rathor.ai/';
 
 /* The docs that get a styled page. Visitor-voice docs only: operator spines that carry
  * HOLD lines (docs/EMPLOY.md, docs/ADOPT.md) stay raw, per the public / operator voice split.
- * md: repo path of the source. html: repo path of the page. */
+ * md: repo path of the source. html: repo path of the page.
+ * source: 'github' makes the top-bar button read "Read the source on GitHub" and open the .md on GitHub;
+ * otherwise it reads "View raw markdown" and opens the raw .md on rathor.ai.
+ * WHITEPAPER-V43-1: v4.3 is the current paper. docs/WHITEPAPER_v4.2.html stays at its URL as a frozen,
+ * byte-identical history page and is no longer regenerated here. */
 var DOCS = [
-  { md: 'docs/WHITEPAPER_v4.2.md', html: 'docs/WHITEPAPER_v4.2.html' },
+  { md: 'docs/WHITEPAPER_v4.3.md', html: 'docs/WHITEPAPER_v4.3.html', source: 'github' },
   { md: 'docs/FAQ.md', html: 'docs/FAQ.html' },
   { md: 'docs/LINEAGE.md', html: 'docs/LINEAGE.html' },
   { md: 'docs/CONTRIBUTIONS.md', html: 'docs/CONTRIBUTIONS.html' }
@@ -33,7 +37,7 @@ var DOCS = [
 var COVER = '/assets/art/' + 'hero-docs-archive-light'; /* split so only built pages carry the full URL */
 var COVER_ALT = 'Ra-Thor in dark gold-trimmed armour with a winged helm and an emerald eye seal on the shoulder reads a glowing open book in a candlelit library as loose pages lift on threads of blue lightning.';
 var COVER_VARIANT = {
-  'docs/WHITEPAPER_v4.2.html': '',
+  'docs/WHITEPAPER_v4.3.html': '',
   'docs/FAQ.html': ' rt-art-hero-wide rt-art-hero-warm',
   'docs/LINEAGE.html': ' rt-art-hero-warm',
   'docs/CONTRIBUTIONS.html': ' rt-art-hero-wide rt-art-hero-cool'
@@ -342,7 +346,9 @@ function page(doc, r) {
     '  <main class="rt-doc-main" id="rt-family-main" dir="ltr" lang="en" data-rt-prose>',
     '    <div class="rt-doc-bar">',
     '      <a class="rt-doc-home" href="/">← Home</a>',
-    '      <a class="rt-doc-raw" href="' + esc(raw) + '" type="text/markdown">View raw markdown</a>',
+    (doc.source === 'github'
+      ? '      <a class="rt-doc-raw" href="' + esc(REPO_BLOB + doc.md) + '">Read the source on GitHub</a>'
+      : '      <a class="rt-doc-raw" href="' + esc(raw) + '" type="text/markdown">View raw markdown</a>'),
     '    </div>',
     cover(doc),
     '    <div class="rt-doc-layout">',
