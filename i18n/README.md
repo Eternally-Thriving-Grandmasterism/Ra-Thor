@@ -17,6 +17,7 @@ Offline packs apply **chrome** and **visitor essays**. Operator documents (`docs
 - session cards — titles, subtitles, CTAs (`grok*` `x*` `vibe*` `employCta`)
 - Employ chrome — `employTitle`, `employSubtitle`
 - install chip — `installTitle`, `installStatus`, `installCta`, `demoNote`
+- standalone heading — `standaloneTitle`
 - steward line — `steward`
 - language-storage note — `langStoredNote`
 - homepage product-path cards — `pathPlayTitle`, `pathPlayBody`, `pathLicenseTitle`, `pathLicenseBody`, `pathInspectTitle`, `pathInspectBody`, `pathOfflineTitle`, `pathOfflineBody`, `pathWrapTitle`, `pathWrapBody`
