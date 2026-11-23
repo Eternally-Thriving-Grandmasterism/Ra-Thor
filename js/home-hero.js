@@ -6,8 +6,11 @@
 (function () {
   'use strict';
 
-  var MP4 = '/assets/art/rathor-hero-living-thunder.mp4';
-  var POSTER = '/assets/art/rathor-hero-living-thunder.jpg';
+  // HERO-VIDEO-2: Thunder Stand is the live hero. The backup is
+  // rathor-hero-living-thunder.mp4 and .jpg in /assets/art, kept unchanged
+  // for a later revert or for another page.
+  var MP4 = '/assets/art/rathor-hero-thunder-stand.mp4';
+  var POSTER = '/assets/art/rathor-hero-thunder-stand.jpg';
 
   function heroVideoAllowed(env) {
     env = env || {};
