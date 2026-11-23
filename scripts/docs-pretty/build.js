@@ -28,6 +28,26 @@ var DOCS = [
   { md: 'docs/CONTRIBUTIONS.md', html: 'docs/CONTRIBUTIONS.html' }
 ];
 
+/* ART-UPLIFT-1: one shared doc cover scene; each page differs by crop and tint only.
+ * Sits between .rt-doc-bar and .rt-doc-layout, outside the article, so wording parity holds. */
+var COVER = '/assets/art/' + 'hero-docs-archive-light'; /* split so only built pages carry the full URL */
+var COVER_ALT = 'Ra-Thor in dark gold-trimmed armour with a winged helm and an emerald eye seal on the shoulder reads a glowing open book in a candlelit library as loose pages lift on threads of blue lightning.';
+var COVER_VARIANT = {
+  'docs/WHITEPAPER_v4.2.html': '',
+  'docs/FAQ.html': ' rt-art-hero-wide rt-art-hero-warm',
+  'docs/LINEAGE.html': ' rt-art-hero-warm',
+  'docs/CONTRIBUTIONS.html': ' rt-art-hero-wide rt-art-hero-cool'
+};
+
+function cover(doc) {
+  var variant = COVER_VARIANT[doc.html] || '';
+  return [
+    '    <figure class="rt-art-hero rt-doc-cover rounded-2xl' + variant + '">',
+    '      <img src="' + COVER + '-768.webp" srcset="' + COVER + '-768.webp 768w, ' + COVER + '-1280.webp 1280w" sizes="(max-width: 840px) 100vw, 800px" width="1280" height="720" alt="' + esc(COVER_ALT) + '" loading="eager" fetchpriority="high" decoding="async">',
+    '    </figure>'
+  ].join('\n');
+}
+
 function esc(s) {
   return String(s)
     .replace(/&/g, '&amp;')
@@ -324,6 +344,7 @@ function page(doc, r) {
     '      <a class="rt-doc-home" href="/">← Home</a>',
     '      <a class="rt-doc-raw" href="' + esc(raw) + '" type="text/markdown">View raw markdown</a>',
     '    </div>',
+    cover(doc),
     '    <div class="rt-doc-layout">',
     toc + '      <article class="rt-doc rt-prose" data-doc-source="' + esc(doc.md) + '">',
     r.html,
@@ -386,5 +407,5 @@ function main(argv) {
   }
 }
 
-module.exports = { DOCS: DOCS, renderMarkdown: renderMarkdown, build: build, inline: inline, safeHref: safeHref };
+module.exports = { DOCS: DOCS, COVER_VARIANT: COVER_VARIANT, renderMarkdown: renderMarkdown, build: build, inline: inline, safeHref: safeHref };
 if (require.main === module) main(process.argv.slice(2));

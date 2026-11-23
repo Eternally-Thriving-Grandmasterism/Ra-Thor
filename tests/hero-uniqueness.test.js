@@ -118,17 +118,71 @@ pages.forEach(function (page) {
     byIdentity[id].push(page);
   });
 });
+/* ART-UPLIFT-1: the only allowed sharing is one scene per page group, and the pages in a
+ * group must differ by crop or tint (the figure class list). Exact page lists, nothing wider. */
+var sharedGroup = {
+  'hero-legal-hall-records': ['licence.html', 'third-party-models.html']
+};
 Object.keys(byIdentity).forEach(function (id) {
+  if (sharedGroup[id]) {
+    assert(byIdentity[id].slice().sort().join(',') === sharedGroup[id].slice().sort().join(','),
+      id + ' may only be shared by ' + sharedGroup[id].join(', ') + ', found ' + byIdentity[id].join(', '));
+    return;
+  }
   assert(byIdentity[id].length === 1, id + ' is shared by ' + byIdentity[id].join(', '));
+});
+
+function figureClass(html) {
+  var m = html.match(/<figure class="(rt-art-hero[^"]*)"/);
+  assert(m, 'hero figure class missing');
+  return m[1].split(/\s+/).sort().join(' ');
+}
+Object.keys(sharedGroup).forEach(function (id) {
+  var seen = {};
+  sharedGroup[id].forEach(function (page) {
+    var cls = figureClass(read(page));
+    assert(!seen[cls], page + ' must crop or tint ' + id + ' differently from ' + seen[cls]);
+    seen[cls] = page;
+  });
+});
+
+/* Generated docs pages share one cover scene, each with its own crop/tint. Only these four. */
+var docsGen = require(path.join(root, 'scripts/docs-pretty/build.js'));
+var docPages = docsGen.DOCS.map(function (d) { return d.html; });
+assert(docPages.slice().sort().join(',') ===
+  ['docs/CONTRIBUTIONS.html', 'docs/FAQ.html', 'docs/LINEAGE.html', 'docs/WHITEPAPER_v4.2.html'].join(','),
+  'doc cover group is exactly the four styled docs');
+var docCoverId = 'hero-docs-archive-light';
+var docSeen = {};
+docPages.forEach(function (rel) {
+  var html = read(rel);
+  var ids = heroUrls(html).map(identity);
+  assert(ids.length && ids.every(function (id) { return id === docCoverId; }), rel + ' must use only ' + docCoverId);
+  var bar = html.indexOf('class="rt-doc-bar"');
+  var fig = html.indexOf('rt-doc-cover');
+  var layout = html.indexOf('class="rt-doc-layout"');
+  assert(bar !== -1 && bar < fig && fig < layout, rel + ' cover sits between .rt-doc-bar and .rt-doc-layout');
+  var cls = figureClass(html);
+  assert(!docSeen[cls], rel + ' must crop or tint the doc cover differently from ' + docSeen[cls]);
+  docSeen[cls] = rel;
+});
+textFiles.forEach(function (rel) {
+  if (rel.indexOf('tests/') === 0 || docPages.indexOf(rel) !== -1 || rel === 'scripts/docs-pretty/build.js') return;
+  assert(read(rel).indexOf(docCoverId) === -1, rel + ' must not reuse the doc cover');
 });
 
 var expectId = {
   'contact.html': 'hero-contact-comms-district',
   'micro-moment.html': 'hero-moment-research-garden',
-  'pilot.html': 'hero-pilot-citadel-arrival'
+  'pilot.html': 'hero-pilot-sunrise-crew',
+  'examples.html': 'hero-examples-workbench',
+  'lineage.html': 'hero-lineage-thread',
+  'go-x.html': 'hero-gox-storm-signal',
+  'licence.html': 'hero-legal-hall-records',
+  'third-party-models.html': 'hero-legal-hall-records'
 };
 Object.keys(expectId).forEach(function (page) {
-  assert(byIdentity[expectId[page]] && byIdentity[expectId[page]][0] === page, page + ' must use ' + expectId[page]);
+  assert(byIdentity[expectId[page]] && byIdentity[expectId[page]].indexOf(page) !== -1, page + ' must use ' + expectId[page]);
 });
 
 function figureImg(html) {
@@ -142,18 +196,28 @@ function figureImg(html) {
 var scenic = {
   'contact.html': { w: 1672, h: 941, load: 'lazy' },
   'micro-moment.html': { w: 1672, h: 941, load: 'high' },
-  'pilot.html': { w: 1500, h: 844, load: 'high' }
+  'pilot.html': { w: 1280, h: 720, load: 'high', sizes: '(max-width: 800px) 100vw, 768px' },
+  'examples.html': { w: 1280, h: 720, load: 'high', sizes: '(max-width: 800px) 100vw, 768px' },
+  'lineage.html': { w: 1280, h: 720, load: 'high', sizes: '(max-width: 800px) 100vw, 768px' },
+  'go-x.html': { w: 1280, h: 720, load: 'high', sizes: '(max-width: 720px) 100vw, 640px' },
+  'licence.html': { w: 1280, h: 720, load: 'high', sizes: '(max-width: 800px) 100vw, 768px' },
+  'third-party-models.html': { w: 1280, h: 720, load: 'high', sizes: '(max-width: 800px) 100vw, 768px' },
+  'docs/WHITEPAPER_v4.2.html': { w: 1280, h: 720, load: 'high', sizes: '(max-width: 840px) 100vw, 800px' },
+  'docs/FAQ.html': { w: 1280, h: 720, load: 'high', sizes: '(max-width: 840px) 100vw, 800px' },
+  'docs/LINEAGE.html': { w: 1280, h: 720, load: 'high', sizes: '(max-width: 840px) 100vw, 800px' },
+  'docs/CONTRIBUTIONS.html': { w: 1280, h: 720, load: 'high', sizes: '(max-width: 840px) 100vw, 800px' }
 };
 Object.keys(scenic).forEach(function (page) {
   var spec = scenic[page];
   var fig = figureImg(read(page));
-  assert(fig.indexOf('sizes="(max-width: 900px) 192px, 1400px"') !== -1, page + ' sizes');
+  assert(fig.indexOf('sizes="' + (spec.sizes || '(max-width: 900px) 192px, 1400px') + '"') !== -1, page + ' sizes');
   assert(fig.indexOf('decoding="async"') !== -1, page + ' decoding');
   assert(fig.indexOf('width="' + spec.w + '"') !== -1 && fig.indexOf('height="' + spec.h + '"') !== -1, page + ' width/height');
   if (spec.load === 'lazy') {
     assert(fig.indexOf('loading="lazy"') !== -1, page + ' must lazy-load like the other below-fold scenic heroes');
   } else {
     assert(fig.indexOf('fetchpriority="high"') !== -1, page + ' must fetch the lead scenic hero first');
+    assert(fig.indexOf('loading="lazy"') === -1, page + ' lead hero must not lazy-load');
   }
   var alt = fig.match(/\balt="([^"]*)"/);
   assert(alt && alt[1].trim().length > 20, page + ' needs a descriptive alt');
@@ -188,7 +252,11 @@ assert(homeAlt.indexOf('storm of golden lightning') !== -1, 'home alt names the 
   'assets/art/hero-contact-relay-station-768.webp',
   'assets/art/hero-contact-relay-station-1120.webp',
   'assets/art/hero-moment-field-lab-768.webp',
-  'assets/art/hero-moment-field-lab-1060.webp'
+  'assets/art/hero-moment-field-lab-1060.webp',
+  'assets/art/hero-gox-beacon-768.webp',
+  'assets/art/hero-gox-beacon-1672.webp',
+  'assets/art/hero-pilot-citadel-arrival-768.webp',
+  'assets/art/hero-pilot-citadel-arrival-1500.webp'
 ].forEach(function (rel) {
   assert(!fs.existsSync(path.join(root, rel)), rel + ' must be removed');
 });
@@ -197,19 +265,29 @@ var oldHits = [];
 textFiles.forEach(function (rel) {
   if (rel === 'tests/hero-uniqueness.test.js') return;
   var text = read(rel);
-  if (text.indexOf('hero-contact-relay-station') !== -1 || text.indexOf('hero-moment-field-lab') !== -1) {
+  if (/hero-contact-relay-station|hero-moment-field-lab|hero-gox-beacon|hero-pilot-citadel-arrival/.test(text)) {
     oldHits.push(rel);
   }
 });
-assert(oldHits.length === 0, 'old relay-station / field-lab heroes still named in ' + oldHits.join(', '));
+assert(oldHits.length === 0, 'old relay-station / field-lab / gox-beacon / citadel-arrival heroes still named in ' + oldHits.join(', '));
 
 var supplied = {
   'assets/art/hero-contact-comms-district-1672.webp': 244690,
   'assets/art/hero-contact-comms-district-768.webp': 76200,
   'assets/art/hero-moment-research-garden-1672.webp': 245016,
   'assets/art/hero-moment-research-garden-768.webp': 82366,
-  'assets/art/hero-pilot-citadel-arrival-1500.webp': 241698,
-  'assets/art/hero-pilot-citadel-arrival-768.webp': 86132
+  'assets/art/hero-docs-archive-light-1280.webp': 157536,
+  'assets/art/hero-docs-archive-light-768.webp': 73704,
+  'assets/art/hero-examples-workbench-1280.webp': 173984,
+  'assets/art/hero-examples-workbench-768.webp': 70184,
+  'assets/art/hero-gox-storm-signal-1280.webp': 147906,
+  'assets/art/hero-gox-storm-signal-768.webp': 70348,
+  'assets/art/hero-legal-hall-records-1280.webp': 91930,
+  'assets/art/hero-legal-hall-records-768.webp': 36706,
+  'assets/art/hero-lineage-thread-1280.webp': 110842,
+  'assets/art/hero-lineage-thread-768.webp': 47158,
+  'assets/art/hero-pilot-sunrise-crew-1280.webp': 118498,
+  'assets/art/hero-pilot-sunrise-crew-768.webp': 47486
 };
 Object.keys(supplied).forEach(function (rel) {
   assert(fs.statSync(path.join(root, rel)).size === supplied[rel], rel + ' must stay the supplied file');
