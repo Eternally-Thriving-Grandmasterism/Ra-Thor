@@ -56,7 +56,7 @@ var heroEnd = html.indexOf('</figure>', heroStart);
 assert(heroStart !== -1 && heroEnd > heroStart, 'home hero figure must stay');
 var hero = html.slice(heroStart, heroEnd);
 assert(hero.indexOf('reel-') === -1, 'home hero figure must not gain the reel');
-assert(hero.indexOf('rathor-hero-living-thunder.jpg') !== -1, 'home hero still must be the living thunder poster');
+assert(hero.indexOf('rathor-hero-thunder-stand.jpg') !== -1, 'home hero still must be the thunder stand poster');
 
 var reelStart = html.indexOf('id="rt-x-reel"');
 var reelEnd = html.indexOf('</section>', reelStart);

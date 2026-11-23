@@ -235,18 +235,22 @@ Object.keys(scenic).forEach(function (page) {
 });
 
 var homeHtml = read('index.html');
-assert(homeHtml.indexOf('/assets/art/rathor-hero-living-thunder.jpg') !== -1, 'home uses the living thunder poster');
+assert(homeHtml.indexOf('/assets/art/rathor-hero-thunder-stand.jpg') !== -1, 'home uses the thunder stand poster');
+assert(homeHtml.indexOf('rathor-hero-living-thunder') === -1, 'home no longer points at the living thunder backup');
 assert(homeHtml.indexOf('hero-home-rathor') === -1, 'home no longer points at the older portrait');
 pages.forEach(function (page) {
   if (page === 'index.html') return;
   assert(read(page).indexOf('rathor-hero-living-thunder') === -1, page + ' must keep its own hero');
+  assert(read(page).indexOf('rathor-hero-thunder-stand') === -1, page + ' must keep its own hero');
 });
 var homeAlt = figureImg(homeHtml).match(/\balt="([^"]*)"/)[1];
-assert(homeAlt.indexOf('obsidian and antique-gold armour') !== -1, 'home alt names the armour');
+assert(homeAlt.indexOf('black and antique-gold armour') !== -1, 'home alt names the armour');
 assert(homeAlt.indexOf('winged gold helm') !== -1, 'home alt names the helm');
 assert(homeAlt.indexOf('glowing sun chest disc') !== -1, 'home alt names the chest disc');
-assert(homeAlt.indexOf('Eye of Horus tower shield') !== -1, 'home alt names the shield');
-assert(homeAlt.indexOf('storm of golden lightning') !== -1, 'home alt names the lightning');
+assert(homeAlt.indexOf('Eye of Horus shoulder seals') !== -1, 'home alt names the shoulder seals');
+assert(homeAlt.indexOf('shield') === -1, 'home alt must not name a shield');
+assert(homeAlt.indexOf('lightning-marked hammer') !== -1, 'home alt names the hammer');
+assert(homeAlt.indexOf('stormy peak') !== -1, 'home alt names the storm');
 
 [
   'assets/art/hero-contact-relay-station-768.webp',
