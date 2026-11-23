@@ -557,41 +557,7 @@ body { font-family: 'Inter', system-ui, sans-serif; }
         </figure>
         <p id="fusion-hero" data-i18n="fusion" class="text-lg sm:text-xl md:text-2xl text-amber-200/90 mb-6 max-w-3xl mx-auto leading-snug">Ra (source light) + Thor (mercy thunder). A name for shared thriving — a purpose under construction, not a finished world.</p>
       </div>
-      <!-- 2. Start here -->
-      <h2 class="text-xl sm:text-2xl font-semibold tracking-tight text-center mb-4 mt-6 text-amber-200">Start here</h2>
-      <div id="product-paths" class="grid sm:grid-cols-4 gap-3 max-w-5xl mx-auto mb-10 text-left">
-        <a href="/chat.html" class="rounded-2xl border border-amber-300/30 bg-black/40 px-4 py-3">
-          <p class="text-amber-200 text-sm font-semibold" data-i18n="pathOfflineTitle">Use offline</p>
-          <p class="text-[11px] text-white/55 mt-1" data-i18n="pathOfflineBody">Lattice Chat on this device.</p>
-        </a>
-        <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor" class="rounded-2xl border border-amber-300/30 bg-black/40 px-4 py-3">
-          <p class="text-amber-200 text-sm font-semibold" data-i18n="pathInspectTitle">Inspect</p>
-          <p class="text-[11px] text-white/55 mt-1" data-i18n="pathInspectBody">The code, PATSAGi Councils (review groups that advise and vote), and the white paper.</p>
-        </a>
-        <a href="/pilot.html" class="rounded-2xl border border-amber-300/30 bg-black/40 px-4 py-3">
-          <p class="text-amber-200 text-sm font-semibold" data-i18n="pathLicenseTitle">License</p>
-          <p class="text-[11px] text-white/55 mt-1" data-i18n="pathLicenseBody">Pilot or commercial terms. info@Rathor.ai</p>
-        </a>
-        <!-- pathPlayTitle-static / pathWrapBody-static: sentinel keys (not in CHROME/ESSAY/locale packs) keep stampPair from re-adding the real key and preserve the static text at runtime -->
-        <a href="https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO" class="rounded-2xl border border-amber-300/30 bg-black/40 px-4 py-3">
-          <p class="text-amber-200 text-sm font-semibold" data-i18n="pathPlayTitle-static">Game source (Powrush-MMO)</p>
-          <p class="text-[11px] text-white/55 mt-1" data-i18n="pathPlayBody">Powrush-MMO — human game repo (separate). Not a lattice crate. Online play is not available yet.</p>
-        </a>
-        <a id="wrap-ew2" href="https://github.com/Eternally-Thriving-Grandmasterism/WRAP-EW2" class="rounded-2xl border border-amber-300/30 bg-black/40 px-4 py-3">
-          <p class="text-amber-200 text-sm font-semibold" data-i18n="pathWrapTitle">WRAP-EW2</p>
-          <p class="text-[11px] text-white/55 mt-1" data-i18n="pathWrapBody-static">Public research bench. See FAQ.</p>
-        </a>
-      </div>
-      <!-- 3. Install Ra-Thor -->
-      <div id="rathor-pwa-slot" class="mt-5 max-w-xl mx-auto">
-        <div class="rt-card-uniform rounded-2xl px-5 py-4 text-center">
-          <p id="rathor-pwa-status" class="text-[11px] text-white/55 mt-1 leading-relaxed" data-i18n="installStatus">Install on this device. No store. Offline-ready.</p>
-          <button type="button" id="rathor-hero-install" data-rt-pwa-install class="rt-btn-primary mt-3 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold">
-            <span data-i18n="installCta">Install Ra-Thor</span>
-          </button>
-        </div>
-      </div>
-      <!-- 4. Session cards -->
+      <!-- 2. Session cards -->
       <div class="grid md:grid-cols-3 gap-6 sm:gap-8 max-w-5xl mx-auto mt-10">
         <div class="card-hover rt-card-uniform block rounded-2xl p-7 sm:p-8 text-center rt-home-clip-card card-link">
           <div class="text-5xl mb-6">⚡⚡</div>
@@ -641,6 +607,41 @@ body { font-family: 'Inter', system-ui, sans-serif; }
           </figure>
           <a id="employ-cta" data-i18n="employCta" href="/employ.html" class="stretched-link mt-8 inline-flex items-center gap-2 rt-btn-primary px-8 py-4 rounded-2xl text-lg sm:text-xl font-medium">Open how to employ →</a>
         </div>
+      </div>
+      <!-- 3. Try Ra-Thor standalone, plus more (was "Start here") -->
+      <h2 id="try-standalone" data-i18n="standaloneTitle" class="text-xl sm:text-2xl font-semibold tracking-tight text-center mb-4 mt-10 text-amber-200">Try Ra-Thor standalone, plus more</h2>
+      <!-- 3a. Install Ra-Thor -->
+      <div id="rathor-pwa-slot" class="mt-5 mb-5 max-w-xl mx-auto">
+        <div class="rt-card-uniform rounded-2xl px-5 py-4 text-center">
+          <p id="rathor-pwa-status" class="text-[11px] text-white/55 mt-1 leading-relaxed" data-i18n="installStatus">Install on this device. No store. Offline-ready.</p>
+          <button type="button" id="rathor-hero-install" data-rt-pwa-install class="rt-btn-primary mt-3 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold">
+            <span data-i18n="installCta">Install Ra-Thor</span>
+          </button>
+        </div>
+      </div>
+      <!-- 3b. Product paths -->
+      <div id="product-paths" class="grid sm:grid-cols-4 gap-3 max-w-5xl mx-auto mb-10 text-left">
+        <a href="/chat.html" class="rounded-2xl border border-amber-300/30 bg-black/40 px-4 py-3">
+          <p class="text-amber-200 text-sm font-semibold" data-i18n="pathOfflineTitle">Use offline</p>
+          <p class="text-[11px] text-white/55 mt-1" data-i18n="pathOfflineBody">Lattice Chat on this device.</p>
+        </a>
+        <a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor" class="rounded-2xl border border-amber-300/30 bg-black/40 px-4 py-3">
+          <p class="text-amber-200 text-sm font-semibold" data-i18n="pathInspectTitle">Inspect</p>
+          <p class="text-[11px] text-white/55 mt-1" data-i18n="pathInspectBody">The code, PATSAGi Councils (review groups that advise and vote), and the white paper.</p>
+        </a>
+        <a href="/pilot.html" class="rounded-2xl border border-amber-300/30 bg-black/40 px-4 py-3">
+          <p class="text-amber-200 text-sm font-semibold" data-i18n="pathLicenseTitle">License</p>
+          <p class="text-[11px] text-white/55 mt-1" data-i18n="pathLicenseBody">Pilot or commercial terms. info@Rathor.ai</p>
+        </a>
+        <!-- pathPlayTitle-static / pathWrapBody-static: sentinel keys (not in CHROME/ESSAY/locale packs) keep stampPair from re-adding the real key and preserve the static text at runtime -->
+        <a href="https://github.com/Eternally-Thriving-Grandmasterism/Powrush-MMO" class="rounded-2xl border border-amber-300/30 bg-black/40 px-4 py-3">
+          <p class="text-amber-200 text-sm font-semibold" data-i18n="pathPlayTitle-static">Game source (Powrush-MMO)</p>
+          <p class="text-[11px] text-white/55 mt-1" data-i18n="pathPlayBody">Powrush-MMO — human game repo (separate). Not a lattice crate. Online play is not available yet.</p>
+        </a>
+        <a id="wrap-ew2" href="https://github.com/Eternally-Thriving-Grandmasterism/WRAP-EW2" class="rounded-2xl border border-amber-300/30 bg-black/40 px-4 py-3">
+          <p class="text-amber-200 text-sm font-semibold" data-i18n="pathWrapTitle">WRAP-EW2</p>
+          <p class="text-[11px] text-white/55 mt-1" data-i18n="pathWrapBody-static">Public research bench. See FAQ.</p>
+        </a>
       </div>
     </div>
   </div>

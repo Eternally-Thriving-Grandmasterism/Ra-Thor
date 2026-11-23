@@ -17,6 +17,7 @@ window.translations["ar"] = {
   "installTitle": "ثبّت را-ثور من هذا الموقع",
   "installStatus": "ثبّت على هذا الجهاز. بلا متجر. جاهز دون اتصال.",
   "installCta": "ثبّت را-ثور",
+  "standaloneTitle": "جرّب Ra-Thor مستقلًا، وأكثر",
   "demoNote": "مثبّت من هذا الموقع. جاهز دون اتصال على هذا الجهاز. لا حساب متجر نتحكم فيه.",
   "pathPlayTitle": "العب",
   "pathPlayBody": "Powrush-MMO — مستودع اللعبة البشري (منفصل). ليس حزمة lattice. اللعب عبر الإنترنت غير متاح بعد.",

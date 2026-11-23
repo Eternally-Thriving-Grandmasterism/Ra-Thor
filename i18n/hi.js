@@ -17,6 +17,7 @@ window.translations["hi"] = {
   "installTitle": "\u0907\u0938 \u0935\u0947\u092c\u0938\u093e\u0907\u091f \u0938\u0947 Ra-Thor \u0938\u094d\u0925\u093e\u092a\u093f\u0924 \u0915\u0930\u0947\u0902",
   "installStatus": "इस डिवाइस पर स्थापित करें। कोई स्टोर नहीं। ऑफ़लाइन तैयार।",
   "installCta": "Ra-Thor \u0938\u094d\u0925\u093e\u092a\u093f\u0924 \u0915\u0930\u0947\u0902",
+  "standaloneTitle": "Ra-Thor को स्वतंत्र रूप से आज़माएँ, और भी बहुत कुछ",
   "demoNote": "\u0907\u0938 \u0938\u093e\u0907\u091f \u0938\u0947 \u0938\u094d\u0925\u093e\u092a\u0928\u093e\u0964 \u0907\u0938 \u0909\u092a\u0915\u0930\u0923 \u092a\u0930 \u0911\u092b\u093c\u0932\u093e\u0907\u0928\u0964",
   "pathPlayTitle": "खेलें",
   "pathPlayBody": "Powrush-MMO — मानव खेल रिपो (अलग)। lattice का crate नहीं। ऑनलाइन खेल अभी उपलब्ध नहीं है।",

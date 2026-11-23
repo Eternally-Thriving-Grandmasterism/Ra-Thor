@@ -17,6 +17,7 @@ window.translations["vi"] = {
   "installTitle": "Cài Ra-Thor từ trang web này",
   "installStatus": "Cài trên thiết bị này. Không cửa hàng. Sẵn sàng ngoại tuyến.",
   "installCta": "Cài Ra-Thor",
+  "standaloneTitle": "Dùng thử Ra-Thor độc lập, và hơn thế nữa",
   "demoNote": "Đã cài từ trang web này. Sẵn sàng ngoại tuyến trên thiết bị này. Không có tài khoản cửa hàng do chúng tôi kiểm soát.",
   "pathPlayTitle": "Chơi",
   "pathPlayBody": "Powrush-MMO — kho trò chơi của con người (riêng). Không phải crate của lattice. Chơi trực tuyến chưa có.",

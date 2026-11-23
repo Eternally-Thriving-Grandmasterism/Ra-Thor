@@ -17,6 +17,7 @@ window.translations["nl"] = {
   "installTitle": "Installeer Ra-Thor vanaf deze website",
   "installStatus": "Installeer op dit apparaat. Geen winkel. Offline-klaar.",
   "installCta": "Installeer Ra-Thor",
+  "standaloneTitle": "Probeer Ra-Thor zelfstandig, en meer",
   "demoNote": "Ge\u00efnstalleerd vanaf deze website. Offline gereed op dit apparaat. Geen winkelaccount dat wij beheren.",
   "pathPlayTitle": "Spelen",
   "pathPlayBody": "Powrush-MMO — menselijke game-repo (apart). Geen lattice-crate. Online spelen is nog niet beschikbaar.",

@@ -17,6 +17,7 @@ window.translations["zh"] = {
   "installTitle": "从本网站安装 Ra-Thor",
   "installStatus": "安装到本设备。无应用商店。可离线。",
   "installCta": "安装 Ra-Thor",
+  "standaloneTitle": "单独试用 Ra-Thor，以及更多",
   "demoNote": "从本网站安装。本设备可离线。我们不控制任何商店账户。",
   "pathPlayTitle": "游玩",
   "pathPlayBody": "Powrush-MMO — 人类游戏仓库（独立）。不是 lattice crate。在线游玩尚不可用。",
