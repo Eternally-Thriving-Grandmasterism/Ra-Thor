@@ -263,6 +263,10 @@
         if (kRtl) rtlHits++;
         if (k.fallback) fallbackHits++;
       }
+      // COPY-ABOUT-1: a translated pack kicker already carries the METR and Layer 0 lines,
+      // so hide the English-only honesty paragraph to avoid showing them twice.
+      var honesty = document.getElementById('rt-honesty');
+      if (honesty) honesty.hidden = !!(k.val && !k.fallback && lang && lang !== 'en');
     }
 
     document.querySelectorAll('.lang-tab').forEach(function (b) {

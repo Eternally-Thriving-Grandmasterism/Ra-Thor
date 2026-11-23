@@ -38,6 +38,8 @@
     });
     var kicker = document.querySelector('.kicker');
     if (kicker && (t.kicker || en.kicker)) kicker.textContent = t.kicker || en.kicker;
+    var honesty = document.getElementById('rt-honesty');
+    if (honesty) honesty.hidden = !!(t && t.kicker && lang && lang !== 'en');
     var rtl = (lang === 'ar' || lang === 'fa' || lang === 'he');
     document.documentElement.setAttribute('lang', lang || 'en');
     document.documentElement.setAttribute('dir', rtl ? 'rtl' : 'ltr');
