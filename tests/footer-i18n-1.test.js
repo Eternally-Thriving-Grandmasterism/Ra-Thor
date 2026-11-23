@@ -86,12 +86,12 @@ files.forEach(function (f) {
 // LINKS-FIX-1: English homeMonorepo is "Source on GitHub". Other packs keep their existing translations.
 // HOME-ORDER-1: every pack gains standaloneTitle (the home heading that replaced "Start here").
 // WHITEPAPER-V43-1: every pack's current-paper mentions move v4.2 → v4.3 (faqA22 link, homePaperLink, weekLine*, homeSurfacePaper);
-// English faqA22 label drops "(living cover)". No new keys.
+// English faqA22 label drops "(living cover)"; English homeSurfacePaperNote names v4.3 as current (other packs untouched). No new keys.
 var PACKS = {
   'ar.js': 'e54ec776b4e9acec2c6aac766ee8c29adacd39f88339ecf370b2927cf6018a6d',
   'de.js': '712e997c2755d98065e5b1f0d574e6d1872ed7065256c1afd476569621a6172b',
   'el.js': '3c676400a7d93d3c18de3fedf96167317c3a31297daf74ded754e6f502460cf2',
-  'en.js': '96b2a950bf6a86ea456eb152b3e9b1cf88196840c649303529420986c20432fb',
+  'en.js': '46b3b60edd19647f43bd206daf796594dfbcc25b2b09a4e1cda65f8e899297d6',
   'es.js': '572ce90a569409b7bba0884a46646dd0cd1edac258953895660e5fafdeefae18',
   'fa.js': 'b3f6b36d8875e95dcf57ac1554f922f0c273c80e9cc69c992242d58e9d5cc5a2',
   'fr.js': '65c52040661c886712ea185d703b60ad0eb371d4c3a0ec49deedcf3097c79387',

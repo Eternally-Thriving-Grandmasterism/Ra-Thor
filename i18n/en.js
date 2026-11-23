@@ -36,7 +36,7 @@ window.translations["en"] = {
   "pathWrapBody": "Public research bench. Evaluation drafts only — not a product. EW2 solved = False. No warranty. No AG-SML certification. Not part of the Ra-Thor or Powrush Cargo workspace. Agents and operators may test under AG-SML v1.2. Personal and research use is free when non-revenue. Organization use or revenue needs a paid COMMERCIAL_LICENSE.",
   "langStoredNote": "Language stored on this device only. Not sent to rathor.ai.",
   "homeSurfacePaper": "Read the whitepaper",
-  "homeSurfacePaperNote": "Living public cover. July architecture essay remains the historical record.",
+  "homeSurfacePaperNote": "Current plain-language paper. Earlier versions are kept as history.",
   "statusVersion": "v14.15.6+",
   "statusPowrush": "Powrush-MMO \u2014 human game repo (separate)",
   "statusTolc": "TOLC 8 \u00b7 Capable \u00b7 Bounded \u00b7 Corrigible",

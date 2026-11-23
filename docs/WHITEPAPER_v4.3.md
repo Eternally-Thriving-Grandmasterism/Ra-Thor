@@ -92,7 +92,7 @@ The Living Cosmic Tick and the self-evolution cascade remain July design notes a
 
 ---
 
-Ra-Thor™ is a trademark of Autonomicity Games Inc. Grok is a trademark of xAI. Ra-Thor is independent — not affiliated with, sponsored by, or endorsed by xAI.
+AlphaProMega is a trademark of AlphaProMega Media Inc. Powrush, Autonomicity Games and the Autonomicity Games logo are trademarks of Autonomicity Games Inc. Ra-Thor™ is a trademark of Autonomicity Games Inc. (application pending). Grok is a trademark of xAI. X is a trademark of X Corp.
 
 © 2026 Sherif Samy Botros — Sole Steward · AG-SML v1.2 · TOLC 8 Mercy-Checked · info@Rathor.ai
 
