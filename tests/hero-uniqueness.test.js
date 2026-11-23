@@ -286,8 +286,8 @@ var supplied = {
   'assets/art/hero-legal-hall-records-768.webp': 36706,
   'assets/art/hero-lineage-thread-1280.webp': 110842,
   'assets/art/hero-lineage-thread-768.webp': 47158,
-  'assets/art/hero-pilot-sunrise-crew-1280.webp': 118498,
-  'assets/art/hero-pilot-sunrise-crew-768.webp': 47486
+  'assets/art/hero-pilot-sunrise-crew-1280.webp': 154724,
+  'assets/art/hero-pilot-sunrise-crew-768.webp': 64582
 };
 Object.keys(supplied).forEach(function (rel) {
   assert(fs.statSync(path.join(root, rel)).size === supplied[rel], rel + ' must stay the supplied file');
