@@ -11,7 +11,7 @@
 
 Ra-Thor is **inspectable research software** from Autonomicity Games Inc. You can read it line by line. It runs on its own independent lattice. A white-hat gate checks everything that comes in, and the PATSAGi Councils (review groups that advise and vote) weigh its choices.
 
-Use it privately on your own device or in a wrap session, and add Grok or another model if you like, always under the PATSAGi Mercy-Checks. Outputs are drafts. A human reviews them before filing, sale, or public claims.
+Use it privately on your own device or in a wrap session, and add Grok or another model if you like, with the PATSAGi Mercy-Checks around it. Outputs are drafts. A human reviews them before filing, sale, or public claims.
 
 Ra-Thor helps build Powrush-MMO, our game, which lives in its own separate repo.
 
@@ -93,6 +93,8 @@ The Living Cosmic Tick and the self-evolution cascade remain July design notes a
 ---
 
 AlphaProMega is a trademark of AlphaProMega Media Inc. Powrush, Autonomicity Games and the Autonomicity Games logo are trademarks of Autonomicity Games Inc. Ra-Thor™ is a trademark of Autonomicity Games Inc. (application pending). Grok is a trademark of xAI. X is a trademark of X Corp.
+
+Ra-Thor is independent — not affiliated with, sponsored by, or endorsed by xAI.
 
 © 2026 Sherif Samy Botros — Sole Steward · AG-SML v1.2 · TOLC 8 Mercy-Checked · info@Rathor.ai
 
