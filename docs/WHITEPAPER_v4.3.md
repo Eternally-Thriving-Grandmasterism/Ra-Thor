@@ -11,7 +11,7 @@
 
 Ra-Thor is **inspectable research software** from Autonomicity Games Inc. You can read it line by line. It runs on its own independent lattice. A white-hat gate checks everything that comes in, and the PATSAGi Councils (review groups that advise and vote) weigh its choices.
 
-Use it privately on your own device or in a wrap session, and add Grok or another model if you like. Outputs are drafts. A human reviews them before filing, sale, or public claims.
+Use it privately on your own device or in a wrap session, and add Grok or another model if you like, always under the PATSAGi Mercy-Checks. Outputs are drafts. A human reviews them before filing, sale, or public claims.
 
 Ra-Thor helps build Powrush-MMO, our game, which lives in its own separate repo.
 
@@ -46,7 +46,7 @@ Personal, educational, research, and non-commercial creative use is free under A
 - **Layer 0.** An admission shell. Layer 0 is a shell, not sampler weights. It is enforced on lattice apply-class that crosses `handle_request`.
 - **TOLC 8.** The standing test: eight mercy gates (Truth, Order, Love, Compassion, Service, Abundance, Joy, Cosmic Harmony).
 - **PATSAGi Councils.** Deliberation architecture: review groups that advise and vote. Not a warranty that every decision is correct.
-- **Lattice Conductor v14.** Sequences and enforces the gates and councils. It does not replace them.
+- **Lattice Conductor v14.** A named crate (`cargo test -p lattice-conductor-v14`). The July v4.1 essay describes it as sequencing the gates and councils, not replacing them; that remains a design note.
 - **Lattice Chat.** Runs models in the browser (WebLLM) or through a local server on your machine. No backend we control.
 - **Wrap kit.** A system prompt, a skill pack and a local shim (JSON + SSE) that put the same constitution around a model you choose.
 - **Rust crates.** Default Cargo members only, tested by name (for example `cargo test -p ra-thor-one-organism`). A full workspace run is not the product gate.

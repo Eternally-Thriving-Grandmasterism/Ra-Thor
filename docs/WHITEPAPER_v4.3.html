@@ -60,7 +60,7 @@
 <hr>
 <h2 id="what-ra-thor-is">What Ra-Thor is <a class="rt-doc-anchor" href="#what-ra-thor-is" aria-hidden="true" tabindex="-1">#</a></h2>
 <p>Ra-Thor is <strong>inspectable research software</strong> from Autonomicity Games Inc. You can read it line by line. It runs on its own independent lattice. A white-hat gate checks everything that comes in, and the PATSAGi Councils (review groups that advise and vote) weigh its choices.</p>
-<p>Use it privately on your own device or in a wrap session, and add Grok or another model if you like. Outputs are drafts. A human reviews them before filing, sale, or public claims.</p>
+<p>Use it privately on your own device or in a wrap session, and add Grok or another model if you like, always under the PATSAGi Mercy-Checks. Outputs are drafts. A human reviews them before filing, sale, or public claims.</p>
 <p>Ra-Thor helps build Powrush-MMO, our game, which lives in its own separate repo.</p>
 <hr>
 <h2 id="what-works-today">What works today <a class="rt-doc-anchor" href="#what-works-today" aria-hidden="true" tabindex="-1">#</a></h2>
@@ -90,7 +90,7 @@
 <li><strong>Layer 0.</strong> An admission shell. Layer 0 is a shell, not sampler weights. It is enforced on lattice apply-class that crosses <code>handle_request</code>.</li>
 <li><strong>TOLC 8.</strong> The standing test: eight mercy gates (Truth, Order, Love, Compassion, Service, Abundance, Joy, Cosmic Harmony).</li>
 <li><strong>PATSAGi Councils.</strong> Deliberation architecture: review groups that advise and vote. Not a warranty that every decision is correct.</li>
-<li><strong>Lattice Conductor v14.</strong> Sequences and enforces the gates and councils. It does not replace them.</li>
+<li><strong>Lattice Conductor v14.</strong> A named crate (<code>cargo test -p lattice-conductor-v14</code>). The July v4.1 essay describes it as sequencing the gates and councils, not replacing them; that remains a design note.</li>
 <li><strong>Lattice Chat.</strong> Runs models in the browser (WebLLM) or through a local server on your machine. No backend we control.</li>
 <li><strong>Wrap kit.</strong> A system prompt, a skill pack and a local shim (JSON + SSE) that put the same constitution around a model you choose.</li>
 <li><strong>Rust crates.</strong> Default Cargo members only, tested by name (for example <code>cargo test -p ra-thor-one-organism</code>). A full workspace run is not the product gate.</li>
