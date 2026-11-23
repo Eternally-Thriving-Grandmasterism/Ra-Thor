@@ -132,6 +132,21 @@ figure.rt-art-hero img {
     max-height: 15.5rem;
   }
 }
+/* ART-UPLIFT-1: pages that share one scene (docs, legal) differ by crop and tint only.
+   --rt-art-focus keeps heads in frame when a wide crop trims the scene. */
+figure.rt-art-hero.rt-art-hero-wide img {
+  aspect-ratio: 2 / 1;
+  object-position: var(--rt-art-focus, 50% 0%);
+}
+figure.rt-art-hero.rt-art-hero-mid {
+  --rt-art-focus: 50% 55%;
+}
+figure.rt-art-hero.rt-art-hero-warm img {
+  filter: sepia(0.22) saturate(1.12) brightness(1.03);
+}
+figure.rt-art-hero.rt-art-hero-cool img {
+  filter: hue-rotate(10deg) saturate(0.92) brightness(1.05);
+}
 
 /* RATHOR-TONE-1 — one calm grey for non-clickable body and secondary text.
    Titles stay gold with the footer label treatment (weight, tracking, small caps).

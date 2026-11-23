@@ -47,6 +47,12 @@ html[data-theme="light"] .rt-doc-bar a.rt-doc-raw { color: var(--rt-gold-deep) !
   outline-offset: 2px;
 }
 
+/* ART-UPLIFT-1: doc cover between the bar and the layout, same column as the article. */
+figure.rt-art-hero.rt-doc-cover {
+  max-width: 50rem;
+  margin: 0 auto 1.25rem;
+}
+
 .rt-doc-layout {
   display: block;
   max-width: 50rem;
