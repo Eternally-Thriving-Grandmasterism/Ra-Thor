@@ -17,6 +17,7 @@ window.translations["es"] = {
   "installTitle": "Instalar Ra-Thor desde este sitio",
   "installStatus": "Instalar en este dispositivo. Sin tienda. Listo sin conexión.",
   "installCta": "Instalar Ra-Thor",
+  "standaloneTitle": "Prueba Ra-Thor por sí solo, y más",
   "demoNote": "Instalado desde este sitio. Listo sin conexión en este dispositivo. Ninguna cuenta de tienda que controlemos.",
   "pathPlayTitle": "Jugar",
   "pathPlayBody": "Powrush-MMO — repositorio del juego humano (aparte). No es un crate de la lattice. El juego en línea aún no está disponible.",

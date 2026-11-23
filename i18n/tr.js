@@ -17,6 +17,7 @@ window.translations["tr"] = {
   "installTitle": "Ra-Thor'u bu siteden kur",
   "installStatus": "Bu cihaza kur. Mağaza yok. Çevrimdışı hazır.",
   "installCta": "Ra-Thor'u kur",
+  "standaloneTitle": "Ra-Thor'u tek başına deneyin, ve dahası",
   "demoNote": "Bu siteden kuruldu. Bu cihazda çevrimdışı kullanıma hazır. Denetlediğimiz bir mağaza hesabı yok.",
   "pathPlayTitle": "Oyna",
   "pathPlayBody": "Powrush-MMO — insan oyunu deposu (ayrı). Bir lattice crate değildir. Çevrimiçi oyun henüz kullanılamıyor.",

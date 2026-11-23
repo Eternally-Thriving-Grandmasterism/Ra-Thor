@@ -17,6 +17,7 @@ window.translations["id"] = {
   "installTitle": "Pasang Ra-Thor dari situs web ini",
   "installStatus": "Pasang di perangkat ini. Tanpa toko. Siap luring.",
   "installCta": "Pasang Ra-Thor",
+  "standaloneTitle": "Coba Ra-Thor secara mandiri, dan lainnya",
   "demoNote": "Dipasang dari situs web ini. Siap luring di perangkat ini. Tidak ada akun toko yang kami kendalikan.",
   "pathPlayTitle": "Main",
   "pathPlayBody": "Powrush-MMO — repositori permainan manusia (terpisah). Bukan crate lattice. Permainan daring belum tersedia.",

@@ -17,6 +17,7 @@ window.translations["ja"] = {
   "installTitle": "\u3053\u306e\u30b5\u30a4\u30c8\u304b\u3089 Ra-Thor \u3092\u30a4\u30f3\u30b9\u30c8\u30fc\u30eb",
   "installStatus": "この端末にインストール。ストアなし。オフライン対応。",
   "installCta": "Ra-Thor \u3092\u30a4\u30f3\u30b9\u30c8\u30fc\u30eb",
+  "standaloneTitle": "Ra-Thor を単体で試す、その他も",
   "demoNote": "\u3053\u306e\u30b5\u30a4\u30c8\u304b\u3089\u30a4\u30f3\u30b9\u30c8\u30fc\u30eb\u3002\u3053\u306e\u7aef\u672b\u3067\u30aa\u30d5\u30e9\u30a4\u30f3\u53ef\u80fd\u3002\u5f53\u65b9\u304c\u7ba1\u7406\u3059\u308b\u30b9\u30c8\u30a2\u53e3\u5ea7\u306f\u306a\u3044\u3002",
   "pathPlayTitle": "遊ぶ",
   "pathPlayBody": "Powrush-MMO — 人間のゲームリポジトリ（別）。lattice の crate ではない。 オンラインプレイはまだ利用できません。",

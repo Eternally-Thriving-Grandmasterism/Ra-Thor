@@ -37,6 +37,7 @@
     contactInquiry: 1,
     gTranslateBtn: 1, gTranslateNote: 1,
     installTitle: 1, installStatus: 1, installCta: 1, demoNote: 1,
+    standaloneTitle: 1,
     steward: 1, langStoredNote: 1,
     pathPlayTitle: 1, pathPlayBody: 1,
     pathLicenseTitle: 1, pathLicenseBody: 1,
