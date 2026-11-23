@@ -37,9 +37,9 @@ var standMp4 = path.join(root, 'assets/art/rathor-hero-thunder-stand.mp4');
 var standPoster = path.join(root, 'assets/art/rathor-hero-thunder-stand.jpg');
 assert(fs.existsSync(standMp4), 'thunder stand mp4 must exist');
 assert(fs.existsSync(standPoster), 'thunder stand poster must exist');
-assert(fs.statSync(standMp4).size === 5195500, 'thunder stand mp4 must stay the 5195500-byte silent web encode');
+assert(fs.statSync(standMp4).size === 5603173, 'thunder stand mp4 must stay the 5603173-byte silent loop-crossfaded web encode');
 assert(fs.statSync(standMp4).size <= 6 * 1024 * 1024, 'thunder stand mp4 stays at or under 6 MB');
-assert(fs.statSync(standPoster).size === 119927, 'thunder stand poster is the 640×954 encode');
+assert(fs.statSync(standPoster).size === 119824, 'thunder stand poster is the 640×954 encode');
 assert(fs.statSync(standPoster).size < 150000, 'thunder stand poster stays under 150 KB');
 
 assert(!fs.existsSync(path.join(root, 'assets/art/hero-home-crownstone-768.webp')), 'crownstone 768 is unreferenced and must be removed');
