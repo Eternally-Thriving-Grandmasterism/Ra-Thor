@@ -109,7 +109,7 @@ assert(en.pathWrapBody.indexOf('EW2 solved = False') !== -1, 'English WRAP card 
 assert(en.pathWrapBody.indexOf('COMMERCIAL_LICENSE') !== -1, 'English WRAP card keeps the commercial license');
 assert(en.pathWrapBody.indexOf('No AG-SML certification') !== -1, 'English WRAP card keeps no AG-SML certification');
 assert(en.langStoredNote.indexOf('rathor.ai') !== -1, 'English language note names this device and the site');
-assert(en.homeSurfacePaper === 'Whitepaper v4.2', 'on-device paper card stays whitepaper v4.2');
+assert(en.homeSurfacePaper === 'Read the whitepaper', 'on-device paper card reads the whitepaper (COPY-ABOUT-1)');
 assert(en.workPowrushNote.indexOf('Not a lattice crate') !== -1, 'English Powrush work note keeps not a lattice crate');
 assert(en.workPowrushNote.indexOf('not a live MMO service') !== -1, 'English Powrush work note keeps not a live MMO service');
 assert(en.worksLead.indexOf('not plants, drugs, chains, ships, or certified aircraft') !== -1, 'English works lead keeps the study bound');

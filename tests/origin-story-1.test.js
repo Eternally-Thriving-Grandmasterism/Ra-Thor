@@ -13,6 +13,6 @@ assert(html.indexOf(P1) !== -1, 'ORIGIN-STORY-1 P1 must be present verbatim in i
 assert(html.indexOf(P2) !== -1, 'ORIGIN-STORY-1 P2 must be present verbatim in index.html');
 assert(html.indexOf(P3) !== -1, 'ORIGIN-STORY-1 P3 must be present verbatim in index.html');
 
-assert(html.indexOf('How Ra-Thor Began') !== -1, 'ORIGIN-STORY-1 subhead must be present in index.html');
+assert(html.indexOf('The story so far') !== -1, 'ORIGIN-STORY-1 subhead must be present in index.html');
 
 console.log('PASS origin-story-1: all three paragraphs and subhead present verbatim');
