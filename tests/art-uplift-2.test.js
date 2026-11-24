@@ -1,7 +1,7 @@
 /* ART-UPLIFT-2: finish ART-UPLIFT-1.
  * - No page keeps the old sizes="(max-width: 900px) 192px, 1400px" pattern, so phones pick the large file.
  * - Every public page in HERO_PAGES has one scenic hero whose files exist with the declared size.
- * - Utility pages (privacy, contact, licence, third-party models) carry the slim band, nothing else does.
+ * - Utility pages privacy and contact carry the slim band, nothing else does (licence and third-party models stay as on main).
  * - Section cards on the Launch map and Examples get small destination thumbnails: each thumbnail
  *   is a crop of the destination page's own hero, lazy, decorative, inside the card's one link.
  * - The landing hero, the session-card reels and the crossfade helper stay byte-identical. */
@@ -58,7 +58,9 @@ var HERO_PAGES = [
   'pilot.html', 'privacy.html', 'science-watches.html', 'sovereign-shard.html', 'thanks.html',
   'third-party-models.html', 'web-forge.html'
 ];
-var UTILITY = ['contact.html', 'licence.html', 'privacy.html', 'third-party-models.html'];
+/* Lead Mate council rulings 7:56 PM ET 2026-11-23: slim band only on privacy and contact. The licence
+ * hero stays the full one Sherif OK'd in #42, and third-party-models keeps its live 2:1 cool crop; both match main 39acab59. */
+var UTILITY = ['contact.html', 'privacy.html'];
 var heroIdByPage = {};
 HERO_PAGES.forEach(function (page) {
   var html = read(page);
@@ -91,6 +93,26 @@ Object.keys(heroIdByPage).forEach(function (page) {
   if (id === 'hero-legal-hall-records') return; /* the legal pair shares one scene by crop/tint (hero-uniqueness) */
   assert(!pageById[id], id + ' is the hero on both ' + pageById[id] + ' and ' + page);
   pageById[id] = page;
+});
+
+/* 2b. The legal pair is pinned to main 39acab59, byte for byte (markup and image files), and still differs by crop/tint. */
+var LEGAL = {
+  'licence.html': 'b1ce75f3b824c05f89316a61d50053f0e9453322bcaf38c3064169d1c78e3819',
+  'third-party-models.html': '76d78598b5e75620e17535bc579cd83ddf7a60f2ff6840a8fec96af6da5cee10'
+};
+var legalClass = {};
+Object.keys(LEGAL).forEach(function (page) {
+  var html = read(page);
+  var s = html.indexOf('<figure class="rt-art-hero');
+  var fig = html.slice(s, html.indexOf('</figure>', s) + 9);
+  assert(sha(fig) === LEGAL[page], page + ' hero markup must match main 39acab59');
+  legalClass[page] = fig.match(/<figure class="([^"]*)"/)[1].split(/\s+/).sort().join(' ');
+});
+assert(legalClass['licence.html'] !== legalClass['third-party-models.html'], 'legal pair still differs by crop/tint');
+assert(legalClass['licence.html'].indexOf('rt-art-hero-wide') === -1, 'licence keeps the full 16:9 hero');
+[['assets/art/hero-legal-hall-records-768.webp', 'a3afce7078870718b463f86aa6b978b1c285349007c632f4cb269b32dbd48fb6'],
+ ['assets/art/hero-legal-hall-records-1280.webp', 'fbdcd179784989390324cc2327ac72e5f4ad2574400ccbbc185b8f356abc1954']].forEach(function (p) {
+  assert(sha(fs.readFileSync(path.join(root, p[0]))) === p[1], p[0] + ' must stay byte-identical');
 });
 
 /* 3. Destination thumbnails on section cards. */

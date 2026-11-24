@@ -147,7 +147,7 @@ figure.rt-art-hero.rt-art-hero-warm img {
 figure.rt-art-hero.rt-art-hero-cool img {
   filter: hue-rotate(10deg) saturate(0.92) brightness(1.05);
 }
-/* ART-UPLIFT-2: utility pages (privacy, contact, licence, third-party models) carry a slim
+/* ART-UPLIFT-2: utility pages (privacy, contact) carry a slim
    band instead of a full scenic hero. Same frame; the crop keeps the middle of the scene. */
 figure.rt-art-hero.rt-art-hero-slim img {
   aspect-ratio: 16 / 5;
