@@ -195,8 +195,19 @@ function figureImg(html) {
 }
 
 var scenic = {
-  'contact.html': { w: 1672, h: 941, load: 'lazy' },
-  'micro-moment.html': { w: 1672, h: 941, load: 'high' },
+  /* ART-UPLIFT-2: the old (max-width: 900px) 192px pattern is gone, so phones pick the large file. */
+  'contact.html': { w: 1672, h: 941, load: 'high', sizes: '(max-width: 800px) 100vw, 768px' },
+  'micro-moment.html': { w: 1672, h: 941, load: 'high', sizes: '(max-width: 1080px) 100vw, 1024px' },
+  'Launch-Ra-Thor.html': { w: 1672, h: 941, load: 'high', sizes: '(max-width: 1080px) 100vw, 1024px' },
+  'briefing.html': { w: 1672, h: 941, load: 'high', sizes: '(max-width: 800px) 100vw, 768px' },
+  'employ.html': { w: 1672, h: 941, load: 'high', sizes: '(max-width: 800px) 100vw, 768px' },
+  'privacy.html': { w: 1672, h: 941, load: 'high', sizes: '(max-width: 800px) 100vw, 768px' },
+  'chat.html': { w: 1672, h: 941, load: 'high', sizes: '(max-width: 780px) 100vw, 736px' },
+  'science-watches.html': { w: 1672, h: 941, load: 'high', sizes: '(max-width: 1200px) 100vw, 1152px' },
+  'sovereign-shard.html': { w: 1500, h: 844, load: 'high', sizes: '(max-width: 1200px) 100vw, 1152px' },
+  'web-forge.html': { w: 1672, h: 941, load: 'high', sizes: '(max-width: 1200px) 100vw, 1152px' },
+  'constellation-week.html': { w: 1672, h: 941, load: 'high', sizes: '(max-width: 720px) 100vw, 672px' },
+  'thanks.html': { w: 1672, h: 941, load: 'high', sizes: '(max-width: 620px) 100vw, 576px' },
   'pilot.html': { w: 1280, h: 720, load: 'high', sizes: '(max-width: 800px) 100vw, 768px' },
   'examples.html': { w: 1280, h: 720, load: 'high', sizes: '(max-width: 800px) 100vw, 768px' },
   'lineage.html': { w: 1280, h: 720, load: 'high', sizes: '(max-width: 800px) 100vw, 768px' },
@@ -211,7 +222,7 @@ var scenic = {
 Object.keys(scenic).forEach(function (page) {
   var spec = scenic[page];
   var fig = figureImg(read(page));
-  assert(fig.indexOf('sizes="' + (spec.sizes || '(max-width: 900px) 192px, 1400px') + '"') !== -1, page + ' sizes');
+  assert(fig.indexOf('sizes="' + spec.sizes + '"') !== -1, page + ' sizes');
   assert(fig.indexOf('decoding="async"') !== -1, page + ' decoding');
   assert(fig.indexOf('width="' + spec.w + '"') !== -1 && fig.indexOf('height="' + spec.h + '"') !== -1, page + ' width/height');
   if (spec.load === 'lazy') {
