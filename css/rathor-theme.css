@@ -147,6 +147,30 @@ figure.rt-art-hero.rt-art-hero-warm img {
 figure.rt-art-hero.rt-art-hero-cool img {
   filter: hue-rotate(10deg) saturate(0.92) brightness(1.05);
 }
+/* ART-UPLIFT-2: utility pages (privacy, contact, licence, third-party models) carry a slim
+   band instead of a full scenic hero. Same frame; the crop keeps the middle of the scene. */
+figure.rt-art-hero.rt-art-hero-slim img {
+  aspect-ratio: 16 / 5;
+  max-height: none;
+  object-position: var(--rt-art-focus, 50% 50%);
+}
+/* ART-UPLIFT-2: small destination thumbnails on section cards. The image sits inside the
+   card's one link (or under its stretched link), ignores pointer events, and reserves its
+   box from width/height so nothing shifts. */
+img.rt-card-thumb {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 7;
+  max-height: 12rem;
+  object-fit: cover;
+  margin: 0 0 1.1rem;
+  border: 1px solid var(--rt-line);
+  border-radius: 1rem;
+  background: var(--rt-bg-elev);
+  pointer-events: none;
+}
 
 /* RATHOR-TONE-1 — one calm grey for non-clickable body and secondary text.
    Titles stay gold with the footer label treatment (weight, tracking, small caps).
