@@ -9,7 +9,8 @@ function assert(cond, msg) { if (!cond) throw new Error(msg); }
 function read(rel) { return fs.readFileSync(path.join(root, rel), 'utf8'); }
 
 var NEED = ['display: block', 'box-sizing: border-box', 'width: 100%', 'max-width: 100%', 'height: auto',
-  'aspect-ratio: 16 / 7', 'object-fit: cover', 'border-radius: 1rem', 'pointer-events: none'];
+  'aspect-ratio: 16 / 7', 'max-height: 12rem', 'margin: 0 0 1.1rem', 'object-fit: cover', 'border-radius: 1rem',
+  'pointer-events: none'];
 
 function ruleBody(css, where) {
   var at = css.indexOf('img.rt-card-thumb {');
