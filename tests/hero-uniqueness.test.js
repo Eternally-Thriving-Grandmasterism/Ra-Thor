@@ -295,16 +295,16 @@ var supplied = {
   'assets/art/hero-moment-research-garden-768.webp': 82366,
   'assets/art/hero-docs-archive-light-1280.webp': 157536,
   'assets/art/hero-docs-archive-light-768.webp': 73704,
-  'assets/art/hero-examples-workbench-bolt-1280.webp': 147290,
-  'assets/art/hero-examples-workbench-bolt-768.webp': 60262,
+  'assets/art/hero-examples-workbench-bolt-1280.webp': 138116,
+  'assets/art/hero-examples-workbench-bolt-768.webp': 60830,
   'assets/art/hero-gox-storm-signal-1280.webp': 147906,
   'assets/art/hero-gox-storm-signal-768.webp': 70348,
   'assets/art/hero-legal-hall-records-1280.webp': 91930,
   'assets/art/hero-legal-hall-records-768.webp': 36706,
   'assets/art/hero-lineage-thread-1280.webp': 110842,
   'assets/art/hero-lineage-thread-768.webp': 47158,
-  'assets/art/hero-pilot-scoped-workbench-1280.webp': 150000,
-  'assets/art/hero-pilot-scoped-workbench-768.webp': 62744
+  'assets/art/hero-pilot-scoped-workbench-1280.webp': 143268,
+  'assets/art/hero-pilot-scoped-workbench-768.webp': 60896
 };
 Object.keys(supplied).forEach(function (rel) {
   assert(fs.statSync(path.join(root, rel)).size === supplied[rel], rel + ' must stay the supplied file');
