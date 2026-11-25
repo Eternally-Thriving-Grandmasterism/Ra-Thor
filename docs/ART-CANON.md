@@ -4,20 +4,20 @@ This file records the permanent visual canon for Ra-Thor in rathor.ai site art (
 
 Reference image: [`assets/canon/rathor-hammer-reference.webp`](../assets/canon/rathor-hammer-reference.webp). It was supplied by Sherif in chat at 2:17 PM ET Nov 25, and resized to 1280×720. It shows Ra-Thor raising the hammer in a lightning storm with his Eye of Horus shield. No page uses it and it is not in the offline cache.
 
-Labels: **Ruling** means a Sherif quote below directly supports the item. **Inference (Wild), not a Sherif ruling** means it comes from the reference image, an earlier brief, or Wild's reading, and has not been ruled on in words.
+Labels: **Ruling** means a Sherif quote below directly supports the item ("via the model" means the 3:00 PM ruling, through what the chat.html and pilot.html hammers show). **Inference (Wild), not a Sherif ruling** means it comes from the reference image, an earlier brief, or Wild's reading, and has not been ruled on in words.
 
 ## Hammer
 
-- **Head (Ruling, 2:15 PM):** one complete head with both ends intact. It must never be truncated, cut off or shaved flat.
-  - Rectangular, squared ends (chamfered corners are fine): *Inference (Wild), not a Sherif ruling*, read from the 2:17 PM example.
-- **Centre:** a gold lightning bolt (like the ⚡ emoji) in the centre of the head, with no eye, gems or text on the hammer. *Inference (Wild), not a Sherif ruling.* It comes from the reference image and the earlier ART-UPLIFT-3 brief. At 2:15 PM Sherif said "the symbol on the center area was cool, but doesn't matter".
-- **Top (Ruling, 1:22 PM and 1:43 PM):** nothing on top of the head, so no cone, triangle or spike.
-- **Neck:** a plain gold collar band where the haft enters the head. *Inference (Wild), not a Sherif ruling.* The 2:17 PM example shows a band, but Sherif never answered the joint-band question card.
-- **Base stud:** the small glowing gold stud at the base of the head in the reference is *unruled*.
-- **Haft (Ruling, 1:32 PM):** the hammer always has its handle.
-  - Long, slim, dark and banded: *Inference (Wild), not a Sherif ruling*, from the 2:17 PM example.
-- **Pommel:** a glowing gold cone at the bottom end of the haft only. *Inference (Wild), not a Sherif ruling*, from the 2:17 PM example.
-- **Scale:** heroic, with the head about as wide as his shoulders or hips. *Inference (Wild), not a Sherif ruling.*
+**Model (Ruling, 3:00 PM ET Nov 25):** the hammers in the chat.html hero (`assets/art/hero-chat-library-counsel-*.webp`) and the pilot.html hero (`assets/art/hero-pilot-scoped-workbench-*.webp`, the hammer on the table) are the model for every hero. Where the 2:17 PM reference image and these two hammers differ, the two model hammers win.
+
+- **Head (Ruling, 2:15 PM and 3:00 PM):** one complete, symmetric rectangular block head of dark bronze-iron, with both ends intact, chamfered corners and carved knotwork relief, as on the model hammers. It must never be truncated, cut off or shaved flat.
+- **Centre (Ruling, 3:00 PM, via the model):** a recessed dark hexagonal panel framed in gold, holding a glowing gold lightning bolt (like the ⚡ emoji). There is no eye, gem or text on the hammer.
+- **Top (Ruling, 1:22 PM, 1:43 PM and 3:00 PM):** nothing on top of the head, so no cone, triangle or spike.
+- **Neck (Ruling, 3:00 PM, via the model):** a round gold boss or stud where the haft enters the head, with gold ring bands below it, as on the model hammers. There is no gold triangle or cone at the head.
+- **Haft (Ruling, 1:32 PM and 3:00 PM):** the hammer always has its handle. It is long, slim, dark, cross-hatched (wrapped) and has thin gold bands, as on the model hammers.
+- **Pommel (Ruling, 3:00 PM, via the model):** a gold cone at the bottom end of the haft only.
+- **Scale:** heroic, with the head about as wide as his shoulders or hips. *Inference (Wild), not a Sherif ruling.* The two model hammers are shown at different distances and do not settle the scale.
+- **Which faces carry the bolt:** *unruled.* The model hammers show the bolt on the one visible face.
 
 ## Shield
 
@@ -50,3 +50,4 @@ None of these has a Sherif quote on file in this record. Each comes from the ART
 | 2:15 PM | "This got over trimmed and we lost a portion of the hammer metal. Also the symbol on the center area was cool, but doesn't matter so use tokens efficiently while revising the hammer shape to be perfect and follow cannon throughout all images." | The head must stay complete, never trimmed. |
 | 2:17 PM | "This hammer example is mostly correct" (with the reference image) | The reference image is his example, which he called "mostly correct". He has not said which parts are off. |
 | 2:18 PM | "Make sure to keep everything Cannon for future use as we make decisions permanent." | This file is the permanent record. |
+| 3:00 PM | "Chat.html and pilot.html have correct hammers the rest should follow them" | The chat.html and pilot.html hero hammers are the model for every hero (see Hammer). The other six hammers (Launch-Ra-Thor, briefing, employ, web-forge, examples and sovereign-shard) were repainted to follow them. |
