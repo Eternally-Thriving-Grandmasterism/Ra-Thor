@@ -176,7 +176,7 @@ var expectId = {
   'contact.html': 'hero-contact-comms-district',
   'micro-moment.html': 'hero-moment-research-garden',
   'pilot.html': 'hero-pilot-scoped-workbench',
-  'examples.html': 'hero-examples-workbench-nohammer',
+  'examples.html': 'hero-examples-workbench-c2',
   'lineage.html': 'hero-lineage-thread',
   'go-x.html': 'hero-gox-storm-signal',
   'licence.html': 'hero-legal-hall-records',
@@ -288,7 +288,8 @@ textFiles.forEach(function (rel) {
 assert(oldHits.length === 0, 'old relay-station / field-lab / gox-beacon / citadel-arrival heroes still named in ' + oldHits.join(', '));
 
 /* ART-UPLIFT-3: pilot gets new scoped-workbench art (Sherif 8:41 PM) and examples a canon redo (hammer bolt on both faces).
-   EXAMPLES-NO-HAMMER-1 (Sherif 5:10 PM ET, Nov 25): the examples hero has the hammer removed, so its byte pins moved, and it has a new file stem so cache-first sw.js serves the new picture. */
+   EXAMPLES-NO-HAMMER-1 (Sherif 5:10 PM ET, Nov 25): the examples hero has the hammer removed, so its byte pins moved, and it has a new file stem so cache-first sw.js serves the new picture.
+   EXAMPLES-CANON-2 (Sherif 6:01 PM ET, Nov 25): canon hammer leaning back in, new '-c2' stem and byte pins. */
 var supplied = {
   'assets/art/hero-contact-comms-district-1672.webp': 244690,
   'assets/art/hero-contact-comms-district-768.webp': 76200,
@@ -296,8 +297,8 @@ var supplied = {
   'assets/art/hero-moment-research-garden-768.webp': 82366,
   'assets/art/hero-docs-archive-light-1280.webp': 157536,
   'assets/art/hero-docs-archive-light-768.webp': 73704,
-  'assets/art/hero-examples-workbench-nohammer-1280.webp': 131722,
-  'assets/art/hero-examples-workbench-nohammer-768.webp': 58164,
+  'assets/art/hero-examples-workbench-c2-1280.webp': 132336,
+  'assets/art/hero-examples-workbench-c2-768.webp': 58910,
   'assets/art/hero-gox-storm-signal-1280.webp': 147906,
   'assets/art/hero-gox-storm-signal-768.webp': 70348,
   'assets/art/hero-legal-hall-records-1280.webp': 91930,
