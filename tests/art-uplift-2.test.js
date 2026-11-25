@@ -119,15 +119,15 @@ assert(legalClass['licence.html'].indexOf('rt-art-hero-wide') === -1, 'licence k
 var THUMBS = {
   'Launch-Ra-Thor.html': [
     ['/chat.html', 'chat-library-counsel'],
-    ['/sovereign-shard.html', 'shard-guardian-sanctum'],
-    ['/web-forge.html', 'forge-anvil-lattice'],
+    ['/sovereign-shard.html', 'shard-guardian-sanctum-nh'],
+    ['/web-forge.html', 'forge-anvil-lattice-nh'],
     ['/employ.html', 'employ-commission-hall'],
     ['/contact.html', 'contact-comms-district']
   ],
   'examples.html': [
-    ['/Launch-Ra-Thor.html', 'launch-lattice-terrace'],
-    ['/sovereign-shard.html', 'shard-guardian-sanctum'],
-    ['/web-forge.html', 'forge-anvil-lattice']
+    ['/Launch-Ra-Thor.html', 'launch-lattice-terrace-nh'],
+    ['/sovereign-shard.html', 'shard-guardian-sanctum-nh'],
+    ['/web-forge.html', 'forge-anvil-lattice-nh']
   ]
 };
 var usedThumbs = {};
@@ -155,7 +155,8 @@ Object.keys(THUMBS).forEach(function (page) {
     });
     /* The thumbnail is a crop of the destination page's own hero. */
     var dest = pair[0].replace(/^\//, '');
-    assert(heroIdByPage[dest] === 'hero-' + id, page + ' card to ' + dest + ' shows that page\'s hero (' + heroIdByPage[dest] + ')');
+    /* EXAMPLES-NO-HAMMER-1: a '-nh' stem is the same crop with the hammer taken out (new name so cache-first sw.js refreshes it). */
+    assert(heroIdByPage[dest] === 'hero-' + id.replace(/-nh$/, ''), page + ' card to ' + dest + ' shows that page\'s hero (' + heroIdByPage[dest] + ')');
     /* The card stays one link: either the card is the <a>, or it has exactly one stretched link. */
     var openers = ['<a href="' + pair[0] + '" class="rt-card-uniform', '<div class="rt-card-uniform', '<section class="rt-example-card'];
     var best = -1, kind = -1;
