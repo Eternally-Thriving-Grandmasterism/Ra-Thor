@@ -115,19 +115,19 @@ assert(legalClass['licence.html'].indexOf('rt-art-hero-wide') === -1, 'licence k
   assert(sha(fs.readFileSync(path.join(root, p[0]))) === p[1], p[0] + ' must stay byte-identical');
 });
 
-/* 3. Destination thumbnails on section cards. */
+/* 3. Destination thumbnails on section cards (ART-UPLIFT-3: re-cut from the new chat, shard, forge, employ and launch heroes). */
 var THUMBS = {
   'Launch-Ra-Thor.html': [
-    ['/chat.html', 'chat-research-district'],
-    ['/sovereign-shard.html', 'shard-crystal-city'],
-    ['/web-forge.html', 'forge-workshop'],
-    ['/employ.html', 'employ-briefing-room'],
+    ['/chat.html', 'chat-library-counsel'],
+    ['/sovereign-shard.html', 'shard-guardian-sanctum'],
+    ['/web-forge.html', 'forge-anvil-lattice'],
+    ['/employ.html', 'employ-commission-hall'],
     ['/contact.html', 'contact-comms-district']
   ],
   'examples.html': [
-    ['/Launch-Ra-Thor.html', 'launch-shuttle-port'],
-    ['/sovereign-shard.html', 'shard-crystal-city'],
-    ['/web-forge.html', 'forge-workshop']
+    ['/Launch-Ra-Thor.html', 'launch-lattice-terrace'],
+    ['/sovereign-shard.html', 'shard-guardian-sanctum'],
+    ['/web-forge.html', 'forge-anvil-lattice']
   ]
 };
 var usedThumbs = {};
