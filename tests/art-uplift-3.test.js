@@ -25,7 +25,7 @@ var NEW = {
   "privacy.html": "hero-privacy-sealed-vault",
   "thanks.html": "hero-thanks-message-relay",
   "pilot.html": "hero-pilot-scoped-workbench",
-  "examples.html": "hero-examples-workbench-bolt"
+  "examples.html": "hero-examples-workbench-nohammer"
 };
 var seen = {};
 Object.keys(NEW).forEach(function (page) {
