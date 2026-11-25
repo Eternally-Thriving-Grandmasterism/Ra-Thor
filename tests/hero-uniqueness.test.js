@@ -303,8 +303,8 @@ var supplied = {
   'assets/art/hero-legal-hall-records-768.webp': 36706,
   'assets/art/hero-lineage-thread-1280.webp': 110842,
   'assets/art/hero-lineage-thread-768.webp': 47158,
-  'assets/art/hero-pilot-scoped-workbench-1280.webp': 143268,
-  'assets/art/hero-pilot-scoped-workbench-768.webp': 60896
+  'assets/art/hero-pilot-scoped-workbench-1280.webp': 138598,
+  'assets/art/hero-pilot-scoped-workbench-768.webp': 59306
 };
 Object.keys(supplied).forEach(function (rel) {
   assert(fs.statSync(path.join(root, rel)).size === supplied[rel], rel + ' must stay the supplied file');
