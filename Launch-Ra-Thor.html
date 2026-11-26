@@ -26,6 +26,11 @@ body { font-family: 'Inter', system-ui, sans-serif; }
 @media (prefers-reduced-motion: reduce) {
           * { animation: none !important; transition: none !important; }
         }
+    /* ART-THUMB-FIT-1: the card thumbnails size themselves from this page's own styles, so they
+       stay inside the card's content box even while a browser still holds an older cached
+       rathor-theme.css (Pages max-age=600). Without these rules the img falls back to its
+       720x315 attributes and runs past the card. Same sizing values as img.rt-card-thumb in the theme. */
+    img.rt-card-thumb { display: block; box-sizing: border-box; width: 100%; max-width: 100%; height: auto; aspect-ratio: 16 / 7; max-height: 12rem; object-fit: cover; margin: 0 0 1.1rem; border-radius: 1rem; pointer-events: none; }
     </style>
 </head>
 <body class="bg-black text-white">
