@@ -40,14 +40,16 @@ Object.keys(PAGES).forEach(function (page) {
 });
 
 /* Pilot: the content-box wrapper (w-full + px-6) overflowed from 640px to about 830px, which Android
- * Chrome reaches with page zoom or desktop-site mode. Border-box at every width; desktop column stays 51rem. */
+ * Chrome reaches with page zoom or desktop-site mode. HERO-MOBILE-FIT-1 (#54) keeps it border-box up to
+ * 831.98px; this card relies on that one rule and adds no second, overlapping wrapper rule. */
 var pilot = read('pilot.html');
 var pstyle = pilot.slice(pilot.indexOf('<style>'), pilot.indexOf('</style>'));
-var small = pstyle.indexOf('@media (max-width: 639px)');
-var wide = pstyle.indexOf('@media (min-width: 640px) {\n      body > .min-h-screen > .max-w-3xl');
-assert(small !== -1 && wide !== -1, 'pilot wrapper rule covers both phone and wider layouts');
-var wideBody = pstyle.slice(wide, pstyle.indexOf('}', pstyle.indexOf('}', wide) + 1));
-assert(wideBody.indexOf('box-sizing: border-box') !== -1 && wideBody.indexOf('max-width: 51rem') !== -1, 'pilot wrapper is border-box, 51rem max from 640px');
+var wrapperRules = pstyle.match(/body > \.min-h-screen > \.max-w-3xl\s*\{/g) || [];
+assert(wrapperRules.length === 1, 'pilot has one wrapper fit rule, got ' + wrapperRules.length);
+var fit = pstyle.indexOf('@media (max-width: 831.98px) {');
+assert(fit !== -1, 'pilot wrapper fit rule covers widths up to 831.98px');
+var fitBody = pstyle.slice(fit, pstyle.indexOf('}', pstyle.indexOf('}', fit) + 1));
+assert(fitBody.indexOf('box-sizing: border-box') !== -1 && fitBody.indexOf('max-width: 100%') !== -1, 'pilot wrapper is border-box and capped at 100% up to 831.98px');
 assert(pilot.indexOf('<div class="max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-14 z-10 w-full">') !== -1, 'pilot wrapper markup unchanged');
 
 console.log('art-thumb-fit-1.test.js ok');

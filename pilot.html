@@ -50,16 +50,6 @@
         max-width: 100%;
       }
     }
-    /* ART-THUMB-FIT-1: the same overflow from 640px up to about 830px, which Android Chrome
-       reaches with page zoom below 100% or desktop-site mode: the width is 100% plus 3rem of
-       padding, so the hero and the button row are cut off at the right. Border-box keeps the
-       padding inside; 51rem (48rem content + 2 x 1.5rem padding) keeps the desktop column as it was. */
-    @media (min-width: 640px) {
-      body > .min-h-screen > .max-w-3xl {
-        box-sizing: border-box;
-        max-width: 51rem;
-      }
-    }
   </style>
 </head>
 <body class="bg-black text-white overflow-x-hidden">
