@@ -18,14 +18,14 @@ function figure(html) {
 var NEW = {
   "Launch-Ra-Thor.html": "hero-launch-lattice-terrace",
   "briefing.html": "hero-briefing-bridge-landing",
-  "chat.html": "hero-chat-library-counsel",
+  "chat.html": "hero-chat-library-counsel-eyes",
   "employ.html": "hero-employ-commission-hall",
   "web-forge.html": "hero-forge-anvil-lattice",
   "sovereign-shard.html": "hero-shard-guardian-sanctum",
   "privacy.html": "hero-privacy-sealed-vault",
   "thanks.html": "hero-thanks-message-relay",
   "pilot.html": "hero-pilot-scoped-workbench",
-  "examples.html": "hero-examples-workbench-c2"
+  "examples.html": "hero-examples-workbench-c3"
 };
 var seen = {};
 Object.keys(NEW).forEach(function (page) {
