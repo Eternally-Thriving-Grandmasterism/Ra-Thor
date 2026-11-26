@@ -18,7 +18,7 @@ function figure(html) {
 var NEW = {
   "Launch-Ra-Thor.html": "hero-launch-lattice-terrace",
   "briefing.html": "hero-briefing-bridge-landing",
-  "chat.html": "hero-chat-library-counsel-eyes",
+  "chat.html": "hero-chat-library-counsel-eyes2",
   "employ.html": "hero-employ-commission-hall",
   "web-forge.html": "hero-forge-anvil-lattice",
   "sovereign-shard.html": "hero-shard-guardian-sanctum",
