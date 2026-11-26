@@ -118,7 +118,7 @@ assert(legalClass['licence.html'].indexOf('rt-art-hero-wide') === -1, 'licence k
 /* 3. Destination thumbnails on section cards (ART-UPLIFT-3: re-cut from the new chat, shard, forge, employ and launch heroes). */
 var THUMBS = {
   'Launch-Ra-Thor.html': [
-    ['/chat.html', 'chat-library-counsel-eyes'],
+    ['/chat.html', 'chat-library-counsel'],
     ['/sovereign-shard.html', 'shard-guardian-sanctum-c3'],
     ['/web-forge.html', 'forge-anvil-lattice-c3'],
     ['/employ.html', 'employ-commission-hall'],
@@ -155,8 +155,7 @@ Object.keys(THUMBS).forEach(function (page) {
     });
     /* The thumbnail is a crop of the destination page's own hero. */
     var dest = pair[0].replace(/^\//, '');
-    /* EXAMPLES-NO-HAMMER-1 / EXAMPLES-CANON-2 / EYES-CANON-3: a '-nh', '-c2' or '-c3' stem is the same crop, repainted (new name so cache-first sw.js refreshes it).
-       The chat thumb follows the chat hero's own '-eyes' stem, so it matches without stripping. */
+    /* EXAMPLES-NO-HAMMER-1 / EXAMPLES-CANON-2 / EYES-CANON-3: a '-nh', '-c2' or '-c3' stem is the same crop, repainted (new name so cache-first sw.js refreshes it). */
     assert(heroIdByPage[dest] === 'hero-' + id.replace(/-(nh|c2|c3)$/, ''), page + ' card to ' + dest + ' shows that page\'s hero (' + heroIdByPage[dest] + ')');
     /* The card stays one link: either the card is the <a>, or it has exactly one stretched link. */
     var openers = ['<a href="' + pair[0] + '" class="rt-card-uniform', '<div class="rt-card-uniform', '<section class="rt-example-card'];

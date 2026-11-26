@@ -290,7 +290,7 @@ assert(oldHits.length === 0, 'old relay-station / field-lab / gox-beacon / citad
 /* ART-UPLIFT-3: pilot gets new scoped-workbench art (Sherif 8:41 PM) and examples a canon redo (hammer bolt on both faces).
    EXAMPLES-NO-HAMMER-1 (Sherif 5:10 PM ET, Nov 25): the examples hero has the hammer removed, so its byte pins moved, and it has a new file stem so cache-first sw.js serves the new picture.
    EXAMPLES-CANON-2 (Sherif 6:01 PM ET, Nov 25): canon hammer leaning back in, new '-c2' stem and byte pins.
-   EYES-CANON-3 (Sherif 8:00 PM ET, Nov 25): hammer head given its canon hexagonal hump ends, new '-c3' stem and byte pins. */
+   EYES-CANON-3 (Sherif 8:30 PM ET, Nov 25): hammer head matched to his employ/pilot examples (plain block, bolt panel), new '-c3' stem and byte pins. */
 var supplied = {
   'assets/art/hero-contact-comms-district-1672.webp': 244690,
   'assets/art/hero-contact-comms-district-768.webp': 76200,
@@ -298,8 +298,8 @@ var supplied = {
   'assets/art/hero-moment-research-garden-768.webp': 82366,
   'assets/art/hero-docs-archive-light-1280.webp': 157536,
   'assets/art/hero-docs-archive-light-768.webp': 73704,
-  'assets/art/hero-examples-workbench-c3-1280.webp': 131992,
-  'assets/art/hero-examples-workbench-c3-768.webp': 57114,
+  'assets/art/hero-examples-workbench-c3-1280.webp': 131470,
+  'assets/art/hero-examples-workbench-c3-768.webp': 57084,
   'assets/art/hero-gox-storm-signal-1280.webp': 147906,
   'assets/art/hero-gox-storm-signal-768.webp': 70348,
   'assets/art/hero-legal-hall-records-1280.webp': 91930,
