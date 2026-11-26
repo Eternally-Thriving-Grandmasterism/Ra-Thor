@@ -175,8 +175,8 @@ textFiles.forEach(function (rel) {
 var expectId = {
   'contact.html': 'hero-contact-comms-district',
   'micro-moment.html': 'hero-moment-research-garden',
-  'pilot.html': 'hero-pilot-sunrise-crew',
-  'examples.html': 'hero-examples-workbench',
+  'pilot.html': 'hero-pilot-scoped-workbench',
+  'examples.html': 'hero-examples-workbench-c3',
   'lineage.html': 'hero-lineage-thread',
   'go-x.html': 'hero-gox-storm-signal',
   'licence.html': 'hero-legal-hall-records',
@@ -287,6 +287,10 @@ textFiles.forEach(function (rel) {
 });
 assert(oldHits.length === 0, 'old relay-station / field-lab / gox-beacon / citadel-arrival heroes still named in ' + oldHits.join(', '));
 
+/* ART-UPLIFT-3: pilot gets new scoped-workbench art (Sherif 8:41 PM) and examples a canon redo (hammer bolt on both faces).
+   EXAMPLES-NO-HAMMER-1 (Sherif 5:10 PM ET, Nov 25): the examples hero has the hammer removed, so its byte pins moved, and it has a new file stem so cache-first sw.js serves the new picture.
+   EXAMPLES-CANON-2 (Sherif 6:01 PM ET, Nov 25): canon hammer leaning back in, new '-c2' stem and byte pins.
+   EYES-CANON-3 (Sherif 8:30 PM ET, Nov 25): hammer head matched to his employ/pilot examples (plain block, bolt panel), new '-c3' stem and byte pins. */
 var supplied = {
   'assets/art/hero-contact-comms-district-1672.webp': 244690,
   'assets/art/hero-contact-comms-district-768.webp': 76200,
@@ -294,16 +298,16 @@ var supplied = {
   'assets/art/hero-moment-research-garden-768.webp': 82366,
   'assets/art/hero-docs-archive-light-1280.webp': 157536,
   'assets/art/hero-docs-archive-light-768.webp': 73704,
-  'assets/art/hero-examples-workbench-1280.webp': 173984,
-  'assets/art/hero-examples-workbench-768.webp': 70184,
+  'assets/art/hero-examples-workbench-c3-1280.webp': 131470,
+  'assets/art/hero-examples-workbench-c3-768.webp': 57084,
   'assets/art/hero-gox-storm-signal-1280.webp': 147906,
   'assets/art/hero-gox-storm-signal-768.webp': 70348,
   'assets/art/hero-legal-hall-records-1280.webp': 91930,
   'assets/art/hero-legal-hall-records-768.webp': 36706,
   'assets/art/hero-lineage-thread-1280.webp': 110842,
   'assets/art/hero-lineage-thread-768.webp': 47158,
-  'assets/art/hero-pilot-sunrise-crew-1280.webp': 154724,
-  'assets/art/hero-pilot-sunrise-crew-768.webp': 64582
+  'assets/art/hero-pilot-scoped-workbench-1280.webp': 136092,
+  'assets/art/hero-pilot-scoped-workbench-768.webp': 58760
 };
 Object.keys(supplied).forEach(function (rel) {
   assert(fs.statSync(path.join(root, rel)).size === supplied[rel], rel + ' must stay the supplied file');

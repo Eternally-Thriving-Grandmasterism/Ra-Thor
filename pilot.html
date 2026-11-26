@@ -38,10 +38,13 @@
       .card-hover, .card-hover:hover { transition: none !important; transform: none !important; }
       .thunder-glow { text-shadow: none; }
     }
-    /* Phone: this wrapper is content-box, so width 100% plus side padding
-       starts after the 8px body margin and paints past the viewport.
-       Keep the padding inside the width. Desktop max-width stays 48rem. */
-    @media (max-width: 639px) {
+    /* Phone and small tablet: this wrapper is content-box, so width 100% plus side
+       padding starts after the 8px body margin and paints past the viewport.
+       Keep the padding inside the width. HERO-MOBILE-FIT-1: this holds up to
+       831.98px (48rem + 24px side padding x2 + 8px body margin x2), so phones
+       that lay out wider than 640px (Chrome Android with page zoom below 100%)
+       keep the hero and cards inside the frame. Desktop max-width stays 48rem. */
+    @media (max-width: 831.98px) {
       body > .min-h-screen > .max-w-3xl {
         box-sizing: border-box;
         max-width: 100%;
@@ -64,7 +67,7 @@
     <div class="max-w-3xl mx-auto px-4 sm:px-6 py-10 sm:py-14 z-10 w-full">
       <p class="rt-page-week"><a href="/constellation-week.html">Full update note →</a></p>
       <figure class="rt-art-hero rounded-3xl">
-        <img src="/assets/art/hero-pilot-sunrise-crew-768.webp" srcset="/assets/art/hero-pilot-sunrise-crew-768.webp 768w, /assets/art/hero-pilot-sunrise-crew-1280.webp 1280w" sizes="(max-width: 800px) 100vw, 768px" width="1280" height="720" alt="Four travelers with backpacks stand on a hilltop at sunrise beside Ra-Thor, who holds a lightning-marked hammer and a blue shield with a gold eye, above a bright valley city of gardens, towers and rivers." loading="eager" fetchpriority="high" decoding="async">
+        <img src="/assets/art/hero-pilot-scoped-workbench-768.webp" srcset="/assets/art/hero-pilot-scoped-workbench-768.webp 768w, /assets/art/hero-pilot-scoped-workbench-1280.webp 1280w" sizes="(max-width: 800px) 100vw, 768px" width="1280" height="720" alt="Ra-Thor works with a small team of three at one workbench in a sunlit studio, steadying a single glowing gold crystal model beside an hourglass, line-drawn plans and his lightning-marked hammer, with his black and gold shield at his side." loading="eager" fetchpriority="high" decoding="async">
       </figure>
       <div class="text-center mb-8">
         <a href="/" class="inline-flex items-center gap-2 text-amber-400 hover:text-amber-300 transition-colors mb-5">← Back to Ra-Thor</a>

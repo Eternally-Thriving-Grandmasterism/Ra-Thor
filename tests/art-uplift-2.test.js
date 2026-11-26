@@ -115,19 +115,19 @@ assert(legalClass['licence.html'].indexOf('rt-art-hero-wide') === -1, 'licence k
   assert(sha(fs.readFileSync(path.join(root, p[0]))) === p[1], p[0] + ' must stay byte-identical');
 });
 
-/* 3. Destination thumbnails on section cards. */
+/* 3. Destination thumbnails on section cards (ART-UPLIFT-3: re-cut from the new chat, shard, forge, employ and launch heroes). */
 var THUMBS = {
   'Launch-Ra-Thor.html': [
-    ['/chat.html', 'chat-research-district'],
-    ['/sovereign-shard.html', 'shard-crystal-city'],
-    ['/web-forge.html', 'forge-workshop'],
-    ['/employ.html', 'employ-briefing-room'],
+    ['/chat.html', 'chat-library-counsel-eyes'],
+    ['/sovereign-shard.html', 'shard-guardian-sanctum-c3'],
+    ['/web-forge.html', 'forge-anvil-lattice-c3'],
+    ['/employ.html', 'employ-commission-hall'],
     ['/contact.html', 'contact-comms-district']
   ],
   'examples.html': [
-    ['/Launch-Ra-Thor.html', 'launch-shuttle-port'],
-    ['/sovereign-shard.html', 'shard-crystal-city'],
-    ['/web-forge.html', 'forge-workshop']
+    ['/Launch-Ra-Thor.html', 'launch-lattice-terrace-c3'],
+    ['/sovereign-shard.html', 'shard-guardian-sanctum-c3'],
+    ['/web-forge.html', 'forge-anvil-lattice-c3']
   ]
 };
 var usedThumbs = {};
@@ -155,7 +155,9 @@ Object.keys(THUMBS).forEach(function (page) {
     });
     /* The thumbnail is a crop of the destination page's own hero. */
     var dest = pair[0].replace(/^\//, '');
-    assert(heroIdByPage[dest] === 'hero-' + id, page + ' card to ' + dest + ' shows that page\'s hero (' + heroIdByPage[dest] + ')');
+    /* EXAMPLES-NO-HAMMER-1 / EXAMPLES-CANON-2 / EYES-CANON-3: a '-nh', '-c2' or '-c3' stem is the same crop, repainted (new name so cache-first sw.js refreshes it).
+       The chat thumb follows the chat hero's own '-eyes' stem, so it matches without stripping. */
+    assert(heroIdByPage[dest] === 'hero-' + id.replace(/-(nh|c2|c3)$/, ''), page + ' card to ' + dest + ' shows that page\'s hero (' + heroIdByPage[dest] + ')');
     /* The card stays one link: either the card is the <a>, or it has exactly one stretched link. */
     var openers = ['<a href="' + pair[0] + '" class="rt-card-uniform', '<div class="rt-card-uniform', '<section class="rt-example-card'];
     var best = -1, kind = -1;
