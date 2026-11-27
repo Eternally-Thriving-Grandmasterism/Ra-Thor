@@ -88,9 +88,11 @@ assert(priv.indexOf('The site itself collects no personal data: no sign-in, cook
 assert(priv.indexOf('https://www.priv.gc.ca') !== -1, 'privacy must name the OPC');
 assert(priv.indexOf('Nothing is retained off-device.') === -1 && priv.indexOf('features; the rest of the site requires zero data') === -1, 'privacy rights lines must account for licence purchases');
 assert(licence.indexOf('see the fixed 12-month prices above') !== -1 && licence.indexOf('see the fixed 12-month prices below') === -1, 'licence ask text points at the card above');
-// Placeholders that must stay visible until Sherif / the accountant fill them at go-live.
-assert(tos.indexOf('[BUSINESS ADDRESS — SHERIF TO CHOOSE]') !== -1, 'address placeholder stays until go-live');
-assert(tos.indexOf('[TAX LINE — pending accountant;') !== -1, 'tax-line placeholder stays until the accountant answers');
+// Seller address and tax line are filled; the go-live date placeholder (asserted above) stays until go-live.
+assert(tos.indexOf('<a href="mailto:info@Rathor.ai" class="text-amber-300 underline">info@Rathor.ai</a> · 73 Kingmount Cres, Richmond Hill, ON, Canada L4B 3X4.<br>') !== -1, 'terms 1 seller business address (provided by Sherif, Nov 27, 2026)');
+assert(tos.indexOf('[BUSINESS ADDRESS') === -1, 'address placeholder is gone');
+assert(tos.indexOf('paid once for 12 months. No GST/HST is currently charged, because we are a small supplier under the C$30,000 threshold over four consecutive calendar quarters. If that changes, GST/HST will be added at checkout.</p>') !== -1, 'terms 10 GST/HST small-supplier line');
+assert(tos.indexOf('[TAX LINE') === -1, 'tax-line placeholder is gone');
 assert(tos.indexOf('make up the whole agreement between us') !== -1, 'terms 19 grammar');
 assert(tos.indexOf('this does not include offering Ra-Thor itself to others as hosting, a SaaS or an API') !== -1, 'terms 4 own-products clause excludes SaaS / hosting / API for others');
 assert(priv.indexOf('that service handles what you send under its own policy') !== -1, 'privacy names optional third-party services');
