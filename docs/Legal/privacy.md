@@ -40,6 +40,18 @@ This section applies only if you buy a Ra-Thor Commercial Licence, by email or (
 - **Questions and complaints.** Email info@Rathor.ai. You can also complain to the Office of the Privacy Commissioner of Canada: https://www.priv.gc.ca.
 - **Age.** Licence purchases are for adults (18+) buying for a business.
 
+## Supporter Pass
+
+This section applies only if you buy a Ra-Thor Supporter Pass, when it is offered. The site itself still collects no personal data. The Licence purchases points above on accountability, where data is processed, safeguards, access and correction, and questions and complaints apply to Supporter Pass records too.
+
+- **What we collect.** Stripe processes your payment on Stripe’s own pages, under Stripe’s own privacy policy: https://stripe.com/privacy. Your card details go to Stripe, not to us. We receive the purchase records Stripe provides: your name, email, country, the amount and the date.
+- **Why.** To deliver your pass, handle refunds, and keep tax and accounting records.
+- **Optional display name.** At checkout you can type a name to show on the public supporters page, which is part of the public Ra-Thor repository and site. It does not have to be your real name. If you leave it blank, you are not listed. Nothing else about you is shown publicly: no email, country, amount or date.
+- **Removing your name.** Email info@Rathor.ai at any time to have your name removed. We also remove it within 7 days of a refund or of the end of your pass. Because the supporters page is kept in a public code repository, earlier versions in that repository’s history may still show a name after we remove it.
+- **No renewals, marketing or selling.** A pass does not renew, so we keep nothing for automatic renewal. We do not use Supporter Pass records for marketing, and we do not sell your information.
+- **How long we keep it.** Purchase records: as long as tax and accounting law requires, then we delete them. Your display name: only while it is listed.
+- **Age.** Supporter Passes are for adults (18+).
+
 ## How Ra-Thor Works
 
 Ra-Thor is a mercy-gated symbolic lattice. When you use the connected demos (Grok or X integrations), those interactions are governed by the respective platforms' (xAI / X Corp) privacy policies.

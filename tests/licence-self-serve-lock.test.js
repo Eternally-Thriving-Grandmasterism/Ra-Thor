@@ -4,7 +4,7 @@
  * - licence.html and terms-of-sale.html say online checkout is not open; the checkout control is disabled.
  * - contact.html keeps "There is no instant license key and no public checkout." (license-form-lock).
  * - LICENSE §2 keeps the written-and-signed path next to the electronic path.
- * - privacy.html keeps the browsing claim truthful and carries the Licence purchases section.
+ * - privacy.html keeps the browsing claim truthful and carries the Licence purchases and Supporter Pass sections.
  * - Provider documentation / support hosts (docs.stripe.com etc.) may be linked; checkout and buy links may not.
  * Go-live (Sherif's yes, separate PR) is the only change allowed to relax the first two checks. */
 var fs = require('fs');
@@ -113,5 +113,14 @@ assert(tos.indexOf('[TAX LINE') === -1, 'tax-line placeholder is gone');
 assert(tos.indexOf('make up the whole agreement between us') !== -1, 'terms 19 grammar');
 assert(tos.indexOf('this does not include offering Ra-Thor itself to others as hosting, a SaaS or an API') !== -1, 'terms 4 own-products clause excludes SaaS / hosting / API for others');
 assert(priv.indexOf('that service handles what you send under its own policy') !== -1, 'privacy names optional third-party services');
+// Supporter Pass privacy (v5).
+assert(priv.indexOf('id="supporter-pass"') !== -1, 'privacy.html must carry the Supporter Pass section');
+assert(priv.indexOf('This section applies only if you buy a Ra-Thor Supporter Pass, when it is offered.') !== -1, 'supporter section scoped to buyers');
+assert(priv.indexOf('We receive the purchase records Stripe provides: your name, email, country, the amount and the date.') !== -1, 'supporter purchase records listed');
+assert(priv.indexOf('It does not have to be your real name. If you leave it blank, you are not listed. Nothing else about you is shown publicly: no email, country, amount or date.') !== -1, 'supporter display name is optional and the only public detail');
+assert(priv.indexOf('Email info@Rathor.ai at any time to have your name removed. We also remove it within 7 days of a refund or of the end of your pass.') !== -1, 'supporter name removal');
+assert(priv.indexOf('earlier versions in that repository’s history may still show a name after we remove it') !== -1, 'supporter repo-history note');
+assert(priv.indexOf('We do not use Supporter Pass records for marketing, and we do not sell your information.') !== -1, 'supporter no marketing / no selling');
+assert(!/discord/i.test(priv), 'privacy.html does not mention Discord until Sherif confirms a server');
 assert(priv.indexOf('Lattice Chat collect no personal data') === -1, 'privacy must not claim Lattice Chat collects nothing regardless of chosen services');
 console.log('licence-self-serve-lock: nothing live (' + all.length + ' files scanned, ' + siteCount + ' site files), two tiers, no auto-renew, privacy truthful');
