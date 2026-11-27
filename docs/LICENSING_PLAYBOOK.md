@@ -1,5 +1,7 @@
 # Licensing Playbook: selling a commercial software licence online
 
+Internal working notes from public primary sources. Not legal or tax advice. UNCONFIRMED items need counsel or an accountant.
+
 **Status: DRAFT, internal, for maintainers only. Not legal or tax advice.**
 
 This is a reusable, product-agnostic checklist for selling a fixed-term commercial licence through a one-time Stripe payment. It was written from the perspective of an Ontario, Canada seller. It makes no public claims. Any customer-facing wording below is a *template* that the owner must approve before it is published.
