@@ -32,18 +32,53 @@ var anyBuyLink = /https?:\/\/[^\s"'<>)]*(?:checkout|\/buy\b|\bbuy\.|\/pay\b|payp
 // Exact host match (no subdomain or suffix tricks). checkout.stripe.com / buy.stripe.com are never on this list.
 var DOC_HOSTS = { 'docs.stripe.com': 1, 'support.stripe.com': 1, 'developer.paypal.com': 1, 'developer.paddle.com': 1, 'docs.lemonsqueezy.com': 1, 'help.gumroad.com': 1, 'developer.squareup.com': 1 };
 var urlRe = /https?:\/\/[^\s"'<>)]*/gi;
-function hostOf(u) { var m = /^https?:\/\/([^\/?#:\s]+)/i.exec(u); return m ? m[1].toLowerCase() : ''; }
+// Buy / checkout hosts that must never appear anywhere inside a URL (userinfo, path, query, fragment), even under a docs host.
+var embeddedBuyHost = /(?:checkout|buy|js)\.stripe\.com|paypal\.(?:com|me)|gumroad\.com|lemonsqueezy\.com|paddle\.(?:com|net)|square\.link/i;
+function decodeAll(s) { for (var i = 0; i < 3; i++) { try { var d = decodeURIComponent(s); if (d === s) break; s = d; } catch (e) { break; } } return s; }
+// Core AMEND 7230505251: the host is new URL(u).hostname, so userinfo (docs.stripe.com:x@evil.tld) cannot pose as a docs host.
+function hostOf(u) { try { return new URL(u).hostname.toLowerCase(); } catch (e) { return ''; } }
+// Decode the HTML entities that can hide a scheme or slashes (https&#58;// , &#x3a; , &colon; , &#47; , &sol; , &amp;).
+function decodeEntities(t) {
+  return t.replace(/&#x0*([0-9a-f]+);?/gi, function (m, h) { return String.fromCharCode(parseInt(h, 16)); })
+    .replace(/&#0*([0-9]+);?/g, function (m, d) { return String.fromCharCode(parseInt(d, 10)); })
+    .replace(/&colon;/gi, ':').replace(/&sol;/gi, '/').replace(/&period;/gi, '.').replace(/&amp;/gi, '&');
+}
+// Protocol-relative links (//host/...) after a quote, =, ( or space are treated as https.
+var protoRelRe = /(^|[\s"'(=])\/\/((?:[a-z0-9-]+\.)+[a-z]{2,}[^\s"'<>)]*)/gi;
+function urlIsBuy(u, depth) {
+  var p;
+  try { p = new URL(u); } catch (e) { return anyBuyLink.test(u); }
+  var host = hostOf(u);
+  // Everything except the hostname, decoded: userinfo, port, path, query and fragment.
+  var rest = decodeAll(p.username + ':' + p.password + '@' + p.port + p.pathname + p.search + p.hash);
+  if (embeddedBuyHost.test(rest)) return true;
+  if (depth < 3 && (rest.match(urlRe) || []).some(function (n) { return urlIsBuy(n, depth + 1); })) return true;
+  if (DOC_HOSTS[host]) return false;
+  return anyBuyLink.test(u) || embeddedBuyHost.test(host);
+}
 function hasBuyLink(text) {
-  return (text.match(urlRe) || []).some(function (u) { return !DOC_HOSTS[hostOf(u)] && anyBuyLink.test(u); });
+  var t = decodeEntities(text).replace(protoRelRe, function (m, pre, rest) { return pre + 'https://' + rest; });
+  return (t.match(urlRe) || []).some(function (u) { return urlIsBuy(u, 0); });
 }
 // Self-checks for the allowlist.
 assert(!hasBuyLink('see https://docs.stripe.com/tax/checkout/tax-ids'), 'docs.stripe.com is documentation, not a buy link');
 assert(!hasBuyLink('see https://support.stripe.com/questions/checkout-help'), 'support.stripe.com is documentation, not a buy link');
 assert(hasBuyLink('pay at https://buy.stripe.com/test_abc123'), 'buy.stripe.com must stay blocked');
 assert(hasBuyLink('pay at https://checkout.stripe.com/c/pay/cs_test_x'), 'checkout.stripe.com must stay blocked');
+assert(hasBuyLink('https://docs.stripe.com:x@example.com/checkout'), 'userinfo trick must stay blocked');
 assert(hasBuyLink('https://docs.stripe.com.example.com/checkout'), 'look-alike doc host must stay blocked');
 assert(hasBuyLink('https://docs.stripe.com/x https://example.com/buy'), 'a real buy link next to a doc link must stay blocked');
 assert(hasBuyLink('https://www.paypal.com/checkoutnow?token=x') && hasBuyLink('https://example.gumroad.com/l/x'), 'other providers stay blocked');
+assert(hasBuyLink('https://docs.stripe.com:443@evil.example/checkout') && hasBuyLink('https://docs.stripe.com@buy.stripe.com/x'), 'userinfo trick (docs host before @) stays blocked');
+assert(hasBuyLink('https://docs.stripe.com/x?u=https://buy.stripe.com/abc') && hasBuyLink('https://docs.stripe.com/x?u=https%3A%2F%2Fcheckout.stripe.com%2Fc'), 'buy/checkout host nested in a docs URL query stays blocked');
+assert(hasBuyLink('https://docs.stripe.com/x?next=https://example.com/pay'), 'buy link nested in a docs URL query stays blocked');
+assert(hasBuyLink('<a href="//buy.stripe.com/abc">') && hasBuyLink("href='//example.com/checkout'"), 'protocol-relative buy links stay blocked');
+assert(!hasBuyLink('<a href="//docs.stripe.com/tax/checkout/tax-ids">') && !hasBuyLink('// checkout comment in code'), 'protocol-relative docs link and code comments pass');
+assert(hasBuyLink('https&#58;//buy.stripe.com/abc') && hasBuyLink('https&#x3a;&#x2f;&#x2f;checkout.stripe.com/c') && hasBuyLink('https&colon;//example.com/pay'), 'entity-encoded schemes stay blocked');
+assert(!hasBuyLink('https&#58;//docs.stripe.com/tax/checkout/tax-ids'), 'entity-encoded docs link passes');
+// Site files: no test-mode key values either (mirrors the live-key check). Dummies are built by concatenation.
+var testKeyValue = /\b(?:sk|pk|rk|cs)_test_[A-Za-z0-9]{8,}/;
+assert(testKeyValue.test('sk' + '_test_' + 'abcd1234EFGH') && testKeyValue.test('cs' + '_test_' + 'a1b2c3d4e5') && !testKeyValue.test('sk' + '_test_' + 'x'), 'test-key guard self-check');
 // Whole repo: no real live key or live link value (bare prefixes in key-mode checks are fine).
 var liveValue = /\b(?:sk|pk|rk)_live_[A-Za-z0-9]{8,}|\bcs_live_[A-Za-z0-9]{8,}|buy\.stripe\.com\/[A-Za-z0-9]{6,}/;
 var siteCount = 0;
@@ -53,6 +88,7 @@ all.forEach(function (f) {
     siteCount++;
     assert(!siteLink.test(text), f + ' must not carry a Stripe checkout link, Payment Link, Stripe.js or live key prefix');
     assert(!hasBuyLink(text), f + ' must not carry a buy / checkout / pay link');
+    assert(!testKeyValue.test(text), f + ' must not carry a Stripe test key or test session value');
   }
   assert(!liveValue.test(text), f + ' must not carry a live Stripe key or live link');
 });
@@ -108,19 +144,21 @@ assert(licence.indexOf('see the fixed 12-month prices above') !== -1 && licence.
 // Seller address and tax line are filled; the go-live date placeholder (asserted above) stays until go-live.
 assert(tos.indexOf('<a href="mailto:info@Rathor.ai" class="text-amber-300 underline">info@Rathor.ai</a> · 73 Kingmount Cres, Richmond Hill, ON, Canada L4B 3X4.<br>') !== -1, 'terms 1 seller business address (provided by Sherif, Nov 27, 2026)');
 assert(tos.indexOf('[BUSINESS ADDRESS') === -1, 'address placeholder is gone');
-assert(tos.indexOf('paid once for 12 months. No GST/HST is currently charged, because we are a small supplier under the C$30,000 threshold over four consecutive calendar quarters. If that changes, GST/HST will be added at checkout.</p>') !== -1, 'terms 10 GST/HST small-supplier line');
+assert(tos.indexOf('paid once for 12 months. No GST/HST is charged at checkout at this time. If that changes, GST/HST will be added at checkout.</p>') !== -1, 'terms 10 neutral GST/HST line');
+assert(tos.indexOf('small supplier') === -1 && tos.indexOf('C$30,000') === -1, 'terms carry no small-supplier claim (accountant to confirm)');
 assert(tos.indexOf('[TAX LINE') === -1, 'tax-line placeholder is gone');
 assert(tos.indexOf('make up the whole agreement between us') !== -1, 'terms 19 grammar');
 assert(tos.indexOf('this does not include offering Ra-Thor itself to others as hosting, a SaaS or an API') !== -1, 'terms 4 own-products clause excludes SaaS / hosting / API for others');
 assert(priv.indexOf('that service handles what you send under its own policy') !== -1, 'privacy names optional third-party services');
 // Supporter Pass privacy (v5).
 assert(priv.indexOf('id="supporter-pass"') !== -1, 'privacy.html must carry the Supporter Pass section');
-assert(priv.indexOf('This section applies only if you buy a Ra-Thor Supporter Pass, when it is offered.') !== -1, 'supporter section scoped to buyers');
+assert(priv.indexOf('Supporter Passes are not offered yet. This section applies only once they are, and only if you buy one.') !== -1, 'supporter section: not offered yet, scoped to buyers');
 assert(priv.indexOf('We receive the purchase records Stripe provides: your name, email, country, the amount and the date.') !== -1, 'supporter purchase records listed');
 assert(priv.indexOf('It does not have to be your real name. If you leave it blank, you are not listed. Nothing else about you is shown publicly: no email, country, amount or date.') !== -1, 'supporter display name is optional and the only public detail');
 assert(priv.indexOf('Email info@Rathor.ai at any time to have your name removed. We also remove it within 7 days of a refund or of the end of your pass.') !== -1, 'supporter name removal');
 assert(priv.indexOf('earlier versions in that repository’s history may still show a name after we remove it') !== -1, 'supporter repo-history note');
 assert(priv.indexOf('We do not use Supporter Pass records for marketing, and we do not sell your information.') !== -1, 'supporter no marketing / no selling');
+assert(priv.indexOf('You can ask to see or correct your information, including your Supporter Pass records, by emailing info@Rathor.ai.') !== -1 && priv.indexOf('Email info@Rathor.ai, including about your Supporter Pass records.') !== -1, 'shared access and complaints lines cover Supporter Pass records');
 assert(!/discord/i.test(priv), 'privacy.html does not mention Discord until Sherif confirms a server');
 assert(priv.indexOf('Lattice Chat collect no personal data') === -1, 'privacy must not claim Lattice Chat collects nothing regardless of chosen services');
 console.log('licence-self-serve-lock: nothing live (' + all.length + ' files scanned, ' + siteCount + ' site files), two tiers, no auto-renew, privacy truthful');
