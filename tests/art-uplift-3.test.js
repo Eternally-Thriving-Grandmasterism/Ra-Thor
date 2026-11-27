@@ -64,7 +64,7 @@ OLD.forEach(function (stem) {
 });
 var PINS = {
   "index.html": "8d18a8d576b3f657a834f571888a86e73b6a50916f27fca7b5ffb80b812801d0",
-  "licence.html": "b49ff9469285081efdce618d75ba2eca3192b01733e3be83120db0e08143385e",
+  "licence.html": "0b1e541ff5c237d956c4d7342527190d1472d944a0db7405a484fecf184818d6",
   "third-party-models.html": "653c32d1a932f3478ce7655e1232a530f5518dde10a741fd272dbb0783be4931",
   "js/loop-xfade.js": "751e2c59f83d35d6916169ab6ef24dd0958ea008a96256bb2052c28bdb60b757",
   "js/home-x-reel.js": "1b704ad9d3ec06a7656a9a0c2fd6af3fcd3b39e3df556868901d75ad44b96a4e",

@@ -41,7 +41,7 @@ If you are unsure, email **info@Rathor.ai** with a short description.
 | Tier | Who | Model | Starting posture |
 |------|-----|-------|------------------|
 | **Startup / Small Team** | Companies under a defined headcount / revenue threshold | Annual or one-time | Simple written commercial grant |
-| **Self-serve Small Organisation** | One organisation within the published people, deployment and revenue limits | One-time payment for 12 months, no automatic renewal | Terms of Sale accepted at checkout |
+| **Self-serve Small Organisation** | One organisation within the published user and revenue limits | One-time payment for 12 months, no automatic renewal | Terms of Sale accepted at checkout |
 | **Enterprise** | Larger organizations, production deployments | Custom | Negotiated scope, support, and term |
 | **Pilot → Convert** | Any organization testing fit before full license | Fixed-fee pilot (see `docs/PILOT_OFFER.md`) | Pilot fee credits toward commercial license if converted |
 | **Independent evaluation (Phase A)** | Autonomicity Games Inc. buys a scoped evidence pack from an evaluator | Fixed-fee, we pay | Envelope in `docs/PILOT_EVALUATION_BANDS.md` |

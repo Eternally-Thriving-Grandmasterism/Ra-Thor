@@ -23,6 +23,15 @@ assert(licence.indexOf('aria-disabled="true"') !== -1, 'licence.html checkout co
 assert(tos.indexOf('Online checkout is not open yet.') !== -1, 'terms-of-sale.html must say checkout is not open');
 assert(licence.indexOf('USD $100 for 12 months') !== -1 && licence.indexOf('USD $400 for 12 months') !== -1, 'two tiers, USD, 12 months');
 assert(licence.indexOf('Does not renew automatically.') !== -1, 'no auto-renew line');
+// Council default tier limits (Sherif may veto): $100 = 1 org, up to 5 users, under USD $250,000/yr; $400 = 1 org, up to 25 users, under USD $1,000,000/yr.
+assert(licence.indexOf('up to 5 users, and under USD $250,000 a year') !== -1 && tos.indexOf('up to 5 users, and under USD $250,000 a year') !== -1, '$100 tier limits');
+assert(licence.indexOf('up to 25 users, and under USD $1,000,000 a year') !== -1 && tos.indexOf('up to 25 users, and under USD $1,000,000 a year') !== -1, '$400 tier limits');
+assert(!/up to 10 people|one production deployment/.test(tos + licence), 'old 10-people / 1-deployment limits are gone');
+assert(tos.indexOf('last updated [GO-LIVE MERGE DATE]') !== -1, 'terms date stays a placeholder until go-live');
+assert(tos.indexOf('limited to the fees you paid for this licence') !== -1, 'liability cap = fees paid');
+assert(!/(\+?1[ .-]?)?\(?\d{3}\)?[ .-]\d{3}[ .-]\d{4}/.test(tos + licence + read('contact.html')), 'no phone number until Sherif chooses one');
+assert(licence.indexOf('[SHERIF TO CHOOSE PUBLIC BUSINESS EMAIL/PHONE]') !== -1, 'phone placeholder stays marked');
+[licence, tos].forEach(function (h) { assert(h.indexOf('Autonomicity Games Inc.') !== -1, 'seller is Autonomicity Games Inc.'); });
 assert(tos.indexOf('It does not renew and we will not charge you again.') !== -1, 'terms: no auto-renew');
 assert(!/lawyer[- ]approved|lawyer[- ]reviewed/i.test(tos + licence), 'never claim lawyer approval');
 assert(read('contact.html').indexOf('There is no instant license key and no public checkout.') !== -1, 'contact keeps the no-checkout line');
