@@ -1,5 +1,6 @@
 /* LICENCE-SELF-SERVE-1: self-serve terms and prices are published, but NOTHING is live.
- * - No Stripe checkout / Payment Link / Stripe.js URL in any top-level page, js/ or i18n/ file.
+ * - No Stripe checkout / Payment Link / Stripe.js URL in any site file (.html/.js/.json/.md, nested folders included;
+ *   the server-side workers/ tree is checked for live keys only), and no live key or live link anywhere in the repo.
  * - licence.html and terms-of-sale.html say online checkout is not open; the checkout control is disabled.
  * - contact.html keeps "There is no instant license key and no public checkout." (license-form-lock).
  * - LICENSE §2 keeps the written-and-signed path next to the electronic path.
@@ -10,12 +11,36 @@ var path = require('path');
 var root = path.join(__dirname, '..');
 function assert(c, m) { if (!c) throw new Error(m); }
 function read(rel) { return fs.readFileSync(path.join(root, rel), 'utf8'); }
-var live = /checkout\.stripe\.com|buy\.stripe\.com|js\.stripe\.com|pk_live_|sk_live_|plink_/i;
-var files = fs.readdirSync(root).filter(function (n) { return /\.html$/.test(n); });
-['js', 'i18n'].forEach(function (d) {
-  fs.readdirSync(path.join(root, d)).filter(function (n) { return /\.(js|json)$/.test(n); }).forEach(function (n) { files.push(d + '/' + n); });
+var SKIP = { '.git': 1, node_modules: 1, target: 1, dist: 1, build: 1, out: 1, coverage: 1, tests: 1 };
+function walk(dir, out) {
+  fs.readdirSync(path.join(root, dir), { withFileTypes: true }).forEach(function (e) {
+    if (SKIP[e.name] || e.isSymbolicLink()) return;
+    var rel = dir ? dir + '/' + e.name : e.name;
+    if (e.isDirectory()) return walk(rel, out);
+    if (/\.(html|js|mjs|cjs|ts|json|md|toml|ya?ml)$/.test(e.name) && fs.statSync(path.join(root, rel)).size < 4000000) out.push(rel);
+  });
+}
+var all = [];
+walk('', all);
+assert(all.length > 100, 'nested walk found too few files: ' + all.length);
+// Site surface (everything except the server-side workers/ tree): no checkout, Payment Link or Stripe.js URL at all.
+var siteLink = /checkout\.stripe\.com|buy\.stripe\.com|js\.stripe\.com|\bplink_|\b(?:sk|pk|rk)_live_/i;
+// Site surface: no buy / checkout / pay link from any provider (Stripe or not) until go-live.
+var anyBuyLink = /https?:\/\/[^\s"'<>)]*(?:checkout|\/buy\b|\bbuy\.|\/pay\b|paypal\.|gumroad\.|lemonsqueezy\.|paddle\.(?:com|net)|square\.link)/i;
+// Whole repo: no real live key or live link value (bare prefixes in key-mode checks are fine).
+var liveValue = /\b(?:sk|pk|rk)_live_[A-Za-z0-9]{8,}|\bcs_live_[A-Za-z0-9]{8,}|buy\.stripe\.com\/[A-Za-z0-9]{6,}/;
+var siteCount = 0;
+all.forEach(function (f) {
+  var text = read(f);
+  if (f.indexOf('workers/') !== 0) {
+    siteCount++;
+    assert(!siteLink.test(text), f + ' must not carry a Stripe checkout link, Payment Link, Stripe.js or live key prefix');
+    assert(!anyBuyLink.test(text), f + ' must not carry a buy / checkout / pay link');
+  }
+  assert(!liveValue.test(text), f + ' must not carry a live Stripe key or live link');
 });
-files.forEach(function (f) { assert(!live.test(read(f)), f + ' must not carry a live Stripe checkout link or key'); });
+assert(all.some(function (f) { return /\.md$/.test(f) && f.indexOf('/') !== -1; }), 'nested .md files must be scanned');
+assert(all.some(function (f) { return /^js\/[^/]+\/.+\.js$/.test(f); }), 'js/ subfolders must be scanned');
 var licence = read('licence.html');
 var tos = read('terms-of-sale.html');
 assert(licence.indexOf('Online checkout is not open yet.') !== -1, 'licence.html must say checkout is not open');
@@ -48,9 +73,18 @@ assert(/\[TEST_PAYMENT_LINK_100\]/.test(licence) && /\[TEST_PAYMENT_LINK_400\]/.
 var priv = read('privacy.html');
 assert(priv.indexOf('id="licence-purchases"') !== -1, 'privacy.html must carry Licence purchases');
 assert(priv.indexOf('collects no personal data whatsoever') === -1, 'privacy.html must not keep the unqualified claim');
-assert(priv.indexOf('Browsing this website and using Lattice Chat collect no personal data.') !== -1, 'privacy browsing claim');
+assert(priv.indexOf('The site itself collects no personal data: no sign-in, cookies, analytics or Ra-Thor server. Lattice Chat keeps your sessions in this browser’s localStorage on your device. If you choose an optional third-party service (opening Grok or X, Google Translate, downloading an on-device model, or a model server you configure), that service handles what you send under its own policy.') !== -1, 'privacy browsing claim');
 ['Accountability.', 'What we collect.', 'Why.', 'Consent.', 'Where it is processed.', 'How long we keep it.', 'Safeguards.', 'Access and correction.', 'Questions and complaints.'].forEach(function (h) {
   assert(priv.indexOf('<strong class="text-amber-300">' + h + '</strong>') !== -1, 'privacy Licence purchases must cover PIPEDA point: ' + h);
 });
 assert(priv.indexOf('https://www.priv.gc.ca') !== -1, 'privacy must name the OPC');
-console.log('licence-self-serve-lock: nothing live, two tiers, no auto-renew, privacy truthful');
+assert(priv.indexOf('Nothing is retained off-device.') === -1 && priv.indexOf('features; the rest of the site requires zero data') === -1, 'privacy rights lines must account for licence purchases');
+assert(licence.indexOf('see the fixed 12-month prices above') !== -1 && licence.indexOf('see the fixed 12-month prices below') === -1, 'licence ask text points at the card above');
+// Placeholders that must stay visible until Sherif / the accountant fill them at go-live.
+assert(tos.indexOf('[BUSINESS ADDRESS — SHERIF TO CHOOSE]') !== -1, 'address placeholder stays until go-live');
+assert(tos.indexOf('[TAX LINE — pending accountant;') !== -1, 'tax-line placeholder stays until the accountant answers');
+assert(tos.indexOf('make up the whole agreement between us') !== -1, 'terms 19 grammar');
+assert(tos.indexOf('this does not include offering Ra-Thor itself to others as hosting, a SaaS or an API') !== -1, 'terms 4 own-products clause excludes SaaS / hosting / API for others');
+assert(priv.indexOf('that service handles what you send under its own policy') !== -1, 'privacy names optional third-party services');
+assert(priv.indexOf('Lattice Chat collect no personal data') === -1, 'privacy must not claim Lattice Chat collects nothing regardless of chosen services');
+console.log('licence-self-serve-lock: nothing live (' + all.length + ' files scanned, ' + siteCount + ' site files), two tiers, no auto-renew, privacy truthful');

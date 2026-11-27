@@ -14,11 +14,11 @@ Workspace identity remains **14.15.6**. Lattice Chat surface string may read v14
 
 ## Data Collection
 
-**Browsing this website and using Lattice Chat collect no personal data.** If you buy a Ra-Thor Commercial Licence, see “Licence purchases” below.
+**The site itself collects no personal data: no sign-in, cookies, analytics or Ra-Thor server. Lattice Chat keeps your sessions in this browser’s localStorage on your device. If you choose an optional third-party service (opening Grok or X, Google Translate, downloading an on-device model, or a model server you configure), that service handles what you send under its own policy.** If you buy a Ra-Thor Commercial Licence, see “Licence purchases” below.
 
 - No cookies are used.
 - No tracking technologies or analytics are employed.
-- Browsing requests, stores, and transmits no personal information.
+- The site itself requests, stores, and transmits no personal information.
 - All computations and simulations run locally in your browser.
 - Lattice Chat stores sessions in **localStorage** on the visitor’s device only. Optional passphrase encryption uses Web Crypto (PBKDF2 + AES-GCM) in the browser. Living chat does **not** write IndexedDB. Nothing is uploaded to a Ra-Thor backend — we do not operate one.
 - Optional WebLLM and “Local Server” bridges stay on the visitor’s machine. Connecting a local endpoint (Ollama / LM Studio / OpenAI-compatible) is the visitor’s choice and does not send history to rathor.ai.
@@ -26,7 +26,7 @@ Workspace identity remains **14.15.6**. Lattice Chat surface string may read v14
 
 ## Licence purchases
 
-This section applies only if you buy a Ra-Thor Commercial Licence, by email or (when it opens) at online checkout. Browsing the site is not affected: it still collects no personal data.
+This section applies only if you buy a Ra-Thor Commercial Licence, by email or (when it opens) at online checkout. The site itself still collects no personal data.
 
 - **Accountability.** Autonomicity Games Inc. sells Ra-Thor commercial licences and is accountable for the personal information below. Our privacy contact is reachable at info@Rathor.ai.
 - **What we collect.** Only what we need to sell and manage a licence: your organisation’s name and billing address; your name and email; your tax ID if you give it; the licence tier you chose; your confirmation that you are buying for business purposes and are 18 or older and can bind the organisation; and your acceptance of the Terms of Sale.
@@ -51,10 +51,10 @@ When you use **Sovereign Shard v8** or [Lattice Chat](https://rathor.ai/chat.htm
 Browsing and chat data stay on your device, so there is nothing from browsing to access, correct, or delete on our servers. For licence purchases, see “Licence purchases” below. You retain full sovereignty over any local data:
 
 - **Right of access** — Inspect local chat/session data via Developer Tools → Application → Local Storage for this origin.
-- **Right to erasure** — Clear site data or delete this origin’s localStorage at any time. Nothing is retained off-device.
+- **Right to erasure** — Clear site data or delete this origin’s localStorage at any time. Browsing and chat data are not retained off-device. Licence purchase records are kept as described in “Licence purchases” above.
 - **Right to rectification** — Edit or overwrite local session data in the chat interface or storage.
 - **Right to data portability** — Export sessions as JSON from the chat UI where available.
-- **Right to object** — Simply do not use optional chat features; the rest of the site requires zero data.
+- **Right to object** — Simply do not use optional chat features; browsing the rest of the site requires zero data. Buying a licence requires the information described in “Licence purchases” above.
 
 ## Compliance
 
@@ -66,7 +66,7 @@ Names below are **design-intent references**, not ISO/IEC 42001 certification or
 - **EU AI Act**
 - **Canadian IPC-OHRC Principles** / PIPEDA-aligned minimisation
 
-Browsing this website collects no personal data. Licence purchases are handled as described in “Licence purchases”. That is not a certificate.
+The site itself collects no personal data. Licence purchases are handled as described in “Licence purchases”. That is not a certificate.
 
 ## Third-Party Services
 
