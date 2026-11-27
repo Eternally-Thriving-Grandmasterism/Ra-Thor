@@ -54,8 +54,16 @@ assert(licence.indexOf('up to 25 users, and under USD $1,000,000 a year') !== -1
 assert(!/up to 10 people|one production deployment/.test(tos + licence), 'old 10-people / 1-deployment limits are gone');
 assert(tos.indexOf('last updated [GO-LIVE MERGE DATE]') !== -1, 'terms date stays a placeholder until go-live');
 assert(tos.indexOf('limited to the fees you paid for this licence') !== -1, 'liability cap = fees paid');
-assert(!/(\+?1[ .-]?)?\(?\d{3}\)?[ .-]\d{3}[ .-]\d{4}/.test(tos + licence + read('contact.html')), 'no phone number until Sherif chooses one');
-assert(licence.indexOf('[SHERIF TO CHOOSE PUBLIC BUSINESS EMAIL/PHONE]') !== -1, 'phone placeholder stays marked');
+// Public business phones chosen by Sherif (7:25 PM ET 2026-11-26). Exactly these two; any other phone pattern fails.
+var PHONES = ['US: <a href="tel:+16504447224" class="text-amber-300 underline">+1 650-444-7224</a>', 'Canada: <a href="tel:+14169047332" class="text-amber-300 underline">+1 416-904-7332</a>'];
+var contact = read('contact.html');
+[['licence.html', licence], ['terms-of-sale.html', tos], ['contact.html', contact]].forEach(function (pair) {
+  PHONES.forEach(function (p) { assert(pair[1].indexOf(p) !== -1, pair[0] + ' must carry ' + p); });
+  var rest = pair[1].split(PHONES[0]).join('').split(PHONES[1]).join('');
+  assert(!/(\+?1[ .-]?)?\(?\d{3}\)?[ .-]\d{3}[ .-]\d{4}/.test(rest), pair[0] + ' carries a phone number other than the two approved ones');
+  assert(!/tel:/i.test(rest), pair[0] + ' carries a tel: link other than the two approved ones');
+  assert(rest.indexOf('[SHERIF TO CHOOSE PUBLIC BUSINESS EMAIL/PHONE]') === -1, pair[0] + ' must not keep the phone placeholder');
+});
 [licence, tos].forEach(function (h) { assert(h.indexOf('Autonomicity Games Inc.') !== -1, 'seller is Autonomicity Games Inc.'); });
 assert(tos.indexOf('It does not renew and we will not charge you again.') !== -1, 'terms: no auto-renew');
 assert(!/lawyer[- ]approved|lawyer[- ]reviewed/i.test(tos + licence), 'never claim lawyer approval');
