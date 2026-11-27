@@ -4,6 +4,10 @@
 
 ## info@Rathor.ai
 
+US: +1 650-444-7224 · Canada: +1 416-904-7332
+
+Autonomicity Games Inc., 73 Kingmount Cres, Richmond Hill, ON, Canada L4B 3X4
+
 ### Follow
 
 Same three destinations as the site footer. Visible labels. `rel="me noopener"`.
@@ -20,6 +24,7 @@ Same three destinations as the site footer. Visible labels. `rel="me noopener"`.
 |------|----------|
 | Free use (personal / research / education / Wanderer) | Root [`LICENSE`](LICENSE) — AG-SML v1.2 |
 | **Commercial / enterprise use** | [`COMMERCIAL_LICENSE.md`](COMMERCIAL_LICENSE.md) — AG-SML v1.2 exhibit |
+| **Self-serve Commercial Licence (small organisations)** | [`licence.html`](licence.html) — published tiers; [`terms-of-sale.html`](terms-of-sale.html) — Terms of Sale v1.0 |
 | **Paid pilot (2–6 weeks)** | [`docs/PILOT_OFFER.md`](docs/PILOT_OFFER.md) |
 | **Public pilot / evaluation envelopes** | [`docs/PILOT_EVALUATION_BANDS.md`](docs/PILOT_EVALUATION_BANDS.md) |
 | **Phase A budget-and-scope confirmation** | PHASE_A_BUDGET_AND_SCOPE_CONFIRMATION (moved to a private repository) |
@@ -54,7 +59,7 @@ For commercial, pilot, or co-stewardship inquiries, email **info@Rathor.ai** wit
 - No engineering migration of historical strings — do not mass-replace emails across the tree.
 - All new files, Cargo.toml `authors`, LICENSE blocks, docs, and website footers use **info@Rathor.ai** only.
 - Public grant is AG-SML v1.2. Commercial use requires a paid license; pilots are the preferred evaluation bridge.
-- Pilot and independent-evaluation **envelopes are public**. Annual license dollars stay in a signed schedule.
+- Pilot and independent-evaluation **envelopes are public**. The self-serve Commercial Licence tiers (USD $100 and $400 for 12 months) are published on [`licence.html`](licence.html) and [`terms-of-sale.html`](terms-of-sale.html). Larger or different deals are by quote, in a signed schedule.
 - **Polina-class default:** Phase A first. Fit call is conversation one. Create the Boardy match record before sending her confirmation. Introduction is not live until she accepts that call.
 - Shared stewardship and optional equity must respect Layer 0 (TOLC 8, PATSAGi, AG-SML, independent identity).
 - Public representation: use [`docs/REPRESENTATIVE_BRIEFING_AND_CONVERSATION_PACK.md`](docs/REPRESENTATIVE_BRIEFING_AND_CONVERSATION_PACK.md) — inspectable research software + practical wedge + hard stops. Not a certification. Not xAI-affiliated.
