@@ -2,7 +2,8 @@
  * a new pilot hero and a canon redo of the examples hammer. Council ruling (4), 7:56 PM ET 2026-11-23.
  * - Each changed page uses its new hero (unique identity, files exist, declared size matches).
  * - The replaced heroes and thumbnails are gone from disk and from every non-test file.
- * - Everything this card must not touch stays byte-identical (sha256). */
+ * - Everything this card must not touch stays byte-identical (sha256).
+ * LICENCE-SELF-SERVE-1: index.html (footer privacy line) and licence.html (small-organisation prices, LICENSE §2 quote) re-pinned; hero markup unchanged. */
 var fs = require('fs');
 var path = require('path');
 var crypto = require('crypto');
@@ -62,8 +63,8 @@ OLD.forEach(function (stem) {
   files.forEach(function (f) { assert(!re.test(fs.readFileSync(f, 'utf8')), path.relative(root, f) + ' still names ' + stem); });
 });
 var PINS = {
-  "index.html": "e1f500eb07c75a8fbbe243f6d7cb29a774c9d7808f9d4aff3eea40fec677b4a6",
-  "licence.html": "019c5edd11992021fccb6678e421f75404736193aaf51f33e7df0eab721de74e",
+  "index.html": "8d18a8d576b3f657a834f571888a86e73b6a50916f27fca7b5ffb80b812801d0",
+  "licence.html": "b49ff9469285081efdce618d75ba2eca3192b01733e3be83120db0e08143385e",
   "third-party-models.html": "653c32d1a932f3478ce7655e1232a530f5518dde10a741fd272dbb0783be4931",
   "js/loop-xfade.js": "751e2c59f83d35d6916169ab6ef24dd0958ea008a96256bb2052c28bdb60b757",
   "js/home-x-reel.js": "1b704ad9d3ec06a7656a9a0c2fd6af3fcd3b39e3df556868901d75ad44b96a4e",

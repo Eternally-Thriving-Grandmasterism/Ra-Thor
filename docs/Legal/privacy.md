@@ -14,15 +14,31 @@ Workspace identity remains **14.15.6**. Lattice Chat surface string may read v14
 
 ## Data Collection
 
-**This website collects no personal data whatsoever.**
+**Browsing this website and using Lattice Chat collect no personal data.** If you buy a Ra-Thor Commercial Licence, see “Licence purchases” below.
 
 - No cookies are used.
 - No tracking technologies or analytics are employed.
-- No personal information is requested, stored, or transmitted.
+- Browsing requests, stores, and transmits no personal information.
 - All computations and simulations run locally in your browser.
 - Lattice Chat stores sessions in **localStorage** on the visitor’s device only. Optional passphrase encryption uses Web Crypto (PBKDF2 + AES-GCM) in the browser. Living chat does **not** write IndexedDB. Nothing is uploaded to a Ra-Thor backend — we do not operate one.
 - Optional WebLLM and “Local Server” bridges stay on the visitor’s machine. Connecting a local endpoint (Ollama / LM Studio / OpenAI-compatible) is the visitor’s choice and does not send history to rathor.ai.
 - **Sovereign Shard v8** is a local browser demo. It is not a live Lattice Conductor node.
+
+## Licence purchases
+
+This section applies only if you buy a Ra-Thor Commercial Licence, by email or (when it opens) at online checkout. Browsing the site is not affected: it still collects no personal data.
+
+- **Accountability.** Autonomicity Games Inc. sells Ra-Thor commercial licences and is accountable for the personal information below. Our privacy contact is reachable at info@Rathor.ai.
+- **What we collect.** Only what we need to sell and manage a licence: your organisation’s name and billing address; your name and email; your tax ID if you give it; the licence tier you chose; your confirmation that you are buying for business purposes and are 18 or older and can bind the organisation; and your acceptance of the Terms of Sale.
+- **Why.** To form and manage your licence, send your receipt and a copy of the terms, handle refunds, prevent fraud, and keep tax and accounting records.
+- **Consent.** You consent to these uses by buying. We do not send marketing email without a separate opt-in, and we do not sell your information.
+- **Payments.** When online checkout is open, card payments are processed by Stripe on Stripe’s own pages. Your card details go to Stripe, not to us. Stripe’s privacy policy: https://stripe.com/privacy.
+- **Where it is processed.** Stripe and its service providers may store or process data outside Canada, for example in the United States. Information processed in another country may be accessible to that country’s courts, law enforcement and national security authorities.
+- **How long we keep it.** As long as tax and accounting law requires, then we delete it.
+- **Safeguards.** We protect purchase records with safeguards suited to their sensitivity, and share them only with the service providers named here and our professional advisers.
+- **Access and correction.** You can ask to see or correct your information by emailing info@Rathor.ai.
+- **Questions and complaints.** Email info@Rathor.ai. You can also complain to the Office of the Privacy Commissioner of Canada: https://www.priv.gc.ca.
+- **Age.** Licence purchases are for adults (18+) buying for a business.
 
 ## How Ra-Thor Works
 
@@ -32,7 +48,7 @@ When you use **Sovereign Shard v8** or [Lattice Chat](https://rathor.ai/chat.htm
 
 ## Your Rights
 
-Since no personal data is collected by this website, there is no personal data to access, correct, or delete on our servers. You retain full sovereignty over any local data:
+Browsing and chat data stay on your device, so there is nothing from browsing to access, correct, or delete on our servers. For licence purchases, see “Licence purchases” below. You retain full sovereignty over any local data:
 
 - **Right of access** — Inspect local chat/session data via Developer Tools → Application → Local Storage for this origin.
 - **Right to erasure** — Clear site data or delete this origin’s localStorage at any time. Nothing is retained off-device.
@@ -50,7 +66,7 @@ Names below are **design-intent references**, not ISO/IEC 42001 certification or
 - **EU AI Act**
 - **Canadian IPC-OHRC Principles** / PIPEDA-aligned minimisation
 
-Because this website collects no personal data, many controller obligations are reduced in practice. That is not a certificate.
+Browsing this website collects no personal data. Licence purchases are handled as described in “Licence purchases”. That is not a certificate.
 
 ## Third-Party Services
 

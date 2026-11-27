@@ -6,7 +6,7 @@
 **Public grant:** root `LICENSE` (AG-SML v1.2)  
 **Thesis (not a license):** `rbe-transition-roadmap-v1.1.md`
 
-This is the **single commercial exhibit**. It is not a second public license family. Dollar amounts for **annual / enterprise licenses** belong only in a **signed commercial schedule**, labeled transitional until sunset.
+This is the **single commercial exhibit**. It is not a second public license family. Dollar amounts for **enterprise and custom licenses** belong only in a **signed commercial schedule**, labeled transitional until sunset. **Self-serve licences** for small organisations have fixed published prices under the Ra-Thor Commercial Licence Terms of Sale (https://rathor.ai/terms-of-sale.html).
 
 **Pilot and independent-evaluation envelopes are public** so introducers are not blocked by open pricing. See [`docs/PILOT_EVALUATION_BANDS.md`](docs/PILOT_EVALUATION_BANDS.md).
 
@@ -41,18 +41,20 @@ If you are unsure, email **info@Rathor.ai** with a short description.
 | Tier | Who | Model | Starting posture |
 |------|-----|-------|------------------|
 | **Startup / Small Team** | Companies under a defined headcount / revenue threshold | Annual or one-time | Simple written commercial grant |
+| **Self-serve Small Organisation** | One organisation within the published people, deployment and revenue limits | One-time payment for 12 months, no automatic renewal | Terms of Sale accepted at checkout |
 | **Enterprise** | Larger organizations, production deployments | Custom | Negotiated scope, support, and term |
 | **Pilot → Convert** | Any organization testing fit before full license | Fixed-fee pilot (see `docs/PILOT_OFFER.md`) | Pilot fee credits toward commercial license if converted |
 | **Independent evaluation (Phase A)** | Autonomicity Games Inc. buys a scoped evidence pack from an evaluator | Fixed-fee, we pay | Envelope in `docs/PILOT_EVALUATION_BANDS.md` |
 
 **Public envelopes (pilots / evaluations only):** [`docs/PILOT_EVALUATION_BANDS.md`](docs/PILOT_EVALUATION_BANDS.md).  
-**Annual / enterprise dollars:** still provided on request inside a signed schedule. There is no public annual price list.
+**Self-serve prices:** published in the Terms of Sale on https://rathor.ai.  
+**Enterprise and custom dollars:** still provided on request inside a signed schedule.
 
 ---
 
 ## 4. Transitional consideration (signed schedule only)
 
-Any `$________` fee or `___%` royalty is **not** part of the public LICENSE. Those blanks appear only in a signed commercial schedule between Autonomicity Games Inc. and the licensee.
+Any `$________` fee or `___%` royalty is **not** part of the public LICENSE. Those blanks appear only in a signed commercial schedule between Autonomicity Games Inc. and the licensee. Self-serve prices are set in the published Terms of Sale, not in the public LICENSE.
 
 Until an RBE sunset declaration (Section 8), consideration remains transitional: money is a bridge, not the terminal design. See `rbe-transition-roadmap-v1.1.md`.
 
@@ -60,7 +62,7 @@ Until an RBE sunset declaration (Section 8), consideration remains transitional:
 
 ## 5. What a commercial license grants
 
-Subject to the signed agreement:
+Subject to the signed agreement or, for self-serve licences, the accepted Terms of Sale:
 
 - Right to use the named Work (and specified modules) for the defined commercial purpose
 - Clarity on redistribution, modification, and derivative works within the licensed scope
@@ -76,6 +78,8 @@ A commercial license does **not** remove mercy gates, PATSAGi structure, or AG-S
 1. Email **info@Rathor.ai** with organization name, intended use, approximate scale, and whether you want a **pilot**, an **independent evaluation**, or a **full commercial license** discussion.
 2. We reply with next steps.
 3. Agreement → invoice → activation.
+
+**Self-serve:** small organisations that fit the published limits can use the self-serve path when online checkout is open: read the Terms of Sale → tick to accept → pay → licence starts. Everything else uses the steps above.
 
 **Target response time:** within 1–2 business days for serious inquiries.
 
@@ -97,7 +101,7 @@ Agent-security / prompt-injection evaluators start at [`docs/BOARDY_POLINA_AGENT
 
 - Files under `js/vendor/` and `third-party/`, and every third-party AI model, model weights, tokenizer, configuration and model code file (including Llama, Gemma, Qwen, SmolLM2 and Phi models and MLC model libraries) that Ra-Thor downloads, loads or runs, are **not** part of the Work and are **not** licensed under this exhibit or any commercial grant. They are licensed by their own authors under their own terms (see `THIRD_PARTY_NOTICES.md` and https://rathor.ai/third-party-models.html).
 - No commercial grant licenses, sublicenses, or claims ownership of them or of their outputs, and none gives any warranty or indemnity for them.
-- A commercial licensee that uses them must accept and comply with their terms itself, including the Llama 3.2 Community License Agreement and Acceptable Use Policy and the Gemma Terms of Use and Prohibited Use Policy. Where a deployment under a commercial grant includes Gemma or a Gemma Model Derivative, the signed agreement must include the Gemma Terms of Use §3.2 use restrictions as an enforceable provision and a copy of the Gemma Terms of Use.
+- A commercial licensee that uses them must accept and comply with their terms itself, including the Llama 3.2 Community License Agreement and Acceptable Use Policy and the Gemma Terms of Use and Prohibited Use Policy. Where a deployment under a commercial grant includes Gemma or a Gemma Model Derivative, the signed agreement or accepted Terms of Sale must include the Gemma Terms of Use §3.2 use restrictions as an enforceable provision and a copy of the Gemma Terms of Use.
 - References in this exhibit and in root `LICENSE` §1A to revenue from **outputs** do not include outputs of a third-party model, to the extent that model's licence does not permit such a condition.
 
 ---
@@ -118,7 +122,7 @@ After a valid declaration:
 - Prior signed schedules remain binding until the declaration says otherwise.
 - Mercy gates, marks, and the no-real-world-harm boundary do not sunset.
 
-Until that declaration exists, commercial use remains a written-grant path.
+Until that declaration exists, commercial use remains a paid-grant path (signed schedule or accepted self-serve Terms of Sale). A declaration does not shorten a self-serve term already paid for.
 
 ---
 
