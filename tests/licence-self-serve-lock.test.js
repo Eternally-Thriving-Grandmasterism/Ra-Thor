@@ -5,6 +5,7 @@
  * - contact.html keeps "There is no instant license key and no public checkout." (license-form-lock).
  * - LICENSE §2 keeps the written-and-signed path next to the electronic path.
  * - privacy.html keeps the browsing claim truthful and carries the Licence purchases section.
+ * - Provider documentation / support hosts (docs.stripe.com etc.) may be linked; checkout and buy links may not.
  * Go-live (Sherif's yes, separate PR) is the only change allowed to relax the first two checks. */
 var fs = require('fs');
 var path = require('path');
@@ -27,6 +28,22 @@ assert(all.length > 100, 'nested walk found too few files: ' + all.length);
 var siteLink = /checkout\.stripe\.com|buy\.stripe\.com|js\.stripe\.com|\bplink_|\b(?:sk|pk|rk)_live_/i;
 // Site surface: no buy / checkout / pay link from any provider (Stripe or not) until go-live.
 var anyBuyLink = /https?:\/\/[^\s"'<>)]*(?:checkout|\/buy\b|\bbuy\.|\/pay\b|paypal\.|gumroad\.|lemonsqueezy\.|paddle\.(?:com|net)|square\.link)/i;
+// Provider documentation and support hosts only explain how things work; links to them are not buy links.
+// Exact host match (no subdomain or suffix tricks). checkout.stripe.com / buy.stripe.com are never on this list.
+var DOC_HOSTS = { 'docs.stripe.com': 1, 'support.stripe.com': 1, 'developer.paypal.com': 1, 'developer.paddle.com': 1, 'docs.lemonsqueezy.com': 1, 'help.gumroad.com': 1, 'developer.squareup.com': 1 };
+var urlRe = /https?:\/\/[^\s"'<>)]*/gi;
+function hostOf(u) { var m = /^https?:\/\/([^\/?#:\s]+)/i.exec(u); return m ? m[1].toLowerCase() : ''; }
+function hasBuyLink(text) {
+  return (text.match(urlRe) || []).some(function (u) { return !DOC_HOSTS[hostOf(u)] && anyBuyLink.test(u); });
+}
+// Self-checks for the allowlist.
+assert(!hasBuyLink('see https://docs.stripe.com/tax/checkout/tax-ids'), 'docs.stripe.com is documentation, not a buy link');
+assert(!hasBuyLink('see https://support.stripe.com/questions/checkout-help'), 'support.stripe.com is documentation, not a buy link');
+assert(hasBuyLink('pay at https://buy.stripe.com/test_abc123'), 'buy.stripe.com must stay blocked');
+assert(hasBuyLink('pay at https://checkout.stripe.com/c/pay/cs_test_x'), 'checkout.stripe.com must stay blocked');
+assert(hasBuyLink('https://docs.stripe.com.example.com/checkout'), 'look-alike doc host must stay blocked');
+assert(hasBuyLink('https://docs.stripe.com/x https://example.com/buy'), 'a real buy link next to a doc link must stay blocked');
+assert(hasBuyLink('https://www.paypal.com/checkoutnow?token=x') && hasBuyLink('https://example.gumroad.com/l/x'), 'other providers stay blocked');
 // Whole repo: no real live key or live link value (bare prefixes in key-mode checks are fine).
 var liveValue = /\b(?:sk|pk|rk)_live_[A-Za-z0-9]{8,}|\bcs_live_[A-Za-z0-9]{8,}|buy\.stripe\.com\/[A-Za-z0-9]{6,}/;
 var siteCount = 0;
@@ -35,7 +52,7 @@ all.forEach(function (f) {
   if (f.indexOf('workers/') !== 0) {
     siteCount++;
     assert(!siteLink.test(text), f + ' must not carry a Stripe checkout link, Payment Link, Stripe.js or live key prefix');
-    assert(!anyBuyLink.test(text), f + ' must not carry a buy / checkout / pay link');
+    assert(!hasBuyLink(text), f + ' must not carry a buy / checkout / pay link');
   }
   assert(!liveValue.test(text), f + ' must not carry a live Stripe key or live link');
 });
