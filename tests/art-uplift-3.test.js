@@ -65,8 +65,8 @@ OLD.forEach(function (stem) {
   files.forEach(function (f) { assert(!re.test(fs.readFileSync(f, 'utf8')), path.relative(root, f) + ' still names ' + stem); });
 });
 var PINS = {
-  "index.html": "e14ff2f2bdd78744c04a72b6b521aa9ef988ca79c1d27ed2284bd1f12769ce09",
-  "licence.html": "de81f9805e1ba50ed55faeb83465bc4418ccbc19b82058b14fd7c8650634e0b5",
+  "index.html": "217f1e373455a504a99322b166aeef3db170aadff2a663c5d6c1906fe2faddf5",
+  "licence.html": "ab4d3c4e8c994a16147b62431ffa1d653409988986d8da193471355f03e64189",
   "third-party-models.html": "653c32d1a932f3478ce7655e1232a530f5518dde10a741fd272dbb0783be4931",
   "js/loop-xfade.js": "751e2c59f83d35d6916169ab6ef24dd0958ea008a96256bb2052c28bdb60b757",
   "js/home-x-reel.js": "1b704ad9d3ec06a7656a9a0c2fd6af3fcd3b39e3df556868901d75ad44b96a4e",

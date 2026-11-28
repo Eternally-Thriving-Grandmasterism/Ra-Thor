@@ -42,7 +42,7 @@ This section applies only if you buy a Ra-Thor Commercial Licence, by email or (
 
 ## Supporter Pass
 
-Supporter Passes are not offered yet. This section applies only once they are, and only if you buy one. The site itself still collects no personal data. The Licence purchases points above on accountability, where data is processed, safeguards, access and correction, and questions and complaints apply to Supporter Pass records too.
+Supporter Passes are available to buy. This section applies only if you buy one. The site itself still collects no personal data. The Licence purchases points above on accountability, where data is processed, safeguards, access and correction, and questions and complaints apply to Supporter Pass records too.
 
 - **What we collect.** Stripe processes your payment on Stripe’s own pages, under Stripe’s own privacy policy: https://stripe.com/privacy. Your card details go to Stripe, not to us. We receive the purchase records Stripe provides: your name, email, country, the amount and the date.
 - **Why.** To deliver your pass, handle refunds, and keep tax and accounting records.

@@ -38,8 +38,8 @@ assert(contactHtml.indexOf('Non-revenue personal / education / research use may 
 assert(contactHtml.indexOf('This form is for organization use and other LICENSE §2 cases.') !== -1,
   'visible note must name organization use and LICENSE §2 cases');
 assert(contactHtml.indexOf('A human replies.') !== -1, 'visible note must say a human replies');
-assert(contactHtml.indexOf('There is no instant license key and no public checkout.') !== -1,
-  'visible note must refuse instant key and public checkout');
+assert(contactHtml.indexOf('There is no instant license key. Self-serve checkout is on the licence page.') !== -1,
+  'visible note carries the go-live checkout line');
 assert(contactHtml.indexOf('Opens mail to info@Rathor.ai') !== -1, 'success copy must match Opens mail to info@Rathor.ai');
 assert(contactHtml.indexOf('href="/privacy.html"') !== -1, 'Privacy link must sit with the form');
 assert(contactHtml.indexOf('href="mailto:info@Rathor.ai"') !== -1, 'visible mailto fallback must remain');

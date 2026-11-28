@@ -1,1 +1,2 @@
 *.pdf filter=lfs diff=lfs merge=lfs -text
+terms/supporter-pass-v1.0.pdf -filter -diff -merge binary

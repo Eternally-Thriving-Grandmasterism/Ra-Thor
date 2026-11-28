@@ -100,9 +100,39 @@ var testKeyValue = /\b(?:sk|pk|rk|cs)_test_[A-Za-z0-9]{8,}/;
 assert(testKeyValue.test('sk' + '_test_' + 'abcd1234EFGH') && testKeyValue.test('cs' + '_test_' + 'a1b2c3d4e5') && !testKeyValue.test('sk' + '_test_' + 'x'), 'test-key guard self-check');
 // Whole repo: no real live key or live link value (bare prefixes in key-mode checks are fine).
 var liveValue = /\b(?:sk|pk|rk)_live_[A-Za-z0-9]{8,}|\bcs_live_[A-Za-z0-9]{8,}|buy\.stripe\.com\/[A-Za-z0-9]{6,}/;
+// GOLIVE (written by scripts/golive-swap.js): the ONLY Payment Links on the site, pinned exactly. Anything else buy-like still fails.
+var GOLIVE_LINKS = {
+  "licence.html": {
+    "PAYLINK_100": "https://buy.stripe.com/bJe28qbty6QM7cR3rH8N200",
+    "PAYLINK_400": "https://buy.stripe.com/cNifZg1SY8YUbt73rH8N201"
+  },
+  "index.html": {
+    "PAYLINK_SP_1M": "https://buy.stripe.com/dRm6oG1SYfni68N1jz8N202",
+    "PAYLINK_SP_3M": "https://buy.stripe.com/14AbJ0apu2Aw7cR1jz8N203",
+    "PAYLINK_SP_12M": "https://buy.stripe.com/4gMdR80OU5MI54Jfap8N204"
+  }
+};
+var GOLIVE_HOST = ['buy', 'stripe', 'com'].join('.');
+function goliveHostOk(u) {
+  var p;
+  try { p = new URL(u); } catch (e) { return false; }
+  return p.protocol === 'https:' && p.hostname === GOLIVE_HOST && !p.username && !p.password && !p.port && !p.search && !p.hash &&
+    /^\/[A-Za-z0-9]{6,64}$/.test(p.pathname) && !/test_/i.test(u);
+}
+function goliveStrip(f, text) {
+  var pinned = GOLIVE_LINKS[f];
+  if (!pinned) return text;
+  Object.keys(pinned).forEach(function (id) {
+    assert(goliveHostOk(pinned[id]), id + ' must be an https Payment Link on the Stripe host: plain path, no userinfo, no test marker');
+    var anchor = '<a class="rt-btn-ghost" href="' + pinned[id] + '" rel="noopener" target="_blank" data-golive-link="' + id + '"';
+    assert(text.split(anchor).length === 2, f + ' must carry ' + id + ' exactly once, exactly as pinned');
+    text = text.replace(anchor, '<a class="rt-btn-ghost" data-golive-link="' + id + '"');
+  });
+  return text;
+}
 var siteCount = 0;
 all.forEach(function (f) {
-  var text = read(f);
+  var text = goliveStrip(f, read(f));
   if (f.indexOf('workers/') !== 0) {
     siteCount++;
     assert(!siteLink.test(text), f + ' must not carry a Stripe checkout link, Payment Link, Stripe.js or live key prefix');
@@ -115,16 +145,16 @@ assert(all.some(function (f) { return /\.md$/.test(f) && f.indexOf('/') !== -1; 
 assert(all.some(function (f) { return /^js\/[^/]+\/.+\.js$/.test(f); }), 'js/ subfolders must be scanned');
 var licence = read('licence.html');
 var tos = read('terms-of-sale.html');
-assert(licence.indexOf('Online checkout is not open yet.') !== -1, 'licence.html must say checkout is not open');
-assert(licence.indexOf('aria-disabled="true"') !== -1, 'licence.html checkout control must be disabled');
-assert(tos.indexOf('Online checkout is not open yet.') !== -1, 'terms-of-sale.html must say checkout is not open');
+assert(licence.indexOf('<strong class="text-amber-300">Online checkout is open.</strong> You can buy a self-serve 12-month commercial licence below, at the prices shown. Paid once; it does not renew automatically.') !== -1, 'licence.html carries the go-live checkout line');
+assert((licence.match(/data-golive-link=/g) || []).length === 2 && !/data-checkout-test-link|TEST_PAYMENT_LINK/.test(licence), 'licence.html: exactly the pinned buy links, no placeholder left');
+assert(tos.indexOf('<strong class="text-amber-300">Online checkout is open.</strong> These terms apply when you buy a self-serve 12-month commercial licence on this site.') !== -1, 'terms-of-sale.html carries the go-live checkout line');
 assert(licence.indexOf('USD $100 for 12 months') !== -1 && licence.indexOf('USD $400 for 12 months') !== -1, 'two tiers, USD, 12 months');
 assert(licence.indexOf('Does not renew automatically.') !== -1, 'no auto-renew line');
 // Council default tier limits (Sherif may veto): $100 = 1 org, up to 5 users, under USD $250,000/yr; $400 = 1 org, up to 25 users, under USD $1,000,000/yr.
 assert(licence.indexOf('up to 5 users, and under USD $250,000 a year') !== -1 && tos.indexOf('up to 5 users, and under USD $250,000 a year') !== -1, '$100 tier limits');
 assert(licence.indexOf('up to 25 users, and under USD $1,000,000 a year') !== -1 && tos.indexOf('up to 25 users, and under USD $1,000,000 a year') !== -1, '$400 tier limits');
 assert(!/up to 10 people|one production deployment/.test(tos + licence), 'old 10-people / 1-deployment limits are gone');
-assert(tos.indexOf('last updated [GO-LIVE MERGE DATE]') !== -1, 'terms date stays a placeholder until go-live');
+assert(tos.indexOf('last updated 2026-11-27') !== -1 && tos.indexOf('GO-LIVE MERGE DATE') === -1, 'terms-of-sale date is the go-live date');
 assert(tos.indexOf('limited to the fees you paid for this licence') !== -1, 'liability cap = fees paid');
 // Public business phones chosen by Sherif (7:25 PM ET 2026-11-26). Exactly these two; any other phone pattern fails.
 var PHONES = ['US: <a href="tel:+16504447224" class="text-amber-300 underline">+1 650-444-7224</a>', 'Canada: <a href="tel:+14169047332" class="text-amber-300 underline">+1 416-904-7332</a>'];
@@ -139,7 +169,7 @@ var contact = read('contact.html');
 [licence, tos].forEach(function (h) { assert(h.indexOf('Autonomicity Games Inc.') !== -1, 'seller is Autonomicity Games Inc.'); });
 assert(tos.indexOf('It does not renew and we will not charge you again.') !== -1, 'terms: no auto-renew');
 assert(!/lawyer[- ]approved|lawyer[- ]reviewed/i.test(tos + licence), 'never claim lawyer approval');
-assert(read('contact.html').indexOf('There is no instant license key and no public checkout.') !== -1, 'contact keeps the no-checkout line');
+assert(read('contact.html').indexOf('There is no instant license key. Self-serve checkout is on the licence page.') !== -1, 'contact carries the go-live checkout line');
 var lic = read('LICENSE');
 assert(lic.indexOf('either written and signed (email to info@Rathor.ai)') !== -1, 'LICENSE §2 keeps written-and-signed path');
 assert(lic.indexOf('or formed electronically: acceptance of the Ra-Thor Commercial Licence Terms') !== -1, 'LICENSE §2 electronic path');
@@ -149,7 +179,7 @@ assert(tos.indexOf('correct errors, or decline') !== -1, 'terms: accept / declin
 assert(tos.indexOf('within 15 days') !== -1, 'terms: copy within 15 days (O. Reg. 17/05 s.33)');
 assert(tos.indexOf('buying for business purposes') !== -1, 'terms: business-purpose tick box');
 assert(tos.indexOf('European Union, the United Kingdom, Russia, or sanctioned countries') !== -1, 'terms: EU/UK/Russia/sanctions block');
-assert(/\[TEST_PAYMENT_LINK_100\]/.test(licence) && /\[TEST_PAYMENT_LINK_400\]/.test(licence), 'checkout placeholders stay placeholders until go-live');
+assert(!/TEST_PAYMENT_LINK/.test(licence), 'no checkout placeholder left in licence.html');
 var priv = read('privacy.html');
 assert(priv.indexOf('id="licence-purchases"') !== -1, 'privacy.html must carry Licence purchases');
 assert(priv.indexOf('collects no personal data whatsoever') === -1, 'privacy.html must not keep the unqualified claim');
@@ -171,7 +201,7 @@ assert(tos.indexOf('this does not include offering Ra-Thor itself to others as h
 assert(priv.indexOf('that service handles what you send under its own policy') !== -1, 'privacy names optional third-party services');
 // Supporter Pass privacy (v5).
 assert(priv.indexOf('id="supporter-pass"') !== -1, 'privacy.html must carry the Supporter Pass section');
-assert(priv.indexOf('Supporter Passes are not offered yet. This section applies only once they are, and only if you buy one.') !== -1, 'supporter section: not offered yet, scoped to buyers');
+assert(priv.indexOf('Supporter Passes are available to buy. This section applies only if you buy one.') !== -1, 'supporter section opener (go-live wording)');
 assert(priv.indexOf('We receive the purchase records Stripe provides: your name, email, country, the amount and the date.') !== -1, 'supporter purchase records listed');
 assert(priv.indexOf('It does not have to be your real name. If you leave it blank, you are not listed. Nothing else about you is shown publicly: no email, country, amount or date.') !== -1, 'supporter display name is optional and the only public detail');
 assert(priv.indexOf('Email info@Rathor.ai at any time to have your name removed. We also remove it within 7 days of a refund or of the end of your pass.') !== -1, 'supporter name removal');
@@ -186,36 +216,34 @@ assert(priv.indexOf('Your display name: only while it is listed on the supporter
 var privMd = read('docs/Legal/privacy.md');
 assert(privMd.indexOf('- **Optional Discord username.**') !== -1 && privMd.indexOf('We use it only to give you the role and to remove it within 7 days of a refund or of the end of your pass. It is also kept') !== -1, 'privacy.md mirrors the Discord username bullet');
 assert(privMd.indexOf('Your display name: only while it is listed on the supporters page. A copy also stays with your Stripe purchase record, which we keep only as long as tax and accounting law requires. Your Discord username: in our own working list only until your role is removed;') !== -1, 'privacy.md mirrors the retention bullet');
-assert(priv.indexOf('Supporter Passes are not offered yet. This section applies only once they are') !== -1, 'privacy: not-offered-yet line stays until Sherif goes live');
+assert(priv.indexOf('Supporter Passes are available to buy. This section applies only if you buy one.') !== -1, 'privacy: Supporter Pass section carries the go-live opener');
 
 // SUPPORTER-PASS-1: three one-time passes (USD 5 / 12 / 35), checkout inert, Stripe TEST only, placeholders stay placeholders.
 var home = read('index.html');
 var spMatch = home.match(/<section id="supporter-pass"[\s\S]*?<\/section>/);
 assert(spMatch, 'index.html must carry #supporter-pass');
 var sp = spMatch[0];
-['[TEST_PAYMENT_LINK_SP_1M]', '[TEST_PAYMENT_LINK_SP_3M]', '[TEST_PAYMENT_LINK_SP_12M]'].forEach(function (ph) {
-  assert(sp.indexOf('data-checkout-test-link="' + ph + '"') !== -1, 'supporter pass placeholder ' + ph);
-});
-var spans = sp.match(/<span class="rt-btn-ghost"[^>]*>/g) || [];
-assert(spans.length === 3 && spans.every(function (t) { return /role="link"/.test(t) && /aria-disabled="true"/.test(t) && !/\bhref=/.test(t); }), 'three inert checkout spans, no href');
-assert(!/\bhref="(?!mailto:|tel:|\/supporter-terms\.html|\/privacy\.html|https:\/\/rathor\.ai)/.test(sp), 'supporter section links only to mailto, tel, the terms and privacy pages');
+assert((sp.match(/data-golive-link=/g) || []).length === 3 && !/data-checkout-test-link|TEST_PAYMENT_LINK/.test(sp), 'supporter section: exactly the pinned buy links, no placeholder left');
+assert(!/\bhref="(?!mailto:|tel:|\/supporter-terms\.html|\/privacy\.html|https:\/\/rathor\.ai)/.test(goliveStrip('index.html', sp)), 'supporter section links only to mailto, tel, the terms and privacy pages, plus the pinned buy links');
 assert(sp.indexOf('Supporter Pass: 1 month') !== -1 && sp.indexOf('Supporter Pass: 3 months') !== -1 && sp.indexOf('Supporter Pass: 12 months') !== -1, 'three passes');
 assert(sp.indexOf('US $5, paid once. Does not renew.') !== -1 && sp.indexOf('US $12, paid once. Does not renew.') !== -1 && sp.indexOf('US $35, paid once. Does not renew.') !== -1, 'prices, USD, paid once, does not renew next to each button');
 assert((sp.match(/What it is not: no licence, ownership, product, feature, content, support or say in decisions, now or later\. No cash value\./g) || []).length === 4, 'what-it-is-not line on each card and in the disclosure box');
 assert(sp.indexOf('Starts the day you pay. Does not renew. You will never be charged again.') !== -1 && sp.indexOf('Full refund for any reason within 30 days') !== -1 && sp.indexOf('18+ only. Canada and US residents only.') !== -1, 'disclosure box (03 A)');
-assert(sp.indexOf('Online checkout is not open yet.') !== -1, 'supporter section says checkout is not open');
+assert(sp.indexOf('<strong class="text-amber-300">Online checkout is open.</strong> You can buy a one-time Supporter Pass below.') !== -1, 'supporter section carries the go-live checkout line');
 assert(!/\$\s?(?:50|5\s?(?:USD)?\s?\/\s?month)/.test(sp) && !/\/\s?(?:month|year)\b/.test(sp), 'no recurring price: passes are one-time');
 var sterms = read('supporter-terms.html');
 var supporters = read('supporters.html');
-assert(sterms.indexOf('Version 1.0 · Effective [GO-LIVE MERGE DATE]') !== -1, 'supporter terms date stays a placeholder until go-live');
-assert(sterms.indexOf('[DISCORD INVITE LINK]') !== -1, 'Discord invite stays a placeholder until Sherif provides the link');
-assert(sterms.indexOf('Supporter Passes are not offered yet.') !== -1 && supporters.indexOf('Supporter Passes are not offered yet.') !== -1, 'supporter pages say passes are not offered yet');
+assert(sterms.indexOf('Version 1.0 · Effective 2026-11-27') !== -1 && sterms.indexOf('GO-LIVE MERGE DATE') === -1, 'supporter terms carry the go-live date');
+assert(sterms.indexOf('Join the server with this link: <a href="https://discord.gg/neUQMsTn6A" rel="noopener" target="_blank">https://discord.gg/neUQMsTn6A</a>') !== -1, 'supporter terms carry the confirmed Discord invite');
+assert(sterms.indexOf('<strong class="text-amber-300">Supporter Passes are available to buy.</strong> These terms apply when you buy a one-time Supporter Pass on this site.') !== -1 && supporters.indexOf('No names are listed yet. You can buy a one-time Supporter Pass on the home page.') !== -1, 'supporter pages carry the go-live lines');
 assert(sterms.indexOf('It does not renew. We will never charge you again.') !== -1, 'supporter terms: no renewal');
 assert(sterms.indexOf('For 30 days after you buy, you can get a full refund for any reason.') !== -1, 'supporter terms: 30-day refund');
 assert(sterms.indexOf('live in Canada or the United States') !== -1 && sterms.indexOf('You must be 18 or older') !== -1, 'supporter terms: Canada + US, 18+');
 assert(sterms.indexOf('No GST/HST is charged at checkout at this time. If that changes, GST/HST will be added at checkout.') !== -1, 'supporter terms: neutral GST/HST line');
 assert(sterms.indexOf('The Discord role gives no special channels, perks or powers') !== -1, 'supporter terms: role gives no extras');
-assert(!/discord\.gg|discord\.com\/invite|discordapp\.com\/invite/i.test(sp + sterms + supporters + priv), 'no real Discord invite link in the supporter pages; the invite stays a placeholder');
+var GOLIVE_DISCORD = 'https://discord.gg/neUQMsTn6A';
+(function () { var p = new URL(GOLIVE_DISCORD); assert(p.protocol === 'https:' && !p.username && !p.password && !p.port && !p.search && !p.hash && (p.hostname === 'discord.gg' || (p.hostname === 'discord.com' && /^\/invite\//.test(p.pathname))), 'pinned Discord invite shape'); })();
+assert(((sp + sterms + supporters + priv).match(/https?:\/\/[^\s"'<>]*discord[^\s"'<>]*/gi) || []).every(function (u) { return u === GOLIVE_DISCORD || u === 'https://discord.com/privacy'; }), 'no Discord link in the supporter pages other than the pinned invite (and the Discord privacy policy link)');
 assert(!/\b(?:pk|sk|rk|whsec)_[A-Za-z0-9]|\bacct_[A-Za-z0-9]|\bprice_[A-Za-z0-9]{6,}|\bprod_[A-Za-z0-9]{6,}|\bplink_/.test(sp + sterms + supporters), 'no Stripe key or object id on supporter pages');
 // Banned wording on every supporter page (Legal Mate 04 section 1).
 var banned = /\bdonat|\binvest|\breturns?\b|\bequity\b|\bprofit|priority|early access|coming soon|exclusive|future feature/i;

@@ -65,7 +65,7 @@
 
     <section id="small-organisations" class="rt-card-uniform bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8">
       <h2 class="text-xl font-semibold text-amber-300 mb-4">Small organisations: fixed 12-month prices</h2>
-      <p class="text-white/80 leading-relaxed mb-4"><strong class="text-amber-300">Online checkout is not open yet.</strong> Nothing can be bought on this site today. The prices below are what the self-serve licence will cost when checkout opens.</p>
+      <p class="text-white/80 leading-relaxed mb-4"><strong class="text-amber-300">Online checkout is open.</strong> You can buy a self-serve 12-month commercial licence below, at the prices shown. Paid once; it does not renew automatically.</p>
       <ul class="space-y-3 text-white/80 text-sm sm:text-base mb-4">
         <li>• <strong class="text-amber-200">Commercial Licence — up to 5 users — USD $100 for 12 months.</strong> One organisation, up to 5 users, and under USD $250,000 a year of revenue earned with Ra-Thor.</li>
         <li>• <strong class="text-amber-200">Commercial Licence — up to 25 users — USD $400 for 12 months.</strong> One organisation, up to 25 users, and under USD $1,000,000 a year of revenue earned with Ra-Thor.</li>
@@ -81,16 +81,14 @@
       <p class="text-white/60 text-xs mb-3">Contact: <a href="mailto:info@Rathor.ai" class="text-amber-300 underline">info@Rathor.ai</a><br>US: <a href="tel:+16504447224" class="text-amber-300 underline">+1 650-444-7224</a><br>Canada: <a href="tel:+14169047332" class="text-amber-300 underline">+1 416-904-7332</a></p>
       <div class="rt-cta-row">
         <!-- TEST MODE ONLY until Sherif's explicit go-live OK. Replace the placeholders with Stripe sandbox Payment Links for review builds only; never commit live links or keys. -->
-        <!-- GOLIVE-SWAP PAYLINK_100: the only place this Payment Link goes. Token [TEST_PAYMENT_LINK_100]. Filled by scripts/golive-swap.js at sign-off; never by hand, never a test link. -->
-        <span class="rt-btn-ghost" role="link" aria-disabled="true" data-checkout-test-link="[TEST_PAYMENT_LINK_100]" title="Online checkout is not open yet">Checkout not open yet ($100)</span>
-        <!-- GOLIVE-SWAP PAYLINK_400: the only place this Payment Link goes. Token [TEST_PAYMENT_LINK_400]. Filled by scripts/golive-swap.js at sign-off; never by hand, never a test link. -->
-        <span class="rt-btn-ghost" role="link" aria-disabled="true" data-checkout-test-link="[TEST_PAYMENT_LINK_400]" title="Online checkout is not open yet">Checkout not open yet ($400)</span>
+        <a class="rt-btn-ghost" href="https://buy.stripe.com/bJe28qbty6QM7cR3rH8N200" rel="noopener" target="_blank" data-golive-link="PAYLINK_100">Buy licence, USD $100, no renewal</a>
+        <a class="rt-btn-ghost" href="https://buy.stripe.com/cNifZg1SY8YUbt73rH8N201" rel="noopener" target="_blank" data-golive-link="PAYLINK_400">Buy licence, USD $400, no renewal</a>
       </div>
     </section>
 
     <section class="rt-card-uniform bg-zinc-950 border border-amber-300/20 rounded-3xl p-8 sm:p-10 mb-8">
       <h2 class="text-xl font-semibold text-amber-300 mb-4" data-i18n="licenceAskTitle">How to ask</h2>
-      <p class="text-white/80 leading-relaxed mb-4" data-i18n="licenceAskBody" data-i18n-html>Small organisations: see the fixed 12-month prices above (online checkout is not open yet). Anything bigger or different is quote-only: email <a href="mailto:info@Rathor.ai" class="text-amber-300 underline">info@Rathor.ai</a> with your organization (if any), intended use, and timeline. This site does not publish percentages or royalty schedules.</p>
+      <p class="text-white/80 leading-relaxed mb-4" data-i18n="licenceAskBody" data-i18n-html>Small organisations: see the fixed 12-month prices above (online checkout is open). Anything bigger or different is quote-only: email <a href="mailto:info@Rathor.ai" class="text-amber-300 underline">info@Rathor.ai</a> with your organization (if any), intended use, and timeline. This site does not publish percentages or royalty schedules.</p>
       <p class="text-white/80 leading-relaxed text-sm" data-i18n="licenceAskForm" data-i18n-html>You may also use the <a href="/contact.html#commercial-inquiry" class="text-amber-300 underline">commercial inquiry form</a> on the contact page.</p>
     </section>
 
