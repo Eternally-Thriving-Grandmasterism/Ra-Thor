@@ -159,6 +159,51 @@ assert(priv.indexOf('Email info@Rathor.ai at any time to have your name removed.
 assert(priv.indexOf('earlier versions in that repository’s history may still show a name after we remove it') !== -1, 'supporter repo-history note');
 assert(priv.indexOf('We do not use Supporter Pass records for marketing, and we do not sell your information.') !== -1, 'supporter no marketing / no selling');
 assert(priv.indexOf('You can ask to see or correct your information, including your Supporter Pass records, by emailing info@Rathor.ai.') !== -1 && priv.indexOf('Email info@Rathor.ai, including about your Supporter Pass records.') !== -1, 'shared access and complaints lines cover Supporter Pass records');
-assert(!/discord/i.test(priv), 'privacy.html does not mention Discord until Sherif confirms a server');
+assert(priv.indexOf('We use it only to give you the role and to remove it within 7 days of a refund or of the end of your pass') !== -1, 'privacy names the optional Discord username and its limited use');
+// SUPPORTER-PASS-1: Discord username and Stripe-record retention wording (Legal Mate 03 G); display name carries the Stripe-record clause too.
+assert(priv.indexOf('<strong class="text-amber-300">Optional Discord username.</strong>') !== -1 && priv.indexOf('https://discord.com/privacy') !== -1, 'privacy: Optional Discord username bullet with Discord privacy link');
+assert(priv.indexOf('It is also kept with your Stripe purchase record, which we keep only as long as tax and accounting law requires.') !== -1, 'privacy: Discord username also kept in the Stripe purchase record');
+assert(priv.indexOf('Your display name: only while it is listed; it also stays in the Stripe purchase record for as long as that record is kept. Your Discord username: in our own working list only until your role is removed; it also stays in the Stripe purchase record for as long as that record is kept.') !== -1, 'privacy: retention bullet covers display name and Discord username with the Stripe-record clause');
+var privMd = read('docs/Legal/privacy.md');
+assert(privMd.indexOf('- **Optional Discord username.**') !== -1 && privMd.indexOf('We use it only to give you the role and to remove it within 7 days of a refund or of the end of your pass') !== -1, 'privacy.md mirrors the Discord username bullet');
+assert(privMd.indexOf('Your display name: only while it is listed; it also stays in the Stripe purchase record for as long as that record is kept. Your Discord username: in our own working list only until your role is removed;') !== -1, 'privacy.md mirrors the retention bullet');
+assert(priv.indexOf('Supporter Passes are not offered yet. This section applies only once they are') !== -1, 'privacy: not-offered-yet line stays until Sherif goes live');
+
+// SUPPORTER-PASS-1: three one-time passes (USD 5 / 12 / 35), checkout inert, Stripe TEST only, placeholders stay placeholders.
+var home = read('index.html');
+var spMatch = home.match(/<section id="supporter-pass"[\s\S]*?<\/section>/);
+assert(spMatch, 'index.html must carry #supporter-pass');
+var sp = spMatch[0];
+['[TEST_PAYMENT_LINK_SP_1M]', '[TEST_PAYMENT_LINK_SP_3M]', '[TEST_PAYMENT_LINK_SP_12M]'].forEach(function (ph) {
+  assert(sp.indexOf('data-checkout-test-link="' + ph + '"') !== -1, 'supporter pass placeholder ' + ph);
+});
+var spans = sp.match(/<span class="rt-btn-ghost"[^>]*>/g) || [];
+assert(spans.length === 3 && spans.every(function (t) { return /role="link"/.test(t) && /aria-disabled="true"/.test(t) && !/\bhref=/.test(t); }), 'three inert checkout spans, no href');
+assert(!/\bhref="(?!mailto:|tel:|\/supporter-terms\.html|\/privacy\.html|https:\/\/rathor\.ai)/.test(sp), 'supporter section links only to mailto, tel, the terms and privacy pages');
+assert(sp.indexOf('Supporter Pass: 1 month') !== -1 && sp.indexOf('Supporter Pass: 3 months') !== -1 && sp.indexOf('Supporter Pass: 12 months') !== -1, 'three passes');
+assert(sp.indexOf('US $5, paid once. Does not renew.') !== -1 && sp.indexOf('US $12, paid once. Does not renew.') !== -1 && sp.indexOf('US $35, paid once. Does not renew.') !== -1, 'prices, USD, paid once, does not renew next to each button');
+assert((sp.match(/What it is not: no licence, ownership, product, feature, content, support or say in decisions, now or later\. No cash value\./g) || []).length === 4, 'what-it-is-not line on each card and in the disclosure box');
+assert(sp.indexOf('Starts the day you pay. Does not renew. You will never be charged again.') !== -1 && sp.indexOf('Full refund for any reason within 30 days') !== -1 && sp.indexOf('18+ only. Canada and US residents only.') !== -1, 'disclosure box (03 A)');
+assert(sp.indexOf('Online checkout is not open yet.') !== -1, 'supporter section says checkout is not open');
+assert(!/\$\s?(?:50|5\s?(?:USD)?\s?\/\s?month)/.test(sp) && !/\/\s?(?:month|year)\b/.test(sp), 'no recurring price: passes are one-time');
+var sterms = read('supporter-terms.html');
+var supporters = read('supporters.html');
+assert(sterms.indexOf('Version 1.0 · Effective [GO-LIVE MERGE DATE]') !== -1, 'supporter terms date stays a placeholder until go-live');
+assert(sterms.indexOf('[DISCORD INVITE LINK]') !== -1, 'Discord invite stays a placeholder until Sherif provides the link');
+assert(sterms.indexOf('Supporter Passes are not offered yet.') !== -1 && supporters.indexOf('Supporter Passes are not offered yet.') !== -1, 'supporter pages say passes are not offered yet');
+assert(sterms.indexOf('It does not renew. We will never charge you again.') !== -1, 'supporter terms: no renewal');
+assert(sterms.indexOf('For 30 days after you buy, you can get a full refund for any reason.') !== -1, 'supporter terms: 30-day refund');
+assert(sterms.indexOf('live in Canada or the United States') !== -1 && sterms.indexOf('You must be 18 or older') !== -1, 'supporter terms: Canada + US, 18+');
+assert(sterms.indexOf('No GST/HST is charged at checkout at this time. If that changes, GST/HST will be added at checkout.') !== -1, 'supporter terms: neutral GST/HST line');
+assert(sterms.indexOf('The Discord role gives no special channels, perks or powers') !== -1, 'supporter terms: role gives no extras');
+assert(!/discord\.gg|discord\.com\/invite|discordapp\.com\/invite/i.test(sp + sterms + supporters + priv), 'no real Discord invite link in the supporter pages; the invite stays a placeholder');
+assert(!/\b(?:pk|sk|rk|whsec)_[A-Za-z0-9]|\bacct_[A-Za-z0-9]|\bprice_[A-Za-z0-9]{6,}|\bprod_[A-Za-z0-9]{6,}|\bplink_/.test(sp + sterms + supporters), 'no Stripe key or object id on supporter pages');
+// Banned wording on every supporter page (Legal Mate 04 section 1).
+var banned = /\bdonat|\binvest|\breturns?\b|\bequity\b|\bprofit|priority|early access|coming soon|exclusive|future feature/i;
+[['index.html #supporter-pass', sp], ['supporter-terms.html', sterms], ['supporters.html', supporters]].forEach(function (pair) {
+  assert(!banned.test(pair[1].replace(/<[^>]+>/g, ' ')), pair[0] + ' uses banned wording: ' + (pair[1].replace(/<[^>]+>/g, ' ').match(banned) || [''])[0]);
+});
+var supPrivSec = priv.match(/<section id="supporter-pass"[\s\S]*?<\/section>/)[0].replace(/<[^>]+>/g, ' ');
+assert(!banned.test(supPrivSec), 'privacy Supporter Pass section uses banned wording');
 assert(priv.indexOf('Lattice Chat collect no personal data') === -1, 'privacy must not claim Lattice Chat collects nothing regardless of chosen services');
 console.log('licence-self-serve-lock: nothing live (' + all.length + ' files scanned, ' + siteCount + ' site files), two tiers, no auto-renew, privacy truthful');
