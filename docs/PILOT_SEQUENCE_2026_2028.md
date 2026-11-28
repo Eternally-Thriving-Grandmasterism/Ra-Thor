@@ -28,7 +28,7 @@ Independent of xAI. An optional Grok session is not an xAI product. Workspace id
 
 A named organization can buy time for a **human-replied AG-SML pilot**.
 
-You name the organization, the use, and the stack you already run. You write through the inquiry form or [info@Rathor.ai](mailto:info@Rathor.ai). A human replies. No license key arrives in the email. There is no public checkout.
+You name the organization, the use, and the stack you already run. You write through the inquiry form or [info@Rathor.ai](mailto:info@Rathor.ai). No license key arrives in the email. The pilot itself is human-replied; separately, the commercial licence can be bought self-serve at https://rathor.ai/licence.html.
 
 What that time is for: wrap one model or one internal workflow under the same constitution; inspect the admission shell against representative ingest; keep or refuse. The living grant for personal and research use remains AG-SML v1.2. Organization use and other LICENSE §2 cases are a paid conversation, not a downloadable SKU.
 

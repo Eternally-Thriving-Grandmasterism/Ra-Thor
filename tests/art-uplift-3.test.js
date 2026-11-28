@@ -5,7 +5,9 @@
  * - Everything this card must not touch stays byte-identical (sha256).
  * LICENCE-SELF-SERVE-1: index.html (footer privacy line) and licence.html (small-organisation prices, LICENSE §2 quote) re-pinned; hero markup unchanged.
  * SUPPORTER-PASS-1: index.html re-pinned for the new #supporter-pass section (hero markup unchanged), then again for the AGi Discord server name (v5).
- * GOLIVE-PREP-1: index.html and licence.html re-pinned for the GOLIVE-SWAP marker comments, then again after those TEST-mode comments were removed. */
+ * GOLIVE-PREP-1: index.html and licence.html re-pinned for the GOLIVE-SWAP marker comments, then again after those TEST-mode comments were removed.
+ * POSTLAUNCH-1: index.html re-pinned for two footer Directory links (Supporter Pass, Supporters); hero markup unchanged.
+ * COPY-RENEW-1: index.html and licence.html re-pinned for renewal wording and copy polish, then for the restored "You will never be charged again." line; hero markup unchanged. */
 var fs = require('fs');
 var path = require('path');
 var crypto = require('crypto');
@@ -65,8 +67,8 @@ OLD.forEach(function (stem) {
   files.forEach(function (f) { assert(!re.test(fs.readFileSync(f, 'utf8')), path.relative(root, f) + ' still names ' + stem); });
 });
 var PINS = {
-  "index.html": "72a3ff1b2f842a62fb512b0d9c7228827796c1944b7897177734cf1e1219ce5a",
-  "licence.html": "5c2b689c72d56965198ecd0ae0fb72c9d76474674e0b9eba7807350077f76895",
+  "index.html": "e67f6f06e36e8fb028fb0bffad29437d20a5b355a888bd1401a0e111b6f2e3bb",
+  "licence.html": "f2cedfe820236971f44146f9ec68fecd21687798fc1bd7ccf602b8f25edd63d4",
   "third-party-models.html": "653c32d1a932f3478ce7655e1232a530f5518dde10a741fd272dbb0783be4931",
   "js/loop-xfade.js": "751e2c59f83d35d6916169ab6ef24dd0958ea008a96256bb2052c28bdb60b757",
   "js/home-x-reel.js": "1b704ad9d3ec06a7656a9a0c2fd6af3fcd3b39e3df556868901d75ad44b96a4e",

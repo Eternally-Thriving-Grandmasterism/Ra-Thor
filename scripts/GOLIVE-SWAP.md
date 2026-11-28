@@ -1,6 +1,6 @@
 # Go-live swap (GOLIVE-PREP-1)
 
-Parked prep. Nothing here is live: Stripe stays in test mode, the five buy buttons are inert spans, and no PDF is committed.
+The swap ran on 2026-11-27 (merged ad68cf3c, #62). This file is kept as a record of the procedure; the tokens and old lines below describe the state before the swap.
 At go-live one person runs one script, reviews the diff and pushes. The script never calls Stripe and never invents a value, a label or a line of copy.
 
 ## The 7 values and where each one lives

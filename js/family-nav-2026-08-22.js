@@ -368,6 +368,8 @@
               '<a href="/contact.html"' + fk('navContact') + '>Contact</a>' +
               '<a href="/privacy.html"' + fk('navPrivacy') + '>Privacy</a>' +
               '<a href="/licence.html"' + fk('navLicence') + '>Ra-Thor Commercial Licence</a>' +
+              '<a href="/#supporter-pass">Supporter Pass</a>' +
+              '<a href="/supporters.html">Supporters</a>' +
               '<a href="/third-party-models.html">Third-party models</a>' +
               '<a href="/lineage.html"' + fk('navLineage') + '>Lineage</a>' +
               '<a href="https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor" target="_blank" rel="noopener"' + fk('homeMonorepo') + '>Source on GitHub</a>' +
