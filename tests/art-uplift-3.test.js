@@ -4,7 +4,8 @@
  * - The replaced heroes and thumbnails are gone from disk and from every non-test file.
  * - Everything this card must not touch stays byte-identical (sha256).
  * LICENCE-SELF-SERVE-1: index.html (footer privacy line) and licence.html (small-organisation prices, LICENSE §2 quote) re-pinned; hero markup unchanged.
- * SUPPORTER-PASS-1: index.html re-pinned for the new #supporter-pass section (hero markup unchanged), then again for the AGi Discord server name (v5). */
+ * SUPPORTER-PASS-1: index.html re-pinned for the new #supporter-pass section (hero markup unchanged), then again for the AGi Discord server name (v5).
+ * GOLIVE-PREP-1: index.html and licence.html re-pinned for the GOLIVE-SWAP marker comments (no visible change). */
 var fs = require('fs');
 var path = require('path');
 var crypto = require('crypto');
@@ -64,8 +65,8 @@ OLD.forEach(function (stem) {
   files.forEach(function (f) { assert(!re.test(fs.readFileSync(f, 'utf8')), path.relative(root, f) + ' still names ' + stem); });
 });
 var PINS = {
-  "index.html": "bbac005ad84ca8aa4ea291faad2bb531410eb473294294488b1383907d5a6ff7",
-  "licence.html": "cd8ab9ffa42c22bec6026c95ea779f2ecfe36632fb8ab0f78b0e28cebf650669",
+  "index.html": "e14ff2f2bdd78744c04a72b6b521aa9ef988ca79c1d27ed2284bd1f12769ce09",
+  "licence.html": "de81f9805e1ba50ed55faeb83465bc4418ccbc19b82058b14fd7c8650634e0b5",
   "third-party-models.html": "653c32d1a932f3478ce7655e1232a530f5518dde10a741fd272dbb0783be4931",
   "js/loop-xfade.js": "751e2c59f83d35d6916169ab6ef24dd0958ea008a96256bb2052c28bdb60b757",
   "js/home-x-reel.js": "1b704ad9d3ec06a7656a9a0c2fd6af3fcd3b39e3df556868901d75ad44b96a4e",

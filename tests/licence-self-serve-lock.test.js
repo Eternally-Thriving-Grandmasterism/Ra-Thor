@@ -56,8 +56,21 @@ function urlIsBuy(u, depth) {
   if (DOC_HOSTS[host]) return false;
   return anyBuyLink.test(u) || embeddedBuyHost.test(host);
 }
+// GOLIVE-PREP-1 (Core non-blocking gap, #60 v6): JS-escaped links (https:\/\/host, \u002f, \x2f, \u{2f}) are decoded before scanning,
+// so a buy / checkout link written inside a JS or JSON string is judged like a plain one. Bounded at 3 passes.
+function decodeJsEscapes(s) {
+  for (var i = 0; i < 3; i++) {
+    var d = s.replace(/\\u\{([0-9a-f]{1,6})\}/gi, function (m, h) { var n = parseInt(h, 16); return n <= 0x10ffff ? String.fromCodePoint(n) : m; })
+      .replace(/\\u([0-9a-f]{4})/gi, function (m, h) { return String.fromCharCode(parseInt(h, 16)); })
+      .replace(/\\x([0-9a-f]{2})/gi, function (m, h) { return String.fromCharCode(parseInt(h, 16)); })
+      .replace(/\\\//g, '/');
+    if (d === s) break;
+    s = d;
+  }
+  return s;
+}
 function hasBuyLink(text) {
-  var t = decodeEntities(text).replace(protoRelRe, function (m, pre, rest) { return pre + 'https://' + rest; });
+  var t = decodeJsEscapes(decodeEntities(text)).replace(protoRelRe, function (m, pre, rest) { return pre + 'https://' + rest; });
   return (t.match(urlRe) || []).some(function (u) { return urlIsBuy(u, 0); });
 }
 // Self-checks for the allowlist.
@@ -76,6 +89,12 @@ assert(hasBuyLink('<a href="//buy.stripe.com/abc">') && hasBuyLink("href='//exam
 assert(!hasBuyLink('<a href="//docs.stripe.com/tax/checkout/tax-ids">') && !hasBuyLink('// checkout comment in code'), 'protocol-relative docs link and code comments pass');
 assert(hasBuyLink('https&#58;//buy.stripe.com/abc') && hasBuyLink('https&#x3a;&#x2f;&#x2f;checkout.stripe.com/c') && hasBuyLink('https&colon;//example.com/pay'), 'entity-encoded schemes stay blocked');
 assert(!hasBuyLink('https&#58;//docs.stripe.com/tax/checkout/tax-ids'), 'entity-encoded docs link passes');
+// GOLIVE-PREP-1: JS-escaped links. Built by concatenation so this file itself carries no escaped link.
+var BS = String.fromCharCode(92);
+assert(hasBuyLink('var u = "https:' + BS + '/' + BS + '/example.com/checkout";') && hasBuyLink('"https:' + BS + '/' + BS + '/buy.stripe.com/abc"') && hasBuyLink('{"u":"https:' + BS + '/' + BS + '/www.paypal.com/checkoutnow"}'), 'JS-escaped (backslash-slash) buy links stay blocked');
+assert(hasBuyLink('"https:' + BS + 'u002f' + BS + 'u002fexample.com/pay"') && hasBuyLink('"https:' + BS + 'x2f' + BS + 'x2fexample.com/checkout"') && hasBuyLink('"https' + BS + 'u003a//example.com/checkout"') && hasBuyLink('"https:' + BS + 'u{2f}' + BS + 'u{2f}example.com/pay"'), 'JS unicode / hex-escaped buy links stay blocked');
+assert(hasBuyLink('"https:' + BS + '/' + BS + '/docs.stripe.com:x@example.com/checkout"') && hasBuyLink('"https:' + BS + '/' + BS + '/docs.stripe.com/x?u=https:' + BS + '/' + BS + '/buy.stripe.com/abc"'), 'JS-escaped userinfo and nested buy links stay blocked');
+assert(!hasBuyLink('"https:' + BS + '/' + BS + '/docs.stripe.com/tax/checkout/tax-ids"') && !hasBuyLink('var re = /a' + BS + '/b/; // checkout') && !hasBuyLink('"https:' + BS + '/' + BS + '/example.com/about"'), 'JS-escaped docs link, a regex literal and a plain escaped link pass');
 // Site files: no test-mode key values either (mirrors the live-key check). Dummies are built by concatenation.
 var testKeyValue = /\b(?:sk|pk|rk|cs)_test_[A-Za-z0-9]{8,}/;
 assert(testKeyValue.test('sk' + '_test_' + 'abcd1234EFGH') && testKeyValue.test('cs' + '_test_' + 'a1b2c3d4e5') && !testKeyValue.test('sk' + '_test_' + 'x'), 'test-key guard self-check');

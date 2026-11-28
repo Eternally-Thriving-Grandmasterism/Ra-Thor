@@ -108,8 +108,8 @@ https://github.com/Eternally-Thriving-Grandmasterism/Ra-Thor/new/main/docs/detai
 **Owner:** Autonomicity Games Inc. (proprietary core)  
 **Version:** 1.0 (living document) — March 31, 2026
 
-## 1. Zero Personal Data Collection by Design
-Rathor.ai collects **no personal data whatsoever**. All computations run locally in-browser. No cookies, no tracking, no analytics, no telemetry — ever. GDPR • CCPA • COPPA compliance is automatic because there is literally nothing to process.
+## 1. No Personal Data Collected by the Site
+The site itself collects no personal data: no sign-in, cookies, analytics or Ra-Thor server. All computations run locally in-browser. Where a purchase is offered, payment is handled by Stripe as described in the [privacy policy](https://rathor.ai/privacy.html).
 
 ## 2. Fully Local In-Browser Computation
 Core engine uses WASM + TensorFlow.js + service workers. Every simulation, skyrmion/magnon-phonon robotics model, Thiele/DOPRI5 integration, and RBE accounting runs 100% client-side. Initial load only; subsequent operation is completely offline.

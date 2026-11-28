@@ -1,0 +1,130 @@
+{
+  "_readme": "GOLIVE-PREP-1. Data for scripts/golive-swap.js. swapSpots: the 7 values and where each lives (token + marker comment). labels: visible text of the five buy buttons after the swap. flips: the 'not offered / not open yet' lines. An edit with \"new\": null has NO verbatim go-live wording in Legal Mate's pack: the script refuses --write until Legal Mate or Lead supplies it. Pins use {{new:EDIT_ID}} for the new copy.",
+  "swapSpots": [
+    { "id": "PAYLINK_100",    "kind": "paylink", "token": "[TEST_PAYMENT_LINK_100]",     "file": "licence.html" },
+    { "id": "PAYLINK_400",    "kind": "paylink", "token": "[TEST_PAYMENT_LINK_400]",     "file": "licence.html" },
+    { "id": "PAYLINK_SP_1M",  "kind": "paylink", "token": "[TEST_PAYMENT_LINK_SP_1M]",   "file": "index.html" },
+    { "id": "PAYLINK_SP_3M",  "kind": "paylink", "token": "[TEST_PAYMENT_LINK_SP_3M]",   "file": "index.html" },
+    { "id": "PAYLINK_SP_12M", "kind": "paylink", "token": "[TEST_PAYMENT_LINK_SP_12M]",  "file": "index.html" },
+    { "id": "DISCORD_INVITE", "kind": "discord", "token": "[DISCORD INVITE LINK]",       "file": "supporter-terms.html" },
+    { "id": "GOLIVE_DATE",    "kind": "date",    "token": "[GO-LIVE MERGE DATE]",        "files": ["terms-of-sale.html", "supporter-terms.html"] }
+  ],
+  "privacyDate": {
+    "old": "2026-10-22",
+    "html": "privacy.html",
+    "packKey": "privacyUpdated",
+    "source": "PR #60 body, Open items: 'privacy.html Last Updated: 2026-10-22 (privacyUpdated, 23 packs)' is set in the go-live merge. Date digits only; no translation."
+  },
+  "labels": {
+    "PAYLINK_100": null,
+    "PAYLINK_400": null,
+    "PAYLINK_SP_1M": null,
+    "PAYLINK_SP_3M": null,
+    "PAYLINK_SP_12M": null
+  },
+  "flips": [
+    {
+      "id": "licence-banner",
+      "desc": "licence.html small-organisation card banner",
+      "source": "none: Legal Mate's pack and #60 give no go-live wording",
+      "edits": [
+        { "id": "licence-banner", "file": "licence.html", "old": "<strong class=\"text-amber-300\">Online checkout is not open yet.</strong> Nothing can be bought on this site today. The prices below are what the self-serve licence will cost when checkout opens.", "new": null }
+      ],
+      "pins": [
+        { "file": "tests/licence-self-serve-lock.test.js", "old": "assert(licence.indexOf('Online checkout is not open yet.') !== -1, 'licence.html must say checkout is not open');\n", "new": "assert(licence.indexOf('{{new:licence-banner}}') !== -1, 'licence.html carries the go-live checkout line');\n" }
+      ]
+    },
+    {
+      "id": "licence-ask",
+      "desc": "licence.html 'How to ask' sentence and the licenceAskBody key in the English pack and the 22 other packs (they carry English; hashes re-pinned by the script)",
+      "source": "none",
+      "edits": [
+        { "id": "licence-ask", "file": "licence.html", "old": "(online checkout is not open yet)", "new": null },
+        { "id": "licence-ask-packs", "glob": "i18n/*.js", "old": "(online checkout is not open yet)", "new": null }
+      ],
+      "pins": []
+    },
+    {
+      "id": "tos-banner",
+      "desc": "terms-of-sale.html banner, meta description and og:description",
+      "source": "none",
+      "edits": [
+        { "id": "tos-banner", "file": "terms-of-sale.html", "old": "<strong class=\"text-amber-300\">Online checkout is not open yet.</strong> Nothing can be bought on this site today. These terms are published so you can read them before checkout opens.", "new": null },
+        { "id": "tos-meta", "file": "terms-of-sale.html", "old": " Online checkout is not open yet.\">", "new": null, "count": 2 }
+      ],
+      "pins": [
+        { "file": "tests/licence-self-serve-lock.test.js", "old": "assert(tos.indexOf('Online checkout is not open yet.') !== -1, 'terms-of-sale.html must say checkout is not open');\n", "new": "assert(tos.indexOf('{{new:tos-banner}}') !== -1, 'terms-of-sale.html carries the go-live checkout line');\n" }
+      ]
+    },
+    {
+      "id": "contact-lines",
+      "desc": "contact.html: 'no instant license key and no public checkout' (also the contactInquiryLead pack key) and 'Online checkout is not open yet.'",
+      "source": "none",
+      "edits": [
+        { "id": "contact-nocheckout", "file": "contact.html", "old": "There is no instant license key and no public checkout.", "new": null },
+        { "id": "contact-nocheckout-packs", "glob": "i18n/*.js", "old": "There is no instant license key and no public checkout.", "new": null, "optional": true },
+        { "id": "contact-notopen", "file": "contact.html", "old": " Online checkout is not open yet. Licence questions:", "new": null }
+      ],
+      "pins": [
+        { "file": "tests/licence-self-serve-lock.test.js", "old": "assert(read('contact.html').indexOf('There is no instant license key and no public checkout.') !== -1, 'contact keeps the no-checkout line');\n", "new": "assert(read('contact.html').indexOf('{{new:contact-nocheckout}}') !== -1, 'contact carries the go-live checkout line');\n" },
+        { "file": "tests/license-form-lock.test.js", "old": "assert(contactHtml.indexOf('There is no instant license key and no public checkout.') !== -1,\n  'visible note must refuse instant key and public checkout');\n", "new": "assert(contactHtml.indexOf('{{new:contact-nocheckout}}') !== -1,\n  'visible note carries the go-live checkout line');\n" }
+      ]
+    },
+    {
+      "id": "index-banner",
+      "desc": "index.html #supporter-pass banner",
+      "source": "none",
+      "edits": [
+        { "id": "index-banner", "file": "index.html", "old": "<strong class=\"text-amber-300\">Online checkout is not open yet.</strong> Nothing can be bought on this site today.", "new": null }
+      ],
+      "pins": [
+        { "file": "tests/licence-self-serve-lock.test.js", "old": "assert(sp.indexOf('Online checkout is not open yet.') !== -1, 'supporter section says checkout is not open');\n", "new": "assert(sp.indexOf('{{new:index-banner}}') !== -1, 'supporter section carries the go-live checkout line');\n" }
+      ]
+    },
+    {
+      "id": "supporter-pages",
+      "desc": "supporter-terms.html (banner, meta description, og:description) and supporters.html (meta description, body line)",
+      "source": "none",
+      "edits": [
+        { "id": "sterms-banner", "file": "supporter-terms.html", "old": "<strong class=\"text-amber-300\">Supporter Passes are not offered yet.</strong> Nothing can be bought on this site today. These terms are published so you can read them before checkout opens.", "new": null },
+        { "id": "sterms-meta", "file": "supporter-terms.html", "old": " Supporter Passes are not offered yet.\">", "new": null, "count": 2 },
+        { "id": "supporters-meta", "file": "supporters.html", "old": " Supporter Passes are not offered yet.\">", "new": null },
+        { "id": "supporters-body", "file": "supporters.html", "old": "No names are listed yet. Supporter Passes are not offered yet.", "new": null }
+      ],
+      "pins": [
+        { "file": "tests/licence-self-serve-lock.test.js", "old": "assert(sterms.indexOf('Supporter Passes are not offered yet.') !== -1 && supporters.indexOf('Supporter Passes are not offered yet.') !== -1, 'supporter pages say passes are not offered yet');\n", "new": "assert(sterms.indexOf('{{new:sterms-banner}}') !== -1 && supporters.indexOf('{{new:supporters-body}}') !== -1, 'supporter pages carry the go-live lines');\n" }
+      ]
+    },
+    {
+      "id": "privacy-supporter",
+      "desc": "privacy.html and docs/Legal/privacy.md Supporter Pass section opener (04 section 4 says: update this pin at go-live; no wording given)",
+      "source": "04 section 4 names the step, gives no wording",
+      "edits": [
+        { "id": "privacy-sp-html", "file": "privacy.html", "old": "Supporter Passes are not offered yet. This section applies only once they are, and only if you buy one.", "new": null },
+        { "id": "privacy-sp-md", "file": "docs/Legal/privacy.md", "old": "Supporter Passes are not offered yet. This section applies only once they are, and only if you buy one.", "new": null }
+      ],
+      "pins": [
+        { "file": "tests/licence-self-serve-lock.test.js", "old": "assert(priv.indexOf('Supporter Passes are not offered yet. This section applies only once they are, and only if you buy one.') !== -1, 'supporter section: not offered yet, scoped to buyers');\n", "new": "assert(priv.indexOf('{{new:privacy-sp-html}}') !== -1, 'supporter section opener (go-live wording)');\n" },
+        { "file": "tests/licence-self-serve-lock.test.js", "old": "assert(priv.indexOf('Supporter Passes are not offered yet. This section applies only once they are') !== -1, 'privacy: not-offered-yet line stays until Sherif goes live');\n", "new": "assert(priv.indexOf('{{new:privacy-sp-html}}') !== -1, 'privacy: Supporter Pass section carries the go-live opener');\n" }
+      ]
+    },
+    {
+      "id": "saved-pdf-index",
+      "desc": "index.html disclosure box: the saved-PDF path loses its brackets (the URL itself is verbatim in 04 section 2 and 03 D; needs Sherif's PDF-path OK, 04 section 7)",
+      "source": "03 A (bracketed path) and 03 D / 04 section 2 (unbracketed URL)",
+      "edits": [
+        { "id": "saved-pdf-index", "file": "index.html", "old": "Saved PDF: https://rathor.ai/[terms/supporter-pass-v1.0.pdf]", "new": "Saved PDF: https://rathor.ai/terms/supporter-pass-v1.0.pdf" }
+      ],
+      "pins": []
+    },
+    {
+      "id": "saved-copy-terms",
+      "desc": "supporter-terms.html version line: 'Saved copy: [... proposed path, Wild to confirm]' becomes the confirmed path",
+      "source": "none: the pack only shows the bracketed proposal",
+      "edits": [
+        { "id": "saved-copy-terms", "file": "supporter-terms.html", "old": "Saved copy: [https://rathor.ai/terms/supporter-pass-v1.0.pdf — proposed path, Wild to confirm]", "new": null }
+      ],
+      "pins": []
+    }
+  ]
+}
