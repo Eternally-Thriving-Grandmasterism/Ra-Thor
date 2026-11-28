@@ -1,12 +1,12 @@
-/* LICENCE-SELF-SERVE-1: self-serve terms and prices are published, but NOTHING is live.
- * - No Stripe checkout / Payment Link / Stripe.js URL in any site file (.html/.js/.json/.md, nested folders included;
- *   the server-side workers/ tree is checked for live keys only), and no live key or live link anywhere in the repo.
- * - licence.html and terms-of-sale.html say online checkout is not open; the checkout control is disabled.
+/* LICENCE-SELF-SERVE-1 (updated after GOLIVE-1, 2026-11-27): self-serve checkout is live. Terms, prices and the five pinned Payment Links are published.
+ * - The only Stripe Payment Links allowed in any site file are the five pinned in GOLIVE_LINKS below (.html/.js/.json/.md, nested folders included;
+ *   the server-side workers/ tree is checked for live keys only). Any other checkout / buy / Stripe.js URL, and any live key or live link value, still fails the test.
+ * - licence.html and terms-of-sale.html carry the go-live checkout line; the two licence buy buttons link to the pinned Payment Links.
  * - contact.html keeps "There is no instant license key. Self-serve checkout is on the licence page." (license-form-lock).
  * - LICENSE §2 keeps the written-and-signed path next to the electronic path.
  * - privacy.html keeps the browsing claim truthful and carries the Licence purchases and Supporter Pass sections.
  * - Provider documentation / support hosts (docs.stripe.com etc.) may be linked; checkout and buy links may not.
- * Go-live (Sherif's yes, separate PR) is the only change allowed to relax the first two checks. */
+ * The go-live PR (GOLIVE-1, #62) relaxed the first two checks to the pinned links above; any further relaxation needs a separate PR and Sherif's yes. */
 var fs = require('fs');
 var path = require('path');
 var root = path.join(__dirname, '..');
@@ -253,4 +253,4 @@ var banned = /\bdonat|\binvest|\breturns?\b|\bequity\b|\bprofit|priority|early a
 var supPrivSec = priv.match(/<section id="supporter-pass"[\s\S]*?<\/section>/)[0].replace(/<[^>]+>/g, ' ');
 assert(!banned.test(supPrivSec), 'privacy Supporter Pass section uses banned wording');
 assert(priv.indexOf('Lattice Chat collect no personal data') === -1, 'privacy must not claim Lattice Chat collects nothing regardless of chosen services');
-console.log('licence-self-serve-lock: nothing live (' + all.length + ' files scanned, ' + siteCount + ' site files), two tiers, no auto-renew, privacy truthful');
+console.log('licence-self-serve-lock: checkout live on the five pinned links only (' + all.length + ' files scanned, ' + siteCount + ' site files), two tiers, no auto-renew, privacy truthful');

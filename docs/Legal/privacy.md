@@ -1,6 +1,6 @@
 # Ra-Thor Privacy Policy
 
-**Last Updated:** 2026-09-18
+**Last Updated:** 2026-11-27
 
 Aligned public page: [https://rathor.ai/privacy.html](https://rathor.ai/privacy.html)
 
