@@ -154,7 +154,7 @@ assert(licence.indexOf('Does not renew automatically.') !== -1, 'no auto-renew l
 assert(licence.indexOf('up to 5 users, and under USD $250,000 a year') !== -1 && tos.indexOf('up to 5 users, and under USD $250,000 a year') !== -1, '$100 tier limits');
 assert(licence.indexOf('up to 25 users, and under USD $1,000,000 a year') !== -1 && tos.indexOf('up to 25 users, and under USD $1,000,000 a year') !== -1, '$400 tier limits');
 assert(!/up to 10 people|one production deployment/.test(tos + licence), 'old 10-people / 1-deployment limits are gone');
-assert(tos.indexOf('last updated 2026-11-27') !== -1 && tos.indexOf('GO-LIVE MERGE DATE') === -1, 'terms-of-sale date is the go-live date');
+assert(tos.indexOf('last updated 2026-11-28') !== -1 && tos.indexOf('GO-LIVE MERGE DATE') === -1, 'terms-of-sale date is the current terms date');
 assert(tos.indexOf('limited to the fees you paid for this licence') !== -1, 'liability cap = fees paid');
 // Public business phones chosen by Sherif (7:25 PM ET 2026-11-26). Exactly these two; any other phone pattern fails.
 var PHONES = ['US: <a href="tel:+16504447224" class="text-amber-300 underline">+1 650-444-7224</a>', 'Canada: <a href="tel:+14169047332" class="text-amber-300 underline">+1 416-904-7332</a>'];
@@ -167,7 +167,7 @@ var contact = read('contact.html');
   assert(rest.indexOf('[SHERIF TO CHOOSE PUBLIC BUSINESS EMAIL/PHONE]') === -1, pair[0] + ' must not keep the phone placeholder');
 });
 [licence, tos].forEach(function (h) { assert(h.indexOf('Autonomicity Games Inc.') !== -1, 'seller is Autonomicity Games Inc.'); });
-assert(tos.indexOf('It does not renew and we will not charge you again.') !== -1, 'terms: no auto-renew');
+assert(tos.indexOf('It does not renew automatically, and we will not charge you again.') !== -1 && tos.indexOf('You can renew anytime by buying a new licence.') !== -1, 'terms: no automatic renewal, renewals allowed by buying a new licence');
 assert(!/lawyer[- ]approved|lawyer[- ]reviewed/i.test(tos + licence), 'never claim lawyer approval');
 assert(read('contact.html').indexOf('There is no instant license key. Self-serve checkout is on the licence page.') !== -1, 'contact carries the go-live checkout line');
 var lic = read('LICENSE');
