@@ -95,7 +95,7 @@ A human replies.
 
 There is no instant license key.
 
-There is no public checkout.
+Self-serve checkout is open at https://rathor.ai/licence.html.
 
 ---
 
@@ -123,7 +123,7 @@ Personal and research use when non-revenue = AG-SML v1.2 free.
 
 Organization use and other LICENSE §2 cases = paid pilot / commercial license.
 
-Human reply. No instant license key. No public checkout.
+Human reply. No instant license key. Self-serve checkout is open at https://rathor.ai/licence.html.
 
 CTA: [/contact.html#commercial-inquiry](https://rathor.ai/contact.html#commercial-inquiry) and [mailto:info@Rathor.ai](mailto:info@Rathor.ai).
 

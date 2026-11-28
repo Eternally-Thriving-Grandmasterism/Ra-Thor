@@ -30,7 +30,7 @@ Defaults when unsure:
 Checklist:
 - [ ] Label the offer as a **commercial / business licence**.
 - [ ] At checkout, require a **business name**. Stripe Checkout can collect the name and an optional tax ID: https://docs.stripe.com/tax/checkout/tax-ids
-- [ ] Add a required checkbox: "I am purchasing on behalf of a business, for business purposes, and not as a consumer."
+- [ ] At checkout, require confirmation of buying for business purposes (a required field). Label: "I am buying for business purposes". Single option: "Yes, for business purposes".
 - [ ] Refund or decline orders that are clearly personal.
 
 **UNCONFIRMED** ⚖️: a self-declaration may not be enough. The CPA looks at what the buyer was actually doing (s.1), it bars avoidance (s.3), and consumer rights can't be waived (s.7). **Zero-risk default: also meet the internet-agreement steps in §2,** which cost nothing.
