@@ -58,4 +58,5 @@ var pdf = require('../scripts/build-supporter-terms-pdf.js');
 var body = pdf.extractTermsHtml(read('supporter-terms.html'));
 assert(body.indexOf('1. Who we are.') !== -1 && body.indexOf('12.') !== -1, 'PDF source carries the sections');
 assert(!/not offered yet|DRAFT|<!--|class=/.test(body), 'PDF source drops the notice, comments and site classes');
+assert(body.indexOf('href="https://rathor.ai/privacy.html"') !== -1 && !/href="\//.test(body) && !/href="(?!https?:|mailto:|tel:)/.test(body), 'PDF source uses absolute site links, no relative hrefs');
 console.log('golive-swap-1: ' + (swapped ? 'swapped state' : 'parked state') + ' ok (7 spots, validators, dry run, PDF source)');

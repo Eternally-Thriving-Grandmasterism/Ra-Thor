@@ -2,7 +2,7 @@
  * - No Stripe checkout / Payment Link / Stripe.js URL in any site file (.html/.js/.json/.md, nested folders included;
  *   the server-side workers/ tree is checked for live keys only), and no live key or live link anywhere in the repo.
  * - licence.html and terms-of-sale.html say online checkout is not open; the checkout control is disabled.
- * - contact.html keeps "There is no instant license key and no public checkout." (license-form-lock).
+ * - contact.html keeps "There is no instant license key. Self-serve checkout is on the licence page." (license-form-lock).
  * - LICENSE §2 keeps the written-and-signed path next to the electronic path.
  * - privacy.html keeps the browsing claim truthful and carries the Licence purchases and Supporter Pass sections.
  * - Provider documentation / support hosts (docs.stripe.com etc.) may be linked; checkout and buy links may not.
@@ -177,7 +177,7 @@ assert(tos.indexOf('full refund within 30 days of the payment date') !== -1, 'te
 assert(!/unused days|unused part/i.test(tos + licence), 'no prorated-refund wording');
 assert(tos.indexOf('correct errors, or decline') !== -1, 'terms: accept / decline / correct step (CPA 2002 s.38(2))');
 assert(tos.indexOf('within 15 days') !== -1, 'terms: copy within 15 days (O. Reg. 17/05 s.33)');
-assert(tos.indexOf('buying for business purposes') !== -1, 'terms: business-purpose tick box');
+assert(tos.indexOf('buying for business purposes') !== -1, 'terms: business-purpose confirmation');
 assert(tos.indexOf('European Union, the United Kingdom, Russia, or sanctioned countries') !== -1, 'terms: EU/UK/Russia/sanctions block');
 assert(!/TEST_PAYMENT_LINK/.test(licence), 'no checkout placeholder left in licence.html');
 var priv = read('privacy.html');

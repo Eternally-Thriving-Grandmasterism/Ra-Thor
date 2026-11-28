@@ -3,7 +3,7 @@
 **Summary only.** This document is plain-language guidance on rathor.ai and in the monorepo. It is **not** a licence agreement. The terms of each Ra-Thor Commercial Licence are set in the **Terms of Sale** you accept at checkout, or in a **separate written agreement** with Autonomicity Games Inc.
 
 **Licensor:** Autonomicity Games Inc.  
-**Contact:** [info@Rathor.ai](mailto:info@Rathor.ai) (fixed 12-month prices for small organisations are published on rathor.ai; online checkout is not open yet; everything else by email)
+**Contact:** [info@Rathor.ai](mailto:info@Rathor.ai) (fixed 12-month prices for small organisations are published on rathor.ai; online checkout is open at https://rathor.ai/licence.html; everything else by email)
 
 ---
 
@@ -31,7 +31,7 @@ From the repository `LICENSE` (wording kept as published):
 
 ## How to ask
 
-Email **[info@Rathor.ai](mailto:info@Rathor.ai)** with a short description of your organization (if any), intended use, and timeline. Small organisations: fixed 12-month prices and the Terms of Sale are on [rathor.ai/terms-of-sale.html](https://rathor.ai/terms-of-sale.html). Online checkout is not open yet. Everything bigger or different is quote-only by email. There is no instant licence key.
+Email **[info@Rathor.ai](mailto:info@Rathor.ai)** with a short description of your organization (if any), intended use, and timeline. Small organisations: fixed 12-month prices and the Terms of Sale are on [rathor.ai/terms-of-sale.html](https://rathor.ai/terms-of-sale.html). Online checkout is open at [rathor.ai/licence.html](https://rathor.ai/licence.html). Everything bigger or different is quote-only by email. There is no instant licence key.
 
 You may also use the [commercial inquiry form](https://rathor.ai/contact.html#commercial-inquiry) on the contact page.
 

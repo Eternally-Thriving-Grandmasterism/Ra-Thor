@@ -26,7 +26,7 @@ Workspace identity remains **14.15.6**. Lattice Chat surface string may read v14
 
 ## Licence purchases
 
-This section applies only if you buy a Ra-Thor Commercial Licence, by email or (when it opens) at online checkout. The site itself still collects no personal data.
+This section applies only if you buy a Ra-Thor Commercial Licence, by email or at online checkout. The site itself still collects no personal data.
 
 - **Accountability.** Autonomicity Games Inc. sells Ra-Thor commercial licences and is accountable for the personal information below. Our privacy contact is reachable at info@Rathor.ai.
 - **What we collect.** Only what we need to sell and manage a licence: your organisation’s name and billing address; your name and email; your tax ID if you give it; the licence tier you chose; your confirmation that you are buying for business purposes and are 18 or older and can bind the organisation; and your acceptance of the Terms of Sale.

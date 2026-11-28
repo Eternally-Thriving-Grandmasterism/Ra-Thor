@@ -5,7 +5,8 @@
  *   node scripts/build-supporter-terms-pdf.js --out /tmp/x.pdf --force      # scratch build (no date: fixed 1970-01-01 metadata)
  *
  * What goes in: the terms page's own text, verbatim: heading, version line and sections 1-12. Left out: the page's
- * "not offered yet" notice paragraph, comments, site chrome and the site footer line. Nothing is rewritten.
+ * "not offered yet" notice paragraph, comments, site chrome and the site footer line. Visible text is unchanged;
+ * site-relative hrefs are rewritten to https://rathor.ai/... so the PDF has no file:// links.
  * Deterministic: PDF /CreationDate and /ModDate are fixed from --date (same byte length, so offsets stay valid).
  * The bytes still depend on the Chrome build (its version string is in /Creator) and on the installed serif fonts, so a
  * rebuild on another machine can differ byte-for-byte; the text never does. Build ONCE at go-live, commit, never edit:
@@ -20,6 +21,13 @@ var crypto = require('crypto');
 var root = path.join(__dirname, '..');
 var DEFAULT_OUT = 'terms/supporter-pass-v1.0.pdf';
 
+function absolutiseHref(href) {
+  if (/^(https?:|mailto:|tel:)/i.test(href)) return href;
+  if (href.indexOf('//') === 0) return 'https:' + href;
+  if (href.charAt(0) === '/') return 'https://rathor.ai' + href;
+  return 'https://rathor.ai/' + href;
+}
+
 function extractTermsHtml(page) {
   var m = page.match(/<main[^>]*>([\s\S]*?)<\/main>/);
   if (!m) throw new Error('supporter-terms.html has no <main>');
@@ -30,12 +38,14 @@ function extractTermsHtml(page) {
     // the site footer line under the sections
     .replace(/<p class="text-white\/50 text-sm text-center">[\s\S]*?<\/p>/, '')
     .replace(/\sclass="[^"]*"/g, '')
-    .replace(/\s(?:role|dir|lang|id)="[^"]*"/g, '');
+    .replace(/\s(?:role|dir|lang|id)="[^"]*"/g, '')
+    // site-relative hrefs must be absolute, or Chrome print-to-pdf writes file:// annotations
+    .replace(/href="([^"]*)"/g, function (_, href) { return 'href="' + absolutiseHref(href) + '"'; });
   return body;
 }
 
 function pageHtml(body) {
-  return '<!doctype html><html lang="en"><head><meta charset="utf-8"><title>Ra-Thor Supporter Pass: Terms</title><style>' +
+  return '<!doctype html><html lang="en"><head><meta charset="utf-8"><base href="https://rathor.ai/"><title>Ra-Thor Supporter Pass: Terms</title><style>' +
     '@page { size: Letter; margin: 18mm; }' +
     'body { font: 10.5pt/1.45 "Times New Roman", Times, "Liberation Serif", serif; color: #000; background: #fff; }' +
     'h1 { font-size: 18pt; margin: 0 0 4pt; } h2 { font-size: 11.5pt; margin: 12pt 0 3pt; }' +
