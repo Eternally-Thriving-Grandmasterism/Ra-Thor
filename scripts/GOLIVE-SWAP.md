@@ -49,22 +49,34 @@ Then: `node tests/run-node-tests.js` (only the 5 quarantined suites may fail), r
 
 In `tests/licence-self-serve-lock.test.js`: the five links are listed exactly, per file. Each must parse with `new URL()`, be https on the Stripe Payment Link hostname, have no userinfo, port, query or fragment, a plain alphanumeric path, and no test marker, and appear exactly once as the pinned anchor. Every other buy-like link anywhere still fails the scan, including JS-escaped `https:\/\/` forms (decoded since this PR). The Discord invite is pinned the same way, and the supporter pages may carry no other Discord link than it and Discord's own privacy policy link.
 
-## Copy flips waiting for Legal Mate or Lead
+## Copy flips (from Legal Mate WILD-GOLIVE-COPY-v1.md, pasted verbatim)
 
-None of Legal Mate's pack (01 to 04, WILD-COPY-CHANGES-v5) gives verbatim go-live wording for these. Each has `"new": null` in the config, and `--write` stays refused until it is filled. The old text is the exact line in the config.
+These are already filled in `scripts/golive-swap.config.json`. `--write` now waits only for the 7 live values (5 Payment Links, Discord invite, date). The PDF path `terms/supporter-pass-v1.0.pdf` is confirmed. privacyRight2 / privacyRight5 stay English (no change).
 
-| Edit | Where |
-|---|---|
-| 5 button labels | licence.html (2), index.html (3) |
-| "Online checkout is not open yet." banner | licence.html |
-| "(online checkout is not open yet)" in licenceAskBody | licence.html and 23 packs (English in all) |
-| Banner and two meta descriptions | terms-of-sale.html |
-| "no instant license key and no public checkout" and "Online checkout is not open yet." | contact.html (and the `contactInquiryLead` key in en.js) |
-| #supporter-pass banner | index.html |
-| "Supporter Passes are not offered yet." (banner, 2 meta, supporters.html meta and body line) | supporter-terms.html, supporters.html |
-| Supporter Pass opener (04 section 4 names it, no wording) | privacy.html, docs/Legal/privacy.md |
-| "Saved copy: [... proposed path, Wild to confirm]" | supporter-terms.html |
+### Button labels (`config.labels`)
 
-One flip has verbatim source and is pre-filled: index.html "Saved PDF: https://rathor.ai/[terms/supporter-pass-v1.0.pdf]" loses its brackets (04 section 2 and 03 D give the plain URL). It still needs Sherif's OK of the PDF path (04 section 7).
+| ID | Old | New |
+|---|---|---|
+| PAYLINK_100 | Checkout not open yet ($100) | Buy licence, USD $100, no renewal |
+| PAYLINK_400 | Checkout not open yet ($400) | Buy licence, USD $400, no renewal |
+| PAYLINK_SP_1M | Checkout not open yet (US $5) | Buy 1-month pass, USD $5, no renewal |
+| PAYLINK_SP_3M | Checkout not open yet (US $12) | Buy 3-month pass, USD $12, no renewal |
+| PAYLINK_SP_12M | Checkout not open yet (US $35) | Buy 12-month pass, USD $35, no renewal |
 
-Not touched by the script: `COMMERCIAL_LICENSE.md` line 82 (already conditional), pilot.html (off limits), and two HTML comments (licence.html "TEST MODE", index.html) that are not visible.
+### Flips (old → new)
+
+- **licence-banner** (licence.html): `<strong class="text-amber-300">Online checkout is not open yet.</strong> Nothing can be bought on this site today. The prices below are what the self-serve licence will cost when checkout opens.` → `<strong class="text-amber-300">Online checkout is open.</strong> You can buy a self-serve 12-month commercial licence below, at the prices shown. Paid once; it does not renew automatically.`
+- **licence-ask** / **licence-ask-packs** (licence.html and all 23 packs, English in all): `(online checkout is not open yet)` → `(online checkout is open)`
+- **tos-banner** (terms-of-sale.html): `<strong class="text-amber-300">Online checkout is not open yet.</strong> Nothing can be bought on this site today. These terms are published so you can read them before checkout opens.` → `<strong class="text-amber-300">Online checkout is open.</strong> These terms apply when you buy a self-serve 12-month commercial licence on this site.`
+- **tos-meta** (terms-of-sale.html, twice, keep the trailing `">`): ` Online checkout is not open yet.">` → ` Online checkout is open.">`
+- **contact-nocheckout** / **contact-nocheckout-packs** (contact.html, and the `contactInquiryLead` key in en.js): `There is no instant license key and no public checkout.` → `There is no instant license key. Self-serve checkout is on the licence page.`
+- **contact-notopen** (contact.html): ` Online checkout is not open yet. Licence questions:` → ` Self-serve checkout is on the licence page. Licence questions:`
+- **index-banner** (index.html `#supporter-pass`): `<strong class="text-amber-300">Online checkout is not open yet.</strong> Nothing can be bought on this site today.` → `<strong class="text-amber-300">Online checkout is open.</strong> You can buy a one-time Supporter Pass below.`
+- **sterms-banner** (supporter-terms.html): `<strong class="text-amber-300">Supporter Passes are not offered yet.</strong> Nothing can be bought on this site today. These terms are published so you can read them before checkout opens.` → `<strong class="text-amber-300">Supporter Passes are available to buy.</strong> These terms apply when you buy a one-time Supporter Pass on this site.`
+- **sterms-meta** (supporter-terms.html, twice) and **supporters-meta** (supporters.html, once): ` Supporter Passes are not offered yet.">` → ` Supporter Passes are available to buy.">`
+- **supporters-body** (supporters.html): `No names are listed yet. Supporter Passes are not offered yet.` → `No names are listed yet. You can buy a one-time Supporter Pass on the home page.`
+- **privacy-sp-html** / **privacy-sp-md** (privacy.html and docs/Legal/privacy.md): `Supporter Passes are not offered yet. This section applies only once they are, and only if you buy one.` → `Supporter Passes are available to buy. This section applies only if you buy one.`
+- **saved-copy-terms** (supporter-terms.html): `Saved copy: [https://rathor.ai/terms/supporter-pass-v1.0.pdf — proposed path, Wild to confirm]` → `Saved copy: https://rathor.ai/terms/supporter-pass-v1.0.pdf`
+- **saved-pdf-index** (index.html, already pre-filled): `Saved PDF: https://rathor.ai/[terms/supporter-pass-v1.0.pdf]` → `Saved PDF: https://rathor.ai/terms/supporter-pass-v1.0.pdf`
+
+Not touched by the script: `COMMERCIAL_LICENSE.md` line 82 (already conditional), pilot.html (off limits), two HTML comments (licence.html "TEST MODE", index.html) that are not visible, and privacyRight2 / privacyRight5 (stay English).
